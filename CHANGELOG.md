@@ -7,11 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0] - 2024-01-01
+## [0.1.0] - 2024-01-01
 
 ### Added
 
-- Initial release
+- Initial migration release (UNSTABLE)
+- First step in migration from legacy audio metadata project
 - Support for ID3v1, ID3v2, Vorbis, and RIFF formats
 - Comprehensive metadata field support (50+ fields)
 - Full read/write operations for most formats
@@ -40,6 +41,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - mutagen >= 1.45.0
 - ffprobe (for WAV file processing)
 - flac (for FLAC MD5 validation)
+
+### Migration Notes
+
+- This is an unstable pre-release version
+- API may change significantly in future releases
+- Not recommended for production use until stable release
+- Migrated from legacy audio metadata project with improved architecture
 
 
 
