@@ -1,0 +1,45 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [1.0.0] - 2024-01-01
+
+### Added
+
+- Initial release
+- Support for ID3v1, ID3v2, Vorbis, and RIFF formats
+- Comprehensive metadata field support (50+ fields)
+- Full read/write operations for most formats
+- Rating support across different formats
+- Type hints and comprehensive error handling
+- Technical information access (bitrate, duration, sample rate, channels)
+- FLAC MD5 validation support
+- Support for cover art and lyrics
+- MusicBrainz ID support
+- ReplayGain information
+- Multiple metadata field categories:
+  - Basic information (title, artist, album, genre, rating)
+  - Technical information (release date, track number, BPM, language)
+  - Additional metadata (composer, publisher, copyright, lyrics, etc.)
+
+### Supported Formats
+
+- **ID3v1**: Read/Write (limited to 30 chars per field, no rating support)
+- **ID3v2**: Read/Write with full feature support including ratings
+- **Vorbis**: Read/Write for OGG/FLAC files with rating support
+- **RIFF**: Read/Write for WAV files (no rating support)
+
+### Requirements
+
+- Python 3.8+
+- mutagen >= 1.45.0
+- ffprobe (for WAV file processing)
+- flac (for FLAC MD5 validation)
+
+
+
