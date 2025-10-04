@@ -2,7 +2,7 @@
 from typing import cast
 from mutagen._file import FileType as MutagenMetadata
 
-from ....AudioFile import AudioFile
+from ...audio_file import AudioFile
 from ...exceptions import FileCorruptedError, MetadataNotSupportedError
 from ...utils.AppMetadataKey import AppMetadataKey
 from ...utils.types import AppMetadataValue, RawMetadataDict
