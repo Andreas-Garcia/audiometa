@@ -1,8 +1,7 @@
 from abc import abstractmethod
 
-from django.core.exceptions import ImproperlyConfigured
-
-from ....AudioFile import AudioFile
+from ...audio_file import AudioFile
+from ...exceptions import ConfigurationError
 from ...utils.AppMetadataKey import AppMetadataKey
 from ...utils.rating_profiles import RatingReadProfile, RatingWriteProfile
 from ...utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
@@ -68,7 +67,7 @@ class RatingSupportingMetadataManager(MetadataManager):
 
     def _convert_normalized_rating_to_file_rating(self, normalized_rating: int) -> int | None:
         if not self.normalized_rating_max_value:
-            raise ImproperlyConfigured("normalized_rating_max_value must be set.")
+            raise ConfigurationError("normalized_rating_max_value must be set.")
 
         star_rating_base_10 = (int)((normalized_rating * 10)/self.normalized_rating_max_value)
         return self.rating_write_profile[star_rating_base_10]
@@ -80,7 +79,7 @@ class RatingSupportingMetadataManager(MetadataManager):
                 del app_metadata[AppMetadataKey.RATING]
             else:
                 if self.normalized_rating_max_value is None:
-                    raise ImproperlyConfigured(
+                    raise ConfigurationError(
                         "If updating the rating, the max value of the normalized rating must be set.")
 
                 try:
