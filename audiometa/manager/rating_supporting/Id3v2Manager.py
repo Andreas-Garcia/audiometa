@@ -158,7 +158,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
     Thus when reading/updating an existing file, the ID3 tags will be updated to v2.3 format.
     """
 
-    ID3_RATING_APP_EMAIL = settings.APP_NAME
+    ID3_RATING_APP_EMAIL = "audiometa-python@audiometa.dev"
 
     class Id3TextFrame(RawMetadataKey):
         TITLE = 'TIT2'
