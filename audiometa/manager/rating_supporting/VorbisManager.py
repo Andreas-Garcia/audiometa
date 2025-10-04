@@ -1,13 +1,11 @@
 
 from typing import TypeVar, cast
 
-from django.core.exceptions import ImproperlyConfigured
 from mutagen._file import FileType as MutagenMetadata
 from mutagen.flac import FLAC, VCFLACDict
 
-
-from ....AudioFile import AudioFile
-from ...exceptions import FileCorruptedError, InvalidChunkDecodeError
+from ...audio_file import AudioFile
+from ...exceptions import ConfigurationError, FileCorruptedError, InvalidChunkDecodeError
 from ...utils.rating_profiles import RatingWriteProfile
 from ...utils.types import AppMetadataValue, RawMetadataDict, RawMetadataKey
 from ..MetadataManager import AppMetadataKey
@@ -149,4 +147,4 @@ class VorbisManager(RatingSupportingMetadataManager):
                                                                  raw_metadata_key=self.VorbisKey.RATING,
                                                                  app_metadata_value=app_metadata_value)
         else:
-            raise ImproperlyConfigured('Metadata key not handled')
+            raise ConfigurationError('Metadata key not handled')

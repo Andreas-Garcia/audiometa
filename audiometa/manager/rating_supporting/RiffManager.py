@@ -5,10 +5,8 @@ from typing import cast
 from mutagen._file import FileType as MutagenMetadata
 from mutagen.wave import WAVE
 
-from django.core.exceptions import ImproperlyConfigured
-
-from ....AudioFile import AudioFile
-from ...exceptions import MetadataNotSupportedError
+from ...audio_file import AudioFile
+from ...exceptions import ConfigurationError, MetadataNotSupportedError
 from ...utils.id3v1_genre_code_map import ID3V1_GENRE_CODE_MAP
 from ...utils.rating_profiles import RatingWriteProfile
 from ...utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
@@ -254,7 +252,7 @@ class RiffManager(RatingSupportingMetadataManager):
         Therefore, we implement our own RIFF chunk writer following the specification.
         """
         if not self.metadata_keys_direct_map_write:
-            raise ImproperlyConfigured('metadata_keys_direct_map_write must be set')
+            raise ConfigurationError('metadata_keys_direct_map_write must be set')
 
         # Read the entire file into a mutable bytearray
         self.audio_file.seek(0)
