@@ -4,7 +4,7 @@ import pytest
 from pathlib import Path
 
 from audiometa import AudioFile
-from audiometa.exceptions import FileTypeNotSupportedError, FileNotFoundError
+from audiometa.exceptions import FileTypeNotSupportedError
 
 
 class TestAudioFile:
