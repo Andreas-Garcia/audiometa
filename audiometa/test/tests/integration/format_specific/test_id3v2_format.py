@@ -10,7 +10,7 @@ from audiometa import (
     AudioFile
 )
 import shutil
-from audiometa.utils.TagFormat import MetadataSingleFormat
+from audiometa.utils.MetadataSingleFormat import MetadataSingleFormat
 from audiometa.utils.AppMetadataKey import AppMetadataKey
 
 

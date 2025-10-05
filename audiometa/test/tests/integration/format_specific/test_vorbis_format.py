@@ -9,8 +9,9 @@ from audiometa import (
     AudioFile
 )
 import shutil
-from audiometa.utils.TagFormat import MetadataSingleFormat
+from audiometa.utils.MetadataSingleFormat import MetadataSingleFormat
 from audiometa.utils.AppMetadataKey import AppMetadataKey
+from audiometa.exceptions import FileTypeNotSupportedError
 
 
 @pytest.mark.integration
@@ -75,3 +76,18 @@ class TestVorbisFormat:
         assert metadata.get(AppMetadataKey.ALBUM_NAME) == "Test Album FLAC"
         assert metadata.get(AppMetadataKey.GENRE) == "Test Genre FLAC"
         assert metadata.get(AppMetadataKey.RATING) == 7
+
+    def test_flac_md5_validation(self, sample_flac_file):
+        """Test FLAC MD5 validation."""
+        audio_file = AudioFile(sample_flac_file)
+        
+        # This should not raise an exception
+        is_valid = audio_file.is_flac_file_md5_valid()
+        assert isinstance(is_valid, bool)
+
+    def test_flac_md5_validation_non_flac(self, sample_mp3_file):
+        """Test FLAC MD5 validation on non-FLAC file raises error."""
+        audio_file = AudioFile(sample_mp3_file)
+        
+        with pytest.raises(FileTypeNotSupportedError):
+            audio_file.is_flac_file_md5_valid()

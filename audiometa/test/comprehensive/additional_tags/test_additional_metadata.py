@@ -12,7 +12,7 @@ from audiometa import (
     AudioFile
 )
 from audiometa.utils.AppMetadataKey import AppMetadataKey
-from audiometa.utils.TagFormat import MetadataSingleFormat
+from audiometa.utils.MetadataSingleFormat import MetadataSingleFormat
 
 
 @pytest.mark.comprehensive

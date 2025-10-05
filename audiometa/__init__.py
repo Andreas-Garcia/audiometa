@@ -12,7 +12,7 @@ from mutagen.id3 import ID3
 from .audio_file import AudioFile
 from .exceptions import FileTypeNotSupportedError
 from .utils.types import AppMetadata, AppMetadataValue
-from .utils.TagFormat import MetadataSingleFormat
+from .utils.MetadataSingleFormat import MetadataSingleFormat
 from .utils.AppMetadataKey import AppMetadataKey
 from .manager.id3v1.Id3v1Manager import Id3v1Manager
 from .manager.MetadataManager import MetadataManager
