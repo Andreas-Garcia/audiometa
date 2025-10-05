@@ -80,12 +80,12 @@ class TestId3v2Format:
             UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist MP3"],
             UnifiedMetadataKey.ALBUM_NAME: "Test Album MP3",
             UnifiedMetadataKey.GENRE_NAME: "Test Genre MP3",
-            UnifiedMetadataKey.RATING: 8
+            UnifiedMetadataKey.RATING: 10
         }
-        update_file_metadata(temp_audio_file, test_metadata, normalized_rating_max_value=255)
-        metadata = get_merged_unified_metadata(temp_audio_file, normalized_rating_max_value=255)
+        update_file_metadata(temp_audio_file, test_metadata, normalized_rating_max_value=100)
+        metadata = get_merged_unified_metadata(temp_audio_file, normalized_rating_max_value=10)
         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title MP3"
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist MP3"]
         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album MP3"
         assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Test Genre MP3"
-        assert metadata.get(UnifiedMetadataKey.RATING) == 8
+        assert metadata.get(UnifiedMetadataKey.RATING) == 1
