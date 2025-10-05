@@ -115,7 +115,20 @@ def get_merged_unified_metadata(
 def get_specific_metadata(file: FILE_TYPE, app_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
-    return _get_metadata_manager(file).get_app_specific_metadata(app_metadata_key=app_metadata_key)
+
+    managers_prioritized = _get_metadata_managers(file=file)
+    
+    # Try each manager in priority order until we find a value
+    for _, manager in managers_prioritized.items():
+        try:
+            value = manager.get_app_specific_metadata(app_metadata_key=app_metadata_key)
+            if value is not None:
+                return value
+        except Exception:
+            # If this manager doesn't support the key or fails, try the next one
+            continue
+    
+    return None
 
 
 def update_file_metadata(
