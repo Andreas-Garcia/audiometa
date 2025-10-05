@@ -8,6 +8,36 @@ from typing import Generator
 import pytest
 
 
+def pytest_collection_modifyitems(items):
+    """Reorder test items to ensure proper execution order: unit → integration → e2e."""
+    # Define the desired test execution order based on directory structure
+    TEST_ORDER = {
+        "unit": 1,
+        "integration": 2, 
+        "e2e": 3
+    }
+    
+    def get_test_priority(item):
+        """Get the priority order for a test item based on its path."""
+        test_path = str(item.fspath)
+        
+        # Check for unit tests
+        if "/unit/" in test_path:
+            return TEST_ORDER["unit"]
+        # Check for integration tests  
+        elif "/integration/" in test_path:
+            return TEST_ORDER["integration"]
+        # Check for e2e tests
+        elif "/e2e/" in test_path:
+            return TEST_ORDER["e2e"]
+        # Default priority for other tests (comprehensive, etc.)
+        else:
+            return 0  # Run first (before unit tests)
+    
+    # Sort items by priority
+    items.sort(key=get_test_priority)
+
+
 @pytest.fixture
 def test_files_dir() -> Path:
     """Return the path to the test audio files directory."""
