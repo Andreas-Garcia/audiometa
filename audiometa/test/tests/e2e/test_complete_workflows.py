@@ -13,6 +13,7 @@ from pathlib import Path
 from audiometa import (
     AudioFile,
     get_merged_app_metadata,
+    get_specific_metadata,
     update_file_metadata,
     delete_metadata,
     get_bitrate,
@@ -25,7 +26,7 @@ from audiometa.utils.AppMetadataKey import AppMetadataKey
 class TestCompleteWorkflows:
     """Test complete user workflows from start to finish."""
     
-    def test_complete_metadata_editing_workflow(self, sample_mp3_file):
+    def test_complete_metadata_editing_workflow(self, sample_mp3_file, temp_audio_file):
         """Test a complete metadata editing workflow."""
         # This is an e2e test - it tests the entire user journey
         # 1. Load a file
@@ -34,42 +35,52 @@ class TestCompleteWorkflows:
         # 4. Save changes
         # 5. Verify persistence
         
-        # Load file
-        audio_file = AudioFile(sample_mp3_file)
+        # Copy sample file to temp location to avoid modifying versioned files
+        shutil.copy2(sample_mp3_file, temp_audio_file)
         
         # Read existing metadata
-        original_title = audio_file.get_title()
-        original_artist = audio_file.get_artist()
+        original_metadata = get_merged_app_metadata(temp_audio_file)
+        original_title = get_specific_metadata(temp_audio_file, AppMetadataKey.TITLE)
+        original_artist = get_specific_metadata(temp_audio_file, AppMetadataKey.ARTISTS_NAMES)
         
         # Edit metadata
-        audio_file.set_title("New Title")
-        audio_file.set_artist("New Artist")
-        audio_file.set_album("New Album")
-        audio_file.set_genre("Rock")
-        audio_file.set_year(2024)
+        test_metadata = {
+            AppMetadataKey.TITLE: "New Title",
+            AppMetadataKey.ARTISTS_NAMES: ["New Artist"],
+            AppMetadataKey.ALBUM_NAME: "New Album",
+            AppMetadataKey.GENRE_NAME: "Rock",
+            AppMetadataKey.COMMENT: "Test comment"
+        }
         
         # Save changes
-        audio_file.save()
+        update_file_metadata(temp_audio_file, test_metadata)
         
         # Verify persistence by reloading
-        audio_file_reloaded = AudioFile(sample_mp3_file)
-        assert audio_file_reloaded.get_title() == "New Title"
-        assert audio_file_reloaded.get_artist() == "New Artist"
-        assert audio_file_reloaded.get_album() == "New Album"
-        assert audio_file_reloaded.get_genre() == "Rock"
-        assert audio_file_reloaded.get_year() == 2024
+        updated_metadata = get_merged_app_metadata(temp_audio_file)
+        assert get_specific_metadata(temp_audio_file, AppMetadataKey.TITLE) == "New Title"
+        assert get_specific_metadata(temp_audio_file, AppMetadataKey.ARTISTS_NAMES) == ["New Artist"]
+        assert get_specific_metadata(temp_audio_file, AppMetadataKey.ALBUM_NAME) == "New Album"
+        assert get_specific_metadata(temp_audio_file, AppMetadataKey.GENRE_NAME) == "Rock"
+        assert get_specific_metadata(temp_audio_file, AppMetadataKey.COMMENT) == "Test comment"
     
-    def test_batch_metadata_processing(self, sample_files):
+    def test_batch_metadata_processing(self, sample_mp3_file, sample_flac_file, sample_wav_file, temp_audio_file):
         """Test batch processing of multiple files."""
         # E2E test for batch operations
         results = []
         
+        sample_files = [sample_mp3_file, sample_flac_file, sample_wav_file]
         for file_path in sample_files:
             try:
-                audio_file = AudioFile(file_path)
-                audio_file.set_album("Batch Album")
-                audio_file.set_year(2024)
-                audio_file.save()
+                # Copy to temp location to avoid modifying versioned files
+                temp_file = temp_audio_file.with_suffix(file_path.suffix)
+                shutil.copy2(file_path, temp_file)
+                
+                # Update metadata using functional API
+                test_metadata = {
+                    AppMetadataKey.ALBUM_NAME: "Batch Album",
+                    AppMetadataKey.COMMENT: "Batch processing test"
+                }
+                update_file_metadata(temp_file, test_metadata)
                 results.append(("success", file_path))
             except Exception as e:
                 results.append(("error", file_path, str(e)))
@@ -79,25 +90,25 @@ class TestCompleteWorkflows:
         success_count = sum(1 for result in results if result[0] == "success")
         assert success_count > 0
     
-    def test_error_recovery_workflow(self, sample_mp3_file):
+    def test_error_recovery_workflow(self, sample_mp3_file, temp_audio_file):
         """Test error handling and recovery in real scenarios."""
         # E2E test for error scenarios
-        audio_file = AudioFile(sample_mp3_file)
+        # Copy to temp location to avoid modifying versioned files
+        shutil.copy2(sample_mp3_file, temp_audio_file)
         
         # Test invalid operations
         with pytest.raises(ValueError):
-            audio_file.set_year(-1)  # Invalid year
+            update_file_metadata(temp_audio_file, {AppMetadataKey.TRACK_NUMBER: -1})  # Invalid track number
         
         # Test file corruption handling
         # (This would test what happens with corrupted files)
         
         # Test recovery after errors
-        audio_file.set_title("Recovery Test")
-        audio_file.save()
+        test_metadata = {AppMetadataKey.TITLE: "Recovery Test"}
+        update_file_metadata(temp_audio_file, test_metadata)
         
         # Verify the file is still usable
-        reloaded = AudioFile(sample_mp3_file)
-        assert reloaded.get_title() == "Recovery Test"
+        assert get_specific_metadata(temp_audio_file, AppMetadataKey.TITLE) == "Recovery Test"
 
     def test_complete_metadata_workflow_mp3(self, sample_mp3_file: Path, temp_audio_file: Path):
         """Test complete metadata workflow with MP3 file using functional API."""
