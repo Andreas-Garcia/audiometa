@@ -29,13 +29,13 @@ class TestFlacMd5Functions:
         is_valid = is_flac_md5_valid(audio_file)
         assert isinstance(is_valid, bool)
 
-    def test_fix_md5_checking_flac(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_fix_md5_checking_flac(self, sample_flac_file: Path, temp_flac_file: Path):
         """Test fixing MD5 checking for FLAC file."""
         # Copy sample file to temp location
-        shutil.copy2(sample_flac_file, temp_audio_file)
+        shutil.copy2(sample_flac_file, temp_flac_file)
         
         # Fix MD5 checking
-        fixed_file_path = fix_md5_checking(temp_audio_file)
+        fixed_file_path = fix_md5_checking(temp_flac_file)
         assert isinstance(fixed_file_path, str)
         assert Path(fixed_file_path).exists()
         
@@ -47,13 +47,13 @@ class TestFlacMd5Functions:
         with pytest.raises(FileTypeNotSupportedError):
             fix_md5_checking(sample_mp3_file)
 
-    def test_fix_md5_checking_with_audio_file_object(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_fix_md5_checking_with_audio_file_object(self, sample_flac_file: Path, temp_flac_file: Path):
         """Test fixing MD5 checking using AudioFile object."""
         # Copy sample file to temp location
-        shutil.copy2(sample_flac_file, temp_audio_file)
+        shutil.copy2(sample_flac_file, temp_flac_file)
         
         from audiometa import AudioFile
-        audio_file = AudioFile(temp_audio_file)
+        audio_file = AudioFile(temp_flac_file)
         
         # Fix MD5 checking
         fixed_file_path = fix_md5_checking(audio_file)
