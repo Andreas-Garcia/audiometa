@@ -127,10 +127,16 @@ class MetadataManager:
 
         value = self.raw_clean_metadata.get(raw_metadata_key)
 
-        if not value or not len(value) or not value[0]:
+        if not value or not len(value):
             return None
-
+        
+        # For string types, we need to distinguish between None (not present) and empty string (present but empty)
         app_metadata_key_optional_type = app_metadata_key.get_optional_type()
+        if app_metadata_key_optional_type == str and value[0] == "":
+            return ""
+        
+        if not value[0]:
+            return None
         if app_metadata_key_optional_type == int:
             return int(value[0]) if value else None
         if app_metadata_key_optional_type == float:
