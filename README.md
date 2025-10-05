@@ -21,6 +21,32 @@ A comprehensive Python library for reading and writing audio metadata across mul
 | Vorbis | ✅   | ✅    | ✅             | OGG/FLAC files                |
 | RIFF   | ✅   | ✅    | ❌             | WAV files                     |
 
+## File Format Support by Metadata Manager
+
+Each metadata manager has specific file format requirements and support:
+
+### ID3v1 Manager
+
+- **Primary Support**: MP3 files (native ID3v1 format, optimal)
+- **Extended Support**: FLAC and WAV files that may contain ID3v1 tags (not optimal but supported)
+- **Note**: While ID3v1 is natively designed for MP3 files, some FLAC and WAV files may contain ID3v1 tags, which this manager can read
+
+### ID3v2 Manager
+
+- **Supported Formats**: MP3, WAV, FLAC
+- **Note**: ID3v2 is the most versatile format and works across multiple file types
+
+### Vorbis Manager
+
+- **Primary Support**: FLAC files (native Vorbis comments)
+- **Extended Support**: OGG files
+- **Note**: Vorbis comments are the standard metadata format for FLAC and OGG files
+
+### RIFF Manager
+
+- **Strict Support**: WAV files only
+- **Note**: RIFF is the native metadata format for WAV files and is not supported in other formats
+
 ## Installation
 
 ```bash

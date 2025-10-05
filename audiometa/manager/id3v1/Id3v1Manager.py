@@ -47,7 +47,16 @@ class Id3v1Manager(MetadataManager):
     field to store the track number. If byte 125 is 0 and byte 126 is not 0,
     then byte 126 contains the track number (1-255).
 
-    Note 2: The genre code is an index into a predefined list of genres. 
+    Note 2: The genre code is an index into a predefined list of genres.
+
+    Supported File Formats:
+    - MP3: Native ID3v1 format, optimal support
+    - FLAC: Some FLAC files may contain ID3v1 tags (not optimal but supported)
+    - WAV: Some WAV files may contain ID3v1 tags (not optimal but supported)
+    
+    While ID3v1 is natively designed for MP3 files, this manager supports reading
+    ID3v1 tags from FLAC and WAV files when present, even though it's not the
+    optimal metadata format for these file types.
     """
 
     def __init__(self, audio_file: AudioFile):
