@@ -134,79 +134,79 @@ The library supports a comprehensive set of metadata fields across different aud
 
 ### Metadata Support by Format
 
-| Field             | ID3v1          | ID3v2          | Vorbis       | RIFF          | App Support |
-| ----------------- | -------------- | -------------- | ------------ | ------------- | ----------- |
-| Text Encoding     | ASCII          | UTF-8/16/ISO   | UTF-8        | ASCII/UTF-8   | UTF-8       |
-| Max Text Length   | 30 chars       | ~8M chars      | ~8M chars    | ~1M chars     | 255 chars   |
-| Rating Range      | Not supported  | 0-255#         | 0-100#       | Not supported | 0-100#      |
-| Track Number      | 0-255#         | 0-255#         | Unlimited#   | Unlimited#    | 0-999#      |
-| Disc Number       | Not supported  | 0-255#         | Unlimited#   | Not supported | 0-999#      |
-| Operations        | R              | R/W            | R/W          | R/W           | ✓           |
-| supported         | (W using v2.4) | (W using v2.4) |              |               |             |
-| Technical Info    |                |                |              |               |             |
-| - Duration        | ✓              | ✓              | ✓            | ✓             |             |
-| - Bitrate         | ✓              | ✓              | ✓            | ✓             | ✓           |
-| - Sample Rate     | ✓              | ✓              | ✓            | ✓             |             |
-| - Channels        | ✓ (1-2)        | ✓ (1-255)      | ✓ (1-255)    | ✓ (1-2)       |             |
-| - File Size       | ✓              | ✓              | ✓            | ✓             | ✓           |
-| - Format Info     | ✓              | ✓              | ✓            | ✓             |             |
-| - MD5 Checksum    |                |                | ✓            |               | ✓ (Flac)    |
-| Title             | ✓ (30)         | ✓ (256)        | ✓ (256)      | ✓ (256)       | ✓ (256)     |
-| Artist            | ✓ (30)         | ✓ (256)        | ✓ (256)      | ✓ (256)       | ✓ (256)     |
-| Album             | ✓ (30)         | ✓ (256)        | ✓ (256)      | ✓ (256)       | ✓ (256)     |
-| Album Artist      |                | ✓ (256)        | ✓ (256)      |               | ✓ (256)     |
-| Genre             | ✓ (1#)         | ✓ (256)        | ✓ (256)      | ✓ (256)       | ✓ (256)     |
-| Release Date      | ✓ (4)          | ✓ (10)         | ✓ (10)       | ✓ (10)        | (10)        |
-| Track Number      | ✓ (1#)         | ✓ (0-255#)     | ✓ (Unlim#)   | ✓ (Unlim#)    | (0-999#)    |
-| Rating            |                | ✓ (0-255#)     | ✓ (0-100#)   |               | ✓ (0-10#)   |
-| BPM               |                | ✓ (0-65535#)   | ✓ (0-65535#) |               | (0-999#)    |
-| Language          |                | ✓ (3)          | ✓ (3)        |               | ✓ (3)       |
-| Composer          |                | ✓ (256)        | ✓ (256)      | ✓ (256)       | (256)       |
-| Publisher         |                | ✓ (256)        | ✓ (256)      |               | (256)       |
-| Copyright         |                | ✓ (256)        | ✓ (256)      | ✓ (256)       | (256)       |
-| Lyrics            |                | ✓ (2000)       | ✓ (2000)     |               | (2000)      |
-| Comment           | ✓ (28)         | ✓ (1000)       | ✓ (1000)     | ✓ (1000)      | (1000)      |
-| Encoder           |                | ✓ (256)        | ✓ (256)      | ✓ (256)       | (256)       |
-| URL               |                | ✓ (2048)       | ✓ (2048)     |               | (2048)      |
-| ISRC              |                | ✓ (12)         | ✓ (12)       |               | (12)        |
-| Mood              |                | ✓ (256)        | ✓ (256)      |               | (256)       |
-| Key               |                | ✓ (3)          | ✓ (3)        |               | (3)         |
-| Original Date     |                | ✓ (10)         | ✓ (10)       |               | (10)        |
-| Remixer           |                | ✓ (256)        | ✓ (256)      |               | (256)       |
-| Conductor         |                | ✓ (256)        | ✓ (256)      | ✓ (256)       | (256)       |
-| Cover Art         |                | ✓ (10MB#)      | ✓ (10MB#)    |               | (10MB#)     |
-| Compilation       |                | ✓ (1#)         | ✓ (1#)       |               | (1#)        |
-| Media Type        |                | ✓ (256)        | ✓ (256)      | ✓ (256)       | (256)       |
-| File Owner        |                | ✓ (256)        | ✓ (256)      |               | (256)       |
-| Recording Date    |                | ✓ (10)         | ✓ (10)       |               | (10)        |
-| File Size         |                | ✓ (16#)        |              |               | (16#)       |
-| Encoder Settings  |                | ✓ (1000)       | ✓ (1000)     |               | (1000)      |
-| ReplayGain        |                | ✓ (8#)         | ✓ (8#)       |               | (8#)        |
-| MusicBrainz ID    |                | ✓ (36)         | ✓ (36)       |               | (36)        |
-| Arranger          |                | ✓ (256)        | ✓ (256)      |               | (256)       |
-| Version           |                | ✓ (256)        | ✓ (256)      |               | (256)       |
-| Performance       |                | ✓ (256)        | ✓ (256)      |               | (256)       |
-| Archival Location |                |                |              | ✓ (256)       | (256)       |
-| Keywords          |                |                |              | ✓ (256)       | (256)       |
-| Subject           |                |                |              | ✓ (256)       | (256)       |
-| Original Artist   |                | ✓ (256)        | ✓ (256)      |               | (256)       |
-| Set Subtitle      |                | ✓ (256)        | ✓ (256)      |               | (256)       |
-| Initial Key       |                | ✓ (3)          | ✓ (3)        |               | (3)         |
-| Involved People   |                | ✓ (1000)       | ✓ (1000)     |               | (1000)      |
-| Musicians         |                | ✓ (1000)       | ✓ (1000)     |               | (1000)      |
-| Part of Set       |                | ✓ (256)        | ✓ (256)      |               | (256)       |
+| Field             | ID3v1          | ID3v2          | Vorbis       | RIFF          | AudioMeta Support |
+| ----------------- | -------------- | -------------- | ------------ | ------------- | ----------------- |
+| Text Encoding     | ASCII          | UTF-8/16/ISO   | UTF-8        | ASCII/UTF-8   | UTF-8             |
+| Max Text Length   | 30 chars       | ~8M chars      | ~8M chars    | ~1M chars     | Format limit      |
+| Rating Range      | Not supported  | 0-255#         | 0-100#       | Not supported | 0-10#             |
+| Track Number      | 0-255#         | 0-255#         | Unlimited#   | Unlimited#    | Format limit      |
+| Disc Number       | Not supported  | 0-255#         | Unlimited#   | Not supported | Format limit      |
+| Operations        | R              | R/W            | R/W          | R/W           | ✓                 |
+| supported         | (W using v2.4) | (W using v2.4) |              |               |                   |
+| Technical Info    |                |                |              |               |                   |
+| - Duration        | ✓              | ✓              | ✓            | ✓             | ✓                 |
+| - Bitrate         | ✓              | ✓              | ✓            | ✓             | ✓                 |
+| - Sample Rate     | ✓              | ✓              | ✓            | ✓             | ✓                 |
+| - Channels        | ✓ (1-2)        | ✓ (1-255)      | ✓ (1-255)    | ✓ (1-2)       | ✓                 |
+| - File Size       | ✓              | ✓              | ✓            | ✓             | ✓                 |
+| - Format Info     | ✓              | ✓              | ✓            | ✓             | ✓                 |
+| - MD5 Checksum    |                |                | ✓            |               | ✓ (Flac)          |
+| Title             | ✓ (30)         | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                 |
+| Artist            | ✓ (30)         | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                 |
+| Album             | ✓ (30)         | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                 |
+| Album Artist      |                | ✓ (Format)     | ✓ (Format)   |               | ✓                 |
+| Genre             | ✓ (1#)         | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                 |
+| Release Date      | ✓ (4)          | ✓ (10)         | ✓ (10)       | ✓ (10)        | ✓                 |
+| Track Number      | ✓ (1#)         | ✓ (0-255#)     | ✓ (Unlim#)   | ✓ (Unlim#)    | ✓                 |
+| Rating            |                | ✓ (0-255#)     | ✓ (0-100#)   |               | ✓                 |
+| BPM               |                | ✓ (0-65535#)   | ✓ (0-65535#) |               | ✓                 |
+| Language          |                | ✓ (3)          | ✓ (3)        |               | ✓                 |
+| Composer          |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                 |
+| Publisher         |                | ✓ (Format)     | ✓ (Format)   |               | ✓                 |
+| Copyright         |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                 |
+| Lyrics            |                | ✓ (Format)     | ✓ (Format)   |               | ✓                 |
+| Comment           | ✓ (28)         | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                 |
+| Encoder           |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                 |
+| URL               |                | ✓ (Format)     | ✓ (Format)   |               | ✓                 |
+| ISRC              |                | ✓ (12)         | ✓ (12)       |               | ✓                 |
+| Mood              |                | ✓ (Format)     | ✓ (Format)   |               | ✓                 |
+| Key               |                | ✓ (3)          | ✓ (3)        |               | ✓                 |
+| Original Date     |                | ✓ (10)         | ✓ (10)       |               | ✓                 |
+| Remixer           |                | ✓ (Format)     | ✓ (Format)   |               | ✓                 |
+| Conductor         |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                 |
+| Cover Art         |                | ✓ (10MB#)      | ✓ (10MB#)    |               | ✓                 |
+| Compilation       |                | ✓ (1#)         | ✓ (1#)       |               | ✓                 |
+| Media Type        |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                 |
+| File Owner        |                | ✓ (Format)     | ✓ (Format)   |               | ✓                 |
+| Recording Date    |                | ✓ (10)         | ✓ (10)       |               | ✓                 |
+| File Size         |                | ✓ (16#)        |              |               | ✓                 |
+| Encoder Settings  |                | ✓ (Format)     | ✓ (Format)   |               | ✓                 |
+| ReplayGain        |                | ✓ (8#)         | ✓ (8#)       |               | ✓                 |
+| MusicBrainz ID    |                | ✓ (36)         | ✓ (36)       |               | ✓                 |
+| Arranger          |                | ✓ (Format)     | ✓ (Format)   |               | ✓                 |
+| Version           |                | ✓ (Format)     | ✓ (Format)   |               | ✓                 |
+| Performance       |                | ✓ (Format)     | ✓ (Format)   |               | ✓                 |
+| Archival Location |                |                |              | ✓ (Format)    | ✓                 |
+| Keywords          |                |                |              | ✓ (Format)    | ✓                 |
+| Subject           |                |                |              | ✓ (Format)    | ✓                 |
+| Original Artist   |                | ✓ (Format)     | ✓ (Format)   |               | ✓                 |
+| Set Subtitle      |                | ✓ (Format)     | ✓ (Format)   |               | ✓                 |
+| Initial Key       |                | ✓ (3)          | ✓ (3)        |               | ✓                 |
+| Involved People   |                | ✓ (Format)     | ✓ (Format)   |               | ✓                 |
+| Musicians         |                | ✓ (Format)     | ✓ (Format)   |               | ✓                 |
+| Part of Set       |                | ✓ (Format)     | ✓ (Format)   |               | ✓                 |
 
 ### Legend
 
 - ✓: Supported
-- (30): Fixed 30-character field
+- (30): Fixed 30-character field (ID3v1 limitation)
 - (#): Numeric value or code
-- (255): Maximum 255 characters
-- (1000): Maximum 1000 characters
-- (2000): Maximum 2000 characters
+- (Format): Limited by the audio format's native capabilities
 - (10MB#): Maximum 10 megabytes binary data
 - (~8M): Approximately 8 million characters (format limit)
 - (~1M): Approximately 1 million characters (format limit)
+
+**AudioMeta Support Column**: Shows the library's unified interface capabilities. The library does not impose artificial limits - it respects each format's native capabilities. Text fields can be as long as the format allows, and numeric ranges follow the format's specifications. The library provides consistent UTF-8 encoding and normalized rating handling (0-10 scale) across all supported formats.
 
 ## Error Handling
 
