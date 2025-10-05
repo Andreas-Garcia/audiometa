@@ -4,12 +4,15 @@ A comprehensive Python library for reading and writing audio metadata across mul
 
 ## Features
 
-- **Multi-format Support**: ID3v1, ID3v2, Vorbis (OGG/FLAC), and RIFF (WAV) metadata formats
+- **Multi-format Support**: ID3v1, ID3v2, Vorbis (FLAC), and RIFF (WAV) metadata formats
 - **Comprehensive Metadata Fields**: Support for 50+ metadata fields including title, artist, album, rating, BPM, and more
 - **Read/Write Operations**: Full read and write support for most formats
 - **Rating Support**: Normalized rating handling across different formats
 - **Technical Information**: Access to bitrate, duration, sample rate, channels, and more
 - **Error Handling**: Robust error handling with specific exception types
+
+**Note**: OGG file support is planned but not yet implemented.
+
 - **Type Hints**: Full type annotation support for better IDE integration
 
 ## Supported Formats
@@ -18,7 +21,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
 | ------ | ---- | ----- | -------------- | ---------------------------------------- |
 | ID3v1  | ✅   | ❌    | ❌             | Read-only, limited to 30 chars per field |
 | ID3v2  | ✅   | ✅    | ✅             | Full feature support                     |
-| Vorbis | ✅   | ✅    | ✅             | OGG/FLAC files                           |
+| Vorbis | ✅   | ✅    | ✅             | FLAC files                               |
 | RIFF   | ✅   | ✅    | ❌             | WAV files                                |
 
 ## File Format Support by Metadata Manager
@@ -40,8 +43,7 @@ Each metadata manager has specific file format requirements and support:
 ### Vorbis Manager
 
 - **Primary Support**: FLAC files (native Vorbis comments)
-- **Extended Support**: OGG files
-- **Note**: Vorbis comments are the standard metadata format for FLAC and OGG files
+- **Note**: Vorbis comments are the standard metadata format for FLAC files
 
 ### RIFF Manager
 
@@ -110,7 +112,7 @@ id3v2_metadata = get_single_format_app_metadata(
 
 # Read only Vorbis metadata
 vorbis_metadata = get_single_format_app_metadata(
-    "path/to/your/audio.ogg",
+    "path/to/your/audio.flac",
     MetadataFormat.VORBIS
 )
 ```
