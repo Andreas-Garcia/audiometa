@@ -88,3 +88,52 @@ class TestTitleMetadata:
         metadata = get_merged_app_metadata(temp_audio_file)
         assert metadata.get(AppMetadataKey.TITLE) == empty_title
 
+    def test_title_metadata_reading(self, metadata_id3v1_small_mp3, metadata_id3v2_small_mp3, metadata_riff_small_wav, metadata_vorbis_small_flac):
+        """Test reading title metadata from different formats."""
+        # ID3v1 title (limited to 30 characters)
+        metadata = get_merged_app_metadata(metadata_id3v1_small_mp3)
+        title = metadata.get(AppMetadataKey.TITLE)
+        assert isinstance(title, str)
+        assert len(title) == 30  # ID3v1 limit
+        
+        # ID3v2 title (can be longer)
+        metadata = get_merged_app_metadata(metadata_id3v2_small_mp3)
+        title = metadata.get(AppMetadataKey.TITLE)
+        assert isinstance(title, str)
+        assert len(title) > 30  # ID3v2 can have longer titles
+        
+        # RIFF title (can be longer)
+        metadata = get_merged_app_metadata(metadata_riff_small_wav)
+        title = metadata.get(AppMetadataKey.TITLE)
+        assert isinstance(title, str)
+        assert len(title) > 30  # RIFF can have longer titles
+        
+        # Vorbis title (can be very long)
+        metadata = get_merged_app_metadata(metadata_vorbis_small_flac)
+        title = metadata.get(AppMetadataKey.TITLE)
+        assert isinstance(title, str)
+        assert len(title) > 30  # Vorbis can have very long titles
+
+    def test_title_metadata_writing(self, metadata_none_mp3, metadata_none_flac, metadata_none_wav, temp_audio_file):
+        """Test writing title metadata to different formats."""
+        # Test MP3
+        shutil.copy2(metadata_none_mp3, temp_audio_file)
+        test_title = "Test Title MP3"
+        update_file_metadata(temp_audio_file, {AppMetadataKey.TITLE: test_title})
+        metadata = get_merged_app_metadata(temp_audio_file)
+        assert metadata.get(AppMetadataKey.TITLE) == test_title
+        
+        # Test FLAC
+        shutil.copy2(metadata_none_flac, temp_audio_file)
+        test_title = "Test Title FLAC"
+        update_file_metadata(temp_audio_file, {AppMetadataKey.TITLE: test_title})
+        metadata = get_merged_app_metadata(temp_audio_file)
+        assert metadata.get(AppMetadataKey.TITLE) == test_title
+        
+        # Test WAV
+        shutil.copy2(metadata_none_wav, temp_audio_file)
+        test_title = "Test Title WAV"
+        update_file_metadata(temp_audio_file, {AppMetadataKey.TITLE: test_title})
+        metadata = get_merged_app_metadata(temp_audio_file)
+        assert metadata.get(AppMetadataKey.TITLE) == test_title
+

@@ -96,3 +96,36 @@ class TestGenreMetadata:
         metadata = get_merged_app_metadata(genre_code_id3v1_unknown_mp3)
         assert metadata.get(AppMetadataKey.GENRE) == "Unknown"
 
+    def test_genre_metadata_reading(self, genre_code_id3v1_abstract_mp3, genre_code_id3v1_unknown_mp3):
+        """Test reading genre metadata from different formats."""
+        # Abstract genre
+        metadata = get_merged_app_metadata(genre_code_id3v1_abstract_mp3)
+        assert metadata.get(AppMetadataKey.GENRE) == "Abstract"
+        
+        # Unknown genre
+        metadata = get_merged_app_metadata(genre_code_id3v1_unknown_mp3)
+        assert metadata.get(AppMetadataKey.GENRE) == "Unknown"
+
+    def test_genre_metadata_writing(self, metadata_none_mp3, metadata_none_flac, metadata_none_wav, temp_audio_file):
+        """Test writing genre metadata to different formats."""
+        # Test MP3
+        shutil.copy2(metadata_none_mp3, temp_audio_file)
+        test_genre = "Test Genre MP3"
+        update_file_metadata(temp_audio_file, {AppMetadataKey.GENRE: test_genre})
+        metadata = get_merged_app_metadata(temp_audio_file)
+        assert metadata.get(AppMetadataKey.GENRE) == test_genre
+        
+        # Test FLAC
+        shutil.copy2(metadata_none_flac, temp_audio_file)
+        test_genre = "Test Genre FLAC"
+        update_file_metadata(temp_audio_file, {AppMetadataKey.GENRE: test_genre})
+        metadata = get_merged_app_metadata(temp_audio_file)
+        assert metadata.get(AppMetadataKey.GENRE) == test_genre
+        
+        # Test WAV
+        shutil.copy2(metadata_none_wav, temp_audio_file)
+        test_genre = "Test Genre WAV"
+        update_file_metadata(temp_audio_file, {AppMetadataKey.GENRE: test_genre})
+        metadata = get_merged_app_metadata(temp_audio_file)
+        assert metadata.get(AppMetadataKey.GENRE) == test_genre
+

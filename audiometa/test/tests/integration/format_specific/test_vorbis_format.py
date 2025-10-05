@@ -1,0 +1,77 @@
+"""Tests for Vorbis format-specific metadata scenarios."""
+
+import pytest
+
+from audiometa import (
+    get_merged_app_metadata,
+    get_single_format_app_metadata,
+    update_file_metadata,
+    AudioFile
+)
+import shutil
+from audiometa.utils.TagFormat import MetadataSingleFormat
+from audiometa.utils.AppMetadataKey import AppMetadataKey
+
+
+@pytest.mark.integration
+class TestVorbisFormat:
+    """Test cases for Vorbis format-specific scenarios."""
+
+    def test_vorbis_metadata_capabilities(self, metadata_vorbis_small_flac, metadata_vorbis_big_flac):
+        """Test Vorbis metadata capabilities."""
+        # Small Vorbis file
+        metadata = get_merged_app_metadata(metadata_vorbis_small_flac)
+        title = metadata.get(AppMetadataKey.TITLE)
+        assert len(title) > 30  # Vorbis can have longer titles
+        
+        # Big Vorbis file
+        metadata = get_merged_app_metadata(metadata_vorbis_big_flac)
+        title = metadata.get(AppMetadataKey.TITLE)
+        assert len(title) > 30  # Vorbis can have longer titles
+
+    def test_vorbis_metadata_reading(self, metadata_vorbis_small_flac):
+        """Test reading Vorbis metadata from FLAC files."""
+        metadata = get_merged_app_metadata(metadata_vorbis_small_flac)
+        assert isinstance(metadata, dict)
+        assert AppMetadataKey.TITLE in metadata
+        # Vorbis can have very long titles
+        assert len(metadata[AppMetadataKey.TITLE]) > 30
+
+    def test_single_format_vorbis_extraction(self, metadata_vorbis_small_flac):
+        """Test extracting Vorbis metadata specifically."""
+        vorbis_metadata = get_single_format_app_metadata(metadata_vorbis_small_flac, MetadataSingleFormat.VORBIS)
+        assert isinstance(vorbis_metadata, dict)
+        assert AppMetadataKey.TITLE in vorbis_metadata
+
+    def test_metadata_none_files(self, metadata_none_flac):
+        """Test reading metadata from files with no metadata."""
+        # FLAC with no metadata
+        metadata = get_merged_app_metadata(metadata_none_flac)
+        assert isinstance(metadata, dict)
+
+    def test_audio_file_object_reading(self, metadata_vorbis_small_flac):
+        """Test reading metadata using AudioFile object."""
+        audio_file = AudioFile(metadata_vorbis_small_flac)
+        
+        # Test merged metadata
+        metadata = get_merged_app_metadata(audio_file)
+        assert isinstance(metadata, dict)
+        assert AppMetadataKey.TITLE in metadata
+
+    def test_metadata_writing_flac(self, metadata_none_flac, temp_audio_file):
+        """Test writing metadata to FLAC with Vorbis."""
+        shutil.copy2(metadata_none_flac, temp_audio_file)
+        test_metadata = {
+            AppMetadataKey.TITLE: "Test Title FLAC",
+            AppMetadataKey.ARTISTS_NAMES: ["Test Artist FLAC"],
+            AppMetadataKey.ALBUM_NAME: "Test Album FLAC",
+            AppMetadataKey.GENRE: "Test Genre FLAC",
+            AppMetadataKey.RATING: 7
+        }
+        update_file_metadata(temp_audio_file, test_metadata, normalized_rating_max_value=100)
+        metadata = get_merged_app_metadata(temp_audio_file, normalized_rating_max_value=100)
+        assert metadata.get(AppMetadataKey.TITLE) == "Test Title FLAC"
+        assert metadata.get(AppMetadataKey.ARTISTS_NAMES) == ["Test Artist FLAC"]
+        assert metadata.get(AppMetadataKey.ALBUM_NAME) == "Test Album FLAC"
+        assert metadata.get(AppMetadataKey.GENRE) == "Test Genre FLAC"
+        assert metadata.get(AppMetadataKey.RATING) == 7

@@ -14,7 +14,7 @@ from audiometa.utils.AppMetadataKey import AppMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError
 
 
-@pytest.mark.integration
+@pytest.mark.unit
 class TestAudioFile:
     """Test cases for AudioFile class."""
 

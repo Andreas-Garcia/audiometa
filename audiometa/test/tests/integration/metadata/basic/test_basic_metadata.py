@@ -12,7 +12,7 @@ from audiometa import (
     AudioFile
 )
 from audiometa.utils.AppMetadataKey import AppMetadataKey
-from audiometa.utils.TagFormat import MetadataFormat
+from audiometa.utils.TagFormat import MetadataSingleFormat
 
 
 @pytest.mark.integration
@@ -64,11 +64,11 @@ class TestBasicMetadata:
         # Test ID3v2 format specifically
         from audiometa import get_single_format_app_metadata
         
-        metadata_id3v2 = get_single_format_app_metadata(sample_mp3_file, MetadataFormat.ID3V2)
+        metadata_id3v2 = get_single_format_app_metadata(sample_mp3_file, MetadataSingleFormat.ID3V2)
         assert isinstance(metadata_id3v2, dict)
         
         # Test ID3v1 format specifically
-        metadata_id3v1 = get_single_format_app_metadata(sample_mp3_file, MetadataFormat.ID3V1)
+        metadata_id3v1 = get_single_format_app_metadata(sample_mp3_file, MetadataSingleFormat.ID3V1)
         assert isinstance(metadata_id3v1, dict)
 
     def test_empty_metadata_handling(self, sample_mp3_file: Path):

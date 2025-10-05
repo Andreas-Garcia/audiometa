@@ -1,0 +1,91 @@
+"""Tests for ID3v2 format-specific metadata scenarios."""
+
+import pytest
+
+from audiometa import (
+    get_merged_app_metadata,
+    get_single_format_app_metadata,
+    get_specific_metadata,
+    update_file_metadata,
+    AudioFile
+)
+import shutil
+from audiometa.utils.TagFormat import MetadataSingleFormat
+from audiometa.utils.AppMetadataKey import AppMetadataKey
+
+
+@pytest.mark.integration
+class TestId3v2Format:
+    """Test cases for ID3v2 format-specific scenarios."""
+
+    def test_id3v2_extended_metadata(self, metadata_id3v2_small_mp3, metadata_id3v2_big_mp3):
+        """Test ID3v2 extended metadata capabilities."""
+        # Small ID3v2 file
+        metadata = get_merged_app_metadata(metadata_id3v2_small_mp3)
+        title = metadata.get(AppMetadataKey.TITLE)
+        assert len(title) > 30  # ID3v2 can have longer titles
+        
+        # Big ID3v2 file
+        metadata = get_merged_app_metadata(metadata_id3v2_big_mp3)
+        title = metadata.get(AppMetadataKey.TITLE)
+        assert len(title) > 30  # ID3v2 can have longer titles
+
+    def test_id3v2_metadata_reading(self, metadata_id3v2_small_mp3, metadata_id3v2_small_flac, metadata_id3v2_small_wav):
+        """Test reading ID3v2 metadata from various formats."""
+        # MP3 with ID3v2
+        metadata = get_merged_app_metadata(metadata_id3v2_small_mp3)
+        assert isinstance(metadata, dict)
+        assert AppMetadataKey.TITLE in metadata
+        # ID3v2 can have longer titles than ID3v1
+        assert len(metadata[AppMetadataKey.TITLE]) > 30
+        
+        # FLAC with ID3v2
+        metadata = get_merged_app_metadata(metadata_id3v2_small_flac)
+        assert isinstance(metadata, dict)
+        assert AppMetadataKey.TITLE in metadata
+        
+        # WAV with ID3v2
+        metadata = get_merged_app_metadata(metadata_id3v2_small_wav)
+        assert isinstance(metadata, dict)
+        assert AppMetadataKey.TITLE in metadata
+
+    def test_single_format_id3v2_extraction(self, metadata_id3v2_small_mp3):
+        """Test extracting ID3v2 metadata specifically."""
+        id3v2_metadata = get_single_format_app_metadata(metadata_id3v2_small_mp3, MetadataSingleFormat.ID3V2)
+        assert isinstance(id3v2_metadata, dict)
+        assert AppMetadataKey.TITLE in id3v2_metadata
+
+    def test_audio_file_object_reading(self, metadata_id3v2_small_mp3):
+        """Test reading metadata using AudioFile object."""
+        audio_file = AudioFile(metadata_id3v2_small_mp3)
+        
+        # Test merged metadata
+        metadata = get_merged_app_metadata(audio_file)
+        assert isinstance(metadata, dict)
+        assert AppMetadataKey.TITLE in metadata
+        
+        # Test specific metadata
+        title = get_specific_metadata(audio_file, AppMetadataKey.TITLE)
+        assert isinstance(title, str)
+        
+        # Test single format metadata
+        id3v2_metadata = get_single_format_app_metadata(audio_file, MetadataSingleFormat.ID3V2)
+        assert isinstance(id3v2_metadata, dict)
+
+    def test_metadata_writing_mp3(self, metadata_none_mp3, temp_audio_file):
+        """Test writing metadata to MP3 with ID3v2."""
+        shutil.copy2(metadata_none_mp3, temp_audio_file)
+        test_metadata = {
+            AppMetadataKey.TITLE: "Test Title MP3",
+            AppMetadataKey.ARTISTS_NAMES: ["Test Artist MP3"],
+            AppMetadataKey.ALBUM_NAME: "Test Album MP3",
+            AppMetadataKey.GENRE: "Test Genre MP3",
+            AppMetadataKey.RATING: 8
+        }
+        update_file_metadata(temp_audio_file, test_metadata, normalized_rating_max_value=255)
+        metadata = get_merged_app_metadata(temp_audio_file, normalized_rating_max_value=255)
+        assert metadata.get(AppMetadataKey.TITLE) == "Test Title MP3"
+        assert metadata.get(AppMetadataKey.ARTISTS_NAMES) == ["Test Artist MP3"]
+        assert metadata.get(AppMetadataKey.ALBUM_NAME) == "Test Album MP3"
+        assert metadata.get(AppMetadataKey.GENRE) == "Test Genre MP3"
+        assert metadata.get(AppMetadataKey.RATING) == 8

@@ -100,3 +100,40 @@ class TestAlbumMetadata:
         metadata = get_merged_app_metadata(album_koko_vorbis_flac)
         assert metadata.get(AppMetadataKey.ALBUM_NAME) == "koko"
 
+    def test_album_metadata_reading(self, album_koko_id3v2_mp3, album_koko_id3v2_wav, album_koko_vorbis_flac):
+        """Test reading album metadata from different formats."""
+        # ID3v2 album (MP3)
+        metadata = get_merged_app_metadata(album_koko_id3v2_mp3)
+        assert metadata.get(AppMetadataKey.ALBUM_NAME) == "koko"
+        
+        # ID3v2 album (WAV)
+        metadata = get_merged_app_metadata(album_koko_id3v2_wav)
+        assert metadata.get(AppMetadataKey.ALBUM_NAME) == "koko"
+        
+        # Vorbis album (FLAC)
+        metadata = get_merged_app_metadata(album_koko_vorbis_flac)
+        assert metadata.get(AppMetadataKey.ALBUM_NAME) == "koko"
+
+    def test_album_metadata_writing(self, metadata_none_mp3, metadata_none_flac, metadata_none_wav, temp_audio_file):
+        """Test writing album metadata to different formats."""
+        # Test MP3
+        shutil.copy2(metadata_none_mp3, temp_audio_file)
+        test_album = "Test Album MP3"
+        update_file_metadata(temp_audio_file, {AppMetadataKey.ALBUM_NAME: test_album})
+        metadata = get_merged_app_metadata(temp_audio_file)
+        assert metadata.get(AppMetadataKey.ALBUM_NAME) == test_album
+        
+        # Test FLAC
+        shutil.copy2(metadata_none_flac, temp_audio_file)
+        test_album = "Test Album FLAC"
+        update_file_metadata(temp_audio_file, {AppMetadataKey.ALBUM_NAME: test_album})
+        metadata = get_merged_app_metadata(temp_audio_file)
+        assert metadata.get(AppMetadataKey.ALBUM_NAME) == test_album
+        
+        # Test WAV
+        shutil.copy2(metadata_none_wav, temp_audio_file)
+        test_album = "Test Album WAV"
+        update_file_metadata(temp_audio_file, {AppMetadataKey.ALBUM_NAME: test_album})
+        metadata = get_merged_app_metadata(temp_audio_file)
+        assert metadata.get(AppMetadataKey.ALBUM_NAME) == test_album
+

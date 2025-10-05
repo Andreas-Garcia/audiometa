@@ -4,7 +4,7 @@ import pytest
 from pathlib import Path
 
 from audiometa import get_merged_app_metadata, get_single_format_app_metadata, update_file_metadata
-from audiometa.utils.TagFormat import MetadataFormat
+from audiometa.utils.TagFormat import MetadataSingleFormat
 from audiometa.utils.AppMetadataKey import AppMetadataKey
 
 
@@ -62,17 +62,17 @@ class TestFormatSpecificScenarios:
     def test_single_format_metadata_extraction(self, metadata_id3v2_small_mp3, metadata_vorbis_small_flac, metadata_riff_small_wav):
         """Test extracting metadata from specific formats only."""
         # ID3v2 from MP3
-        id3v2_metadata = get_single_format_app_metadata(metadata_id3v2_small_mp3, MetadataFormat.ID3V2)
+        id3v2_metadata = get_single_format_app_metadata(metadata_id3v2_small_mp3, MetadataSingleFormat.ID3V2)
         assert isinstance(id3v2_metadata, dict)
         assert AppMetadataKey.TITLE in id3v2_metadata
         
         # Vorbis from FLAC
-        vorbis_metadata = get_single_format_app_metadata(metadata_vorbis_small_flac, MetadataFormat.VORBIS)
+        vorbis_metadata = get_single_format_app_metadata(metadata_vorbis_small_flac, MetadataSingleFormat.VORBIS)
         assert isinstance(vorbis_metadata, dict)
         assert AppMetadataKey.TITLE in vorbis_metadata
         
         # RIFF from WAV
-        riff_metadata = get_single_format_app_metadata(metadata_riff_small_wav, MetadataFormat.RIFF)
+        riff_metadata = get_single_format_app_metadata(metadata_riff_small_wav, MetadataSingleFormat.RIFF)
         assert isinstance(riff_metadata, dict)
         assert AppMetadataKey.TITLE in riff_metadata
 

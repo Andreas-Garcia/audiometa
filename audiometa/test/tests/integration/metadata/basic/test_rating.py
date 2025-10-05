@@ -200,3 +200,66 @@ class TestRatingMetadata:
         metadata = get_merged_app_metadata(temp_audio_file, normalized_rating_max_value=100)
         assert metadata[AppMetadataKey.RATING] == 8
 
+    def test_rating_normalization_integration(self, sample_mp3_file: Path):
+        """Test integration of rating normalization across different APIs."""
+        # Test merged metadata with rating normalization
+        metadata_100 = get_merged_app_metadata(sample_mp3_file, normalized_rating_max_value=100)
+        assert isinstance(metadata_100, dict)
+        
+        metadata_255 = get_merged_app_metadata(sample_mp3_file, normalized_rating_max_value=255)
+        assert isinstance(metadata_255, dict)
+        
+        # Test that rating normalization is consistent
+        rating_100 = metadata_100.get(AppMetadataKey.RATING)
+        rating_255 = metadata_255.get(AppMetadataKey.RATING)
+        
+        # If both have ratings, they should be consistent
+        if rating_100 is not None and rating_255 is not None:
+            assert isinstance(rating_100, (int, float))
+            assert isinstance(rating_255, (int, float))
+
+    def test_rating_reading_id3v2_base_100(self, rating_id3v2_base_100_0_star_wav, rating_id3v2_base_100_5_star_wav):
+        """Test reading ID3v2 ratings with base 100 normalization."""
+        # 0 star rating
+        metadata = get_merged_app_metadata(rating_id3v2_base_100_0_star_wav, normalized_rating_max_value=100)
+        assert isinstance(metadata, dict)
+        assert AppMetadataKey.RATING in metadata
+        assert metadata[AppMetadataKey.RATING] == 0
+        
+        # 5 star rating
+        metadata = get_merged_app_metadata(rating_id3v2_base_100_5_star_wav, normalized_rating_max_value=100)
+        assert isinstance(metadata, dict)
+        assert AppMetadataKey.RATING in metadata
+        assert metadata[AppMetadataKey.RATING] == 10  # 5 stars = 10/10
+
+    def test_rating_reading_id3v2_base_255(self, rating_id3v2_base_255_5_star_mp3):
+        """Test reading ID3v2 ratings with base 255 normalization."""
+        metadata = get_merged_app_metadata(rating_id3v2_base_255_5_star_mp3, normalized_rating_max_value=255)
+        assert isinstance(metadata, dict)
+        assert AppMetadataKey.RATING in metadata
+        assert metadata[AppMetadataKey.RATING] == 10  # 5 stars = 10/10
+
+    def test_rating_reading_riff_base_100(self, rating_riff_base_100_5_star_wav):
+        """Test reading RIFF ratings with base 100 normalization."""
+        metadata = get_merged_app_metadata(rating_riff_base_100_5_star_wav, normalized_rating_max_value=100)
+        assert isinstance(metadata, dict)
+        assert AppMetadataKey.RATING in metadata
+        assert metadata[AppMetadataKey.RATING] == 10  # 5 stars = 10/10
+
+    def test_rating_reading_vorbis_base_100(self, rating_vorbis_base_100_5_star_flac):
+        """Test reading Vorbis ratings with base 100 normalization."""
+        metadata = get_merged_app_metadata(rating_vorbis_base_100_5_star_flac, normalized_rating_max_value=100)
+        assert isinstance(metadata, dict)
+        assert AppMetadataKey.RATING in metadata
+        assert metadata[AppMetadataKey.RATING] == 10  # 5 stars = 10/10
+
+    def test_rating_normalization_variations(self, rating_id3v2_base_100_5_star_wav):
+        """Test different rating normalization values."""
+        # Base 100 normalization
+        metadata_100 = get_merged_app_metadata(rating_id3v2_base_100_5_star_wav, normalized_rating_max_value=100)
+        assert metadata_100[AppMetadataKey.RATING] == 10
+        
+        # Base 255 normalization
+        metadata_255 = get_merged_app_metadata(rating_id3v2_base_100_5_star_wav, normalized_rating_max_value=255)
+        assert metadata_255[AppMetadataKey.RATING] == 10  # Should still be 10/10
+

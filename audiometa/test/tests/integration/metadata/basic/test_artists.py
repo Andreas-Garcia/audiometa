@@ -105,3 +105,46 @@ class TestArtistsMetadata:
         assert isinstance(artists, list)
         assert "One Two Three" in artists
 
+    def test_artists_metadata_reading(self, artists_one_two_three_comma_id3v2, artists_one_two_three_semicolon_id3v2, artists_one_two_three_multi_tags_vorbis):
+        """Test reading artists metadata from different formats."""
+        # Comma-separated artists (ID3v2)
+        metadata = get_merged_app_metadata(artists_one_two_three_comma_id3v2)
+        artists = metadata.get(AppMetadataKey.ARTISTS_NAMES)
+        assert isinstance(artists, list)
+        assert "One Two Three" in artists
+        
+        # Semicolon-separated artists (ID3v2)
+        metadata = get_merged_app_metadata(artists_one_two_three_semicolon_id3v2)
+        artists = metadata.get(AppMetadataKey.ARTISTS_NAMES)
+        assert isinstance(artists, list)
+        assert "One Two Three" in artists
+        
+        # Multi-tags artists (Vorbis)
+        metadata = get_merged_app_metadata(artists_one_two_three_multi_tags_vorbis)
+        artists = metadata.get(AppMetadataKey.ARTISTS_NAMES)
+        assert isinstance(artists, list)
+        assert "One Two Three" in artists
+
+    def test_artists_metadata_writing(self, metadata_none_mp3, metadata_none_flac, metadata_none_wav, temp_audio_file):
+        """Test writing artists metadata to different formats."""
+        # Test MP3
+        shutil.copy2(metadata_none_mp3, temp_audio_file)
+        test_artists = ["Artist One", "Artist Two", "Artist Three"]
+        update_file_metadata(temp_audio_file, {AppMetadataKey.ARTISTS_NAMES: test_artists})
+        metadata = get_merged_app_metadata(temp_audio_file)
+        assert metadata.get(AppMetadataKey.ARTISTS_NAMES) == test_artists
+        
+        # Test FLAC
+        shutil.copy2(metadata_none_flac, temp_audio_file)
+        test_artists = ["Single Artist"]
+        update_file_metadata(temp_audio_file, {AppMetadataKey.ARTISTS_NAMES: test_artists})
+        metadata = get_merged_app_metadata(temp_audio_file)
+        assert metadata.get(AppMetadataKey.ARTISTS_NAMES) == test_artists
+        
+        # Test WAV
+        shutil.copy2(metadata_none_wav, temp_audio_file)
+        test_artists = ["WAV Artist 1", "WAV Artist 2"]
+        update_file_metadata(temp_audio_file, {AppMetadataKey.ARTISTS_NAMES: test_artists})
+        metadata = get_merged_app_metadata(temp_audio_file)
+        assert metadata.get(AppMetadataKey.ARTISTS_NAMES) == test_artists
+

@@ -9,7 +9,7 @@ from audiometa import (
     get_specific_metadata,
     AudioFile
 )
-from audiometa.utils.TagFormat import MetadataFormat
+from audiometa.utils.TagFormat import MetadataSingleFormat
 from audiometa.utils.AppMetadataKey import AppMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError
 
@@ -47,23 +47,23 @@ class TestMetadataReading:
 
     def test_get_single_format_app_metadata_id3v2(self, sample_mp3_file: Path):
         """Test getting ID3v2 metadata from MP3 file."""
-        metadata = get_single_format_app_metadata(sample_mp3_file, MetadataFormat.ID3V2)
+        metadata = get_single_format_app_metadata(sample_mp3_file, MetadataSingleFormat.ID3V2)
         assert isinstance(metadata, dict)
 
     def test_get_single_format_app_metadata_vorbis(self, sample_flac_file: Path):
         """Test getting Vorbis metadata from FLAC file."""
-        metadata = get_single_format_app_metadata(sample_flac_file, MetadataFormat.VORBIS)
+        metadata = get_single_format_app_metadata(sample_flac_file, MetadataSingleFormat.VORBIS)
         assert isinstance(metadata, dict)
 
     def test_get_single_format_app_metadata_riff(self, sample_wav_file: Path):
         """Test getting RIFF metadata from WAV file."""
-        metadata = get_single_format_app_metadata(sample_wav_file, MetadataFormat.RIFF)
+        metadata = get_single_format_app_metadata(sample_wav_file, MetadataSingleFormat.RIFF)
         assert isinstance(metadata, dict)
 
     def test_get_single_format_app_metadata_unsupported_format(self, sample_mp3_file: Path):
         """Test getting metadata with unsupported format raises error."""
         with pytest.raises(FileTypeNotSupportedError):
-            get_single_format_app_metadata(sample_mp3_file, MetadataFormat.VORBIS)
+            get_single_format_app_metadata(sample_mp3_file, MetadataSingleFormat.VORBIS)
 
     def test_get_specific_metadata_title(self, sample_mp3_file: Path):
         """Test getting specific title metadata."""
