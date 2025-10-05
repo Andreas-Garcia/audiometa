@@ -46,6 +46,7 @@ Each metadata manager has specific file format requirements and support:
 ### RIFF Manager
 
 - **Strict Support**: WAV files only
+- **Limitations**: Some metadata fields not supported (raises `MetadataNotSupportedError`)
 - **Note**: RIFF is the native metadata format for WAV files and is not supported in other formats
 
 ## Installation
@@ -224,6 +225,61 @@ except FileCorruptedError:
     print("File is corrupted")
 except MetadataNotSupportedError:
     print("Metadata field not supported for this format")
+```
+
+## Unsupported Metadata Handling
+
+The library follows a **"fail fast, fail clearly"** approach for unsupported metadata. When attempting to update metadata that is not supported by a specific format, the library will raise `MetadataNotSupportedError` with a clear message.
+
+### Format-Specific Limitations
+
+| Format         | Behavior                                                    |
+| -------------- | ----------------------------------------------------------- |
+| **RIFF (WAV)** | Any unsupported metadata raises `MetadataNotSupportedError` |
+| **ID3v1**      | Any unsupported metadata raises `MetadataNotSupportedError` |
+| **ID3v2**      | All fields supported                                        |
+| **Vorbis**     | All fields supported                                        |
+
+### Example: Handling Unsupported Metadata
+
+```python
+from audiometa import update_file_metadata
+from audiometa.exceptions import MetadataNotSupportedError
+
+# This will work - all fields are supported in MP3 files
+try:
+    update_file_metadata("song.mp3", {"title": "Song", "rating": 85, "bpm": 120})
+    print("Metadata updated successfully")
+except MetadataNotSupportedError as e:
+    print(f"Some metadata fields not supported: {e}")
+
+# This will raise an exception - some fields not supported in WAV files
+try:
+    update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120})
+except MetadataNotSupportedError as e:
+    print(f"Some metadata fields not supported in WAV files: {e}")
+```
+
+### Best Practices
+
+1. **Check format support** before updating metadata
+2. **Handle exceptions** gracefully in your application
+3. **Use format-specific managers** for advanced control
+4. **Filter unsupported fields** before bulk updates
+
+```python
+# Example: Safe metadata update
+def safe_update_metadata(file_path, metadata):
+    """Update metadata with proper error handling."""
+    try:
+        update_file_metadata(file_path, metadata)
+        return True
+    except MetadataNotSupportedError as e:
+        print(f"Some metadata fields not supported: {e}")
+        return False
+    except Exception as e:
+        print(f"Error updating metadata: {e}")
+        return False
 ```
 
 ## Requirements
