@@ -3,7 +3,7 @@
 import pytest
 
 from audiometa import (
-    get_merged_app_metadata,
+    get_merged_unified_metadata,
     get_single_format_app_metadata,
     update_file_metadata,
     AudioFile
@@ -21,18 +21,18 @@ class TestVorbisFormat:
     def test_vorbis_metadata_capabilities(self, metadata_vorbis_small_flac, metadata_vorbis_big_flac):
         """Test Vorbis metadata capabilities."""
         # Small Vorbis file
-        metadata = get_merged_app_metadata(metadata_vorbis_small_flac)
+        metadata = get_merged_unified_metadata(metadata_vorbis_small_flac)
         title = metadata.get(UnifiedMetadataKey.TITLE)
         assert len(title) > 30  # Vorbis can have longer titles
         
         # Big Vorbis file
-        metadata = get_merged_app_metadata(metadata_vorbis_big_flac)
+        metadata = get_merged_unified_metadata(metadata_vorbis_big_flac)
         title = metadata.get(UnifiedMetadataKey.TITLE)
         assert len(title) > 30  # Vorbis can have longer titles
 
     def test_vorbis_metadata_reading(self, metadata_vorbis_small_flac):
         """Test reading Vorbis metadata from FLAC files."""
-        metadata = get_merged_app_metadata(metadata_vorbis_small_flac)
+        metadata = get_merged_unified_metadata(metadata_vorbis_small_flac)
         assert isinstance(metadata, dict)
         assert UnifiedMetadataKey.TITLE in metadata
         # Vorbis can have very long titles
@@ -47,7 +47,7 @@ class TestVorbisFormat:
     def test_metadata_none_files(self, metadata_none_flac):
         """Test reading metadata from files with no metadata."""
         # FLAC with no metadata
-        metadata = get_merged_app_metadata(metadata_none_flac)
+        metadata = get_merged_unified_metadata(metadata_none_flac)
         assert isinstance(metadata, dict)
 
     def test_audio_file_object_reading(self, metadata_vorbis_small_flac):
@@ -55,7 +55,7 @@ class TestVorbisFormat:
         audio_file = AudioFile(metadata_vorbis_small_flac)
         
         # Test merged metadata
-        metadata = get_merged_app_metadata(audio_file)
+        metadata = get_merged_unified_metadata(audio_file)
         assert isinstance(metadata, dict)
         assert UnifiedMetadataKey.TITLE in metadata
 
@@ -70,7 +70,7 @@ class TestVorbisFormat:
             UnifiedMetadataKey.RATING: 7
         }
         update_file_metadata(temp_audio_file, test_metadata, normalized_rating_max_value=100)
-        metadata = get_merged_app_metadata(temp_audio_file, normalized_rating_max_value=100)
+        metadata = get_merged_unified_metadata(temp_audio_file, normalized_rating_max_value=100)
         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title FLAC"
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist FLAC"]
         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album FLAC"

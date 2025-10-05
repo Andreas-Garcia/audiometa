@@ -4,7 +4,7 @@ import pytest
 from pathlib import Path
 
 from audiometa import (
-    get_merged_app_metadata,
+    get_merged_unified_metadata,
     get_single_format_app_metadata,
     get_specific_metadata,
     AudioFile
@@ -20,7 +20,7 @@ class TestMetadataReading:
 
     def test_get_merged_app_metadata_mp3(self, sample_mp3_file: Path):
         """Test getting merged metadata from MP3 file."""
-        metadata = get_merged_app_metadata(sample_mp3_file)
+        metadata = get_merged_unified_metadata(sample_mp3_file)
         assert isinstance(metadata, dict)
         # Should contain some basic metadata fields
         assert any(key in metadata for key in [
@@ -31,18 +31,18 @@ class TestMetadataReading:
 
     def test_get_merged_app_metadata_flac(self, sample_flac_file: Path):
         """Test getting merged metadata from FLAC file."""
-        metadata = get_merged_app_metadata(sample_flac_file)
+        metadata = get_merged_unified_metadata(sample_flac_file)
         assert isinstance(metadata, dict)
 
     def test_get_merged_app_metadata_wav(self, sample_wav_file: Path):
         """Test getting merged metadata from WAV file."""
-        metadata = get_merged_app_metadata(sample_wav_file)
+        metadata = get_merged_unified_metadata(sample_wav_file)
         assert isinstance(metadata, dict)
 
     def test_get_merged_app_metadata_with_audio_file_object(self, sample_mp3_file: Path):
         """Test getting merged metadata using AudioFile object."""
         audio_file = AudioFile(sample_mp3_file)
-        metadata = get_merged_app_metadata(audio_file)
+        metadata = get_merged_unified_metadata(audio_file)
         assert isinstance(metadata, dict)
 
     def test_get_single_format_app_metadata_id3v2(self, sample_mp3_file: Path):
@@ -91,12 +91,12 @@ class TestMetadataReading:
 
     def test_metadata_with_normalized_rating(self, sample_mp3_file: Path):
         """Test metadata reading with normalized rating."""
-        metadata = get_merged_app_metadata(sample_mp3_file, normalized_rating_max_value=100)
+        metadata = get_merged_unified_metadata(sample_mp3_file, normalized_rating_max_value=100)
         assert isinstance(metadata, dict)
 
     def test_metadata_with_different_rating_normalization(self, sample_mp3_file: Path):
         """Test metadata reading with different rating normalization."""
-        metadata = get_merged_app_metadata(sample_mp3_file, normalized_rating_max_value=255)
+        metadata = get_merged_unified_metadata(sample_mp3_file, normalized_rating_max_value=255)
         assert isinstance(metadata, dict)
 
     def test_unsupported_file_type_raises_error(self, temp_audio_file: Path):
@@ -107,7 +107,7 @@ class TestMetadataReading:
         temp_audio_file.write_bytes(b"fake audio content")
         
         with pytest.raises(FileTypeNotSupportedError):
-            get_merged_app_metadata(str(temp_audio_file))
+            get_merged_unified_metadata(str(temp_audio_file))
 
 
 

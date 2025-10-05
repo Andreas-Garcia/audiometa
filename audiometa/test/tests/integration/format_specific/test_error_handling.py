@@ -3,7 +3,7 @@
 import pytest
 
 from audiometa import (
-    get_merged_app_metadata,
+    get_merged_unified_metadata,
     get_single_format_app_metadata,
     get_specific_metadata
 )
@@ -24,7 +24,7 @@ class TestFormatSpecificErrorHandling:
         temp_audio_file.write_bytes(b"fake audio content")
         
         with pytest.raises(FileTypeNotSupportedError):
-            get_merged_app_metadata(str(temp_audio_file))
+            get_merged_unified_metadata(str(temp_audio_file))
         
         with pytest.raises(FileTypeNotSupportedError):
             get_single_format_app_metadata(str(temp_audio_file), MetadataFormat.ID3V2)

@@ -3,7 +3,7 @@
 import pytest
 
 from audiometa import (
-    get_merged_app_metadata,
+    get_merged_unified_metadata,
     get_single_format_app_metadata,
     get_specific_metadata,
     AudioFile
@@ -19,37 +19,37 @@ class TestId3v1Format:
     def test_id3v1_limitations(self, metadata_id3v1_small_mp3, metadata_id3v1_big_mp3):
         """Test ID3v1 format limitations."""
         # Small ID3v1 file
-        metadata = get_merged_app_metadata(metadata_id3v1_small_mp3)
+        metadata = get_merged_unified_metadata(metadata_id3v1_small_mp3)
         title = metadata.get(UnifiedMetadataKey.TITLE)
         assert len(title) == 30  # ID3v1 title limit
         
         # Big ID3v1 file (should still be limited)
-        metadata = get_merged_app_metadata(metadata_id3v1_big_mp3)
+        metadata = get_merged_unified_metadata(metadata_id3v1_big_mp3)
         title = metadata.get(UnifiedMetadataKey.TITLE)
         assert len(title) == 30  # ID3v1 title limit
 
     def test_id3v1_metadata_reading(self, metadata_id3v1_small_mp3, metadata_id3v1_small_flac, metadata_id3v1_small_wav):
         """Test reading ID3v1 metadata from various formats."""
         # MP3 with ID3v1
-        metadata = get_merged_app_metadata(metadata_id3v1_small_mp3)
+        metadata = get_merged_unified_metadata(metadata_id3v1_small_mp3)
         assert isinstance(metadata, dict)
         assert UnifiedMetadataKey.TITLE in metadata
         assert metadata[UnifiedMetadataKey.TITLE] == 'a' * 30  # ID3v1 title limit
         
         # FLAC with ID3v1
-        metadata = get_merged_app_metadata(metadata_id3v1_small_flac)
+        metadata = get_merged_unified_metadata(metadata_id3v1_small_flac)
         assert isinstance(metadata, dict)
         assert UnifiedMetadataKey.TITLE in metadata
         
         # WAV with ID3v1
-        metadata = get_merged_app_metadata(metadata_id3v1_small_wav)
+        metadata = get_merged_unified_metadata(metadata_id3v1_small_wav)
         assert isinstance(metadata, dict)
         assert UnifiedMetadataKey.TITLE in metadata
 
     def test_metadata_none_files(self, metadata_none_mp3):
         """Test reading metadata from files with no metadata."""
         # MP3 with no metadata
-        metadata = get_merged_app_metadata(metadata_none_mp3)
+        metadata = get_merged_unified_metadata(metadata_none_mp3)
         assert isinstance(metadata, dict)
         # Should have minimal or no metadata
         assert not metadata.get(UnifiedMetadataKey.TITLE) or metadata.get(UnifiedMetadataKey.TITLE) == ""
@@ -59,7 +59,7 @@ class TestId3v1Format:
         audio_file = AudioFile(metadata_id3v1_small_mp3)
         
         # Test merged metadata
-        metadata = get_merged_app_metadata(audio_file)
+        metadata = get_merged_unified_metadata(audio_file)
         assert isinstance(metadata, dict)
         assert UnifiedMetadataKey.TITLE in metadata
         

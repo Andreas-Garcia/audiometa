@@ -87,7 +87,7 @@ def get_single_format_app_metadata(
     return manager.get_app_metadata()
 
 
-def get_merged_app_metadata(
+def get_merged_unified_metadata(
         file: FILE_TYPE, normalized_rating_max_value: int | None = None) -> AppMetadata:
     if not isinstance(file, AudioFile):
         file = AudioFile(file)

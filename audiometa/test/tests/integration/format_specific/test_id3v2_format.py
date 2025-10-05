@@ -3,7 +3,7 @@
 import pytest
 
 from audiometa import (
-    get_merged_app_metadata,
+    get_merged_unified_metadata,
     get_single_format_app_metadata,
     get_specific_metadata,
     update_file_metadata,
@@ -21,31 +21,31 @@ class TestId3v2Format:
     def test_id3v2_extended_metadata(self, metadata_id3v2_small_mp3, metadata_id3v2_big_mp3):
         """Test ID3v2 extended metadata capabilities."""
         # Small ID3v2 file
-        metadata = get_merged_app_metadata(metadata_id3v2_small_mp3)
+        metadata = get_merged_unified_metadata(metadata_id3v2_small_mp3)
         title = metadata.get(UnifiedMetadataKey.TITLE)
         assert len(title) > 30  # ID3v2 can have longer titles
         
         # Big ID3v2 file
-        metadata = get_merged_app_metadata(metadata_id3v2_big_mp3)
+        metadata = get_merged_unified_metadata(metadata_id3v2_big_mp3)
         title = metadata.get(UnifiedMetadataKey.TITLE)
         assert len(title) > 30  # ID3v2 can have longer titles
 
     def test_id3v2_metadata_reading(self, metadata_id3v2_small_mp3, metadata_id3v2_small_flac, metadata_id3v2_small_wav):
         """Test reading ID3v2 metadata from various formats."""
         # MP3 with ID3v2
-        metadata = get_merged_app_metadata(metadata_id3v2_small_mp3)
+        metadata = get_merged_unified_metadata(metadata_id3v2_small_mp3)
         assert isinstance(metadata, dict)
         assert UnifiedMetadataKey.TITLE in metadata
         # ID3v2 can have longer titles than ID3v1
         assert len(metadata[UnifiedMetadataKey.TITLE]) > 30
         
         # FLAC with ID3v2
-        metadata = get_merged_app_metadata(metadata_id3v2_small_flac)
+        metadata = get_merged_unified_metadata(metadata_id3v2_small_flac)
         assert isinstance(metadata, dict)
         assert UnifiedMetadataKey.TITLE in metadata
         
         # WAV with ID3v2
-        metadata = get_merged_app_metadata(metadata_id3v2_small_wav)
+        metadata = get_merged_unified_metadata(metadata_id3v2_small_wav)
         assert isinstance(metadata, dict)
         assert UnifiedMetadataKey.TITLE in metadata
 
@@ -60,7 +60,7 @@ class TestId3v2Format:
         audio_file = AudioFile(metadata_id3v2_small_mp3)
         
         # Test merged metadata
-        metadata = get_merged_app_metadata(audio_file)
+        metadata = get_merged_unified_metadata(audio_file)
         assert isinstance(metadata, dict)
         assert UnifiedMetadataKey.TITLE in metadata
         
@@ -83,7 +83,7 @@ class TestId3v2Format:
             UnifiedMetadataKey.RATING: 8
         }
         update_file_metadata(temp_audio_file, test_metadata, normalized_rating_max_value=255)
-        metadata = get_merged_app_metadata(temp_audio_file, normalized_rating_max_value=255)
+        metadata = get_merged_unified_metadata(temp_audio_file, normalized_rating_max_value=255)
         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title MP3"
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist MP3"]
         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album MP3"

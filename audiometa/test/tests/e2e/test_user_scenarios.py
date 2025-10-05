@@ -7,7 +7,7 @@ in real-world applications.
 import pytest
 import shutil
 from pathlib import Path
-from audiometa import AudioFile, get_merged_app_metadata, get_specific_metadata, update_file_metadata
+from audiometa import AudioFile, get_merged_unified_metadata, get_specific_metadata, update_file_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 

@@ -6,7 +6,7 @@ import tempfile
 import shutil
 
 from audiometa import (
-    get_merged_app_metadata,
+    get_merged_unified_metadata,
     update_file_metadata,
     get_specific_metadata,
     AudioFile

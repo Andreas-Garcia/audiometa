@@ -8,7 +8,7 @@ import pytest
 from pathlib import Path
 
 from audiometa import (
-    get_merged_app_metadata,
+    get_merged_unified_metadata,
     get_single_format_app_metadata,
     get_specific_metadata
 )
@@ -26,7 +26,7 @@ class TestApiConsistency:
         
         for file_path in files:
             # All files should return metadata dictionaries
-            metadata = get_merged_app_metadata(file_path)
+            metadata = get_merged_unified_metadata(file_path)
             assert isinstance(metadata, dict)
             
             # All files should support specific metadata queries
@@ -40,7 +40,7 @@ class TestApiConsistency:
     def test_metadata_manager_integration_mp3(self, sample_mp3_file: Path):
         """Test integration between different metadata managers for MP3."""
         # Test that merged metadata combines multiple sources
-        metadata = get_merged_app_metadata(sample_mp3_file)
+        metadata = get_merged_unified_metadata(sample_mp3_file)
         assert isinstance(metadata, dict)
         
         # Test single format metadata extraction
@@ -54,7 +54,7 @@ class TestApiConsistency:
     def test_metadata_manager_integration_flac(self, sample_flac_file: Path):
         """Test integration between different metadata managers for FLAC."""
         # Test that merged metadata combines multiple sources
-        metadata = get_merged_app_metadata(sample_flac_file)
+        metadata = get_merged_unified_metadata(sample_flac_file)
         assert isinstance(metadata, dict)
         
         # Test single format metadata extraction
@@ -68,7 +68,7 @@ class TestApiConsistency:
     def test_metadata_manager_integration_wav(self, sample_wav_file: Path):
         """Test integration between different metadata managers for WAV."""
         # Test that merged metadata combines multiple sources
-        metadata = get_merged_app_metadata(sample_wav_file)
+        metadata = get_merged_unified_metadata(sample_wav_file)
         assert isinstance(metadata, dict)
         
         # Test single format metadata extraction
@@ -85,7 +85,7 @@ class TestApiConsistency:
         
         for file_path in files:
             # All files should return metadata dictionaries
-            metadata = get_merged_app_metadata(file_path)
+            metadata = get_merged_unified_metadata(file_path)
             assert isinstance(metadata, dict)
             
             # All files should support specific metadata queries

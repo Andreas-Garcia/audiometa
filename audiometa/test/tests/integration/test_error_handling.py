@@ -8,7 +8,7 @@ import pytest
 from pathlib import Path
 
 from audiometa import (
-    get_merged_app_metadata,
+    get_merged_unified_metadata,
     get_single_format_app_metadata,
     get_specific_metadata,
     update_file_metadata,
@@ -34,7 +34,7 @@ class TestErrorHandling:
         
         # All APIs should handle unsupported files consistently
         with pytest.raises(FileTypeNotSupportedError):
-            get_merged_app_metadata(str(temp_audio_file))
+            get_merged_unified_metadata(str(temp_audio_file))
         
         with pytest.raises(FileTypeNotSupportedError):
             get_single_format_app_metadata(str(temp_audio_file), MetadataFormat.ID3V2)
@@ -59,7 +59,7 @@ class TestErrorHandling:
         nonexistent_file = "nonexistent_file.mp3"
         
         with pytest.raises(FileNotFoundError):
-            get_merged_app_metadata(nonexistent_file)
+            get_merged_unified_metadata(nonexistent_file)
         
         with pytest.raises(FileNotFoundError):
             get_single_format_app_metadata(nonexistent_file, MetadataFormat.ID3V2)

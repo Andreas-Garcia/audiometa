@@ -6,7 +6,7 @@ import tempfile
 import shutil
 
 from audiometa import (
-    get_merged_app_metadata,
+    get_merged_unified_metadata,
     update_file_metadata,
     get_specific_metadata,
     AudioFile
@@ -46,7 +46,7 @@ class TestBpmMetadata:
         update_file_metadata(temp_audio_file, test_metadata)
         
         # WAV files may not support BPM metadata
-        metadata = get_merged_app_metadata(temp_audio_file)
+        metadata = get_merged_unified_metadata(temp_audio_file)
         assert UnifiedMetadataKey.BPM not in metadata or metadata.get(UnifiedMetadataKey.BPM) is None
 
     def test_bpm_metadata_with_audio_file_object(self, sample_mp3_file: Path, temp_audio_file: Path):

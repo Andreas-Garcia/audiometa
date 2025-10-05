@@ -6,7 +6,7 @@ import tempfile
 import shutil
 
 from audiometa import (
-    get_merged_app_metadata,
+    get_merged_unified_metadata,
     update_file_metadata,
     get_specific_metadata,
     AudioFile
@@ -35,7 +35,7 @@ class TestBasicMetadata:
         update_file_metadata(temp_audio_file, test_metadata)
         
         # Verify all fields
-        metadata = get_merged_app_metadata(temp_audio_file)
+        metadata = get_merged_unified_metadata(temp_audio_file)
         assert metadata.get(UnifiedMetadataKey.TITLE) == "Complete Test Song"
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist 1", "Test Artist 2"]
         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Complete Test Album"
@@ -55,7 +55,7 @@ class TestBasicMetadata:
         
         update_file_metadata(audio_file, test_metadata)
         
-        metadata = get_merged_app_metadata(audio_file)
+        metadata = get_merged_unified_metadata(audio_file)
         assert metadata.get(UnifiedMetadataKey.TITLE) == "AudioFile Test Title"
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["AudioFile Test Artist"]
 
@@ -74,7 +74,7 @@ class TestBasicMetadata:
     def test_empty_metadata_handling(self, sample_mp3_file: Path):
         """Test handling of empty or missing metadata."""
         # Test reading from file with no metadata
-        metadata = get_merged_app_metadata(sample_mp3_file)
+        metadata = get_merged_unified_metadata(sample_mp3_file)
         assert isinstance(metadata, dict)
         
         # Test getting specific metadata that doesn't exist

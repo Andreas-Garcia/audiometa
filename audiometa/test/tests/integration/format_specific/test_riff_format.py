@@ -3,7 +3,7 @@
 import pytest
 
 from audiometa import (
-    get_merged_app_metadata,
+    get_merged_unified_metadata,
     get_single_format_app_metadata,
     update_file_metadata,
     AudioFile
@@ -20,18 +20,18 @@ class TestRiffFormat:
     def test_riff_metadata_capabilities(self, metadata_riff_small_wav, metadata_riff_big_wav):
         """Test RIFF metadata capabilities."""
         # Small RIFF file
-        metadata = get_merged_app_metadata(metadata_riff_small_wav)
+        metadata = get_merged_unified_metadata(metadata_riff_small_wav)
         title = metadata.get(UnifiedMetadataKey.TITLE)
         assert len(title) > 30  # RIFF can have longer titles
         
         # Big RIFF file
-        metadata = get_merged_app_metadata(metadata_riff_big_wav)
+        metadata = get_merged_unified_metadata(metadata_riff_big_wav)
         title = metadata.get(UnifiedMetadataKey.TITLE)
         assert len(title) > 30  # RIFF can have longer titles
 
     def test_riff_metadata_reading(self, metadata_riff_small_wav):
         """Test reading RIFF metadata from WAV files."""
-        metadata = get_merged_app_metadata(metadata_riff_small_wav)
+        metadata = get_merged_unified_metadata(metadata_riff_small_wav)
         assert isinstance(metadata, dict)
         assert UnifiedMetadataKey.TITLE in metadata
         # RIFF can have longer titles than ID3v1
@@ -46,7 +46,7 @@ class TestRiffFormat:
     def test_metadata_none_files(self, metadata_none_wav):
         """Test reading metadata from files with no metadata."""
         # WAV with no metadata
-        metadata = get_merged_app_metadata(metadata_none_wav)
+        metadata = get_merged_unified_metadata(metadata_none_wav)
         assert isinstance(metadata, dict)
 
     def test_audio_file_object_reading(self, metadata_riff_small_wav):
@@ -54,7 +54,7 @@ class TestRiffFormat:
         audio_file = AudioFile(metadata_riff_small_wav)
         
         # Test merged metadata
-        metadata = get_merged_app_metadata(audio_file)
+        metadata = get_merged_unified_metadata(audio_file)
         assert isinstance(metadata, dict)
         assert UnifiedMetadataKey.TITLE in metadata
 
@@ -69,7 +69,7 @@ class TestRiffFormat:
             UnifiedMetadataKey.RATING: 9
         }
         update_file_metadata(temp_audio_file, test_metadata, normalized_rating_max_value=100)
-        metadata = get_merged_app_metadata(temp_audio_file, normalized_rating_max_value=100)
+        metadata = get_merged_unified_metadata(temp_audio_file, normalized_rating_max_value=100)
         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title WAV"
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist WAV"]
         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album WAV"

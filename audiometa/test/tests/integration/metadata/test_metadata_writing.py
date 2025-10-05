@@ -8,7 +8,7 @@ import shutil
 from audiometa import (
     update_file_metadata,
     delete_metadata,
-    get_merged_app_metadata,
+    get_merged_unified_metadata,
     AudioFile
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -37,7 +37,7 @@ class TestMetadataWriting:
         update_file_metadata(temp_audio_file, test_metadata)
         
         # Verify metadata was written
-        updated_metadata = get_merged_app_metadata(temp_audio_file)
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
         assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
@@ -59,7 +59,7 @@ class TestMetadataWriting:
         update_file_metadata(temp_audio_file, test_metadata)
         
         # Verify metadata was written
-        updated_metadata = get_merged_app_metadata(temp_audio_file)
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test FLAC Title"
         assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test FLAC Artist"]
         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test FLAC Album"
@@ -80,7 +80,7 @@ class TestMetadataWriting:
         update_file_metadata(temp_audio_file, test_metadata)
         
         # Verify metadata was written
-        updated_metadata = get_merged_app_metadata(temp_audio_file)
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test WAV Title"
         assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test WAV Artist"]
         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test WAV Album"
@@ -100,7 +100,7 @@ class TestMetadataWriting:
         update_file_metadata(audio_file, test_metadata)
         
         # Verify metadata was written
-        updated_metadata = get_merged_app_metadata(audio_file)
+        updated_metadata = get_merged_unified_metadata(audio_file)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title with AudioFile"
         assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist with AudioFile"]
 
@@ -118,7 +118,7 @@ class TestMetadataWriting:
         update_file_metadata(temp_audio_file, test_metadata, normalized_rating_max_value=100)
         
         # Verify metadata was written
-        updated_metadata = get_merged_app_metadata(temp_audio_file, normalized_rating_max_value=100)
+        updated_metadata = get_merged_unified_metadata(temp_audio_file, normalized_rating_max_value=100)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title with Rating"
         assert updated_metadata.get(UnifiedMetadataKey.RATING) == 75
 
@@ -137,7 +137,7 @@ class TestMetadataWriting:
         update_file_metadata(temp_audio_file, test_metadata)
         
         # Verify only supported metadata was written
-        updated_metadata = get_merged_app_metadata(temp_audio_file)
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
         # BPM should not be present for WAV files
         assert UnifiedMetadataKey.BPM not in updated_metadata
@@ -155,7 +155,7 @@ class TestMetadataWriting:
         update_file_metadata(temp_audio_file, test_metadata)
         
         # Verify metadata was added
-        updated_metadata = get_merged_app_metadata(temp_audio_file)
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title to Delete"
         
         # Delete metadata
@@ -163,7 +163,7 @@ class TestMetadataWriting:
         assert result is True
         
         # Verify metadata was deleted (should be empty or minimal)
-        deleted_metadata = get_merged_app_metadata(temp_audio_file)
+        deleted_metadata = get_merged_unified_metadata(temp_audio_file)
         # After deletion, metadata should be empty or contain only technical info
         assert UnifiedMetadataKey.TITLE not in deleted_metadata or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "Test Title to Delete"
 
@@ -219,7 +219,7 @@ class TestMetadataWriting:
         }
         
         update_file_metadata(temp_audio_file, test_metadata)
-        updated_metadata = get_merged_app_metadata(temp_audio_file)
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title MP3"
         assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist MP3"]
         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album MP3"
@@ -235,7 +235,7 @@ class TestMetadataWriting:
         }
         
         update_file_metadata(temp_audio_file, test_metadata)
-        updated_metadata = get_merged_app_metadata(temp_audio_file)
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title FLAC"
         assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist FLAC"]
         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album FLAC"
@@ -251,7 +251,7 @@ class TestMetadataWriting:
         }
         
         update_file_metadata(temp_audio_file, test_metadata)
-        updated_metadata = get_merged_app_metadata(temp_audio_file)
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title WAV"
         assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist WAV"]
         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album WAV"
@@ -269,7 +269,7 @@ class TestMetadataWriting:
         }
         
         update_file_metadata(temp_audio_file, test_metadata)
-        updated_metadata = get_merged_app_metadata(temp_audio_file)
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Updated Title MP3"
         assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Updated Artist MP3"]
         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Updated Album MP3"
@@ -285,7 +285,7 @@ class TestMetadataWriting:
         }
         
         update_file_metadata(temp_audio_file, test_metadata)
-        updated_metadata = get_merged_app_metadata(temp_audio_file)
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Updated Title FLAC"
         assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Updated Artist FLAC"]
         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Updated Album FLAC"
@@ -300,7 +300,7 @@ class TestMetadataWriting:
         }
         
         update_file_metadata(temp_audio_file, test_metadata)
-        updated_metadata = get_merged_app_metadata(temp_audio_file)
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Updated Title WAV"
         assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Updated Artist WAV"]
         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Updated Album WAV"
@@ -318,7 +318,7 @@ class TestMetadataWriting:
         }
         
         update_file_metadata(audio_file, test_metadata)
-        updated_metadata = get_merged_app_metadata(audio_file)
+        updated_metadata = get_merged_unified_metadata(audio_file)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "AudioFile Test Title"
         assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["AudioFile Test Artist"]
         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "AudioFile Test Album"
@@ -338,7 +338,7 @@ class TestMetadataWriting:
         }
         
         update_file_metadata(temp_audio_file, test_metadata)
-        updated_metadata = get_merged_app_metadata(temp_audio_file)
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "WAV Test Title"
         assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["WAV Test Artist"]
         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "WAV Test Album"
@@ -358,7 +358,7 @@ class TestMetadataWriting:
         }
         
         update_file_metadata(temp_audio_file, test_metadata)
-        updated_metadata = get_merged_app_metadata(temp_audio_file)
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == ""
         assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == []
         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == ""
@@ -371,7 +371,7 @@ class TestMetadataWriting:
         }
         
         update_file_metadata(temp_audio_file, test_metadata)
-        updated_metadata = get_merged_app_metadata(temp_audio_file)
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == long_string
         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == long_string
 
@@ -380,7 +380,7 @@ class TestMetadataWriting:
         shutil.copy2(metadata_id3v2_small_mp3, temp_audio_file)
         
         # Get original metadata
-        original_metadata = get_merged_app_metadata(temp_audio_file)
+        original_metadata = get_merged_unified_metadata(temp_audio_file)
         original_title = original_metadata.get(UnifiedMetadataKey.TITLE)
         original_album = original_metadata.get(UnifiedMetadataKey.ALBUM_NAME)
         
@@ -390,7 +390,7 @@ class TestMetadataWriting:
         }
         
         update_file_metadata(temp_audio_file, test_metadata)
-        updated_metadata = get_merged_app_metadata(temp_audio_file)
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
         
         # Title should be updated
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Partial Update Title"

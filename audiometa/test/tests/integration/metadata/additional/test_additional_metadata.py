@@ -6,7 +6,7 @@ import tempfile
 import shutil
 
 from audiometa import (
-    get_merged_app_metadata,
+    get_merged_unified_metadata,
     update_file_metadata,
     get_specific_metadata,
     AudioFile
@@ -39,7 +39,7 @@ class TestAdditionalMetadata:
         update_file_metadata(temp_audio_file, test_metadata)
         
         # Verify all fields
-        metadata = get_merged_app_metadata(temp_audio_file)
+        metadata = get_merged_unified_metadata(temp_audio_file)
         assert metadata.get(UnifiedMetadataKey.COMPOSER) == "Test Composer"
         assert metadata.get(UnifiedMetadataKey.PUBLISHER) == "Test Publisher"
         assert metadata.get(UnifiedMetadataKey.COPYRIGHT) == "© 2024 Test Label"
@@ -64,7 +64,7 @@ class TestAdditionalMetadata:
         
         update_file_metadata(audio_file, test_metadata)
         
-        metadata = get_merged_app_metadata(audio_file)
+        metadata = get_merged_unified_metadata(audio_file)
         assert metadata.get(UnifiedMetadataKey.COMPOSER) == "AudioFile Composer"
         assert metadata.get(UnifiedMetadataKey.PUBLISHER) == "AudioFile Publisher"
         assert metadata.get(UnifiedMetadataKey.COMMENT) == "AudioFile Comment"
@@ -72,7 +72,7 @@ class TestAdditionalMetadata:
     def test_empty_additional_metadata_handling(self, sample_mp3_file: Path):
         """Test handling of empty or missing additional metadata."""
         # Test reading from file with no additional metadata
-        metadata = get_merged_app_metadata(sample_mp3_file)
+        metadata = get_merged_unified_metadata(sample_mp3_file)
         assert isinstance(metadata, dict)
         
         # Test getting specific additional metadata that doesn't exist

@@ -5,7 +5,7 @@ from pathlib import Path
 import shutil
 
 from audiometa import (
-    get_merged_app_metadata,
+    get_merged_unified_metadata,
     update_file_metadata,
     get_specific_metadata,
     AudioFile
@@ -39,7 +39,7 @@ class TestAdvancedMetadata:
         update_file_metadata(temp_audio_file, test_metadata)
         
         # Verify all fields
-        metadata = get_merged_app_metadata(temp_audio_file)
+        metadata = get_merged_unified_metadata(temp_audio_file)
         assert metadata.get(UnifiedMetadataKey.COVER_ART) == b"test_cover_art_data"
         assert metadata.get(UnifiedMetadataKey.COMPILATION) is True
         assert metadata.get(UnifiedMetadataKey.MEDIA_TYPE) == "Digital Media"
@@ -65,7 +65,7 @@ class TestAdvancedMetadata:
         
         update_file_metadata(audio_file, test_metadata)
         
-        metadata = get_merged_app_metadata(audio_file)
+        metadata = get_merged_unified_metadata(audio_file)
         assert metadata.get(UnifiedMetadataKey.COMPILATION) is True
         assert metadata.get(UnifiedMetadataKey.MEDIA_TYPE) == "AudioFile Media"
         assert metadata.get(UnifiedMetadataKey.CONDUCTOR) == "AudioFile Conductor"
@@ -73,7 +73,7 @@ class TestAdvancedMetadata:
     def test_empty_advanced_metadata_handling(self, sample_mp3_file: Path):
         """Test handling of empty or missing advanced metadata."""
         # Test reading from file with no advanced metadata
-        metadata = get_merged_app_metadata(sample_mp3_file)
+        metadata = get_merged_unified_metadata(sample_mp3_file)
         assert isinstance(metadata, dict)
         
         # Test getting specific advanced metadata that doesn't exist

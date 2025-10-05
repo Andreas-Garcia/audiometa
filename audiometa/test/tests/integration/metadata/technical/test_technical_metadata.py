@@ -5,7 +5,7 @@ from pathlib import Path
 import shutil
 
 from audiometa import (
-    get_merged_app_metadata,
+    get_merged_unified_metadata,
     update_file_metadata,
     get_specific_metadata,
     AudioFile
@@ -32,7 +32,7 @@ class TestTechnicalMetadata:
         update_file_metadata(temp_audio_file, test_metadata)
         
         # Verify all fields
-        metadata = get_merged_app_metadata(temp_audio_file)
+        metadata = get_merged_unified_metadata(temp_audio_file)
         assert metadata.get(UnifiedMetadataKey.RELEASE_DATE) == "2024-01-15"
         assert metadata.get(UnifiedMetadataKey.TRACK_NUMBER) == 3
         assert metadata.get(UnifiedMetadataKey.BPM) == 140
@@ -51,7 +51,7 @@ class TestTechnicalMetadata:
         
         update_file_metadata(audio_file, test_metadata)
         
-        metadata = get_merged_app_metadata(audio_file)
+        metadata = get_merged_unified_metadata(audio_file)
         assert metadata.get(UnifiedMetadataKey.RELEASE_DATE) == "2024-02-20"
         assert metadata.get(UnifiedMetadataKey.TRACK_NUMBER) == 5
         assert metadata.get(UnifiedMetadataKey.BPM) == 128
@@ -79,7 +79,7 @@ class TestTechnicalMetadata:
         }
         update_file_metadata(temp_audio_file, test_metadata_min)
         
-        metadata = get_merged_app_metadata(temp_audio_file)
+        metadata = get_merged_unified_metadata(temp_audio_file)
         assert metadata.get(UnifiedMetadataKey.TRACK_NUMBER) == 1
         assert metadata.get(UnifiedMetadataKey.BPM) == 1
         
@@ -90,14 +90,14 @@ class TestTechnicalMetadata:
         }
         update_file_metadata(temp_audio_file, test_metadata_max)
         
-        metadata = get_merged_app_metadata(temp_audio_file)
+        metadata = get_merged_unified_metadata(temp_audio_file)
         assert metadata.get(UnifiedMetadataKey.TRACK_NUMBER) == 999
         assert metadata.get(UnifiedMetadataKey.BPM) == 999
 
     def test_empty_technical_metadata_handling(self, sample_mp3_file: Path):
         """Test handling of empty or missing technical metadata."""
         # Test reading from file with no technical metadata
-        metadata = get_merged_app_metadata(sample_mp3_file)
+        metadata = get_merged_unified_metadata(sample_mp3_file)
         assert isinstance(metadata, dict)
         
         # Test getting specific technical metadata that doesn't exist
@@ -116,93 +116,93 @@ class TestTechnicalMetadata:
     def test_technical_metadata_formats(self, bitrate_320_mp3, bitrate_946_flac, bitrate_1411_wav):
         """Test technical metadata across different formats."""
         # MP3 bitrate
-        metadata = get_merged_app_metadata(bitrate_320_mp3)
+        metadata = get_merged_unified_metadata(bitrate_320_mp3)
         assert metadata.get(UnifiedMetadataKey.BITRATE) == 320
         
         # FLAC bitrate
-        metadata = get_merged_app_metadata(bitrate_946_flac)
+        metadata = get_merged_unified_metadata(bitrate_946_flac)
         assert metadata.get(UnifiedMetadataKey.BITRATE) == 946
         
         # WAV bitrate
-        metadata = get_merged_app_metadata(bitrate_1411_wav)
+        metadata = get_merged_unified_metadata(bitrate_1411_wav)
         assert metadata.get(UnifiedMetadataKey.BITRATE) == 1411
 
     def test_duration_metadata_formats(self, duration_182s_mp3, duration_335s_flac, duration_472s_wav):
         """Test duration metadata across different formats."""
         # MP3 duration
-        metadata = get_merged_app_metadata(duration_182s_mp3)
+        metadata = get_merged_unified_metadata(duration_182s_mp3)
         assert abs(metadata.get(UnifiedMetadataKey.DURATION) - 182.0) < 1.0
         
         # FLAC duration
-        metadata = get_merged_app_metadata(duration_335s_flac)
+        metadata = get_merged_unified_metadata(duration_335s_flac)
         assert abs(metadata.get(UnifiedMetadataKey.DURATION) - 335.0) < 1.0
         
         # WAV duration
-        metadata = get_merged_app_metadata(duration_472s_wav)
+        metadata = get_merged_unified_metadata(duration_472s_wav)
         assert abs(metadata.get(UnifiedMetadataKey.DURATION) - 472.0) < 1.0
 
     def test_file_size_metadata_formats(self, size_small_mp3, size_big_mp3, size_small_flac, size_big_flac, size_small_wav, size_big_wav):
         """Test file size metadata across different formats."""
         # Small files
-        metadata = get_merged_app_metadata(size_small_mp3)
+        metadata = get_merged_unified_metadata(size_small_mp3)
         assert metadata.get(UnifiedMetadataKey.FILE_SIZE) > 0
         
-        metadata = get_merged_app_metadata(size_small_flac)
+        metadata = get_merged_unified_metadata(size_small_flac)
         assert metadata.get(UnifiedMetadataKey.FILE_SIZE) > 0
         
-        metadata = get_merged_app_metadata(size_small_wav)
+        metadata = get_merged_unified_metadata(size_small_wav)
         assert metadata.get(UnifiedMetadataKey.FILE_SIZE) > 0
         
         # Big files
-        metadata = get_merged_app_metadata(size_big_mp3)
+        metadata = get_merged_unified_metadata(size_big_mp3)
         assert metadata.get(UnifiedMetadataKey.FILE_SIZE) > 0
         
-        metadata = get_merged_app_metadata(size_big_flac)
+        metadata = get_merged_unified_metadata(size_big_flac)
         assert metadata.get(UnifiedMetadataKey.FILE_SIZE) > 0
         
-        metadata = get_merged_app_metadata(size_big_wav)
+        metadata = get_merged_unified_metadata(size_big_wav)
         assert metadata.get(UnifiedMetadataKey.FILE_SIZE) > 0
 
     def test_technical_metadata_reading(self, bitrate_320_mp3, bitrate_946_flac, bitrate_1411_wav, duration_182s_mp3, duration_335s_flac, duration_472s_wav):
         """Test reading technical metadata from different formats."""
         # Bitrate tests
-        metadata = get_merged_app_metadata(bitrate_320_mp3)
+        metadata = get_merged_unified_metadata(bitrate_320_mp3)
         assert metadata.get(UnifiedMetadataKey.BITRATE) == 320
         
-        metadata = get_merged_app_metadata(bitrate_946_flac)
+        metadata = get_merged_unified_metadata(bitrate_946_flac)
         assert metadata.get(UnifiedMetadataKey.BITRATE) == 946
         
-        metadata = get_merged_app_metadata(bitrate_1411_wav)
+        metadata = get_merged_unified_metadata(bitrate_1411_wav)
         assert metadata.get(UnifiedMetadataKey.BITRATE) == 1411
         
         # Duration tests
-        metadata = get_merged_app_metadata(duration_182s_mp3)
+        metadata = get_merged_unified_metadata(duration_182s_mp3)
         assert abs(metadata.get(UnifiedMetadataKey.DURATION) - 182.0) < 1.0
         
-        metadata = get_merged_app_metadata(duration_335s_flac)
+        metadata = get_merged_unified_metadata(duration_335s_flac)
         assert abs(metadata.get(UnifiedMetadataKey.DURATION) - 335.0) < 1.0
         
-        metadata = get_merged_app_metadata(duration_472s_wav)
+        metadata = get_merged_unified_metadata(duration_472s_wav)
         assert abs(metadata.get(UnifiedMetadataKey.DURATION) - 472.0) < 1.0
 
     def test_file_size_metadata_reading(self, size_small_mp3, size_big_mp3, size_small_flac, size_big_flac, size_small_wav, size_big_wav):
         """Test reading file size metadata from different formats."""
         # Small files
-        metadata = get_merged_app_metadata(size_small_mp3)
+        metadata = get_merged_unified_metadata(size_small_mp3)
         assert metadata.get(UnifiedMetadataKey.FILE_SIZE) > 0
         
-        metadata = get_merged_app_metadata(size_small_flac)
+        metadata = get_merged_unified_metadata(size_small_flac)
         assert metadata.get(UnifiedMetadataKey.FILE_SIZE) > 0
         
-        metadata = get_merged_app_metadata(size_small_wav)
+        metadata = get_merged_unified_metadata(size_small_wav)
         assert metadata.get(UnifiedMetadataKey.FILE_SIZE) > 0
         
         # Big files
-        metadata = get_merged_app_metadata(size_big_mp3)
+        metadata = get_merged_unified_metadata(size_big_mp3)
         assert metadata.get(UnifiedMetadataKey.FILE_SIZE) > 0
         
-        metadata = get_merged_app_metadata(size_big_flac)
+        metadata = get_merged_unified_metadata(size_big_flac)
         assert metadata.get(UnifiedMetadataKey.FILE_SIZE) > 0
         
-        metadata = get_merged_app_metadata(size_big_wav)
+        metadata = get_merged_unified_metadata(size_big_wav)
         assert metadata.get(UnifiedMetadataKey.FILE_SIZE) > 0
