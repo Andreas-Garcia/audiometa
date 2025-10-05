@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **ID3v1**: Read/Write (limited to 30 chars per field, no rating support)
 - **ID3v2**: Read/Write with full feature support including ratings (v2.2, v2.3, v2.4)
-- **Vorbis**: Read/Write for OGG/FLAC files with rating support
+- **Vorbis**: Read/Write for FLAC files with rating support
 - **RIFF**: Read/Write for WAV files (no rating support)
 
 ### Requirements
