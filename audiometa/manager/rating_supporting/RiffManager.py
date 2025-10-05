@@ -6,7 +6,7 @@ from mutagen._file import FileType as MutagenMetadata
 from mutagen.wave import WAVE
 
 from ...audio_file import AudioFile
-from ...exceptions import ConfigurationError, MetadataNotSupportedError
+from ...exceptions import ConfigurationError, MetadataNotSupportedError, FileTypeNotSupportedError
 from ...utils.id3v1_genre_code_map import ID3V1_GENRE_CODE_MAP
 from ...utils.rating_profiles import RatingWriteProfile
 from ...utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
@@ -72,6 +72,10 @@ class RiffManager(RatingSupportingMetadataManager):
         TECHNICIAN = 'ITCH'  # Technician who worked on the track
 
     def __init__(self, audio_file: AudioFile, normalized_rating_max_value: None | int = None):
+        # Validate that the file is a WAV file
+        if audio_file.file_extension != '.wav':
+            raise FileTypeNotSupportedError(f"RiffManager only supports WAV files, got {audio_file.file_extension}")
+        
         metadata_keys_direct_map_read = {
             UnifiedMetadataKey.TITLE: self.RiffTagKey.TITLE,
             UnifiedMetadataKey.ARTISTS_NAMES: self.RiffTagKey.ARTIST_NAME,
