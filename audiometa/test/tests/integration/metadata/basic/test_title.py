@@ -19,7 +19,6 @@ class TestTitleMetadata:
     """Test cases for title metadata."""
 
     def test_title_metadata_mp3(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test title metadata in MP3 file."""
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
         # Test writing title
@@ -35,7 +34,6 @@ class TestTitleMetadata:
         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Song Title"
 
     def test_title_metadata_flac(self, sample_flac_file: Path, temp_audio_file: Path):
-        """Test title metadata in FLAC file."""
         shutil.copy2(sample_flac_file, temp_audio_file)
         
         test_metadata = {UnifiedMetadataKey.TITLE: "FLAC Test Title"}
@@ -45,7 +43,6 @@ class TestTitleMetadata:
         assert title == "FLAC Test Title"
 
     def test_title_metadata_wav(self, sample_wav_file: Path, temp_audio_file: Path):
-        """Test title metadata in WAV file."""
         shutil.copy2(sample_wav_file, temp_audio_file)
         
         test_metadata = {UnifiedMetadataKey.TITLE: "WAV Test Title"}
@@ -55,7 +52,6 @@ class TestTitleMetadata:
         assert title == "WAV Test Title"
 
     def test_title_metadata_with_audio_file_object(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test title metadata using AudioFile object."""
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
         audio_file = AudioFile(temp_audio_file)
@@ -66,7 +62,6 @@ class TestTitleMetadata:
         assert title == "AudioFile Test Title"
 
     def test_title_metadata_edge_cases(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test title metadata with edge cases."""
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
         # Test short title
@@ -89,7 +84,6 @@ class TestTitleMetadata:
         assert metadata.get(UnifiedMetadataKey.TITLE) == empty_title
 
     def test_title_metadata_reading(self, metadata_id3v1_small_mp3, metadata_id3v2_small_mp3, metadata_riff_small_wav, metadata_vorbis_small_flac):
-        """Test reading title metadata from different formats."""
         # ID3v1 title (limited to 30 characters)
         metadata = get_merged_unified_metadata(metadata_id3v1_small_mp3)
         title = metadata.get(UnifiedMetadataKey.TITLE)
@@ -115,7 +109,6 @@ class TestTitleMetadata:
         assert len(title) > 30  # Vorbis can have very long titles
 
     def test_title_metadata_writing(self, metadata_none_mp3, metadata_none_flac, metadata_none_wav, temp_audio_file):
-        """Test writing title metadata to different formats."""
         # Test MP3
         shutil.copy2(metadata_none_mp3, temp_audio_file)
         test_title = "Test Title MP3"

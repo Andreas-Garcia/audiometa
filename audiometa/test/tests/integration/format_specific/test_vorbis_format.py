@@ -78,7 +78,6 @@ class TestVorbisFormat:
         assert metadata.get(UnifiedMetadataKey.RATING) == 1
 
     def test_flac_md5_validation(self, sample_flac_file):
-        """Test FLAC MD5 validation."""
         audio_file = AudioFile(sample_flac_file)
         
         # This should not raise an exception

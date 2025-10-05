@@ -19,7 +19,6 @@ class TestArtistsMetadata:
     """Test cases for artists metadata."""
 
     def test_artists_metadata_mp3(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test artists metadata in MP3 file."""
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
         test_artists = ["Test Artist 1", "Test Artist 2"]
@@ -30,7 +29,6 @@ class TestArtistsMetadata:
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == test_artists
 
     def test_artists_metadata_flac(self, sample_flac_file: Path, temp_audio_file: Path):
-        """Test artists metadata in FLAC file."""
         shutil.copy2(sample_flac_file, temp_audio_file)
         
         test_artists = ["FLAC Artist 1", "FLAC Artist 2"]
@@ -41,7 +39,6 @@ class TestArtistsMetadata:
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == test_artists
 
     def test_artists_metadata_wav(self, sample_wav_file: Path, temp_audio_file: Path):
-        """Test artists metadata in WAV file."""
         shutil.copy2(sample_wav_file, temp_audio_file)
         
         test_artists = ["WAV Artist 1", "WAV Artist 2"]
@@ -52,7 +49,6 @@ class TestArtistsMetadata:
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == test_artists
 
     def test_artists_metadata_with_audio_file_object(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test artists metadata using AudioFile object."""
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
         audio_file = AudioFile(temp_audio_file)
@@ -64,7 +60,6 @@ class TestArtistsMetadata:
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == test_artists
 
     def test_single_artist(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test single artist metadata."""
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
         test_artists = ["Single Artist"]
@@ -75,7 +70,6 @@ class TestArtistsMetadata:
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == test_artists
 
     def test_multiple_artists(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test multiple artists metadata."""
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
         test_artists = ["Artist One", "Artist Two", "Artist Three"]
@@ -86,7 +80,6 @@ class TestArtistsMetadata:
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == test_artists
 
     def test_artists_separation_formats(self, artists_one_two_three_comma_id3v2, artists_one_two_three_semicolon_id3v2, artists_one_two_three_multi_tags_vorbis):
-        """Test different artist separation formats."""
         # Comma separation (ID3v2)
         metadata = get_merged_unified_metadata(artists_one_two_three_comma_id3v2)
         artists = metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -106,7 +99,6 @@ class TestArtistsMetadata:
         assert "One Two Three" in artists
 
     def test_artists_metadata_reading(self, artists_one_two_three_comma_id3v2, artists_one_two_three_semicolon_id3v2, artists_one_two_three_multi_tags_vorbis):
-        """Test reading artists metadata from different formats."""
         # Comma-separated artists (ID3v2)
         metadata = get_merged_unified_metadata(artists_one_two_three_comma_id3v2)
         artists = metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -126,7 +118,6 @@ class TestArtistsMetadata:
         assert "One Two Three" in artists
 
     def test_artists_metadata_writing(self, metadata_none_mp3, metadata_none_flac, metadata_none_wav, temp_audio_file):
-        """Test writing artists metadata to different formats."""
         # Test MP3
         shutil.copy2(metadata_none_mp3, temp_audio_file)
         test_artists = ["Artist One", "Artist Two", "Artist Three"]

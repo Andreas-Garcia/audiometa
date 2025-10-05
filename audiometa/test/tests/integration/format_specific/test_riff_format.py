@@ -66,7 +66,6 @@ class TestRiffFormat:
             UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist WAV"],
             UnifiedMetadataKey.ALBUM_NAME: "Test Album WAV",
             UnifiedMetadataKey.GENRE_NAME: "Test Genre WAV"
-            # Note: RIFF format does not support rating, so we exclude it
         }
         update_file_metadata(temp_audio_file, test_metadata)
         metadata = get_merged_unified_metadata(temp_audio_file)

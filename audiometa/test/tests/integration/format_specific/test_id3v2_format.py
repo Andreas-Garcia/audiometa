@@ -19,7 +19,6 @@ class TestId3v2Format:
     """Test cases for ID3v2 format-specific scenarios."""
 
     def test_id3v2_extended_metadata(self, metadata_id3v2_small_mp3, metadata_id3v2_big_mp3):
-        """Test ID3v2 extended metadata capabilities."""
         # Small ID3v2 file
         metadata = get_merged_unified_metadata(metadata_id3v2_small_mp3)
         title = metadata.get(UnifiedMetadataKey.TITLE)
@@ -31,7 +30,6 @@ class TestId3v2Format:
         assert len(title) > 30  # ID3v2 can have longer titles
 
     def test_id3v2_metadata_reading(self, metadata_id3v2_small_mp3, metadata_id3v2_small_flac, metadata_id3v2_small_wav):
-        """Test reading ID3v2 metadata from various formats."""
         # MP3 with ID3v2
         metadata = get_merged_unified_metadata(metadata_id3v2_small_mp3)
         assert isinstance(metadata, dict)
@@ -50,13 +48,11 @@ class TestId3v2Format:
         assert UnifiedMetadataKey.TITLE in metadata
 
     def test_single_format_id3v2_extraction(self, metadata_id3v2_small_mp3):
-        """Test extracting ID3v2 metadata specifically."""
         id3v2_metadata = get_single_format_app_metadata(metadata_id3v2_small_mp3, MetadataFormat.ID3V2)
         assert isinstance(id3v2_metadata, dict)
         assert UnifiedMetadataKey.TITLE in id3v2_metadata
 
     def test_audio_file_object_reading(self, metadata_id3v2_small_mp3):
-        """Test reading metadata using AudioFile object."""
         audio_file = AudioFile(metadata_id3v2_small_mp3)
         
         # Test merged metadata
@@ -73,7 +69,6 @@ class TestId3v2Format:
         assert isinstance(id3v2_metadata, dict)
 
     def test_metadata_writing_mp3(self, metadata_none_mp3, temp_audio_file):
-        """Test writing metadata to MP3 with ID3v2."""
         shutil.copy2(metadata_none_mp3, temp_audio_file)
         test_metadata = {
             UnifiedMetadataKey.TITLE: "Test Title MP3",
@@ -91,12 +86,6 @@ class TestId3v2Format:
         assert metadata.get(UnifiedMetadataKey.RATING) == 1
 
     def test_wav_with_id3v2_and_riff_metadata(self, metadata_id3v2_and_riff_small_wav):
-        """Test reading metadata from WAV file that contains both ID3v2 and RIFF metadata.
-        
-        This test explicitly verifies that the RiffManager can handle WAV files that have
-        ID3v2 metadata at the beginning followed by RIFF structure. This is a special case
-        where the file format is non-standard but still readable.
-        """
         # Test that we can read metadata from a WAV file with both ID3v2 and RIFF metadata
         metadata = get_merged_unified_metadata(metadata_id3v2_and_riff_small_wav)
         assert isinstance(metadata, dict)

@@ -12,13 +12,11 @@ class TestAudioFile:
     """Unit test cases for AudioFile class basic functionality."""
 
     def test_audio_file_with_string_path(self, sample_mp3_file: Path):
-        """Test AudioFile initialization with string path."""
         audio_file = AudioFile(str(sample_mp3_file))
         assert audio_file.file_path == str(sample_mp3_file)
         assert audio_file.file_extension == ".mp3"
 
     def test_audio_file_with_path_object(self, sample_mp3_file: Path):
-        """Test AudioFile initialization with Path object."""
         audio_file = AudioFile(sample_mp3_file)
         assert audio_file.file_path == str(sample_mp3_file)
         assert audio_file.file_extension == ".mp3"
@@ -39,7 +37,6 @@ class TestAudioFile:
             AudioFile(str(temp_audio_file))
 
     def test_file_operations(self, temp_audio_file: Path):
-        """Test file read/write operations."""
         audio_file = AudioFile(temp_audio_file)
         
         # Test write
@@ -52,7 +49,6 @@ class TestAudioFile:
         assert read_data == test_data
 
     def test_file_name_methods(self, sample_mp3_file: Path):
-        """Test file name methods."""
         audio_file = AudioFile(sample_mp3_file)
         
         # Test system filename
@@ -64,48 +60,41 @@ class TestAudioFile:
         assert original_name == sample_mp3_file.name
 
     def test_context_manager(self, sample_mp3_file: Path):
-        """Test AudioFile as context manager."""
         with AudioFile(sample_mp3_file) as audio_file:
             assert audio_file.file_path == str(sample_mp3_file)
             # Context manager should work without issues
 
     def test_get_duration_in_sec_mp3(self, sample_mp3_file: Path):
-        """Test getting duration for MP3 file."""
         audio_file = AudioFile(sample_mp3_file)
         duration = audio_file.get_duration_in_sec()
         assert isinstance(duration, float)
         assert duration > 0
 
     def test_get_duration_in_sec_flac(self, sample_flac_file: Path):
-        """Test getting duration for FLAC file."""
         audio_file = AudioFile(sample_flac_file)
         duration = audio_file.get_duration_in_sec()
         assert isinstance(duration, float)
         assert duration > 0
 
     def test_get_duration_in_sec_wav(self, sample_wav_file: Path):
-        """Test getting duration for WAV file."""
         audio_file = AudioFile(sample_wav_file)
         duration = audio_file.get_duration_in_sec()
         assert isinstance(duration, float)
         assert duration > 0
 
     def test_get_bitrate_mp3(self, sample_mp3_file: Path):
-        """Test getting bitrate for MP3 file."""
         audio_file = AudioFile(sample_mp3_file)
         bitrate = audio_file.get_bitrate()
         assert isinstance(bitrate, int)
         assert bitrate > 0
 
     def test_get_bitrate_flac(self, sample_flac_file: Path):
-        """Test getting bitrate for FLAC file."""
         audio_file = AudioFile(sample_flac_file)
         bitrate = audio_file.get_bitrate()
         assert isinstance(bitrate, int)
         assert bitrate > 0
 
     def test_get_bitrate_wav(self, sample_wav_file: Path):
-        """Test getting bitrate for WAV file."""
         audio_file = AudioFile(sample_wav_file)
         bitrate = audio_file.get_bitrate()
         assert isinstance(bitrate, int)

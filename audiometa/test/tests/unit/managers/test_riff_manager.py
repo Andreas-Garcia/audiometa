@@ -14,7 +14,6 @@ class TestRiffManager:
     """Test cases for RIFF metadata manager."""
 
     def test_riff_manager_wav(self, sample_wav_file: Path):
-        """Test RIFF manager with WAV file."""
         audio_file = AudioFile(sample_wav_file)
         manager = RiffManager(audio_file)
         

@@ -64,7 +64,6 @@ class TestCompleteWorkflows:
         assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.COMMENT) == "Test comment"
     
     def test_batch_metadata_processing(self, sample_mp3_file, sample_flac_file, sample_wav_file, temp_audio_file):
-        """Test batch processing of multiple files."""
         # E2E test for batch operations
         results = []
         
@@ -221,7 +220,6 @@ class TestCompleteWorkflows:
         assert duration > 0
 
     def test_audio_file_context_manager(self, sample_mp3_file: Path):
-        """Test AudioFile as context manager."""
         with AudioFile(sample_mp3_file) as audio_file:
             # Test that we can read metadata within context
             metadata = get_merged_unified_metadata(audio_file)

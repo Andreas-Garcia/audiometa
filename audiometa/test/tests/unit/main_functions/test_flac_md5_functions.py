@@ -13,7 +13,6 @@ class TestFlacMd5Functions:
     """Test cases for FLAC MD5-related functions."""
 
     def test_is_flac_md5_valid_flac(self, sample_flac_file: Path):
-        """Test FLAC MD5 validation on FLAC file."""
         is_valid = is_flac_md5_valid(sample_flac_file)
         assert isinstance(is_valid, bool)
 
@@ -23,14 +22,12 @@ class TestFlacMd5Functions:
             is_flac_md5_valid(sample_mp3_file)
 
     def test_is_flac_md5_valid_with_audio_file_object(self, sample_flac_file: Path):
-        """Test FLAC MD5 validation using AudioFile object."""
         from audiometa import AudioFile
         audio_file = AudioFile(sample_flac_file)
         is_valid = is_flac_md5_valid(audio_file)
         assert isinstance(is_valid, bool)
 
     def test_fix_md5_checking_flac(self, sample_flac_file: Path, temp_flac_file: Path):
-        """Test fixing MD5 checking for FLAC file."""
         # Copy sample file to temp location
         shutil.copy2(sample_flac_file, temp_flac_file)
         
@@ -48,7 +45,6 @@ class TestFlacMd5Functions:
             fix_md5_checking(sample_mp3_file)
 
     def test_fix_md5_checking_with_audio_file_object(self, sample_flac_file: Path, temp_flac_file: Path):
-        """Test fixing MD5 checking using AudioFile object."""
         # Copy sample file to temp location
         shutil.copy2(sample_flac_file, temp_flac_file)
         

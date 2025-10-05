@@ -86,7 +86,6 @@ class TestRatingMetadata:
         assert metadata.get(UnifiedMetadataKey.RATING) == mid_rating
 
     def test_mp3_id3v2_rating_scenarios(self, rating_id3v2_base_255_5_star_mp3):
-        """Test MP3 ID3v2 rating scenarios."""
         # Base 255 normalization
         metadata = get_merged_unified_metadata(rating_id3v2_base_255_5_star_mp3, normalized_rating_max_value=255)
         assert metadata.get(UnifiedMetadataKey.RATING) == 10
@@ -96,7 +95,6 @@ class TestRatingMetadata:
         assert metadata.get(UnifiedMetadataKey.RATING) == 10
 
     def test_wav_id3v2_rating_scenarios(self, rating_id3v2_base_100_0_star_wav, rating_id3v2_base_100_5_star_wav):
-        """Test WAV ID3v2 rating scenarios."""
         # 0 star rating
         metadata = get_merged_unified_metadata(rating_id3v2_base_100_0_star_wav, normalized_rating_max_value=100)
         assert metadata.get(UnifiedMetadataKey.RATING) == 0
@@ -106,12 +104,10 @@ class TestRatingMetadata:
         assert metadata.get(UnifiedMetadataKey.RATING) == 10
 
     def test_wav_riff_rating_scenarios(self, rating_riff_base_100_5_star_wav):
-        """Test WAV RIFF rating scenarios."""
         metadata = get_merged_unified_metadata(rating_riff_base_100_5_star_wav, normalized_rating_max_value=100)
         assert metadata.get(UnifiedMetadataKey.RATING) == 10
 
     def test_flac_vorbis_rating_scenarios(self, rating_vorbis_base_100_5_star_flac):
-        """Test FLAC Vorbis rating scenarios."""
         metadata = get_merged_unified_metadata(rating_vorbis_base_100_5_star_flac, normalized_rating_max_value=100)
         assert metadata.get(UnifiedMetadataKey.RATING) == 10
 
@@ -178,7 +174,6 @@ class TestRatingMetadata:
         assert metadata[UnifiedMetadataKey.RATING] == 5
 
     def test_rating_with_different_formats(self, metadata_none_mp3, metadata_none_flac, metadata_none_wav, temp_audio_file):
-        """Test rating with different audio formats."""
         import shutil
         from audiometa import update_file_metadata
         
@@ -254,7 +249,6 @@ class TestRatingMetadata:
         assert metadata[UnifiedMetadataKey.RATING] == 10  # 5 stars = 10/10
 
     def test_rating_normalization_variations(self, rating_id3v2_base_100_5_star_wav):
-        """Test different rating normalization values."""
         # Base 100 normalization
         metadata_100 = get_merged_unified_metadata(rating_id3v2_base_100_5_star_wav, normalized_rating_max_value=100)
         assert metadata_100[UnifiedMetadataKey.RATING] == 10

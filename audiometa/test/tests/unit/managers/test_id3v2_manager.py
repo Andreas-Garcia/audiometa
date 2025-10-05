@@ -13,7 +13,6 @@ class TestId3v2Manager:
     """Test cases for ID3v2 metadata manager."""
 
     def test_id3v2_manager_mp3(self, sample_mp3_file: Path):
-        """Test ID3v2 manager with MP3 file."""
         audio_file = AudioFile(sample_mp3_file)
         manager = Id3v2Manager(audio_file)
         
@@ -21,7 +20,6 @@ class TestId3v2Manager:
         assert isinstance(metadata, dict)
 
     def test_id3v2_manager_wav(self, sample_wav_file: Path):
-        """Test ID3v2 manager with WAV file."""
         audio_file = AudioFile(sample_wav_file)
         manager = Id3v2Manager(audio_file)
         
@@ -29,7 +27,6 @@ class TestId3v2Manager:
         assert isinstance(metadata, dict)
 
     def test_id3v2_manager_with_rating_normalization(self, sample_mp3_file: Path):
-        """Test ID3v2 manager with rating normalization."""
         audio_file = AudioFile(sample_mp3_file)
         manager = Id3v2Manager(audio_file, normalized_rating_max_value=100)
         

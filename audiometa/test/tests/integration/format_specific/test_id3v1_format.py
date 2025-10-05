@@ -17,7 +17,6 @@ class TestId3v1Format:
     """Test cases for ID3v1 format-specific scenarios."""
 
     def test_id3v1_limitations(self, metadata_id3v1_small_mp3, metadata_id3v1_big_mp3):
-        """Test ID3v1 format limitations."""
         # Small ID3v1 file
         metadata = get_merged_unified_metadata(metadata_id3v1_small_mp3)
         title = metadata.get(UnifiedMetadataKey.TITLE)

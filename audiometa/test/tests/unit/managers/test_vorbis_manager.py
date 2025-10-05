@@ -13,7 +13,6 @@ class TestVorbisManager:
     """Test cases for Vorbis metadata manager."""
 
     def test_vorbis_manager_flac(self, sample_flac_file: Path):
-        """Test Vorbis manager with FLAC file."""
         audio_file = AudioFile(sample_flac_file)
         manager = VorbisManager(audio_file)
         
@@ -22,7 +21,6 @@ class TestVorbisManager:
 
 
     def test_vorbis_manager_with_rating_normalization(self, sample_flac_file: Path):
-        """Test Vorbis manager with rating normalization."""
         audio_file = AudioFile(sample_flac_file)
         manager = VorbisManager(audio_file, normalized_rating_max_value=100)
         

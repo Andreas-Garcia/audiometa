@@ -19,7 +19,6 @@ class TestLyricsMetadata:
     """Test cases for lyrics metadata."""
 
     def test_lyrics_metadata_mp3(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test lyrics metadata in MP3 file."""
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
         test_lyrics = "These are test lyrics\nWith multiple lines\nFor testing purposes"
@@ -30,7 +29,6 @@ class TestLyricsMetadata:
         assert lyrics == test_lyrics
 
     def test_lyrics_metadata_flac(self, sample_flac_file: Path, temp_audio_file: Path):
-        """Test lyrics metadata in FLAC file."""
         shutil.copy2(sample_flac_file, temp_audio_file)
         
         test_lyrics = "FLAC test lyrics\nWith multiple lines\nFor testing purposes"
@@ -41,7 +39,6 @@ class TestLyricsMetadata:
         assert lyrics == test_lyrics
 
     def test_lyrics_metadata_wav(self, sample_wav_file: Path, temp_audio_file: Path):
-        """Test lyrics metadata in WAV file."""
         shutil.copy2(sample_wav_file, temp_audio_file)
         
         test_lyrics = "WAV test lyrics\nWith multiple lines\nFor testing purposes"
@@ -52,7 +49,6 @@ class TestLyricsMetadata:
         assert lyrics == test_lyrics
 
     def test_lyrics_metadata_with_audio_file_object(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test lyrics metadata using AudioFile object."""
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
         audio_file = AudioFile(temp_audio_file)
@@ -64,7 +60,6 @@ class TestLyricsMetadata:
         assert lyrics == test_lyrics
 
     def test_lyrics_metadata_edge_cases(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test lyrics metadata with edge cases."""
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
         # Test short lyrics

@@ -87,7 +87,6 @@ class TestGenreMetadata:
         assert metadata.get(UnifiedMetadataKey.GENRE) == empty_genre
 
     def test_genre_code_conversion(self, genre_code_id3v1_abstract_mp3, genre_code_id3v1_unknown_mp3):
-        """Test ID3v1 genre code conversion."""
         # Abstract genre code
         metadata = get_merged_unified_metadata(genre_code_id3v1_abstract_mp3)
         assert metadata.get(UnifiedMetadataKey.GENRE) == "Abstract"
