@@ -2,7 +2,7 @@ from abc import abstractmethod
 
 from ...audio_file import AudioFile
 from ...exceptions import ConfigurationError
-from ...utils.AppMetadataKey import UnifiedMetadataKey
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from ...utils.rating_profiles import RatingReadProfile, RatingWriteProfile
 from ...utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
 from ..MetadataManager import MetadataManager

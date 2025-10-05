@@ -4,7 +4,7 @@ from mutagen._file import FileType as MutagenMetadata
 
 from ...audio_file import AudioFile
 from ...exceptions import FileCorruptedError, MetadataNotSupportedError
-from ...utils.AppMetadataKey import UnifiedMetadataKey
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from ...utils.types import AppMetadataValue, RawMetadataDict
 from ..MetadataManager import MetadataManager
 from .Id3v1RawMetadata import Id3v1RawMetadata

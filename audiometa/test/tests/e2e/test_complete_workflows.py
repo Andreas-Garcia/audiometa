@@ -19,7 +19,7 @@ from audiometa import (
     get_bitrate,
     get_duration_in_sec
 )
-from audiometa.utils.AppMetadataKey import UnifiedMetadataKey
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.e2e

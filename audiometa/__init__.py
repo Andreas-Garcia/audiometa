@@ -12,8 +12,8 @@ from mutagen.id3 import ID3
 from .audio_file import AudioFile
 from .exceptions import FileTypeNotSupportedError
 from .utils.types import AppMetadata, AppMetadataValue
-from .utils.MetadataSingleFormat import MetadataFormat
-from .utils.AppMetadataKey import UnifiedMetadataKey
+from .utils.MetadataFormat import MetadataFormat
+from .utils.UnifiedMetadataKey import UnifiedMetadataKey
 from .manager.id3v1.Id3v1Manager import Id3v1Manager
 from .manager.MetadataManager import MetadataManager
 from .manager.rating_supporting.RatingSupportingMetadataManager import RatingSupportingMetadataManager

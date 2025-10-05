@@ -5,7 +5,7 @@ from pathlib import Path
 
 from audiometa import AudioFile
 from audiometa.manager.id3v1.Id3v1Manager import Id3v1Manager
-from audiometa.utils.AppMetadataKey import UnifiedMetadataKey
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError
 
 

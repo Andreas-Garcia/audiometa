@@ -8,7 +8,7 @@ from ..audio_file import AudioFile
 from ..utils.id3v1_genre_code_map import ID3V1_GENRE_CODE_MAP
 
 from ..exceptions import MetadataNotSupportedError
-from ..utils.AppMetadataKey import UnifiedMetadataKey
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from ..utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
 
 

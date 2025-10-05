@@ -5,7 +5,7 @@ from pathlib import Path
 
 from audiometa import AudioFile
 from audiometa.manager.rating_supporting.VorbisManager import VorbisManager
-from audiometa.utils.AppMetadataKey import UnifiedMetadataKey
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.unit

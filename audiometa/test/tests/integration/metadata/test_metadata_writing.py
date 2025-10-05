@@ -11,8 +11,8 @@ from audiometa import (
     get_merged_app_metadata,
     AudioFile
 )
-from audiometa.utils.MetadataSingleFormat import MetadataFormat
-from audiometa.utils.AppMetadataKey import UnifiedMetadataKey
+from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError, MetadataNotSupportedError
 
 

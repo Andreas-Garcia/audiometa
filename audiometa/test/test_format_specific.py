@@ -4,8 +4,8 @@ import pytest
 from pathlib import Path
 
 from audiometa import get_merged_app_metadata, get_single_format_app_metadata, update_file_metadata
-from audiometa.utils.MetadataSingleFormat import MetadataFormat
-from audiometa.utils.AppMetadataKey import UnifiedMetadataKey
+from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 class TestFormatSpecificScenarios:

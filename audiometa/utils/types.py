@@ -1,7 +1,7 @@
 
 from enum import Enum
 
-from .AppMetadataKey import UnifiedMetadataKey
+from .UnifiedMetadataKey import UnifiedMetadataKey
 
 
 class RawMetadataKey(str, Enum):

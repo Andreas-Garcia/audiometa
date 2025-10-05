@@ -8,7 +8,7 @@ import pytest
 import shutil
 from pathlib import Path
 from audiometa import AudioFile, get_merged_app_metadata, get_specific_metadata, update_file_metadata
-from audiometa.utils.AppMetadataKey import UnifiedMetadataKey
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.e2e

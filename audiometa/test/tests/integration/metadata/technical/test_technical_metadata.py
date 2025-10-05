@@ -10,8 +10,8 @@ from audiometa import (
     get_specific_metadata,
     AudioFile
 )
-from audiometa.utils.AppMetadataKey import UnifiedMetadataKey
-from audiometa.utils.MetadataSingleFormat import MetadataFormat
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.utils.MetadataFormat import MetadataFormat
 
 
 @pytest.mark.integration

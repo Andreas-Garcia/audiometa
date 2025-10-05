@@ -1,5 +1,5 @@
 
-from ...utils.AppMetadataKey import UnifiedMetadataKey
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from ...utils.types import RawMetadataKey
 
 
