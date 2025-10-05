@@ -11,6 +11,7 @@ from mutagen.mp3 import MP3
 from mutagen.wave import WAVE
 
 from .exceptions import FileByteMismatchError, FileCorruptedError, FileTypeNotSupportedError
+from .utils.MetadataFormat import MetadataFormat
 
 # Type alias for files that can be handled (must be disk-based)
 DiskBasedFile: TypeAlias = Union[str, Path, bytes, object]
@@ -44,6 +45,11 @@ class AudioFile:
 
         file_extension = os.path.splitext(self.file_path)[1].lower()
         self.file_extension = file_extension
+        
+        # Validate that the file type is supported
+        supported_extensions = MetadataFormat.get_priorities().keys()
+        if file_extension not in supported_extensions:
+            raise FileTypeNotSupportedError(f"File type {file_extension} is not supported. Supported types: {', '.join(supported_extensions)}")
 
     def get_duration_in_sec(self) -> float:
         path = self.file_path
