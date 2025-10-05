@@ -61,7 +61,7 @@ class Id3v1Manager(MetadataManager):
 
     def _extract_mutagen_metadata(self) -> Id3v1RawMetadata:
         try:
-            return Id3v1RawMetadata(fileobj=self.audio_file.file)
+            return Id3v1RawMetadata(fileobj=self.audio_file.get_file_path_or_object())
         except Exception as exc:
             raise FileCorruptedError(f"Failed to extract ID3v1 metadata: {exc}")
 
