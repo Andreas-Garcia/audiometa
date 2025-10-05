@@ -75,6 +75,7 @@ class VorbisManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.GENRE_NAME: self.VorbisKey.GENRE_NAME,
             UnifiedMetadataKey.RATING: None,
             UnifiedMetadataKey.LANGUAGE: self.VorbisKey.LANGUAGE,
+            UnifiedMetadataKey.BPM: self.VorbisKey.BPM,
         }
         metadata_keys_direct_map_write = {
             UnifiedMetadataKey.TITLE: self.VorbisKey.TITLE,
@@ -84,6 +85,7 @@ class VorbisManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.GENRE_NAME: self.VorbisKey.GENRE_NAME,
             UnifiedMetadataKey.RATING: None,
             UnifiedMetadataKey.LANGUAGE: self.VorbisKey.LANGUAGE,
+            UnifiedMetadataKey.BPM: self.VorbisKey.BPM,
         }
         super().__init__(audio_file=audio_file,
                          metadata_keys_direct_map_read=metadata_keys_direct_map_read,
@@ -133,7 +135,11 @@ class VorbisManager(RatingSupportingMetadataManager):
         if app_metadata_value:
             if raw_metadata_key not in raw_mutagen_metadata:
                 raw_mutagen_metadata[raw_metadata_key] = [1]
-            raw_mutagen_metadata[raw_metadata_key] = app_metadata_value
+            # Convert BPM to string for Vorbis comments
+            if raw_metadata_key == self.VorbisKey.BPM:
+                raw_mutagen_metadata[raw_metadata_key] = str(app_metadata_value)
+            else:
+                raw_mutagen_metadata[raw_metadata_key] = app_metadata_value
         elif raw_metadata_key in raw_mutagen_metadata:
             del raw_mutagen_metadata[raw_metadata_key]
 

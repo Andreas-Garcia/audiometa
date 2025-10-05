@@ -221,6 +221,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.GENRE_NAME: self.Id3TextFrame.GENRE_NAME,
             UnifiedMetadataKey.RATING: None,
             UnifiedMetadataKey.LANGUAGE: self.Id3TextFrame.LANGUAGE,
+            UnifiedMetadataKey.BPM: self.Id3TextFrame.BPM,
             UnifiedMetadataKey.COMPOSER: self.Id3TextFrame.COMPOSER,
             UnifiedMetadataKey.PUBLISHER: self.Id3TextFrame.PUBLISHER,
             UnifiedMetadataKey.COPYRIGHT: self.Id3TextFrame.COPYRIGHT,
@@ -240,6 +241,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.GENRE_NAME: self.Id3TextFrame.GENRE_NAME,
             UnifiedMetadataKey.RATING: self.Id3TextFrame.RATING,
             UnifiedMetadataKey.LANGUAGE: self.Id3TextFrame.LANGUAGE,
+            UnifiedMetadataKey.BPM: self.Id3TextFrame.BPM,
             UnifiedMetadataKey.COMPOSER: self.Id3TextFrame.COMPOSER,
             UnifiedMetadataKey.PUBLISHER: self.Id3TextFrame.PUBLISHER,
             UnifiedMetadataKey.COPYRIGHT: self.Id3TextFrame.COPYRIGHT,
@@ -350,6 +352,9 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         elif raw_metadata_key == self.Id3TextFrame.URL:
             # Handle WOAR frames (official artist/performer webpage)
             raw_mutagen_metadata_id3.add(text_frame_class(url=app_metadata_value))
+        elif raw_metadata_key == self.Id3TextFrame.BPM:
+            # Handle TBPM frames (BPM must be a string)
+            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=str(app_metadata_value)))
         else:
             raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=app_metadata_value))
 
