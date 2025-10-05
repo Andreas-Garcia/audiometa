@@ -2,6 +2,7 @@ import json
 import os
 import subprocess
 import tempfile
+from pathlib import Path
 from typing import cast, TypeAlias, Union
 
 from mutagen.flac import FLAC
@@ -12,7 +13,7 @@ from mutagen.wave import WAVE
 from .exceptions import FileByteMismatchError, FileCorruptedError, FileTypeNotSupportedError
 
 # Type alias for files that can be handled (must be disk-based)
-DiskBasedFile: TypeAlias = Union[str, bytes, object]
+DiskBasedFile: TypeAlias = Union[str, Path, bytes, object]
 
 
 class AudioFile:
@@ -23,6 +24,10 @@ class AudioFile:
         if isinstance(file, str):
             self.file = file
             self.file_path = file
+        elif isinstance(file, Path):
+            # Handle pathlib.Path objects
+            self.file = file
+            self.file_path = str(file)
         elif hasattr(file, 'name'):
             # Handle file-like objects with a name attribute
             self.file = file
@@ -187,6 +192,8 @@ class AudioFile:
             return self.file.name
         elif isinstance(self.file, str):
             return os.path.basename(self.file)
+        elif isinstance(self.file, Path):
+            return self.file.name
         else:
             raise FileTypeNotSupportedError(f"Reading is not supported for file type: {type(self.file)}")
 
