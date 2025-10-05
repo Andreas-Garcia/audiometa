@@ -7,6 +7,7 @@ from audiometa import AudioFile
 from audiometa.exceptions import FileTypeNotSupportedError
 
 
+@pytest.mark.integration
 class TestAudioFile:
     """Test cases for AudioFile class."""
 

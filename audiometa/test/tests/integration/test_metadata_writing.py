@@ -16,6 +16,7 @@ from audiometa.utils.AppMetadataKey import AppMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError, MetadataNotSupportedError
 
 
+@pytest.mark.integration
 class TestMetadataWriting:
     """Test cases for metadata writing functionality."""
 

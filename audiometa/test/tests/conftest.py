@@ -11,7 +11,7 @@ import pytest
 @pytest.fixture
 def test_files_dir() -> Path:
     """Return the path to the test audio files directory."""
-    return Path(__file__).parent / "data" / "audio_files"
+    return Path(__file__).parent.parent.parent / "data" / "audio_files"
 
 
 @pytest.fixture

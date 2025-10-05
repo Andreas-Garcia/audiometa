@@ -16,6 +16,7 @@ from audiometa import (
 from audiometa.utils.AppMetadataKey import AppMetadataKey
 
 
+@pytest.mark.integration
 class TestIntegration:
     """Integration test cases for the complete audiometa workflow."""
 

@@ -14,6 +14,7 @@ from audiometa.exceptions import (
 )
 
 
+@pytest.mark.unit
 class TestExceptions:
     """Test cases for exception classes."""
 
