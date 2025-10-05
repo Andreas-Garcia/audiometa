@@ -15,12 +15,9 @@
 # This approach prevents "remote: error: File is too large" errors when pushing
 # large audio files or many files simultaneously to GitHub.
 
-SCRIPTS_DIR=$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}" || echo "${BASH_SOURCE[0]}")")" && pwd)/
-source ${SCRIPTS_DIR}utils.sh
-
 # Check if the commit message is passed as an argument
 if [ $# -eq 0 ]; then
-    log "ERROR: please provide a commit message as an argument." >&2
+    echo "ERROR: please provide a commit message as an argument." >&2
     exit 1
 fi
 
@@ -35,7 +32,7 @@ while true; do
 
     # Check if the file list is empty (all files have been processed)
     if [ ${#files[@]} -eq 0 ]; then
-        log "No files to add. Ending script."
+        echo "No files to add. Ending script."
         break
     fi
 
