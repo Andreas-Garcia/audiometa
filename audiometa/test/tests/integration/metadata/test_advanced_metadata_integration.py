@@ -2,7 +2,6 @@
 
 import pytest
 from pathlib import Path
-import tempfile
 import shutil
 
 from audiometa import (
