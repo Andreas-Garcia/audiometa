@@ -35,13 +35,13 @@ class TestVorbisManager:
         shutil.copy2(sample_flac_file, temp_audio_file)
         
         audio_file = AudioFile(temp_audio_file)
-        manager = VorbisManager(audio_file)
+        manager = VorbisManager(audio_file, normalized_rating_max_value=100)
         
         test_metadata = {
             UnifiedMetadataKey.TITLE: "Vorbis Test Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["Vorbis Test Artist"],
             UnifiedMetadataKey.ALBUM_NAME: "Vorbis Test Album",
-            UnifiedMetadataKey.RATING: 75,
+            UnifiedMetadataKey.RATING: 60,
             UnifiedMetadataKey.BPM: 140
         }
         
@@ -52,5 +52,5 @@ class TestVorbisManager:
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Vorbis Test Title"
         assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Vorbis Test Artist"]
         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Vorbis Test Album"
-        assert updated_metadata.get(UnifiedMetadataKey.RATING) == 75
+        assert updated_metadata.get(UnifiedMetadataKey.RATING) == 60
         assert updated_metadata.get(UnifiedMetadataKey.BPM) == 140
