@@ -195,6 +195,12 @@ def metadata_id3v2_big_wav(test_files_dir: Path) -> Path:
     return test_files_dir / "metadata=long a_id3v2_big.wav"
 
 
+@pytest.fixture
+def metadata_id3v2_and_riff_small_wav(test_files_dir: Path) -> Path:
+    """Return path to WAV file with both ID3v2 and RIFF metadata (small)."""
+    return test_files_dir / "metadata=long a_id3v2_and_riff_small.wav"
+
+
 # Test tracks with RIFF metadata
 @pytest.fixture
 def metadata_riff_small_wav(test_files_dir: Path) -> Path:

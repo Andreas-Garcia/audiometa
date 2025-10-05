@@ -89,3 +89,24 @@ class TestId3v2Format:
         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album MP3"
         assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Test Genre MP3"
         assert metadata.get(UnifiedMetadataKey.RATING) == 1
+
+    def test_wav_with_id3v2_and_riff_metadata(self, metadata_id3v2_and_riff_small_wav):
+        """Test reading metadata from WAV file that contains both ID3v2 and RIFF metadata.
+        
+        This test explicitly verifies that the RiffManager can handle WAV files that have
+        ID3v2 metadata at the beginning followed by RIFF structure. This is a special case
+        where the file format is non-standard but still readable.
+        """
+        # Test that we can read metadata from a WAV file with both ID3v2 and RIFF metadata
+        metadata = get_merged_unified_metadata(metadata_id3v2_and_riff_small_wav)
+        assert isinstance(metadata, dict)
+        assert UnifiedMetadataKey.TITLE in metadata
+        # ID3v2 can have longer titles than ID3v1
+        assert len(metadata[UnifiedMetadataKey.TITLE]) > 30
+        
+        # Test that the file can be processed without errors
+        # This verifies that our fix for handling ID3v2 metadata in WAV files works correctly
+        audio_file = AudioFile(metadata_id3v2_and_riff_small_wav)
+        metadata_from_audio_file = get_merged_unified_metadata(audio_file)
+        assert isinstance(metadata_from_audio_file, dict)
+        assert UnifiedMetadataKey.TITLE in metadata_from_audio_file
