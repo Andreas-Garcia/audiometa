@@ -208,6 +208,41 @@ The library supports a comprehensive set of metadata fields across different aud
 
 **AudioMeta Support Column**: Shows the library's unified interface capabilities. The library does not impose artificial limits - it respects each format's native capabilities. Text fields can be as long as the format allows, and numeric ranges follow the format's specifications. The library provides consistent UTF-8 encoding and normalized rating handling (0-10 scale) across all supported formats.
 
+### Reading Priorities (Tag Precedence)
+
+When the same metadata tag exists in multiple formats within the same file, the library follows this precedence order for reading:
+
+1. **Vorbis** (highest precedence)
+2. **ID3v2**
+3. **RIFF**
+4. **ID3v1** (lowest precedence, read-only)
+
+**Example**: If a title exists in both ID3v1 and ID3v2, the ID3v2 title will be returned.
+
+### Writing Defaults by Audio Format
+
+When writing metadata, the library uses these default metadata formats per audio file type:
+
+#### MP3 Files
+
+**Default Writing Format**: ID3v2 (v2.4)
+
+- **Note**: ID3v1 cannot be written to
+
+#### FLAC Files
+
+**Default Writing Format**: Vorbis Comments
+
+- **Note**: Vorbis is the native format for FLAC files
+
+#### WAV Files
+
+**Default Writing Format**: RIFF
+
+- **Note**: RIFF is the native format for WAV files
+
+**Note**: ID3v1 is read-only and cannot be written programmatically. The library will read from existing ID3v1 tags but will not attempt to write to them.
+
 ## Error Handling
 
 The library provides specific exception types for different error conditions:
