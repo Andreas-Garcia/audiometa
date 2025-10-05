@@ -267,9 +267,9 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                 id3.clear()  # Exclude ID3v1 tags
                 return id3  # type: ignore[return-value]
             except ID3NoHeaderError:
-                id3 = ID3()
-                id3.save(self.audio_file.get_file_path_or_object(), v2_version=3)
-                return id3  # type: ignore[return-value]
+                # Create empty ID3 object - will be saved during write operations
+                # This allows write operations to work with files that have no ID3v2 header
+                return ID3()  # type: ignore[return-value]
 
     def _convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(
             self, raw_mutagen_metadata: MutagenMetadata) -> RawMetadataDict:
