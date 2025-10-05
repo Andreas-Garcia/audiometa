@@ -66,7 +66,7 @@ class TestVorbisFormat:
             UnifiedMetadataKey.TITLE: "Test Title FLAC",
             UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist FLAC"],
             UnifiedMetadataKey.ALBUM_NAME: "Test Album FLAC",
-            UnifiedMetadataKey.GENRE: "Test Genre FLAC",
+            UnifiedMetadataKey.GENRE_NAME: "Test Genre FLAC",
             UnifiedMetadataKey.RATING: 7
         }
         update_file_metadata(temp_audio_file, test_metadata, normalized_rating_max_value=100)
@@ -74,7 +74,7 @@ class TestVorbisFormat:
         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title FLAC"
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist FLAC"]
         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album FLAC"
-        assert metadata.get(UnifiedMetadataKey.GENRE) == "Test Genre FLAC"
+        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Test Genre FLAC"
         assert metadata.get(UnifiedMetadataKey.RATING) == 7
 
     def test_flac_md5_validation(self, sample_flac_file):
