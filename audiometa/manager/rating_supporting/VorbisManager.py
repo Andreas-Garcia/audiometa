@@ -19,7 +19,8 @@ class VorbisManager(RatingSupportingMetadataManager):
     """
     Manages Vorbis comments for audio files.
 
-    Vorbis comments are used to store metadata in audio files, primarily in formats like Ogg Vorbis and FLAC.
+    Vorbis comments are used to store metadata in audio files, primarily in FLAC format.
+    (OGG file support is planned but not yet implemented.)
     They are more flexible and extensible compared to ID3 tags, allowing for a wide range of metadata fields.
 
     Genre Support:
@@ -35,11 +36,11 @@ class VorbisManager(RatingSupportingMetadataManager):
     title, artist, album, genre, rating, and more.
 
     Compatible Extensions:
-    - Ogg Vorbis: Fully supports Vorbis comments.
     - FLAC: Fully supports Vorbis comments.
-    - Opus: Fully supports Vorbis comments.
 
-    Note: This class assumes that the audio files being managed are primarily in formats that support Vorbis comments.
+    TODO: OGG file support is planned but not yet implemented.
+    
+    Note: This class assumes that the audio files being managed are primarily in FLAC format that supports Vorbis comments.
     """
 
     class VorbisKey(RawMetadataKey):

@@ -1,8 +1,10 @@
 """Audio metadata handling module.
 
 A comprehensive Python library for reading and writing audio metadata across multiple formats
-including MP3, FLAC, WAV, and more. Supports ID3v1, ID3v2, Vorbis (OGG/FLAC), and RIFF (WAV) formats
+including MP3, FLAC, WAV, and more. Supports ID3v1, ID3v2, Vorbis (FLAC), and RIFF (WAV) formats
 with 50+ metadata fields including title, artist, album, rating, BPM, and more.
+
+Note: OGG file support is planned but not yet implemented.
 
 For detailed metadata support information, see the README.md file.
 """
