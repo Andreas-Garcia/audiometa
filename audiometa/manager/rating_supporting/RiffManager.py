@@ -205,11 +205,28 @@ class RiffManager(RatingSupportingMetadataManager):
         self.audio_file.seek(0)
         file_data = self.audio_file.read()
 
-        # Create WAVE object with filename to avoid deprecation warning
-        wave = WAVE(filename=self.audio_file.get_file_path_or_object())
-        info_tags = self._extract_riff_metadata_directly(file_data)
-        setattr(wave, 'info', info_tags)
-        return wave
+        # Skip ID3v2 metadata if present and create a clean RIFF file for mutagen
+        clean_data = self._skip_id3v2_tags(file_data)
+        
+        # Create a temporary file with just the RIFF data for mutagen to parse
+        import tempfile
+        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_file:
+            temp_file.write(clean_data)
+            temp_file.flush()
+            
+            try:
+                # Create WAVE object with the clean RIFF data
+                wave = WAVE(filename=temp_file.name)
+                info_tags = self._extract_riff_metadata_directly(file_data)  # Use original data for our custom parsing
+                setattr(wave, 'info', info_tags)
+                return wave
+            finally:
+                # Clean up temporary file
+                import os
+                try:
+                    os.unlink(temp_file.name)
+                except OSError:
+                    pass
 
     def _convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(
             self, raw_mutagen_metadata: MutagenMetadata) -> RawMetadataDict:
