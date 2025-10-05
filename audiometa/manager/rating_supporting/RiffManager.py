@@ -205,8 +205,8 @@ class RiffManager(RatingSupportingMetadataManager):
         self.audio_file.seek(0)
         file_data = self.audio_file.read()
 
-        # Create empty WAVE object and populate with directly parsed metadata
-        wave = WAVE()
+        # Create WAVE object with filename to avoid deprecation warning
+        wave = WAVE(filename=self.audio_file.get_file_path_or_object())
         info_tags = self._extract_riff_metadata_directly(file_data)
         setattr(wave, 'info', info_tags)
         return wave
