@@ -3,7 +3,7 @@ from typing import Type, cast
 
 from mutagen._file import FileType as MutagenMetadata
 from mutagen.id3 import ID3
-from mutagen.id3._frames import POPM, TALB, TBPM, TCON, TDRC, TIT2, TLAN, TPE1, TPE2, TRCK, TYER
+from mutagen.id3._frames import COMM, POPM, TALB, TBPM, TCOM, TCON, TCOP, TDRC, TENC, TIT2, TKEY, TLAN, TMOO, TPE1, TPE2, TPUB, TRCK, TSRC, TYER, USLT, WOAR
 from mutagen.id3._util import ID3NoHeaderError
 
 
@@ -175,6 +175,18 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         YEAR = 'TYER'  # ID3v2.3 year
         TRACK_NUMBER = 'TRCK'
         BPM = 'TBPM'
+        
+        # Additional metadata fields
+        COMPOSER = 'TCOM'
+        PUBLISHER = 'TPUB'
+        COPYRIGHT = 'TCOP'
+        LYRICS = 'USLT'  # Unsynchronized lyrics frame
+        COMMENT = 'COMM'  # Comment frame
+        ENCODER = 'TENC'
+        URL = 'WOAR'  # Official artist/performer webpage
+        ISRC = 'TSRC'
+        MOOD = 'TMOO'
+        KEY = 'TKEY'
 
     ID3_TEXT_FRAME_CLASS_MAP: dict[RawMetadataKey, Type] = {
         Id3TextFrame.TITLE: TIT2,
@@ -188,6 +200,16 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         Id3TextFrame.TRACK_NUMBER: TRCK,
         Id3TextFrame.BPM: TBPM,
         Id3TextFrame.RATING: POPM,
+        Id3TextFrame.COMPOSER: TCOM,
+        Id3TextFrame.PUBLISHER: TPUB,
+        Id3TextFrame.COPYRIGHT: TCOP,
+        Id3TextFrame.LYRICS: USLT,
+        Id3TextFrame.COMMENT: COMM,
+        Id3TextFrame.ENCODER: TENC,
+        Id3TextFrame.URL: WOAR,
+        Id3TextFrame.ISRC: TSRC,
+        Id3TextFrame.MOOD: TMOO,
+        Id3TextFrame.KEY: TKEY,
     }
 
     def __init__(self, audio_file: AudioFile, normalized_rating_max_value: int | None = None):
@@ -199,6 +221,16 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             AppMetadataKey.GENRE_NAME: self.Id3TextFrame.GENRE_NAME,
             AppMetadataKey.RATING: None,
             AppMetadataKey.LANGUAGE: self.Id3TextFrame.LANGUAGE,
+            AppMetadataKey.COMPOSER: self.Id3TextFrame.COMPOSER,
+            AppMetadataKey.PUBLISHER: self.Id3TextFrame.PUBLISHER,
+            AppMetadataKey.COPYRIGHT: self.Id3TextFrame.COPYRIGHT,
+            AppMetadataKey.LYRICS: self.Id3TextFrame.LYRICS,
+            AppMetadataKey.COMMENT: self.Id3TextFrame.COMMENT,
+            AppMetadataKey.ENCODER: self.Id3TextFrame.ENCODER,
+            AppMetadataKey.URL: self.Id3TextFrame.URL,
+            AppMetadataKey.ISRC: self.Id3TextFrame.ISRC,
+            AppMetadataKey.MOOD: self.Id3TextFrame.MOOD,
+            AppMetadataKey.KEY: self.Id3TextFrame.KEY,
         }
         metadata_keys_direct_map_write: dict = {
             AppMetadataKey.TITLE: self.Id3TextFrame.TITLE,
@@ -208,6 +240,16 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             AppMetadataKey.GENRE_NAME: self.Id3TextFrame.GENRE_NAME,
             AppMetadataKey.RATING: self.Id3TextFrame.RATING,
             AppMetadataKey.LANGUAGE: self.Id3TextFrame.LANGUAGE,
+            AppMetadataKey.COMPOSER: self.Id3TextFrame.COMPOSER,
+            AppMetadataKey.PUBLISHER: self.Id3TextFrame.PUBLISHER,
+            AppMetadataKey.COPYRIGHT: self.Id3TextFrame.COPYRIGHT,
+            AppMetadataKey.LYRICS: self.Id3TextFrame.LYRICS,
+            AppMetadataKey.COMMENT: self.Id3TextFrame.COMMENT,
+            AppMetadataKey.ENCODER: self.Id3TextFrame.ENCODER,
+            AppMetadataKey.URL: self.Id3TextFrame.URL,
+            AppMetadataKey.ISRC: self.Id3TextFrame.ISRC,
+            AppMetadataKey.MOOD: self.Id3TextFrame.MOOD,
+            AppMetadataKey.KEY: self.Id3TextFrame.KEY,
         }
 
         super().__init__(audio_file=audio_file,
@@ -244,6 +286,27 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                         result[self.Id3TextFrame.RATING] = [
                             popm_key_without_prefixes, popm.rating]  # type: ignore[index]
                         break
+            elif frame_key == self.Id3TextFrame.COMMENT:
+                # Handle COMM frames (comment frames)
+                for raw_mutagen_frame in raw_mutagen_metadata.items():
+                    if raw_mutagen_frame[0].startswith('COMM'):
+                        comm_frame = raw_mutagen_frame[1]
+                        result[frame_key] = comm_frame.text
+                        break
+            elif frame_key == self.Id3TextFrame.LYRICS:
+                # Handle USLT frames (unsynchronized lyrics frames)
+                for raw_mutagen_frame in raw_mutagen_metadata.items():
+                    if raw_mutagen_frame[0].startswith('USLT'):
+                        uslt_frame = raw_mutagen_frame[1]
+                        result[frame_key] = [uslt_frame.text]
+                        break
+            elif frame_key == self.Id3TextFrame.URL:
+                # Handle WOAR frames (official artist/performer webpage)
+                for raw_mutagen_frame in raw_mutagen_metadata.items():
+                    if raw_mutagen_frame[0].startswith('WOAR'):
+                        woar_frame = raw_mutagen_frame[1]
+                        result[frame_key] = [woar_frame.url]
+                        break
             else:
                 frame_value = frame_key in raw_metadata_id3 and raw_metadata_id3[frame_key]
                 if not frame_value:
@@ -278,6 +341,15 @@ class Id3v2Manager(RatingSupportingMetadataManager):
 
         if raw_metadata_key == self.Id3TextFrame.RATING:
             raw_mutagen_metadata_id3.add(text_frame_class(email=self.ID3_RATING_APP_EMAIL, rating=app_metadata_value))
+        elif raw_metadata_key == self.Id3TextFrame.COMMENT:
+            # Handle COMM frames (comment frames)
+            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, lang='eng', desc='', text=app_metadata_value))
+        elif raw_metadata_key == self.Id3TextFrame.LYRICS:
+            # Handle USLT frames (unsynchronized lyrics frames)
+            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, lang='eng', desc='', text=app_metadata_value))
+        elif raw_metadata_key == self.Id3TextFrame.URL:
+            # Handle WOAR frames (official artist/performer webpage)
+            raw_mutagen_metadata_id3.add(text_frame_class(url=app_metadata_value))
         else:
             raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=app_metadata_value))
 
