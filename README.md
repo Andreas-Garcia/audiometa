@@ -14,12 +14,12 @@ A comprehensive Python library for reading and writing audio metadata across mul
 
 ## Supported Formats
 
-| Format | Read | Write | Rating Support | Notes                         |
-| ------ | ---- | ----- | -------------- | ----------------------------- |
-| ID3v1  | ✅   | ✅    | ❌             | Limited to 30 chars per field |
-| ID3v2  | ✅   | ✅    | ✅             | Full feature support          |
-| Vorbis | ✅   | ✅    | ✅             | OGG/FLAC files                |
-| RIFF   | ✅   | ✅    | ❌             | WAV files                     |
+| Format | Read | Write | Rating Support | Notes                                    |
+| ------ | ---- | ----- | -------------- | ---------------------------------------- |
+| ID3v1  | ✅   | ❌    | ❌             | Read-only, limited to 30 chars per field |
+| ID3v2  | ✅   | ✅    | ✅             | Full feature support                     |
+| Vorbis | ✅   | ✅    | ✅             | OGG/FLAC files                           |
+| RIFF   | ✅   | ✅    | ❌             | WAV files                                |
 
 ## File Format Support by Metadata Manager
 
@@ -29,6 +29,7 @@ Each metadata manager has specific file format requirements and support:
 
 - **Primary Support**: MP3 files (native ID3v1 format, optimal)
 - **Extended Support**: FLAC and WAV files that may contain ID3v1 tags (not optimal but supported)
+- **Operations**: Read-only (writing not supported due to fixed 128-byte structure)
 - **Note**: While ID3v1 is natively designed for MP3 files, some FLAC and WAV files may contain ID3v1 tags, which this manager can read
 
 ### ID3v2 Manager

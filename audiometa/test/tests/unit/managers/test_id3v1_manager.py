@@ -6,6 +6,7 @@ from pathlib import Path
 from audiometa import AudioFile
 from audiometa.manager.id3v1.Id3v1Manager import Id3v1Manager
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.exceptions import MetadataNotSupportedError
 
 
 @pytest.mark.unit
@@ -36,12 +37,9 @@ class TestId3v1Manager:
         title = manager.get_app_specific_metadata(UnifiedMetadataKey.TITLE)
         assert title is None or isinstance(title, str)
 
-    def test_id3v1_manager_update_metadata(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test updating metadata with ID3v1 manager."""
-        import shutil
-        shutil.copy2(sample_mp3_file, temp_audio_file)
-        
-        audio_file = AudioFile(temp_audio_file)
+    def test_id3v1_manager_no_write_support(self, sample_mp3_file: Path):
+        """Test that ID3v1 manager doesn't support metadata writing."""
+        audio_file = AudioFile(sample_mp3_file)
         manager = Id3v1Manager(audio_file)
         
         test_metadata = {
@@ -50,10 +48,6 @@ class TestId3v1Manager:
             UnifiedMetadataKey.ALBUM_NAME: "ID3v1 Test Album"
         }
         
-        manager.update_file_metadata(test_metadata)
-        
-        # Verify metadata was updated
-        updated_metadata = manager.get_app_metadata()
-        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v1 Test Title"
-        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["ID3v1 Test Artist"]
-        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v1 Test Album"
+        # ID3v1 manager should raise error when trying to update metadata
+        with pytest.raises(MetadataNotSupportedError):
+            manager.update_file_metadata(test_metadata)

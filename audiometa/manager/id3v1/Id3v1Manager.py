@@ -28,9 +28,9 @@ class Id3v1Manager(MetadataManager):
         - Multiple genres
         - Multiple artists
         ...
-    - Read-only (modification not safe). ID3v1 tags have a fixed size of 128 bytes. Each field within the tag has a 
-    specific length (e.g., 30 bytes for title, artist, and album). This fixed size can make it challenging to modify the 
-    tags without potentially corrupting the file or losing data.
+    - Read-only (modification not supported). ID3v1 tags have a fixed size of 128 bytes. Each field within the tag has a 
+    specific length (e.g., 30 bytes for title, artist, and album). This fixed size makes it challenging to modify the 
+    tags without potentially corrupting the file or losing data. Therefore, this manager only supports reading metadata.
 
     Format Structure:
     - Bytes 0-2: "TAG" identifier
