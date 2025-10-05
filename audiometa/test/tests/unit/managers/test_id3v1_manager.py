@@ -6,7 +6,6 @@ from pathlib import Path
 from audiometa import AudioFile
 from audiometa.manager.id3v1.Id3v1Manager import Id3v1Manager
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.exceptions import FileTypeNotSupportedError
 
 
 @pytest.mark.unit
@@ -21,12 +20,13 @@ class TestId3v1Manager:
         metadata = manager.get_app_metadata()
         assert isinstance(metadata, dict)
 
-    def test_id3v1_manager_unsupported_format(self, sample_flac_file: Path):
-        """Test ID3v1 manager with unsupported format raises error."""
+    def test_id3v1_manager_flac(self, sample_flac_file: Path):
+        """Test ID3v1 manager with FLAC file (may have ID3v1 tags)."""
         audio_file = AudioFile(sample_flac_file)
+        manager = Id3v1Manager(audio_file)
         
-        with pytest.raises(FileTypeNotSupportedError):
-            Id3v1Manager(audio_file)
+        metadata = manager.get_app_metadata()
+        assert isinstance(metadata, dict)
 
     def test_id3v1_manager_get_specific_metadata(self, sample_mp3_file: Path):
         """Test getting specific metadata from ID3v1 manager."""
