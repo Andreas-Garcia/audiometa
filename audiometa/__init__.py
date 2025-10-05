@@ -12,7 +12,7 @@ from mutagen.id3 import ID3
 from .audio_file import AudioFile
 from .exceptions import FileTypeNotSupportedError
 from .utils.types import AppMetadata, AppMetadataValue
-from .utils.TagFormat import MetadataFormat
+from .utils.TagFormat import MetadataSingleFormat
 from .utils.AppMetadataKey import AppMetadataKey
 from .manager.id3v1.Id3v1Manager import Id3v1Manager
 from .manager.MetadataManager import MetadataManager
@@ -25,22 +25,22 @@ from .manager.rating_supporting.VorbisManager import VorbisManager
 FILE_EXTENSION_NOT_HANDLED_MESSAGE = "The file's format is not handled by the service."
 
 TAG_FORMAT_MANAGER_CLASS_MAP = {
-    MetadataFormat.ID3V1: Id3v1Manager,
-    MetadataFormat.ID3V2: Id3v2Manager,
-    MetadataFormat.VORBIS: VorbisManager,
-    MetadataFormat.RIFF: RiffManager
+    MetadataSingleFormat.ID3V1: Id3v1Manager,
+    MetadataSingleFormat.ID3V2: Id3v2Manager,
+    MetadataSingleFormat.VORBIS: VorbisManager,
+    MetadataSingleFormat.RIFF: RiffManager
 }
 
 FILE_TYPE = AudioFile | str
 
 
 def _get_metadata_manager(
-        file: FILE_TYPE, tag_format: MetadataFormat | None = None, normalized_rating_max_value: int | None = None
+        file: FILE_TYPE, tag_format: MetadataSingleFormat | None = None, normalized_rating_max_value: int | None = None
 ) -> MetadataManager:
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
 
-    audio_file_prioritized_tag_formats = MetadataFormat.get_priorities().get(file.file_extension)
+    audio_file_prioritized_tag_formats = MetadataSingleFormat.get_priorities().get(file.file_extension)
     if not audio_file_prioritized_tag_formats:
         raise FileTypeNotSupportedError(FILE_EXTENSION_NOT_HANDLED_MESSAGE)
 
@@ -59,15 +59,15 @@ def _get_metadata_manager(
 
 
 def _get_metadata_managers(
-    file: FILE_TYPE, tag_formats: list[MetadataFormat] | None = None, normalized_rating_max_value: int | None = None
-) -> dict[MetadataFormat, MetadataManager]:
+    file: FILE_TYPE, tag_formats: list[MetadataSingleFormat] | None = None, normalized_rating_max_value: int | None = None
+) -> dict[MetadataSingleFormat, MetadataManager]:
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
 
     managers = {}
 
     if not tag_formats:
-        tag_formats = MetadataFormat.get_priorities().get(file.file_extension)
+        tag_formats = MetadataSingleFormat.get_priorities().get(file.file_extension)
         if not tag_formats:
             raise FileTypeNotSupportedError(FILE_EXTENSION_NOT_HANDLED_MESSAGE)
 
@@ -78,7 +78,7 @@ def _get_metadata_managers(
 
 
 def get_single_format_app_metadata(
-        file: FILE_TYPE, tag_format: MetadataFormat, normalized_rating_max_value: int | None = None) -> AppMetadata:
+        file: FILE_TYPE, tag_format: MetadataSingleFormat, normalized_rating_max_value: int | None = None) -> AppMetadata:
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
 
@@ -125,7 +125,7 @@ def update_file_metadata(
     prioritary_metadata_manager.update_file_metadata(app_metadata=app_metadata)
 
 
-def delete_metadata(file, tag_format: MetadataFormat | None = None) -> bool:
+def delete_metadata(file, tag_format: MetadataSingleFormat | None = None) -> bool:
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
     return _get_metadata_manager(file, tag_format=tag_format).delete_metadata()
