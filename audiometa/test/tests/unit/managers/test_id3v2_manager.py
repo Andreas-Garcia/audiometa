@@ -42,7 +42,7 @@ class TestId3v2Manager:
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
         audio_file = AudioFile(temp_audio_file)
-        manager = Id3v2Manager(audio_file)
+        manager = Id3v2Manager(audio_file, normalized_rating_max_value=100)
         
         test_metadata = {
             UnifiedMetadataKey.TITLE: "ID3v2 Test Title",
