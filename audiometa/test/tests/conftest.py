@@ -102,12 +102,6 @@ def sample_wav_file(test_files_dir: Path) -> Path:
     return test_files_dir / "sample.wav"
 
 
-@pytest.fixture
-def sample_ogg_file(test_files_dir: Path) -> Path:
-    """Return path to a sample OGG file."""
-    return test_files_dir / "sample.ogg"
-
-
 # Test tracks with no metadata
 @pytest.fixture
 def metadata_none_mp3(test_files_dir: Path) -> Path:

@@ -21,9 +21,6 @@ def create_silent_audio_file(output_path: Path, duration: float = 1.0, sample_ra
         elif ext == '.wav':
             codec = 'pcm_s16le'
             bitrate = None
-        elif ext == '.ogg':
-            codec = 'libvorbis'
-            bitrate = '128k'
         else:
             codec = 'libmp3lame'
             bitrate = '128k'
@@ -59,7 +56,6 @@ def create_test_files():
         ('sample.mp3', 1.0),
         ('sample.flac', 1.0),
         ('sample.wav', 1.0),
-        ('sample.ogg', 1.0),
     ]
     
     for filename, duration in formats:

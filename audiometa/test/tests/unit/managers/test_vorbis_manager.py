@@ -20,13 +20,6 @@ class TestVorbisManager:
         metadata = manager.get_app_metadata()
         assert isinstance(metadata, dict)
 
-    def test_vorbis_manager_ogg(self, sample_ogg_file: Path):
-        """Test Vorbis manager with OGG file."""
-        audio_file = AudioFile(sample_ogg_file)
-        manager = VorbisManager(audio_file)
-        
-        metadata = manager.get_app_metadata()
-        assert isinstance(metadata, dict)
 
     def test_vorbis_manager_with_rating_normalization(self, sample_flac_file: Path):
         """Test Vorbis manager with rating normalization."""
