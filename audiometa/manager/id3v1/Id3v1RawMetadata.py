@@ -2,6 +2,7 @@
 
 import struct
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from mutagen._file import FileType
@@ -36,6 +37,10 @@ class Id3v1RawMetadata(FileType):
     def _load_tags(self) -> None:
         # Handle both file objects and file paths
         if isinstance(self.fileobj, str):
+            with open(self.fileobj, 'rb') as f:
+                f.seek(-128, 2)  # Seek from end
+                data = f.read(128)
+        elif isinstance(self.fileobj, Path):
             with open(self.fileobj, 'rb') as f:
                 f.seek(-128, 2)  # Seek from end
                 data = f.read(128)
