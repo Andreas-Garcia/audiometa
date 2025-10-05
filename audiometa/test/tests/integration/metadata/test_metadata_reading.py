@@ -9,8 +9,8 @@ from audiometa import (
     get_specific_metadata,
     AudioFile
 )
-from audiometa.utils.MetadataSingleFormat import MetadataSingleFormat
-from audiometa.utils.AppMetadataKey import AppMetadataKey
+from audiometa.utils.MetadataSingleFormat import MetadataFormat
+from audiometa.utils.AppMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError
 
 
@@ -24,9 +24,9 @@ class TestMetadataReading:
         assert isinstance(metadata, dict)
         # Should contain some basic metadata fields
         assert any(key in metadata for key in [
-            AppMetadataKey.TITLE,
-            AppMetadataKey.ARTISTS_NAMES,
-            AppMetadataKey.ALBUM_NAME
+            UnifiedMetadataKey.TITLE,
+            UnifiedMetadataKey.ARTISTS_NAMES,
+            UnifiedMetadataKey.ALBUM_NAME
         ])
 
     def test_get_merged_app_metadata_flac(self, sample_flac_file: Path):
@@ -47,46 +47,46 @@ class TestMetadataReading:
 
     def test_get_single_format_app_metadata_id3v2(self, sample_mp3_file: Path):
         """Test getting ID3v2 metadata from MP3 file."""
-        metadata = get_single_format_app_metadata(sample_mp3_file, MetadataSingleFormat.ID3V2)
+        metadata = get_single_format_app_metadata(sample_mp3_file, MetadataFormat.ID3V2)
         assert isinstance(metadata, dict)
 
     def test_get_single_format_app_metadata_vorbis(self, sample_flac_file: Path):
         """Test getting Vorbis metadata from FLAC file."""
-        metadata = get_single_format_app_metadata(sample_flac_file, MetadataSingleFormat.VORBIS)
+        metadata = get_single_format_app_metadata(sample_flac_file, MetadataFormat.VORBIS)
         assert isinstance(metadata, dict)
 
     def test_get_single_format_app_metadata_riff(self, sample_wav_file: Path):
         """Test getting RIFF metadata from WAV file."""
-        metadata = get_single_format_app_metadata(sample_wav_file, MetadataSingleFormat.RIFF)
+        metadata = get_single_format_app_metadata(sample_wav_file, MetadataFormat.RIFF)
         assert isinstance(metadata, dict)
 
     def test_get_single_format_app_metadata_unsupported_format(self, sample_mp3_file: Path):
         """Test getting metadata with unsupported format raises error."""
         with pytest.raises(FileTypeNotSupportedError):
-            get_single_format_app_metadata(sample_mp3_file, MetadataSingleFormat.VORBIS)
+            get_single_format_app_metadata(sample_mp3_file, MetadataFormat.VORBIS)
 
     def test_get_specific_metadata_title(self, sample_mp3_file: Path):
         """Test getting specific title metadata."""
-        title = get_specific_metadata(sample_mp3_file, AppMetadataKey.TITLE)
+        title = get_specific_metadata(sample_mp3_file, UnifiedMetadataKey.TITLE)
         # Title might be None if not present, but should not raise error
         assert title is None or isinstance(title, str)
 
     def test_get_specific_metadata_artists(self, sample_mp3_file: Path):
         """Test getting specific artists metadata."""
-        artists = get_specific_metadata(sample_mp3_file, AppMetadataKey.ARTISTS_NAMES)
+        artists = get_specific_metadata(sample_mp3_file, UnifiedMetadataKey.ARTISTS_NAMES)
         # Artists might be None if not present, but should not raise error
         assert artists is None or isinstance(artists, list)
 
     def test_get_specific_metadata_rating(self, sample_mp3_file: Path):
         """Test getting specific rating metadata."""
-        rating = get_specific_metadata(sample_mp3_file, AppMetadataKey.RATING)
+        rating = get_specific_metadata(sample_mp3_file, UnifiedMetadataKey.RATING)
         # Rating might be None if not present, but should not raise error
         assert rating is None or isinstance(rating, (int, float))
 
     def test_get_specific_metadata_with_audio_file_object(self, sample_mp3_file: Path):
         """Test getting specific metadata using AudioFile object."""
         audio_file = AudioFile(sample_mp3_file)
-        title = get_specific_metadata(audio_file, AppMetadataKey.TITLE)
+        title = get_specific_metadata(audio_file, UnifiedMetadataKey.TITLE)
         assert title is None or isinstance(title, str)
 
     def test_metadata_with_normalized_rating(self, sample_mp3_file: Path):

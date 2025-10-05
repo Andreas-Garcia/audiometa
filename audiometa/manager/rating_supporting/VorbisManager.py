@@ -8,7 +8,7 @@ from ...audio_file import AudioFile
 from ...exceptions import ConfigurationError, FileCorruptedError, InvalidChunkDecodeError
 from ...utils.rating_profiles import RatingWriteProfile
 from ...utils.types import AppMetadataValue, RawMetadataDict, RawMetadataKey
-from ..MetadataManager import AppMetadataKey
+from ..MetadataManager import UnifiedMetadataKey
 from .RatingSupportingMetadataManager import RatingSupportingMetadataManager
 
 
@@ -68,22 +68,22 @@ class VorbisManager(RatingSupportingMetadataManager):
 
     def __init__(self, audio_file: AudioFile, normalized_rating_max_value: int | None = None):
         metadata_keys_direct_map_read = {
-            AppMetadataKey.TITLE: self.VorbisKey.TITLE,
-            AppMetadataKey.ARTISTS_NAMES: self.VorbisKey.ARTIST_NAME,
-            AppMetadataKey.ALBUM_NAME: self.VorbisKey.ALBUM_NAME,
-            AppMetadataKey.ALBUM_ARTISTS_NAMES: self.VorbisKey.ALBUM_ARTISTS_NAMES,
-            AppMetadataKey.GENRE_NAME: self.VorbisKey.GENRE_NAME,
-            AppMetadataKey.RATING: None,
-            AppMetadataKey.LANGUAGE: self.VorbisKey.LANGUAGE,
+            UnifiedMetadataKey.TITLE: self.VorbisKey.TITLE,
+            UnifiedMetadataKey.ARTISTS_NAMES: self.VorbisKey.ARTIST_NAME,
+            UnifiedMetadataKey.ALBUM_NAME: self.VorbisKey.ALBUM_NAME,
+            UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.VorbisKey.ALBUM_ARTISTS_NAMES,
+            UnifiedMetadataKey.GENRE_NAME: self.VorbisKey.GENRE_NAME,
+            UnifiedMetadataKey.RATING: None,
+            UnifiedMetadataKey.LANGUAGE: self.VorbisKey.LANGUAGE,
         }
         metadata_keys_direct_map_write = {
-            AppMetadataKey.TITLE: self.VorbisKey.TITLE,
-            AppMetadataKey.ARTISTS_NAMES: self.VorbisKey.ARTIST_NAME,
-            AppMetadataKey.ALBUM_NAME: self.VorbisKey.ALBUM_NAME,
-            AppMetadataKey.ALBUM_ARTISTS_NAMES: self.VorbisKey.ALBUM_ARTISTS_NAMES,
-            AppMetadataKey.GENRE_NAME: self.VorbisKey.GENRE_NAME,
-            AppMetadataKey.RATING: None,
-            AppMetadataKey.LANGUAGE: self.VorbisKey.LANGUAGE,
+            UnifiedMetadataKey.TITLE: self.VorbisKey.TITLE,
+            UnifiedMetadataKey.ARTISTS_NAMES: self.VorbisKey.ARTIST_NAME,
+            UnifiedMetadataKey.ALBUM_NAME: self.VorbisKey.ALBUM_NAME,
+            UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.VorbisKey.ALBUM_ARTISTS_NAMES,
+            UnifiedMetadataKey.GENRE_NAME: self.VorbisKey.GENRE_NAME,
+            UnifiedMetadataKey.RATING: None,
+            UnifiedMetadataKey.LANGUAGE: self.VorbisKey.LANGUAGE,
         }
         super().__init__(audio_file=audio_file,
                          metadata_keys_direct_map_read=metadata_keys_direct_map_read,
@@ -139,8 +139,8 @@ class VorbisManager(RatingSupportingMetadataManager):
 
     def _update_undirectly_mapped_metadata(self, raw_mutagen_metadata: MutagenMetadata,
                                            app_metadata_value: AppMetadataValue,
-                                           app_metadata_key: AppMetadataKey):
-        if app_metadata_key == AppMetadataKey.RATING:
+                                           app_metadata_key: UnifiedMetadataKey):
+        if app_metadata_key == UnifiedMetadataKey.RATING:
             if app_metadata_value is not None:
                 app_metadata_value = str(app_metadata_value)
             self._update_formatted_value_in_raw_mutagen_metadata(raw_mutagen_metadata=raw_mutagen_metadata,

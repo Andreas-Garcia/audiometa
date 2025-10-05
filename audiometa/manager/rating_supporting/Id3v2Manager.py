@@ -8,7 +8,7 @@ from mutagen.id3._util import ID3NoHeaderError
 
 
 from ...audio_file import AudioFile
-from ...utils.AppMetadataKey import AppMetadataKey
+from ...utils.AppMetadataKey import UnifiedMetadataKey
 from ...utils.rating_profiles import RatingWriteProfile
 from ...utils.types import AppMetadataValue, RawMetadataDict, RawMetadataKey
 from .RatingSupportingMetadataManager import RatingSupportingMetadataManager
@@ -214,42 +214,42 @@ class Id3v2Manager(RatingSupportingMetadataManager):
 
     def __init__(self, audio_file: AudioFile, normalized_rating_max_value: int | None = None):
         metadata_keys_direct_map_read = {
-            AppMetadataKey.TITLE: self.Id3TextFrame.TITLE,
-            AppMetadataKey.ARTISTS_NAMES: self.Id3TextFrame.ARTISTS_NAMES,
-            AppMetadataKey.ALBUM_NAME: self.Id3TextFrame.ALBUM_NAME,
-            AppMetadataKey.ALBUM_ARTISTS_NAMES: self.Id3TextFrame.ALBUM_ARTISTS_NAMES,
-            AppMetadataKey.GENRE_NAME: self.Id3TextFrame.GENRE_NAME,
-            AppMetadataKey.RATING: None,
-            AppMetadataKey.LANGUAGE: self.Id3TextFrame.LANGUAGE,
-            AppMetadataKey.COMPOSER: self.Id3TextFrame.COMPOSER,
-            AppMetadataKey.PUBLISHER: self.Id3TextFrame.PUBLISHER,
-            AppMetadataKey.COPYRIGHT: self.Id3TextFrame.COPYRIGHT,
-            AppMetadataKey.LYRICS: self.Id3TextFrame.LYRICS,
-            AppMetadataKey.COMMENT: self.Id3TextFrame.COMMENT,
-            AppMetadataKey.ENCODER: self.Id3TextFrame.ENCODER,
-            AppMetadataKey.URL: self.Id3TextFrame.URL,
-            AppMetadataKey.ISRC: self.Id3TextFrame.ISRC,
-            AppMetadataKey.MOOD: self.Id3TextFrame.MOOD,
-            AppMetadataKey.KEY: self.Id3TextFrame.KEY,
+            UnifiedMetadataKey.TITLE: self.Id3TextFrame.TITLE,
+            UnifiedMetadataKey.ARTISTS_NAMES: self.Id3TextFrame.ARTISTS_NAMES,
+            UnifiedMetadataKey.ALBUM_NAME: self.Id3TextFrame.ALBUM_NAME,
+            UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.Id3TextFrame.ALBUM_ARTISTS_NAMES,
+            UnifiedMetadataKey.GENRE_NAME: self.Id3TextFrame.GENRE_NAME,
+            UnifiedMetadataKey.RATING: None,
+            UnifiedMetadataKey.LANGUAGE: self.Id3TextFrame.LANGUAGE,
+            UnifiedMetadataKey.COMPOSER: self.Id3TextFrame.COMPOSER,
+            UnifiedMetadataKey.PUBLISHER: self.Id3TextFrame.PUBLISHER,
+            UnifiedMetadataKey.COPYRIGHT: self.Id3TextFrame.COPYRIGHT,
+            UnifiedMetadataKey.LYRICS: self.Id3TextFrame.LYRICS,
+            UnifiedMetadataKey.COMMENT: self.Id3TextFrame.COMMENT,
+            UnifiedMetadataKey.ENCODER: self.Id3TextFrame.ENCODER,
+            UnifiedMetadataKey.URL: self.Id3TextFrame.URL,
+            UnifiedMetadataKey.ISRC: self.Id3TextFrame.ISRC,
+            UnifiedMetadataKey.MOOD: self.Id3TextFrame.MOOD,
+            UnifiedMetadataKey.KEY: self.Id3TextFrame.KEY,
         }
         metadata_keys_direct_map_write: dict = {
-            AppMetadataKey.TITLE: self.Id3TextFrame.TITLE,
-            AppMetadataKey.ARTISTS_NAMES: self.Id3TextFrame.ARTISTS_NAMES,
-            AppMetadataKey.ALBUM_NAME: self.Id3TextFrame.ALBUM_NAME,
-            AppMetadataKey.ALBUM_ARTISTS_NAMES: self.Id3TextFrame.ALBUM_ARTISTS_NAMES,
-            AppMetadataKey.GENRE_NAME: self.Id3TextFrame.GENRE_NAME,
-            AppMetadataKey.RATING: self.Id3TextFrame.RATING,
-            AppMetadataKey.LANGUAGE: self.Id3TextFrame.LANGUAGE,
-            AppMetadataKey.COMPOSER: self.Id3TextFrame.COMPOSER,
-            AppMetadataKey.PUBLISHER: self.Id3TextFrame.PUBLISHER,
-            AppMetadataKey.COPYRIGHT: self.Id3TextFrame.COPYRIGHT,
-            AppMetadataKey.LYRICS: self.Id3TextFrame.LYRICS,
-            AppMetadataKey.COMMENT: self.Id3TextFrame.COMMENT,
-            AppMetadataKey.ENCODER: self.Id3TextFrame.ENCODER,
-            AppMetadataKey.URL: self.Id3TextFrame.URL,
-            AppMetadataKey.ISRC: self.Id3TextFrame.ISRC,
-            AppMetadataKey.MOOD: self.Id3TextFrame.MOOD,
-            AppMetadataKey.KEY: self.Id3TextFrame.KEY,
+            UnifiedMetadataKey.TITLE: self.Id3TextFrame.TITLE,
+            UnifiedMetadataKey.ARTISTS_NAMES: self.Id3TextFrame.ARTISTS_NAMES,
+            UnifiedMetadataKey.ALBUM_NAME: self.Id3TextFrame.ALBUM_NAME,
+            UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.Id3TextFrame.ALBUM_ARTISTS_NAMES,
+            UnifiedMetadataKey.GENRE_NAME: self.Id3TextFrame.GENRE_NAME,
+            UnifiedMetadataKey.RATING: self.Id3TextFrame.RATING,
+            UnifiedMetadataKey.LANGUAGE: self.Id3TextFrame.LANGUAGE,
+            UnifiedMetadataKey.COMPOSER: self.Id3TextFrame.COMPOSER,
+            UnifiedMetadataKey.PUBLISHER: self.Id3TextFrame.PUBLISHER,
+            UnifiedMetadataKey.COPYRIGHT: self.Id3TextFrame.COPYRIGHT,
+            UnifiedMetadataKey.LYRICS: self.Id3TextFrame.LYRICS,
+            UnifiedMetadataKey.COMMENT: self.Id3TextFrame.COMMENT,
+            UnifiedMetadataKey.ENCODER: self.Id3TextFrame.ENCODER,
+            UnifiedMetadataKey.URL: self.Id3TextFrame.URL,
+            UnifiedMetadataKey.ISRC: self.Id3TextFrame.ISRC,
+            UnifiedMetadataKey.MOOD: self.Id3TextFrame.MOOD,
+            UnifiedMetadataKey.KEY: self.Id3TextFrame.KEY,
         }
 
         super().__init__(audio_file=audio_file,

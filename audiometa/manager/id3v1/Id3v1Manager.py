@@ -4,7 +4,7 @@ from mutagen._file import FileType as MutagenMetadata
 
 from ...audio_file import AudioFile
 from ...exceptions import FileCorruptedError, MetadataNotSupportedError
-from ...utils.AppMetadataKey import AppMetadataKey
+from ...utils.AppMetadataKey import UnifiedMetadataKey
 from ...utils.types import AppMetadataValue, RawMetadataDict
 from ..MetadataManager import MetadataManager
 from .Id3v1RawMetadata import Id3v1RawMetadata
@@ -52,10 +52,10 @@ class Id3v1Manager(MetadataManager):
 
     def __init__(self, audio_file: AudioFile):
         metadata_keys_direct_map_read: dict = {
-            AppMetadataKey.TITLE: Id3v1RawMetadataKey.TITLE,
-            AppMetadataKey.ARTISTS_NAMES: Id3v1RawMetadataKey.ARTISTS_NAMES_STR,
-            AppMetadataKey.ALBUM_NAME: Id3v1RawMetadataKey.ALBUM_NAME,
-            AppMetadataKey.GENRE_NAME: None,
+            UnifiedMetadataKey.TITLE: Id3v1RawMetadataKey.TITLE,
+            UnifiedMetadataKey.ARTISTS_NAMES: Id3v1RawMetadataKey.ARTISTS_NAMES_STR,
+            UnifiedMetadataKey.ALBUM_NAME: Id3v1RawMetadataKey.ALBUM_NAME,
+            UnifiedMetadataKey.GENRE_NAME: None,
         }
         super().__init__(audio_file=audio_file, metadata_keys_direct_map_read=metadata_keys_direct_map_read,)
 
@@ -85,13 +85,13 @@ class Id3v1Manager(MetadataManager):
         return result
 
     def _get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
-            self, raw_clean_metadata: RawMetadataDict, app_metadata_key: AppMetadataKey) -> AppMetadataValue:
-        if app_metadata_key == AppMetadataKey.GENRE_NAME:
+            self, raw_clean_metadata: RawMetadataDict, app_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
+        if app_metadata_key == UnifiedMetadataKey.GENRE_NAME:
             return self._get_genre_name_from_raw_clean_metadata_id3v1(
                 raw_clean_metadata=raw_clean_metadata, raw_metadata_ket=Id3v1RawMetadataKey.GENRE_CODE_OR_NAME)
         raise MetadataNotSupportedError(f'{app_metadata_key} metadata is not undirectly handled')
 
     def _update_undirectly_mapped_metadata(self, app_metadata_value: AppMetadataValue,
-                                           app_metadata_key: AppMetadataKey,
+                                           app_metadata_key: UnifiedMetadataKey,
                                            normalized_rating_max_value: int | None = None):
         raise MetadataNotSupportedError("ID3v1 tag modification is not supported")

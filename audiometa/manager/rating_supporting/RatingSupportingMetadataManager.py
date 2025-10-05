@@ -2,7 +2,7 @@ from abc import abstractmethod
 
 from ...audio_file import AudioFile
 from ...exceptions import ConfigurationError
-from ...utils.AppMetadataKey import AppMetadataKey
+from ...utils.AppMetadataKey import UnifiedMetadataKey
 from ...utils.rating_profiles import RatingReadProfile, RatingWriteProfile
 from ...utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
 from ..MetadataManager import MetadataManager
@@ -16,8 +16,8 @@ class RatingSupportingMetadataManager(MetadataManager):
     rating_write_profile: RatingWriteProfile
 
     def __init__(self, audio_file: AudioFile,
-                 metadata_keys_direct_map_read: dict[AppMetadataKey, RawMetadataKey | None],
-                 metadata_keys_direct_map_write: dict[AppMetadataKey, RawMetadataKey | None],
+                 metadata_keys_direct_map_read: dict[UnifiedMetadataKey, RawMetadataKey | None],
+                 metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None],
                  rating_write_profile: RatingWriteProfile,
                  normalized_rating_max_value: int | None,
                  update_using_mutagen_metadata: bool = True):
@@ -38,12 +38,12 @@ class RatingSupportingMetadataManager(MetadataManager):
 
     @abstractmethod
     def _get_undirectly_mapped_metadata_value_other_than_rating_from_raw_clean_metadata(
-            self, raw_clean_metadata: RawMetadataDict, app_metadata_key: AppMetadataKey) -> AppMetadataValue:
+            self, raw_clean_metadata: RawMetadataDict, app_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
         raise NotImplementedError()
 
     def _get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
-            self, raw_clean_metadata: RawMetadataDict, app_metadata_key: AppMetadataKey) -> AppMetadataValue | None:
-        if app_metadata_key == AppMetadataKey.RATING:
+            self, raw_clean_metadata: RawMetadataDict, app_metadata_key: UnifiedMetadataKey) -> AppMetadataValue | None:
+        if app_metadata_key == UnifiedMetadataKey.RATING:
             return self._get_potentially_normalized_rating_from_raw(raw_clean_metadata)
         else:
             return self._get_undirectly_mapped_metadata_value_other_than_rating_from_raw_clean_metadata(
@@ -73,10 +73,10 @@ class RatingSupportingMetadataManager(MetadataManager):
         return self.rating_write_profile[star_rating_base_10]
 
     def update_file_metadata(self, app_metadata: AppMetadata):
-        if AppMetadataKey.RATING in list(app_metadata.keys()):
-            value: int | None = app_metadata[AppMetadataKey.RATING]  # type: ignore
+        if UnifiedMetadataKey.RATING in list(app_metadata.keys()):
+            value: int | None = app_metadata[UnifiedMetadataKey.RATING]  # type: ignore
             if value is None:
-                del app_metadata[AppMetadataKey.RATING]
+                del app_metadata[UnifiedMetadataKey.RATING]
             else:
                 if self.normalized_rating_max_value is None:
                     raise ConfigurationError(
@@ -85,7 +85,7 @@ class RatingSupportingMetadataManager(MetadataManager):
                 try:
                     normalized_rating = int(float(value))
                     file_rating = self._convert_normalized_rating_to_file_rating(normalized_rating=normalized_rating)
-                    app_metadata[AppMetadataKey.RATING] = file_rating
+                    app_metadata[UnifiedMetadataKey.RATING] = file_rating
                 except (TypeError, ValueError):
                     raise ValueError(f"Invalid rating value: {value}. Expected a numeric value.")
 

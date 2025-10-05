@@ -10,7 +10,7 @@ from ...exceptions import ConfigurationError, MetadataNotSupportedError
 from ...utils.id3v1_genre_code_map import ID3V1_GENRE_CODE_MAP
 from ...utils.rating_profiles import RatingWriteProfile
 from ...utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
-from ..MetadataManager import AppMetadataKey
+from ..MetadataManager import UnifiedMetadataKey
 from ..rating_supporting.RatingSupportingMetadataManager import RatingSupportingMetadataManager
 
 
@@ -73,23 +73,23 @@ class RiffManager(RatingSupportingMetadataManager):
 
     def __init__(self, audio_file: AudioFile, normalized_rating_max_value: None | int = None):
         metadata_keys_direct_map_read = {
-            AppMetadataKey.TITLE: self.RiffTagKey.TITLE,
-            AppMetadataKey.ARTISTS_NAMES: self.RiffTagKey.ARTIST_NAME,
-            AppMetadataKey.ALBUM_NAME: self.RiffTagKey.ALBUM_NAME,
-            AppMetadataKey.ALBUM_ARTISTS_NAMES: self.RiffTagKey.ALBUM_ARTISTS_NAMES,
-            AppMetadataKey.GENRE_NAME: None,
-            AppMetadataKey.RATING: None,
-            AppMetadataKey.LANGUAGE: self.RiffTagKey.LANGUAGE,
+            UnifiedMetadataKey.TITLE: self.RiffTagKey.TITLE,
+            UnifiedMetadataKey.ARTISTS_NAMES: self.RiffTagKey.ARTIST_NAME,
+            UnifiedMetadataKey.ALBUM_NAME: self.RiffTagKey.ALBUM_NAME,
+            UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.RiffTagKey.ALBUM_ARTISTS_NAMES,
+            UnifiedMetadataKey.GENRE_NAME: None,
+            UnifiedMetadataKey.RATING: None,
+            UnifiedMetadataKey.LANGUAGE: self.RiffTagKey.LANGUAGE,
             # AppMetadataKey.TRACK_NUMBER: None,
         }
-        metadata_keys_direct_map_write: dict[AppMetadataKey, RawMetadataKey | None] = {
-            AppMetadataKey.TITLE: self.RiffTagKey.TITLE,
-            AppMetadataKey.ARTISTS_NAMES: self.RiffTagKey.ARTIST_NAME,
-            AppMetadataKey.ALBUM_NAME: self.RiffTagKey.ALBUM_NAME,
-            AppMetadataKey.ALBUM_ARTISTS_NAMES: self.RiffTagKey.ALBUM_ARTISTS_NAMES,
-            AppMetadataKey.GENRE_NAME: None,
-            AppMetadataKey.RATING: None,
-            AppMetadataKey.LANGUAGE: self.RiffTagKey.LANGUAGE,
+        metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] = {
+            UnifiedMetadataKey.TITLE: self.RiffTagKey.TITLE,
+            UnifiedMetadataKey.ARTISTS_NAMES: self.RiffTagKey.ARTIST_NAME,
+            UnifiedMetadataKey.ALBUM_NAME: self.RiffTagKey.ALBUM_NAME,
+            UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.RiffTagKey.ALBUM_ARTISTS_NAMES,
+            UnifiedMetadataKey.GENRE_NAME: None,
+            UnifiedMetadataKey.RATING: None,
+            UnifiedMetadataKey.LANGUAGE: self.RiffTagKey.LANGUAGE,
             # AppMetadataKey.TRACK_NUMBER: self.RiffTagKey.TRACK_NUMBER,
         }
         super().__init__(audio_file=audio_file,
@@ -234,9 +234,9 @@ class RiffManager(RatingSupportingMetadataManager):
         return cast(int, raw_rating), True
 
     def _get_undirectly_mapped_metadata_value_other_than_rating_from_raw_clean_metadata(
-            self, app_metadata_key: AppMetadataKey, raw_clean_metadata: RawMetadataDict) -> AppMetadataValue:
+            self, app_metadata_key: UnifiedMetadataKey, raw_clean_metadata: RawMetadataDict) -> AppMetadataValue:
 
-        if app_metadata_key == AppMetadataKey.GENRE_NAME:
+        if app_metadata_key == UnifiedMetadataKey.GENRE_NAME:
             return self._get_genre_name_from_raw_clean_metadata_id3v1(
                 raw_clean_metadata=raw_clean_metadata, raw_metadata_ket=self.RiffTagKey.GENRE_NAME_OR_CODE)
         else:
@@ -328,25 +328,25 @@ class RiffManager(RatingSupportingMetadataManager):
         file_data[insert_pos:insert_pos] = info_chunk
         return insert_pos
 
-    def _get_riff_key_for_metadata(self, app_key: AppMetadataKey, value: AppMetadataValue) -> str | None:
+    def _get_riff_key_for_metadata(self, app_key: UnifiedMetadataKey, value: AppMetadataValue) -> str | None:
         """Get the appropriate RIFF tag key for the metadata."""
         if not self.metadata_keys_direct_map_write:
             return None
 
         riff_key = self.metadata_keys_direct_map_write.get(app_key)
         if not riff_key:
-            if app_key == AppMetadataKey.GENRE_NAME:
+            if app_key == UnifiedMetadataKey.GENRE_NAME:
                 return self.RiffTagKey.GENRE_NAME_OR_CODE
-            elif app_key == AppMetadataKey.RATING:
+            elif app_key == UnifiedMetadataKey.RATING:
                 return self.RiffTagKey.RATING
         return riff_key
 
-    def _prepare_tag_value(self, value: AppMetadataValue, app_key: AppMetadataKey) -> bytes | None:
+    def _prepare_tag_value(self, value: AppMetadataValue, app_key: UnifiedMetadataKey) -> bytes | None:
         """Prepare the tag value for writing, handling special cases."""
         if isinstance(value, list):
             value = value[0] if value else ""
 
-        if app_key == AppMetadataKey.GENRE_NAME:
+        if app_key == UnifiedMetadataKey.GENRE_NAME:
             value = self._get_genre_code_from_name(str(value))
 
         if value is None:

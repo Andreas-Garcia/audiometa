@@ -9,8 +9,8 @@ from audiometa import (
     AudioFile
 )
 import shutil
-from audiometa.utils.MetadataSingleFormat import MetadataSingleFormat
-from audiometa.utils.AppMetadataKey import AppMetadataKey
+from audiometa.utils.MetadataSingleFormat import MetadataFormat
+from audiometa.utils.AppMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError
 
 
@@ -22,27 +22,27 @@ class TestVorbisFormat:
         """Test Vorbis metadata capabilities."""
         # Small Vorbis file
         metadata = get_merged_app_metadata(metadata_vorbis_small_flac)
-        title = metadata.get(AppMetadataKey.TITLE)
+        title = metadata.get(UnifiedMetadataKey.TITLE)
         assert len(title) > 30  # Vorbis can have longer titles
         
         # Big Vorbis file
         metadata = get_merged_app_metadata(metadata_vorbis_big_flac)
-        title = metadata.get(AppMetadataKey.TITLE)
+        title = metadata.get(UnifiedMetadataKey.TITLE)
         assert len(title) > 30  # Vorbis can have longer titles
 
     def test_vorbis_metadata_reading(self, metadata_vorbis_small_flac):
         """Test reading Vorbis metadata from FLAC files."""
         metadata = get_merged_app_metadata(metadata_vorbis_small_flac)
         assert isinstance(metadata, dict)
-        assert AppMetadataKey.TITLE in metadata
+        assert UnifiedMetadataKey.TITLE in metadata
         # Vorbis can have very long titles
-        assert len(metadata[AppMetadataKey.TITLE]) > 30
+        assert len(metadata[UnifiedMetadataKey.TITLE]) > 30
 
     def test_single_format_vorbis_extraction(self, metadata_vorbis_small_flac):
         """Test extracting Vorbis metadata specifically."""
-        vorbis_metadata = get_single_format_app_metadata(metadata_vorbis_small_flac, MetadataSingleFormat.VORBIS)
+        vorbis_metadata = get_single_format_app_metadata(metadata_vorbis_small_flac, MetadataFormat.VORBIS)
         assert isinstance(vorbis_metadata, dict)
-        assert AppMetadataKey.TITLE in vorbis_metadata
+        assert UnifiedMetadataKey.TITLE in vorbis_metadata
 
     def test_metadata_none_files(self, metadata_none_flac):
         """Test reading metadata from files with no metadata."""
@@ -57,25 +57,25 @@ class TestVorbisFormat:
         # Test merged metadata
         metadata = get_merged_app_metadata(audio_file)
         assert isinstance(metadata, dict)
-        assert AppMetadataKey.TITLE in metadata
+        assert UnifiedMetadataKey.TITLE in metadata
 
     def test_metadata_writing_flac(self, metadata_none_flac, temp_audio_file):
         """Test writing metadata to FLAC with Vorbis."""
         shutil.copy2(metadata_none_flac, temp_audio_file)
         test_metadata = {
-            AppMetadataKey.TITLE: "Test Title FLAC",
-            AppMetadataKey.ARTISTS_NAMES: ["Test Artist FLAC"],
-            AppMetadataKey.ALBUM_NAME: "Test Album FLAC",
-            AppMetadataKey.GENRE: "Test Genre FLAC",
-            AppMetadataKey.RATING: 7
+            UnifiedMetadataKey.TITLE: "Test Title FLAC",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist FLAC"],
+            UnifiedMetadataKey.ALBUM_NAME: "Test Album FLAC",
+            UnifiedMetadataKey.GENRE: "Test Genre FLAC",
+            UnifiedMetadataKey.RATING: 7
         }
         update_file_metadata(temp_audio_file, test_metadata, normalized_rating_max_value=100)
         metadata = get_merged_app_metadata(temp_audio_file, normalized_rating_max_value=100)
-        assert metadata.get(AppMetadataKey.TITLE) == "Test Title FLAC"
-        assert metadata.get(AppMetadataKey.ARTISTS_NAMES) == ["Test Artist FLAC"]
-        assert metadata.get(AppMetadataKey.ALBUM_NAME) == "Test Album FLAC"
-        assert metadata.get(AppMetadataKey.GENRE) == "Test Genre FLAC"
-        assert metadata.get(AppMetadataKey.RATING) == 7
+        assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title FLAC"
+        assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist FLAC"]
+        assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album FLAC"
+        assert metadata.get(UnifiedMetadataKey.GENRE) == "Test Genre FLAC"
+        assert metadata.get(UnifiedMetadataKey.RATING) == 7
 
     def test_flac_md5_validation(self, sample_flac_file):
         """Test FLAC MD5 validation."""

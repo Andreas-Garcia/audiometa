@@ -7,8 +7,8 @@ from audiometa import (
     get_single_format_app_metadata,
     get_specific_metadata
 )
-from audiometa.utils.MetadataSingleFormat import MetadataSingleFormat
-from audiometa.utils.AppMetadataKey import AppMetadataKey
+from audiometa.utils.MetadataSingleFormat import MetadataFormat
+from audiometa.utils.AppMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError
 
 
@@ -27,7 +27,7 @@ class TestFormatSpecificErrorHandling:
             get_merged_app_metadata(str(temp_audio_file))
         
         with pytest.raises(FileTypeNotSupportedError):
-            get_single_format_app_metadata(str(temp_audio_file), MetadataSingleFormat.ID3V2)
+            get_single_format_app_metadata(str(temp_audio_file), MetadataFormat.ID3V2)
         
         with pytest.raises(FileTypeNotSupportedError):
-            get_specific_metadata(str(temp_audio_file), AppMetadataKey.TITLE)
+            get_specific_metadata(str(temp_audio_file), UnifiedMetadataKey.TITLE)

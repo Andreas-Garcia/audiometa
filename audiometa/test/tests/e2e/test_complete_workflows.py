@@ -19,7 +19,7 @@ from audiometa import (
     get_bitrate,
     get_duration_in_sec
 )
-from audiometa.utils.AppMetadataKey import AppMetadataKey
+from audiometa.utils.AppMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.e2e
@@ -40,16 +40,16 @@ class TestCompleteWorkflows:
         
         # Read existing metadata
         original_metadata = get_merged_app_metadata(temp_audio_file)
-        original_title = get_specific_metadata(temp_audio_file, AppMetadataKey.TITLE)
-        original_artist = get_specific_metadata(temp_audio_file, AppMetadataKey.ARTISTS_NAMES)
+        original_title = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE)
+        original_artist = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         
         # Edit metadata
         test_metadata = {
-            AppMetadataKey.TITLE: "New Title",
-            AppMetadataKey.ARTISTS_NAMES: ["New Artist"],
-            AppMetadataKey.ALBUM_NAME: "New Album",
-            AppMetadataKey.GENRE_NAME: "Rock",
-            AppMetadataKey.COMMENT: "Test comment"
+            UnifiedMetadataKey.TITLE: "New Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["New Artist"],
+            UnifiedMetadataKey.ALBUM_NAME: "New Album",
+            UnifiedMetadataKey.GENRE_NAME: "Rock",
+            UnifiedMetadataKey.COMMENT: "Test comment"
         }
         
         # Save changes
@@ -57,11 +57,11 @@ class TestCompleteWorkflows:
         
         # Verify persistence by reloading
         updated_metadata = get_merged_app_metadata(temp_audio_file)
-        assert get_specific_metadata(temp_audio_file, AppMetadataKey.TITLE) == "New Title"
-        assert get_specific_metadata(temp_audio_file, AppMetadataKey.ARTISTS_NAMES) == ["New Artist"]
-        assert get_specific_metadata(temp_audio_file, AppMetadataKey.ALBUM_NAME) == "New Album"
-        assert get_specific_metadata(temp_audio_file, AppMetadataKey.GENRE_NAME) == "Rock"
-        assert get_specific_metadata(temp_audio_file, AppMetadataKey.COMMENT) == "Test comment"
+        assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE) == "New Title"
+        assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES) == ["New Artist"]
+        assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ALBUM_NAME) == "New Album"
+        assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.GENRE_NAME) == "Rock"
+        assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.COMMENT) == "Test comment"
     
     def test_batch_metadata_processing(self, sample_mp3_file, sample_flac_file, sample_wav_file, temp_audio_file):
         """Test batch processing of multiple files."""
@@ -77,8 +77,8 @@ class TestCompleteWorkflows:
                 
                 # Update metadata using functional API
                 test_metadata = {
-                    AppMetadataKey.ALBUM_NAME: "Batch Album",
-                    AppMetadataKey.COMMENT: "Batch processing test"
+                    UnifiedMetadataKey.ALBUM_NAME: "Batch Album",
+                    UnifiedMetadataKey.COMMENT: "Batch processing test"
                 }
                 update_file_metadata(temp_file, test_metadata)
                 results.append(("success", file_path))
@@ -98,17 +98,17 @@ class TestCompleteWorkflows:
         
         # Test invalid operations
         with pytest.raises(ValueError):
-            update_file_metadata(temp_audio_file, {AppMetadataKey.TRACK_NUMBER: -1})  # Invalid track number
+            update_file_metadata(temp_audio_file, {UnifiedMetadataKey.TRACK_NUMBER: -1})  # Invalid track number
         
         # Test file corruption handling
         # (This would test what happens with corrupted files)
         
         # Test recovery after errors
-        test_metadata = {AppMetadataKey.TITLE: "Recovery Test"}
+        test_metadata = {UnifiedMetadataKey.TITLE: "Recovery Test"}
         update_file_metadata(temp_audio_file, test_metadata)
         
         # Verify the file is still usable
-        assert get_specific_metadata(temp_audio_file, AppMetadataKey.TITLE) == "Recovery Test"
+        assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE) == "Recovery Test"
 
     def test_complete_metadata_workflow_mp3(self, sample_mp3_file: Path, temp_audio_file: Path):
         """Test complete metadata workflow with MP3 file using functional API."""
@@ -121,21 +121,21 @@ class TestCompleteWorkflows:
         
         # 2. Update metadata
         test_metadata = {
-            AppMetadataKey.TITLE: "Integration Test Title",
-            AppMetadataKey.ARTISTS_NAMES: ["Integration Test Artist"],
-            AppMetadataKey.ALBUM_NAME: "Integration Test Album",
-            AppMetadataKey.RATING: 90,
-            AppMetadataKey.BPM: 130
+            UnifiedMetadataKey.TITLE: "Integration Test Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["Integration Test Artist"],
+            UnifiedMetadataKey.ALBUM_NAME: "Integration Test Album",
+            UnifiedMetadataKey.RATING: 90,
+            UnifiedMetadataKey.BPM: 130
         }
         update_file_metadata(temp_audio_file, test_metadata)
         
         # 3. Verify metadata was updated
         updated_metadata = get_merged_app_metadata(temp_audio_file)
-        assert updated_metadata.get(AppMetadataKey.TITLE) == "Integration Test Title"
-        assert updated_metadata.get(AppMetadataKey.ARTISTS_NAMES) == ["Integration Test Artist"]
-        assert updated_metadata.get(AppMetadataKey.ALBUM_NAME) == "Integration Test Album"
-        assert updated_metadata.get(AppMetadataKey.RATING) == 90
-        assert updated_metadata.get(AppMetadataKey.BPM) == 130
+        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Integration Test Title"
+        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Integration Test Artist"]
+        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Integration Test Album"
+        assert updated_metadata.get(UnifiedMetadataKey.RATING) == 90
+        assert updated_metadata.get(UnifiedMetadataKey.BPM) == 130
         
         # 4. Test technical information
         bitrate = get_bitrate(temp_audio_file)
@@ -152,7 +152,7 @@ class TestCompleteWorkflows:
         # 6. Verify metadata was deleted
         deleted_metadata = get_merged_app_metadata(temp_audio_file)
         # After deletion, metadata should be empty or minimal
-        assert AppMetadataKey.TITLE not in deleted_metadata or deleted_metadata.get(AppMetadataKey.TITLE) != "Integration Test Title"
+        assert UnifiedMetadataKey.TITLE not in deleted_metadata or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "Integration Test Title"
 
     def test_complete_metadata_workflow_flac(self, sample_flac_file: Path, temp_audio_file: Path):
         """Test complete metadata workflow with FLAC file using functional API."""
@@ -165,21 +165,21 @@ class TestCompleteWorkflows:
         
         # 2. Update metadata
         test_metadata = {
-            AppMetadataKey.TITLE: "FLAC Integration Test Title",
-            AppMetadataKey.ARTISTS_NAMES: ["FLAC Integration Test Artist"],
-            AppMetadataKey.ALBUM_NAME: "FLAC Integration Test Album",
-            AppMetadataKey.RATING: 85,
-            AppMetadataKey.BPM: 140
+            UnifiedMetadataKey.TITLE: "FLAC Integration Test Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["FLAC Integration Test Artist"],
+            UnifiedMetadataKey.ALBUM_NAME: "FLAC Integration Test Album",
+            UnifiedMetadataKey.RATING: 85,
+            UnifiedMetadataKey.BPM: 140
         }
         update_file_metadata(temp_audio_file, test_metadata)
         
         # 3. Verify metadata was updated
         updated_metadata = get_merged_app_metadata(temp_audio_file)
-        assert updated_metadata.get(AppMetadataKey.TITLE) == "FLAC Integration Test Title"
-        assert updated_metadata.get(AppMetadataKey.ARTISTS_NAMES) == ["FLAC Integration Test Artist"]
-        assert updated_metadata.get(AppMetadataKey.ALBUM_NAME) == "FLAC Integration Test Album"
-        assert updated_metadata.get(AppMetadataKey.RATING) == 85
-        assert updated_metadata.get(AppMetadataKey.BPM) == 140
+        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "FLAC Integration Test Title"
+        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["FLAC Integration Test Artist"]
+        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "FLAC Integration Test Album"
+        assert updated_metadata.get(UnifiedMetadataKey.RATING) == 85
+        assert updated_metadata.get(UnifiedMetadataKey.BPM) == 140
         
         # 4. Test technical information
         bitrate = get_bitrate(temp_audio_file)
@@ -200,17 +200,17 @@ class TestCompleteWorkflows:
         
         # 2. Update metadata (WAV doesn't support rating or BPM)
         test_metadata = {
-            AppMetadataKey.TITLE: "WAV Integration Test Title",
-            AppMetadataKey.ARTISTS_NAMES: ["WAV Integration Test Artist"],
-            AppMetadataKey.ALBUM_NAME: "WAV Integration Test Album"
+            UnifiedMetadataKey.TITLE: "WAV Integration Test Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["WAV Integration Test Artist"],
+            UnifiedMetadataKey.ALBUM_NAME: "WAV Integration Test Album"
         }
         update_file_metadata(temp_audio_file, test_metadata)
         
         # 3. Verify metadata was updated
         updated_metadata = get_merged_app_metadata(temp_audio_file)
-        assert updated_metadata.get(AppMetadataKey.TITLE) == "WAV Integration Test Title"
-        assert updated_metadata.get(AppMetadataKey.ARTISTS_NAMES) == ["WAV Integration Test Artist"]
-        assert updated_metadata.get(AppMetadataKey.ALBUM_NAME) == "WAV Integration Test Album"
+        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "WAV Integration Test Title"
+        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["WAV Integration Test Artist"]
+        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "WAV Integration Test Album"
         
         # 4. Test technical information
         bitrate = get_bitrate(temp_audio_file)
@@ -240,25 +240,25 @@ class TestCompleteWorkflows:
         
         # Test with 0-100 rating scale
         test_metadata_100 = {
-            AppMetadataKey.TITLE: "Rating Test 100",
-            AppMetadataKey.RATING: 75
+            UnifiedMetadataKey.TITLE: "Rating Test 100",
+            UnifiedMetadataKey.RATING: 75
         }
         update_file_metadata(temp_audio_file, test_metadata_100, normalized_rating_max_value=100)
         
         metadata_100 = get_merged_app_metadata(temp_audio_file, normalized_rating_max_value=100)
-        assert metadata_100.get(AppMetadataKey.TITLE) == "Rating Test 100"
-        assert metadata_100.get(AppMetadataKey.RATING) == 75
+        assert metadata_100.get(UnifiedMetadataKey.TITLE) == "Rating Test 100"
+        assert metadata_100.get(UnifiedMetadataKey.RATING) == 75
         
         # Test with 0-255 rating scale
         test_metadata_255 = {
-            AppMetadataKey.TITLE: "Rating Test 255",
-            AppMetadataKey.RATING: 191  # 75% of 255
+            UnifiedMetadataKey.TITLE: "Rating Test 255",
+            UnifiedMetadataKey.RATING: 191  # 75% of 255
         }
         update_file_metadata(temp_audio_file, test_metadata_255, normalized_rating_max_value=255)
         
         metadata_255 = get_merged_app_metadata(temp_audio_file, normalized_rating_max_value=255)
-        assert metadata_255.get(AppMetadataKey.TITLE) == "Rating Test 255"
-        assert metadata_255.get(AppMetadataKey.RATING) == 191
+        assert metadata_255.get(UnifiedMetadataKey.TITLE) == "Rating Test 255"
+        assert metadata_255.get(UnifiedMetadataKey.RATING) == 191
 
     def test_error_handling_workflow(self, temp_audio_file: Path):
         """Test error handling in the complete workflow."""
@@ -272,7 +272,7 @@ class TestCompleteWorkflows:
             get_merged_app_metadata(str(temp_audio_file))
         
         with pytest.raises(Exception):  # FileTypeNotSupportedError
-            update_file_metadata(str(temp_audio_file), {AppMetadataKey.TITLE: "Test"})
+            update_file_metadata(str(temp_audio_file), {UnifiedMetadataKey.TITLE: "Test"})
         
         with pytest.raises(Exception):  # FileTypeNotSupportedError
             delete_metadata(str(temp_audio_file))

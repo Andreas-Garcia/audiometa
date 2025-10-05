@@ -11,7 +11,7 @@ from audiometa import (
     get_specific_metadata,
     AudioFile
 )
-from audiometa.utils.AppMetadataKey import AppMetadataKey
+from audiometa.utils.AppMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.integration
@@ -23,35 +23,35 @@ class TestTitleMetadata:
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
         # Test writing title
-        test_metadata = {AppMetadataKey.TITLE: "Test Song Title"}
+        test_metadata = {UnifiedMetadataKey.TITLE: "Test Song Title"}
         update_file_metadata(temp_audio_file, test_metadata)
         
         # Test reading title
-        title = get_specific_metadata(temp_audio_file, AppMetadataKey.TITLE)
+        title = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE)
         assert title == "Test Song Title"
         
         # Test reading from merged metadata
         metadata = get_merged_app_metadata(temp_audio_file)
-        assert metadata.get(AppMetadataKey.TITLE) == "Test Song Title"
+        assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Song Title"
 
     def test_title_metadata_flac(self, sample_flac_file: Path, temp_audio_file: Path):
         """Test title metadata in FLAC file."""
         shutil.copy2(sample_flac_file, temp_audio_file)
         
-        test_metadata = {AppMetadataKey.TITLE: "FLAC Test Title"}
+        test_metadata = {UnifiedMetadataKey.TITLE: "FLAC Test Title"}
         update_file_metadata(temp_audio_file, test_metadata)
         
-        title = get_specific_metadata(temp_audio_file, AppMetadataKey.TITLE)
+        title = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE)
         assert title == "FLAC Test Title"
 
     def test_title_metadata_wav(self, sample_wav_file: Path, temp_audio_file: Path):
         """Test title metadata in WAV file."""
         shutil.copy2(sample_wav_file, temp_audio_file)
         
-        test_metadata = {AppMetadataKey.TITLE: "WAV Test Title"}
+        test_metadata = {UnifiedMetadataKey.TITLE: "WAV Test Title"}
         update_file_metadata(temp_audio_file, test_metadata)
         
-        title = get_specific_metadata(temp_audio_file, AppMetadataKey.TITLE)
+        title = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE)
         assert title == "WAV Test Title"
 
     def test_title_metadata_with_audio_file_object(self, sample_mp3_file: Path, temp_audio_file: Path):
@@ -59,10 +59,10 @@ class TestTitleMetadata:
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
         audio_file = AudioFile(temp_audio_file)
-        test_metadata = {AppMetadataKey.TITLE: "AudioFile Test Title"}
+        test_metadata = {UnifiedMetadataKey.TITLE: "AudioFile Test Title"}
         update_file_metadata(audio_file, test_metadata)
         
-        title = get_specific_metadata(audio_file, AppMetadataKey.TITLE)
+        title = get_specific_metadata(audio_file, UnifiedMetadataKey.TITLE)
         assert title == "AudioFile Test Title"
 
     def test_title_metadata_edge_cases(self, sample_mp3_file: Path, temp_audio_file: Path):
@@ -71,46 +71,46 @@ class TestTitleMetadata:
         
         # Test short title
         short_title = "A"
-        update_file_metadata(temp_audio_file, {AppMetadataKey.TITLE: short_title})
+        update_file_metadata(temp_audio_file, {UnifiedMetadataKey.TITLE: short_title})
         metadata = get_merged_app_metadata(temp_audio_file)
-        assert metadata.get(AppMetadataKey.TITLE) == short_title
+        assert metadata.get(UnifiedMetadataKey.TITLE) == short_title
         
         # Test long title
         long_title = "A" * 1000
-        update_file_metadata(temp_audio_file, {AppMetadataKey.TITLE: long_title})
+        update_file_metadata(temp_audio_file, {UnifiedMetadataKey.TITLE: long_title})
         metadata = get_merged_app_metadata(temp_audio_file)
-        assert metadata.get(AppMetadataKey.TITLE) is not None
-        assert len(metadata.get(AppMetadataKey.TITLE)) > 0
+        assert metadata.get(UnifiedMetadataKey.TITLE) is not None
+        assert len(metadata.get(UnifiedMetadataKey.TITLE)) > 0
         
         # Test empty title
         empty_title = ""
-        update_file_metadata(temp_audio_file, {AppMetadataKey.TITLE: empty_title})
+        update_file_metadata(temp_audio_file, {UnifiedMetadataKey.TITLE: empty_title})
         metadata = get_merged_app_metadata(temp_audio_file)
-        assert metadata.get(AppMetadataKey.TITLE) == empty_title
+        assert metadata.get(UnifiedMetadataKey.TITLE) == empty_title
 
     def test_title_metadata_reading(self, metadata_id3v1_small_mp3, metadata_id3v2_small_mp3, metadata_riff_small_wav, metadata_vorbis_small_flac):
         """Test reading title metadata from different formats."""
         # ID3v1 title (limited to 30 characters)
         metadata = get_merged_app_metadata(metadata_id3v1_small_mp3)
-        title = metadata.get(AppMetadataKey.TITLE)
+        title = metadata.get(UnifiedMetadataKey.TITLE)
         assert isinstance(title, str)
         assert len(title) == 30  # ID3v1 limit
         
         # ID3v2 title (can be longer)
         metadata = get_merged_app_metadata(metadata_id3v2_small_mp3)
-        title = metadata.get(AppMetadataKey.TITLE)
+        title = metadata.get(UnifiedMetadataKey.TITLE)
         assert isinstance(title, str)
         assert len(title) > 30  # ID3v2 can have longer titles
         
         # RIFF title (can be longer)
         metadata = get_merged_app_metadata(metadata_riff_small_wav)
-        title = metadata.get(AppMetadataKey.TITLE)
+        title = metadata.get(UnifiedMetadataKey.TITLE)
         assert isinstance(title, str)
         assert len(title) > 30  # RIFF can have longer titles
         
         # Vorbis title (can be very long)
         metadata = get_merged_app_metadata(metadata_vorbis_small_flac)
-        title = metadata.get(AppMetadataKey.TITLE)
+        title = metadata.get(UnifiedMetadataKey.TITLE)
         assert isinstance(title, str)
         assert len(title) > 30  # Vorbis can have very long titles
 
@@ -119,21 +119,21 @@ class TestTitleMetadata:
         # Test MP3
         shutil.copy2(metadata_none_mp3, temp_audio_file)
         test_title = "Test Title MP3"
-        update_file_metadata(temp_audio_file, {AppMetadataKey.TITLE: test_title})
+        update_file_metadata(temp_audio_file, {UnifiedMetadataKey.TITLE: test_title})
         metadata = get_merged_app_metadata(temp_audio_file)
-        assert metadata.get(AppMetadataKey.TITLE) == test_title
+        assert metadata.get(UnifiedMetadataKey.TITLE) == test_title
         
         # Test FLAC
         shutil.copy2(metadata_none_flac, temp_audio_file)
         test_title = "Test Title FLAC"
-        update_file_metadata(temp_audio_file, {AppMetadataKey.TITLE: test_title})
+        update_file_metadata(temp_audio_file, {UnifiedMetadataKey.TITLE: test_title})
         metadata = get_merged_app_metadata(temp_audio_file)
-        assert metadata.get(AppMetadataKey.TITLE) == test_title
+        assert metadata.get(UnifiedMetadataKey.TITLE) == test_title
         
         # Test WAV
         shutil.copy2(metadata_none_wav, temp_audio_file)
         test_title = "Test Title WAV"
-        update_file_metadata(temp_audio_file, {AppMetadataKey.TITLE: test_title})
+        update_file_metadata(temp_audio_file, {UnifiedMetadataKey.TITLE: test_title})
         metadata = get_merged_app_metadata(temp_audio_file)
-        assert metadata.get(AppMetadataKey.TITLE) == test_title
+        assert metadata.get(UnifiedMetadataKey.TITLE) == test_title
 

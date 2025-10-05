@@ -8,7 +8,7 @@ import pytest
 import shutil
 from pathlib import Path
 from audiometa import AudioFile, get_merged_app_metadata, get_specific_metadata, update_file_metadata
-from audiometa.utils.AppMetadataKey import AppMetadataKey
+from audiometa.utils.AppMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.e2e
@@ -27,14 +27,14 @@ class TestUserScenarios:
             
             # Set consistent metadata for organization
             test_metadata = {
-                AppMetadataKey.ALBUM_NAME: "My Music Library",
-                AppMetadataKey.TITLE: f"Track {i + 1}"
+                UnifiedMetadataKey.ALBUM_NAME: "My Music Library",
+                UnifiedMetadataKey.TITLE: f"Track {i + 1}"
             }
             update_file_metadata(temp_file, test_metadata)
             
             # Verify the organization worked
-            assert get_specific_metadata(temp_file, AppMetadataKey.ALBUM_NAME) == "My Music Library"
-            assert get_specific_metadata(temp_file, AppMetadataKey.TITLE) == f"Track {i + 1}"
+            assert get_specific_metadata(temp_file, UnifiedMetadataKey.ALBUM_NAME) == "My Music Library"
+            assert get_specific_metadata(temp_file, UnifiedMetadataKey.TITLE) == f"Track {i + 1}"
     
     def test_metadata_import_export_workflow(self, sample_mp3_file, temp_audio_file):
         """Test importing and exporting metadata."""
@@ -44,9 +44,9 @@ class TestUserScenarios:
         
         # Export current metadata
         metadata = {
-            'title': get_specific_metadata(temp_audio_file, AppMetadataKey.TITLE),
-            'artist': get_specific_metadata(temp_audio_file, AppMetadataKey.ARTISTS_NAMES),
-            'album': get_specific_metadata(temp_audio_file, AppMetadataKey.ALBUM_NAME)
+            'title': get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE),
+            'artist': get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES),
+            'album': get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ALBUM_NAME)
         }
         
         # Simulate external metadata update
@@ -55,24 +55,24 @@ class TestUserScenarios:
         
         # Apply updated metadata
         test_metadata = {
-            AppMetadataKey.TITLE: metadata['title'],
-            AppMetadataKey.ARTISTS_NAMES: metadata['artist'],
-            AppMetadataKey.ALBUM_NAME: metadata['album']
+            UnifiedMetadataKey.TITLE: metadata['title'],
+            UnifiedMetadataKey.ARTISTS_NAMES: metadata['artist'],
+            UnifiedMetadataKey.ALBUM_NAME: metadata['album']
         }
         update_file_metadata(temp_audio_file, test_metadata)
         
         # Verify the import worked
-        assert get_specific_metadata(temp_audio_file, AppMetadataKey.TITLE) == "Updated Title"
-        assert get_specific_metadata(temp_audio_file, AppMetadataKey.ARTISTS_NAMES) == ["Updated Artist"]
+        assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE) == "Updated Title"
+        assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES) == ["Updated Artist"]
     
     def test_cross_format_compatibility(self, sample_mp3_file, sample_flac_file, sample_wav_file, temp_audio_file):
         """Test metadata consistency across different audio formats."""
         # Test that metadata works consistently across MP3, FLAC, etc.
         
         test_metadata = {
-            AppMetadataKey.TITLE: 'Cross Format Test',
-            AppMetadataKey.ARTISTS_NAMES: ['Test Artist'],
-            AppMetadataKey.ALBUM_NAME: 'Test Album'
+            UnifiedMetadataKey.TITLE: 'Cross Format Test',
+            UnifiedMetadataKey.ARTISTS_NAMES: ['Test Artist'],
+            UnifiedMetadataKey.ALBUM_NAME: 'Test Album'
         }
         
         sample_files = [sample_mp3_file, sample_flac_file, sample_wav_file]
@@ -85,6 +85,6 @@ class TestUserScenarios:
             update_file_metadata(temp_file, test_metadata)
             
             # Verify metadata was set correctly
-            assert get_specific_metadata(temp_file, AppMetadataKey.TITLE) == test_metadata[AppMetadataKey.TITLE]
-            assert get_specific_metadata(temp_file, AppMetadataKey.ARTISTS_NAMES) == test_metadata[AppMetadataKey.ARTISTS_NAMES]
-            assert get_specific_metadata(temp_file, AppMetadataKey.ALBUM_NAME) == test_metadata[AppMetadataKey.ALBUM_NAME]
+            assert get_specific_metadata(temp_file, UnifiedMetadataKey.TITLE) == test_metadata[UnifiedMetadataKey.TITLE]
+            assert get_specific_metadata(temp_file, UnifiedMetadataKey.ARTISTS_NAMES) == test_metadata[UnifiedMetadataKey.ARTISTS_NAMES]
+            assert get_specific_metadata(temp_file, UnifiedMetadataKey.ALBUM_NAME) == test_metadata[UnifiedMetadataKey.ALBUM_NAME]

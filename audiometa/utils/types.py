@@ -1,7 +1,7 @@
 
 from enum import Enum
 
-from .AppMetadataKey import AppMetadataKey
+from .AppMetadataKey import UnifiedMetadataKey
 
 
 class RawMetadataKey(str, Enum):
@@ -18,4 +18,4 @@ names).
 AppMetadataValue = int | float | str | list[str] | None
 RawMetadataValue = list[int] | list[float] | list[str] | None
 RawMetadataDict = dict[RawMetadataKey, RawMetadataValue]
-AppMetadata = dict[AppMetadataKey, AppMetadataValue]
+AppMetadata = dict[UnifiedMetadataKey, AppMetadataValue]

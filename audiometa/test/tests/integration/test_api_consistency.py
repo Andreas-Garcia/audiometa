@@ -12,8 +12,8 @@ from audiometa import (
     get_single_format_app_metadata,
     get_specific_metadata
 )
-from audiometa.utils.MetadataSingleFormat import MetadataSingleFormat
-from audiometa.utils.AppMetadataKey import AppMetadataKey
+from audiometa.utils.MetadataSingleFormat import MetadataFormat
+from audiometa.utils.AppMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.integration
@@ -30,11 +30,11 @@ class TestApiConsistency:
             assert isinstance(metadata, dict)
             
             # All files should support specific metadata queries
-            title = get_specific_metadata(file_path, AppMetadataKey.TITLE)
+            title = get_specific_metadata(file_path, UnifiedMetadataKey.TITLE)
             assert title is None or isinstance(title, str)
             
             # All files should support technical metadata
-            artists = get_specific_metadata(file_path, AppMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(file_path, UnifiedMetadataKey.ARTISTS_NAMES)
             assert artists is None or isinstance(artists, list)
 
     def test_metadata_manager_integration_mp3(self, sample_mp3_file: Path):
@@ -44,11 +44,11 @@ class TestApiConsistency:
         assert isinstance(metadata, dict)
         
         # Test single format metadata extraction
-        id3v2_metadata = get_single_format_app_metadata(sample_mp3_file, MetadataSingleFormat.ID3V2)
+        id3v2_metadata = get_single_format_app_metadata(sample_mp3_file, MetadataFormat.ID3V2)
         assert isinstance(id3v2_metadata, dict)
         
         # Test specific metadata extraction
-        title = get_specific_metadata(sample_mp3_file, AppMetadataKey.TITLE)
+        title = get_specific_metadata(sample_mp3_file, UnifiedMetadataKey.TITLE)
         assert title is None or isinstance(title, str)
 
     def test_metadata_manager_integration_flac(self, sample_flac_file: Path):
@@ -58,11 +58,11 @@ class TestApiConsistency:
         assert isinstance(metadata, dict)
         
         # Test single format metadata extraction
-        vorbis_metadata = get_single_format_app_metadata(sample_flac_file, MetadataSingleFormat.VORBIS)
+        vorbis_metadata = get_single_format_app_metadata(sample_flac_file, MetadataFormat.VORBIS)
         assert isinstance(vorbis_metadata, dict)
         
         # Test specific metadata extraction
-        title = get_specific_metadata(sample_flac_file, AppMetadataKey.TITLE)
+        title = get_specific_metadata(sample_flac_file, UnifiedMetadataKey.TITLE)
         assert title is None or isinstance(title, str)
 
     def test_metadata_manager_integration_wav(self, sample_wav_file: Path):
@@ -72,11 +72,11 @@ class TestApiConsistency:
         assert isinstance(metadata, dict)
         
         # Test single format metadata extraction
-        riff_metadata = get_single_format_app_metadata(sample_wav_file, MetadataSingleFormat.RIFF)
+        riff_metadata = get_single_format_app_metadata(sample_wav_file, MetadataFormat.RIFF)
         assert isinstance(riff_metadata, dict)
         
         # Test specific metadata extraction
-        title = get_specific_metadata(sample_wav_file, AppMetadataKey.TITLE)
+        title = get_specific_metadata(sample_wav_file, UnifiedMetadataKey.TITLE)
         assert title is None or isinstance(title, str)
 
     def test_metadata_consistency_across_formats(self, metadata_id3v2_small_mp3, metadata_id3v2_small_flac, metadata_id3v2_small_wav):
@@ -89,9 +89,9 @@ class TestApiConsistency:
             assert isinstance(metadata, dict)
             
             # All files should support specific metadata queries
-            title = get_specific_metadata(file_path, AppMetadataKey.TITLE)
+            title = get_specific_metadata(file_path, UnifiedMetadataKey.TITLE)
             assert title is None or isinstance(title, str)
             
             # All files should support technical metadata
-            artists = get_specific_metadata(file_path, AppMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(file_path, UnifiedMetadataKey.ARTISTS_NAMES)
             assert artists is None or isinstance(artists, list)

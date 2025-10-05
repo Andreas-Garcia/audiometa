@@ -2,14 +2,14 @@
 from enum import Enum
 
 
-class MetadataSingleFormat(str, Enum):
+class MetadataFormat(str, Enum):
     ID3V2 = 'id3v2'
     ID3V1 = 'id3v1'
     VORBIS = 'vorbis'
     RIFF = 'riff'
 
     @classmethod
-    def get_priorities(cls) -> dict[str, list['MetadataSingleFormat']]:
+    def get_priorities(cls) -> dict[str, list['MetadataFormat']]:
         """Get tag format priorities for different file formats.
         First tag format in each list has highest priority.
 

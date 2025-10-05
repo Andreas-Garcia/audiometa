@@ -5,7 +5,7 @@ from pathlib import Path
 
 from audiometa import AudioFile
 from audiometa.manager.rating_supporting.Id3v2Manager import Id3v2Manager
-from audiometa.utils.AppMetadataKey import AppMetadataKey
+from audiometa.utils.AppMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.unit
@@ -45,19 +45,19 @@ class TestId3v2Manager:
         manager = Id3v2Manager(audio_file)
         
         test_metadata = {
-            AppMetadataKey.TITLE: "ID3v2 Test Title",
-            AppMetadataKey.ARTISTS_NAMES: ["ID3v2 Test Artist"],
-            AppMetadataKey.ALBUM_NAME: "ID3v2 Test Album",
-            AppMetadataKey.RATING: 85,
-            AppMetadataKey.BPM: 120
+            UnifiedMetadataKey.TITLE: "ID3v2 Test Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Test Artist"],
+            UnifiedMetadataKey.ALBUM_NAME: "ID3v2 Test Album",
+            UnifiedMetadataKey.RATING: 85,
+            UnifiedMetadataKey.BPM: 120
         }
         
         manager.update_file_metadata(test_metadata)
         
         # Verify metadata was updated
         updated_metadata = manager.get_app_metadata()
-        assert updated_metadata.get(AppMetadataKey.TITLE) == "ID3v2 Test Title"
-        assert updated_metadata.get(AppMetadataKey.ARTISTS_NAMES) == ["ID3v2 Test Artist"]
-        assert updated_metadata.get(AppMetadataKey.ALBUM_NAME) == "ID3v2 Test Album"
-        assert updated_metadata.get(AppMetadataKey.RATING) == 85
-        assert updated_metadata.get(AppMetadataKey.BPM) == 120
+        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2 Test Title"
+        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["ID3v2 Test Artist"]
+        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v2 Test Album"
+        assert updated_metadata.get(UnifiedMetadataKey.RATING) == 85
+        assert updated_metadata.get(UnifiedMetadataKey.BPM) == 120

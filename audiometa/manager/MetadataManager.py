@@ -8,7 +8,7 @@ from ..audio_file import AudioFile
 from ..utils.id3v1_genre_code_map import ID3V1_GENRE_CODE_MAP
 
 from ..exceptions import MetadataNotSupportedError
-from ..utils.AppMetadataKey import AppMetadataKey
+from ..utils.AppMetadataKey import UnifiedMetadataKey
 from ..utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
 
 
@@ -22,15 +22,15 @@ T = TypeVar('T', str, int)
 class MetadataManager:
 
     audio_file: AudioFile
-    metadata_keys_direct_map_read: dict[AppMetadataKey, RawMetadataKey | None]
-    metadata_keys_direct_map_write: dict[AppMetadataKey, RawMetadataKey | None] | None
+    metadata_keys_direct_map_read: dict[UnifiedMetadataKey, RawMetadataKey | None]
+    metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] | None
     raw_mutagen_metadata: MutagenMetadata | None = None
     raw_clean_metadata: RawMetadataDict | None = None
     update_using_mutagen_metadata: bool
 
     def __init__(self, audio_file: AudioFile,
-                 metadata_keys_direct_map_read: dict[AppMetadataKey, RawMetadataKey | None],
-                 metadata_keys_direct_map_write: dict[AppMetadataKey, RawMetadataKey | None] | None = None,
+                 metadata_keys_direct_map_read: dict[UnifiedMetadataKey, RawMetadataKey | None],
+                 metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] | None = None,
                  update_using_mutagen_metadata: bool = True):
         self.audio_file = audio_file
         self.metadata_keys_direct_map_read = metadata_keys_direct_map_read
@@ -48,13 +48,13 @@ class MetadataManager:
 
     @abstractmethod
     def _get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
-            self, raw_clean_metadata: RawMetadataDict, app_metadata_key: AppMetadataKey) -> AppMetadataValue:
+            self, raw_clean_metadata: RawMetadataDict, app_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
         raise NotImplementedError()
 
     @abstractmethod
     def _update_undirectly_mapped_metadata(self, raw_mutagen_metadata: MutagenMetadata,
                                            app_metadata_value: AppMetadataValue,
-                                           app_metadata_key: AppMetadataKey):
+                                           app_metadata_key: UnifiedMetadataKey):
         raise NotImplementedError()
 
     @abstractmethod
@@ -113,7 +113,7 @@ class MetadataManager:
                 app_metadata[metadata_key] = app_metadata_value
         return app_metadata
 
-    def get_app_specific_metadata(self, app_metadata_key: AppMetadataKey) -> AppMetadataValue:
+    def get_app_specific_metadata(self, app_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
         if self.raw_clean_metadata is None:
             self.raw_clean_metadata = self._get_cleaned_raw_metadata_from_file()
 

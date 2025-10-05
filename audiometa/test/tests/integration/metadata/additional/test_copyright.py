@@ -11,7 +11,7 @@ from audiometa import (
     get_specific_metadata,
     AudioFile
 )
-from audiometa.utils.AppMetadataKey import AppMetadataKey
+from audiometa.utils.AppMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.integration
@@ -22,30 +22,30 @@ class TestCopyrightMetadata:
         """Test copyright metadata in MP3 file."""
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
-        test_metadata = {AppMetadataKey.COPYRIGHT: "© 2024 Test Label"}
+        test_metadata = {UnifiedMetadataKey.COPYRIGHT: "© 2024 Test Label"}
         update_file_metadata(temp_audio_file, test_metadata)
         
-        copyright_info = get_specific_metadata(temp_audio_file, AppMetadataKey.COPYRIGHT)
+        copyright_info = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.COPYRIGHT)
         assert copyright_info == "© 2024 Test Label"
 
     def test_copyright_metadata_flac(self, sample_flac_file: Path, temp_audio_file: Path):
         """Test copyright metadata in FLAC file."""
         shutil.copy2(sample_flac_file, temp_audio_file)
         
-        test_metadata = {AppMetadataKey.COPYRIGHT: "© 2024 FLAC Label"}
+        test_metadata = {UnifiedMetadataKey.COPYRIGHT: "© 2024 FLAC Label"}
         update_file_metadata(temp_audio_file, test_metadata)
         
-        copyright_info = get_specific_metadata(temp_audio_file, AppMetadataKey.COPYRIGHT)
+        copyright_info = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.COPYRIGHT)
         assert copyright_info == "© 2024 FLAC Label"
 
     def test_copyright_metadata_wav(self, sample_wav_file: Path, temp_audio_file: Path):
         """Test copyright metadata in WAV file."""
         shutil.copy2(sample_wav_file, temp_audio_file)
         
-        test_metadata = {AppMetadataKey.COPYRIGHT: "© 2024 WAV Label"}
+        test_metadata = {UnifiedMetadataKey.COPYRIGHT: "© 2024 WAV Label"}
         update_file_metadata(temp_audio_file, test_metadata)
         
-        copyright_info = get_specific_metadata(temp_audio_file, AppMetadataKey.COPYRIGHT)
+        copyright_info = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.COPYRIGHT)
         assert copyright_info == "© 2024 WAV Label"
 
     def test_copyright_metadata_with_audio_file_object(self, sample_mp3_file: Path, temp_audio_file: Path):
@@ -53,9 +53,9 @@ class TestCopyrightMetadata:
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
         audio_file = AudioFile(temp_audio_file)
-        test_metadata = {AppMetadataKey.COPYRIGHT: "© 2024 AudioFile Label"}
+        test_metadata = {UnifiedMetadataKey.COPYRIGHT: "© 2024 AudioFile Label"}
         update_file_metadata(audio_file, test_metadata)
         
-        copyright_info = get_specific_metadata(audio_file, AppMetadataKey.COPYRIGHT)
+        copyright_info = get_specific_metadata(audio_file, UnifiedMetadataKey.COPYRIGHT)
         assert copyright_info == "© 2024 AudioFile Label"
 

@@ -16,8 +16,8 @@ from audiometa import (
     get_bitrate,
     get_duration_in_sec
 )
-from audiometa.utils.MetadataSingleFormat import MetadataSingleFormat
-from audiometa.utils.AppMetadataKey import AppMetadataKey
+from audiometa.utils.MetadataSingleFormat import MetadataFormat
+from audiometa.utils.AppMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError
 
 
@@ -37,13 +37,13 @@ class TestErrorHandling:
             get_merged_app_metadata(str(temp_audio_file))
         
         with pytest.raises(FileTypeNotSupportedError):
-            get_single_format_app_metadata(str(temp_audio_file), MetadataSingleFormat.ID3V2)
+            get_single_format_app_metadata(str(temp_audio_file), MetadataFormat.ID3V2)
         
         with pytest.raises(FileTypeNotSupportedError):
-            get_specific_metadata(str(temp_audio_file), AppMetadataKey.TITLE)
+            get_specific_metadata(str(temp_audio_file), UnifiedMetadataKey.TITLE)
         
         with pytest.raises(FileTypeNotSupportedError):
-            update_file_metadata(str(temp_audio_file), {AppMetadataKey.TITLE: "Test"})
+            update_file_metadata(str(temp_audio_file), {UnifiedMetadataKey.TITLE: "Test"})
         
         with pytest.raises(FileTypeNotSupportedError):
             delete_metadata(str(temp_audio_file))
@@ -62,10 +62,10 @@ class TestErrorHandling:
             get_merged_app_metadata(nonexistent_file)
         
         with pytest.raises(FileNotFoundError):
-            get_single_format_app_metadata(nonexistent_file, MetadataSingleFormat.ID3V2)
+            get_single_format_app_metadata(nonexistent_file, MetadataFormat.ID3V2)
         
         with pytest.raises(FileNotFoundError):
-            get_specific_metadata(nonexistent_file, AppMetadataKey.TITLE)
+            get_specific_metadata(nonexistent_file, UnifiedMetadataKey.TITLE)
 
     def test_invalid_metadata_key_error_handling(self, sample_mp3_file: Path):
         """Test error handling for invalid metadata keys."""
@@ -77,9 +77,9 @@ class TestErrorHandling:
     def test_invalid_format_error_handling(self, sample_mp3_file: Path):
         """Test error handling for invalid format requests."""
         # Try to get Vorbis metadata from MP3 file (should work but return empty)
-        vorbis_metadata = get_single_format_app_metadata(sample_mp3_file, MetadataSingleFormat.VORBIS)
+        vorbis_metadata = get_single_format_app_metadata(sample_mp3_file, MetadataFormat.VORBIS)
         assert isinstance(vorbis_metadata, dict)
         
         # Try to get RIFF metadata from MP3 file (should work but return empty)
-        riff_metadata = get_single_format_app_metadata(sample_mp3_file, MetadataSingleFormat.RIFF)
+        riff_metadata = get_single_format_app_metadata(sample_mp3_file, MetadataFormat.RIFF)
         assert isinstance(riff_metadata, dict)

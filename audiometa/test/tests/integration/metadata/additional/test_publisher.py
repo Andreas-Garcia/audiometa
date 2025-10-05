@@ -11,7 +11,7 @@ from audiometa import (
     get_specific_metadata,
     AudioFile
 )
-from audiometa.utils.AppMetadataKey import AppMetadataKey
+from audiometa.utils.AppMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.integration
@@ -22,41 +22,41 @@ class TestPublisherMetadata:
         """Test publisher metadata in MP3 file."""
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
-        test_metadata = {AppMetadataKey.PUBLISHER: "Test Publisher"}
+        test_metadata = {UnifiedMetadataKey.PUBLISHER: "Test Publisher"}
         update_file_metadata(temp_audio_file, test_metadata)
         
-        publisher = get_specific_metadata(temp_audio_file, AppMetadataKey.PUBLISHER)
+        publisher = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.PUBLISHER)
         assert publisher == "Test Publisher"
 
     def test_publisher_metadata_flac(self, sample_flac_file: Path, temp_audio_file: Path):
         """Test publisher metadata in FLAC file."""
         shutil.copy2(sample_flac_file, temp_audio_file)
         
-        test_metadata = {AppMetadataKey.PUBLISHER: "FLAC Publisher"}
+        test_metadata = {UnifiedMetadataKey.PUBLISHER: "FLAC Publisher"}
         update_file_metadata(temp_audio_file, test_metadata)
         
-        publisher = get_specific_metadata(temp_audio_file, AppMetadataKey.PUBLISHER)
+        publisher = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.PUBLISHER)
         assert publisher == "FLAC Publisher"
 
     def test_publisher_metadata_wav(self, sample_wav_file: Path, temp_audio_file: Path):
         """Test publisher metadata in WAV file."""
         shutil.copy2(sample_wav_file, temp_audio_file)
         
-        test_metadata = {AppMetadataKey.PUBLISHER: "WAV Publisher"}
+        test_metadata = {UnifiedMetadataKey.PUBLISHER: "WAV Publisher"}
         update_file_metadata(temp_audio_file, test_metadata)
         
         # WAV files may not support publisher metadata
         metadata = get_merged_app_metadata(temp_audio_file)
-        assert AppMetadataKey.PUBLISHER not in metadata or metadata.get(AppMetadataKey.PUBLISHER) is None
+        assert UnifiedMetadataKey.PUBLISHER not in metadata or metadata.get(UnifiedMetadataKey.PUBLISHER) is None
 
     def test_publisher_metadata_with_audio_file_object(self, sample_mp3_file: Path, temp_audio_file: Path):
         """Test publisher metadata using AudioFile object."""
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
         audio_file = AudioFile(temp_audio_file)
-        test_metadata = {AppMetadataKey.PUBLISHER: "AudioFile Publisher"}
+        test_metadata = {UnifiedMetadataKey.PUBLISHER: "AudioFile Publisher"}
         update_file_metadata(audio_file, test_metadata)
         
-        publisher = get_specific_metadata(audio_file, AppMetadataKey.PUBLISHER)
+        publisher = get_specific_metadata(audio_file, UnifiedMetadataKey.PUBLISHER)
         assert publisher == "AudioFile Publisher"
 

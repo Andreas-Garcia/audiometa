@@ -9,8 +9,8 @@ from audiometa import (
     get_single_format_app_metadata,
     get_specific_metadata
 )
-from audiometa.utils.MetadataSingleFormat import MetadataSingleFormat
-from audiometa.utils.AppMetadataKey import AppMetadataKey
+from audiometa.utils.MetadataSingleFormat import MetadataFormat
+from audiometa.utils.AppMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.integration
@@ -27,11 +27,11 @@ class TestAudioFileIntegration:
         assert isinstance(metadata, dict)
         
         # Test single format with AudioFile object
-        id3v2_metadata = get_single_format_app_metadata(audio_file, MetadataSingleFormat.ID3V2)
+        id3v2_metadata = get_single_format_app_metadata(audio_file, MetadataFormat.ID3V2)
         assert isinstance(id3v2_metadata, dict)
         
         # Test specific metadata with AudioFile object
-        title = get_specific_metadata(audio_file, AppMetadataKey.TITLE)
+        title = get_specific_metadata(audio_file, UnifiedMetadataKey.TITLE)
         assert title is None or isinstance(title, str)
 
 
