@@ -9,9 +9,7 @@ The tests verify that tag reading works correctly across all valid combinations.
 
 import pytest
 from pathlib import Path
-import tempfile
 import shutil
-from typing import Any
 
 from audiometa import (
     get_single_format_app_metadata,
