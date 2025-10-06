@@ -251,11 +251,13 @@ When writing metadata, the library uses these default metadata formats per audio
 The library supports both ID3v2.3 and ID3v2.4 formats for MP3 files. You can choose the version based on your compatibility needs:
 
 ### ID3v2.3 (Default - Maximum Compatibility)
+
 - **Best for**: Maximum compatibility with older players and devices
 - **Supported by**: Windows Media Player, older car systems, most DJ software
 - **Features**: UTF-16 encoding, basic unsynchronization
 
 ### ID3v2.4 (Modern Features)
+
 - **Best for**: Modern players and applications that support it
 - **Supported by**: Modern browsers, recent media players, newer mobile devices
 - **Features**: UTF-8 encoding, per-frame unsynchronization, extended metadata

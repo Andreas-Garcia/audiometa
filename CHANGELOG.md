@@ -8,12 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - ID3v2 version selection for MP3 files
 - Support for choosing between ID3v2.3 (maximum compatibility) and ID3v2.4 (modern features)
 - `id3v2_version` parameter in all metadata functions
 - Automatic version upgrade when reading existing files
 
 ### Changed
+
 - Default ID3v2 version changed from v2.4 to v2.3 for maximum compatibility
 - ID3v2Manager now accepts `id3v2_version` parameter
 - All public API functions now support `id3v2_version` parameter

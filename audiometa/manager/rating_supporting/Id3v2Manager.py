@@ -10,7 +10,7 @@ from mutagen.id3._util import ID3NoHeaderError
 from ...audio_file import AudioFile
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from ...utils.rating_profiles import RatingWriteProfile
-from ...utils.types import AppMetadataValue, RawMetadataDict, RawMetadataKey
+from ...utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
 from .RatingSupportingMetadataManager import RatingSupportingMetadataManager
 
 
@@ -107,15 +107,16 @@ class Id3v2Manager(RatingSupportingMetadataManager):
 
     - ID3:
         - Writing Policy:
-            * The app always writes ID3v2 tags in v2.4 format
+            * The app writes ID3v2 tags in the specified version (default: v2.3)
             * When updating an existing file:
-                - v2.4 tags are updated in place
-                - v2.3 or v2.2 tags are upgraded to v2.4
+                - Tags are upgraded to the specified version if different
+                - v2.2, v2.3, or v2.4 tags are upgraded to the specified version
                 - Frame IDs are automatically converted
                 - All text is encoded in UTF-8
             * Reading supports all versions (v2.2, v2.3, v2.4)
             * Only one ID3v2 version can exist in a file at a time
             * Native format for MP3 files
+            * Version selection allows choosing between v2.3 (maximum compatibility) and v2.4 (modern features)
 
         - ID3v1:
             * Fixed 128-byte format at end of file
@@ -154,8 +155,9 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                 - New frames for more detailed metadata (e.g., TDRC for recording time, TDRL for release time)
                 - Preferred version for new tags
 
-    For maximum compatibility and modern features, ID3v2.4 will be used as the version for writing metadata.
-    Thus when reading/updating an existing file, the ID3 tags will be updated to v2.4 format.
+    For maximum compatibility, ID3v2.3 is used as the default version for writing metadata.
+    Users can choose ID3v2.4 for modern features if their target players support it.
+    When reading/updating an existing file, the ID3 tags will be updated to the specified version format.
     """
 
     ID3_RATING_APP_EMAIL = "audiometa-python@audiometa.dev"
@@ -212,7 +214,8 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         Id3TextFrame.KEY: TKEY,
     }
 
-    def __init__(self, audio_file: AudioFile, normalized_rating_max_value: int | None = None):
+    def __init__(self, audio_file: AudioFile, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] = (2, 3, 0)):
+        self.id3v2_version = id3v2_version
         metadata_keys_direct_map_read = {
             UnifiedMetadataKey.TITLE: self.Id3TextFrame.TITLE,
             UnifiedMetadataKey.ARTISTS_NAMES: self.Id3TextFrame.ARTISTS_NAMES,
@@ -262,16 +265,23 @@ class Id3v2Manager(RatingSupportingMetadataManager):
 
     def _extract_mutagen_metadata(self) -> MutagenMetadata:
         try:
-            return ID3(self.audio_file.get_file_path_or_object(), load_v1=False)  # type: ignore[return-value]
+            id3 = ID3(self.audio_file.get_file_path_or_object(), load_v1=False)  # type: ignore[return-value]
+            # Upgrade to specified version if different
+            if id3.version != self.id3v2_version:
+                id3.version = self.id3v2_version
+            return id3
         except ID3NoHeaderError:
             try:
                 id3 = ID3(self.audio_file.get_file_path_or_object(), load_v1=True)
                 id3.clear()  # Exclude ID3v1 tags
+                id3.version = self.id3v2_version
                 return id3  # type: ignore[return-value]
             except ID3NoHeaderError:
                 # Create empty ID3 object - will be saved during write operations
                 # This allows write operations to work with files that have no ID3v2 header
-                return ID3()  # type: ignore[return-value]
+                id3 = ID3()  # type: ignore[return-value]
+                id3.version = self.id3v2_version
+                return id3
 
     def _convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(
             self, raw_mutagen_metadata: MutagenMetadata) -> RawMetadataDict:
@@ -362,6 +372,21 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=str(app_metadata_value)))
         else:
             raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=app_metadata_value))
+
+    def _save_with_version(self, file_path: str) -> None:
+        """Save ID3 tags with the specified version."""
+        if self.raw_mutagen_metadata is not None:
+            # Extract the major version number from the tuple (2, 3, 0) -> 3
+            version_major = self.id3v2_version[1]
+            self.raw_mutagen_metadata.save(file_path, v2_version=version_major)
+
+    def update_file_metadata(self, app_metadata: AppMetadata):
+        """Override to use custom save method with version control."""
+        # First, let the parent class handle rating conversion
+        super().update_file_metadata(app_metadata)
+        
+        # Then use custom save method with version control
+        self._save_with_version(self.audio_file.get_file_path_or_object())
 
     def delete_metadata(self) -> bool:
         """Delete all ID3v2 metadata from the audio file.

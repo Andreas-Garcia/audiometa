@@ -142,7 +142,35 @@ class TestId3v2Writing:
         title = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE)
         assert title is None  # Empty string removes field (mutagen removes empty frames)
 
-    def test_mp3_writes_id3v2_4_format(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_mp3_writes_id3v2_3_format_by_default(self, sample_mp3_file: Path, temp_audio_file: Path):
+        from mutagen.id3 import ID3
+        
+        # Copy sample file to temp location
+        shutil.copy2(sample_mp3_file, temp_audio_file)
+        
+        # Prepare test metadata (without rating to avoid configuration issues)
+        test_metadata = {
+            UnifiedMetadataKey.TITLE: "ID3v2.3 Test Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2.3 Test Artist"],
+            UnifiedMetadataKey.ALBUM_NAME: "ID3v2.3 Test Album",
+            UnifiedMetadataKey.BPM: 120
+        }
+        
+        # Update metadata using the library (should default to ID3v2.3)
+        update_file_metadata(temp_audio_file, test_metadata)
+        
+        # Verify that the file now contains ID3v2.3 tags
+        id3_tags = ID3(temp_audio_file)
+        assert id3_tags.version == (2, 3, 0), f"Expected ID3v2.3, but got version {id3_tags.version}"
+        
+        # Verify metadata was written correctly
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
+        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2.3 Test Title"
+        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["ID3v2.3 Test Artist"]
+        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v2.3 Test Album"
+        assert updated_metadata.get(UnifiedMetadataKey.BPM) == 120
+
+    def test_mp3_writes_id3v2_4_format_when_specified(self, sample_mp3_file: Path, temp_audio_file: Path):
         from mutagen.id3 import ID3
         
         # Copy sample file to temp location
@@ -156,8 +184,8 @@ class TestId3v2Writing:
             UnifiedMetadataKey.BPM: 120
         }
         
-        # Update metadata using the library
-        update_file_metadata(temp_audio_file, test_metadata)
+        # Update metadata using the library with explicit ID3v2.4 version
+        update_file_metadata(temp_audio_file, test_metadata, id3v2_version=(2, 4, 0))
         
         # Verify that the file now contains ID3v2.4 tags
         id3_tags = ID3(temp_audio_file)
@@ -169,3 +197,67 @@ class TestId3v2Writing:
         assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["ID3v2.4 Test Artist"]
         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v2.4 Test Album"
         assert updated_metadata.get(UnifiedMetadataKey.BPM) == 120
+
+    def test_mp3_writes_id3v2_3_format_when_explicitly_specified(self, sample_mp3_file: Path, temp_audio_file: Path):
+        from mutagen.id3 import ID3
+        
+        # Copy sample file to temp location
+        shutil.copy2(sample_mp3_file, temp_audio_file)
+        
+        # Prepare test metadata (without rating to avoid configuration issues)
+        test_metadata = {
+            UnifiedMetadataKey.TITLE: "ID3v2.3 Explicit Test Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2.3 Explicit Test Artist"],
+            UnifiedMetadataKey.ALBUM_NAME: "ID3v2.3 Explicit Test Album",
+            UnifiedMetadataKey.BPM: 120
+        }
+        
+        # Update metadata using the library with explicit ID3v2.3 version
+        update_file_metadata(temp_audio_file, test_metadata, id3v2_version=(2, 3, 0))
+        
+        # Verify that the file now contains ID3v2.3 tags
+        id3_tags = ID3(temp_audio_file)
+        assert id3_tags.version == (2, 3, 0), f"Expected ID3v2.3, but got version {id3_tags.version}"
+        
+        # Verify metadata was written correctly
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
+        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2.3 Explicit Test Title"
+        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["ID3v2.3 Explicit Test Artist"]
+        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v2.3 Explicit Test Album"
+        assert updated_metadata.get(UnifiedMetadataKey.BPM) == 120
+
+    def test_mp3_upgrades_existing_id3v2_4_to_id3v2_3_when_specified(self, sample_mp3_file: Path, temp_audio_file: Path):
+        from mutagen.id3 import ID3
+        
+        # Copy sample file to temp location
+        shutil.copy2(sample_mp3_file, temp_audio_file)
+        
+        # First, create ID3v2.4 tags
+        test_metadata_v4 = {
+            UnifiedMetadataKey.TITLE: "Original ID3v2.4 Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["Original ID3v2.4 Artist"],
+            UnifiedMetadataKey.ALBUM_NAME: "Original ID3v2.4 Album"
+        }
+        update_file_metadata(temp_audio_file, test_metadata_v4, id3v2_version=(2, 4, 0))
+        
+        # Verify it's ID3v2.4
+        id3_tags = ID3(temp_audio_file)
+        assert id3_tags.version == (2, 4, 0), f"Expected ID3v2.4, but got version {id3_tags.version}"
+        
+        # Now update with ID3v2.3 version - should upgrade existing tags
+        test_metadata_v3 = {
+            UnifiedMetadataKey.TITLE: "Updated ID3v2.3 Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["Updated ID3v2.3 Artist"],
+            UnifiedMetadataKey.ALBUM_NAME: "Updated ID3v2.3 Album"
+        }
+        update_file_metadata(temp_audio_file, test_metadata_v3, id3v2_version=(2, 3, 0))
+        
+        # Verify it's now ID3v2.3
+        id3_tags = ID3(temp_audio_file)
+        assert id3_tags.version == (2, 3, 0), f"Expected ID3v2.3, but got version {id3_tags.version}"
+        
+        # Verify metadata was updated correctly
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
+        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Updated ID3v2.3 Title"
+        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Updated ID3v2.3 Artist"]
+        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Updated ID3v2.3 Album"

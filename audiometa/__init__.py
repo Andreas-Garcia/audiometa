@@ -37,7 +37,7 @@ FILE_TYPE = AudioFile | str
 
 
 def _get_metadata_manager(
-        file: FILE_TYPE, tag_format: MetadataFormat | None = None, normalized_rating_max_value: int | None = None
+        file: FILE_TYPE, tag_format: MetadataFormat | None = None, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None
 ) -> MetadataManager:
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
@@ -55,13 +55,17 @@ def _get_metadata_manager(
 
     manager_class = TAG_FORMAT_MANAGER_CLASS_MAP[tag_format]
     if issubclass(manager_class, RatingSupportingMetadataManager):
-        return manager_class(
-            audio_file=file, normalized_rating_max_value=normalized_rating_max_value)  # type: ignore
+        if manager_class == Id3v2Manager and id3v2_version is not None:
+            return manager_class(
+                audio_file=file, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)  # type: ignore
+        else:
+            return manager_class(
+                audio_file=file, normalized_rating_max_value=normalized_rating_max_value)  # type: ignore
     return manager_class(audio_file=file)
 
 
 def _get_metadata_managers(
-    file: FILE_TYPE, tag_formats: list[MetadataFormat] | None = None, normalized_rating_max_value: int | None = None
+    file: FILE_TYPE, tag_formats: list[MetadataFormat] | None = None, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None
 ) -> dict[MetadataFormat, MetadataManager]:
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
@@ -75,26 +79,26 @@ def _get_metadata_managers(
 
     for tag_format in tag_formats:
         managers[tag_format] = _get_metadata_manager(
-            file=file, tag_format=tag_format, normalized_rating_max_value=normalized_rating_max_value)
+            file=file, tag_format=tag_format, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
     return managers
 
 
 def get_single_format_app_metadata(
-        file: FILE_TYPE, tag_format: MetadataFormat, normalized_rating_max_value: int | None = None) -> AppMetadata:
+        file: FILE_TYPE, tag_format: MetadataFormat, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None) -> AppMetadata:
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
 
     manager = _get_metadata_manager(
-        file=file, tag_format=tag_format, normalized_rating_max_value=normalized_rating_max_value)
+        file=file, tag_format=tag_format, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
     return manager.get_app_metadata()
 
 
 def get_merged_unified_metadata(
-        file: FILE_TYPE, normalized_rating_max_value: int | None = None) -> AppMetadata:
+        file: FILE_TYPE, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None) -> AppMetadata:
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
 
-    managers_prioritized = _get_metadata_managers(file=file, normalized_rating_max_value=normalized_rating_max_value)
+    managers_prioritized = _get_metadata_managers(file=file, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
     app_metadatas_prioritized = []
 
     # Get normalized metadata from each manager
@@ -112,11 +116,11 @@ def get_merged_unified_metadata(
     return result
 
 
-def get_specific_metadata(file: FILE_TYPE, app_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
+def get_specific_metadata(file: FILE_TYPE, app_metadata_key: UnifiedMetadataKey, id3v2_version: tuple[int, int, int] | None = None) -> AppMetadataValue:
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
 
-    managers_prioritized = _get_metadata_managers(file=file)
+    managers_prioritized = _get_metadata_managers(file=file, id3v2_version=id3v2_version)
     
     # Try each manager in priority order until we find a value
     for _, manager in managers_prioritized.items():
@@ -132,18 +136,18 @@ def get_specific_metadata(file: FILE_TYPE, app_metadata_key: UnifiedMetadataKey)
 
 
 def update_file_metadata(
-        file: FILE_TYPE, app_metadata: AppMetadata, normalized_rating_max_value: int | None = None) -> None:
+        file: FILE_TYPE, app_metadata: AppMetadata, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None) -> None:
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
     prioritary_metadata_manager = _get_metadata_manager(
-        file=file, normalized_rating_max_value=normalized_rating_max_value)
+        file=file, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
     prioritary_metadata_manager.update_file_metadata(app_metadata=app_metadata)
 
 
-def delete_metadata(file, tag_format: MetadataFormat | None = None) -> bool:
+def delete_metadata(file, tag_format: MetadataFormat | None = None, id3v2_version: tuple[int, int, int] | None = None) -> bool:
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
-    return _get_metadata_manager(file, tag_format=tag_format).delete_metadata()
+    return _get_metadata_manager(file, tag_format=tag_format, id3v2_version=id3v2_version).delete_metadata()
 
 
 def get_bitrate(file: FILE_TYPE) -> int:

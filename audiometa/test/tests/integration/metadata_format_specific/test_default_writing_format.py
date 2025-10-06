@@ -59,6 +59,26 @@ class TestDefaultWritingFormat:
         assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "MP3 Test Title"
         assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["MP3 Test Artist"]
 
+    def test_mp3_default_writes_to_id3v2_3_version(self, sample_mp3_file: Path, temp_audio_file: Path):
+        from mutagen.id3 import ID3
+        
+        # Copy sample file to temp location
+        shutil.copy2(sample_mp3_file, temp_audio_file)
+        
+        # Prepare test metadata
+        test_metadata = {
+            UnifiedMetadataKey.TITLE: "MP3 Default Version Test Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["MP3 Default Version Test Artist"],
+            UnifiedMetadataKey.ALBUM_NAME: "MP3 Default Version Test Album"
+        }
+        
+        # Update metadata using default format (should be ID3v2.3)
+        update_file_metadata(temp_audio_file, test_metadata)
+        
+        # Verify that the file now contains ID3v2.3 tags (default version)
+        id3_tags = ID3(temp_audio_file)
+        assert id3_tags.version == (2, 3, 0), f"Expected ID3v2.3 as default, but got version {id3_tags.version}"
+
     def test_flac_default_writes_to_vorbis(self, sample_flac_file: Path, temp_audio_file: Path):
         # Copy sample file to temp location
         shutil.copy2(sample_flac_file, temp_audio_file)
