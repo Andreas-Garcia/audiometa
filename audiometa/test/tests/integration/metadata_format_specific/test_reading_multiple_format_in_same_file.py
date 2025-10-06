@@ -1,4 +1,4 @@
-"""Tests for special cases involving conflicting metadata formats.
+"""Tests for reading multiple metadata formats in the same file.
 
 This module tests scenarios where multiple metadata formats exist in the same file
 and verifies that the correct precedence rules are applied.
@@ -23,7 +23,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 class TestConflictingMetadata:
 
     def test_id3v1_vs_id3v2_precedence_mp3(self, metadata_id3v1_and_id3v2_mp3):
-        """Test that ID3v2 takes precedence over ID3v1 in MP3 files with existing metadata."""
         # This test uses a pre-existing file with both ID3v1 and ID3v2 metadata
         # since ID3v1 is read-only and cannot be written programmatically
         
@@ -45,7 +44,6 @@ class TestConflictingMetadata:
         assert merged_metadata.get(UnifiedMetadataKey.TITLE) == id3v2_data.get(UnifiedMetadataKey.TITLE)
 
     def test_id3v2_vs_riff_precedence_wav(self, sample_wav_file: Path, temp_audio_file: Path):
-        """Test that ID3v2 takes precedence over RIFF in WAV files."""
         shutil.copy2(sample_wav_file, temp_audio_file)
         
         # Set different values in RIFF and ID3v2
@@ -72,7 +70,6 @@ class TestConflictingMetadata:
         assert merged_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v2 Album"
 
     def test_vorbis_vs_id3v2_precedence_flac(self, sample_flac_file: Path, temp_audio_file: Path):
-        """Test that Vorbis takes precedence over ID3v2 in FLAC files."""
         shutil.copy2(sample_flac_file, temp_audio_file)
         
         # Set different values in ID3v2 and Vorbis
@@ -99,7 +96,6 @@ class TestConflictingMetadata:
         assert merged_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Vorbis Album"
 
     def test_partial_conflicts(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test scenarios where only some fields conflict."""
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
         # Since ID3v1 is read-only, we can only write ID3v2 metadata
@@ -119,7 +115,6 @@ class TestConflictingMetadata:
         assert merged_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v2 Album"
 
     def test_rating_precedence_rules(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test rating precedence across different metadata formats."""
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
         # Since ID3v1 is read-only, we can only test writable formats
@@ -134,7 +129,6 @@ class TestConflictingMetadata:
         assert merged_metadata.get(UnifiedMetadataKey.RATING) == 5
 
     def test_audio_file_object_with_conflicts(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test AudioFile object handling of conflicting metadata."""
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
         # Since ID3v1 is read-only, we can only write ID3v2 metadata
