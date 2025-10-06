@@ -369,6 +369,153 @@ title = get_specific_metadata("song.wav", "title")
 print(title)  # Output: None (field removed)
 ```
 
+## Multiple Artists and Album Artists Handling
+
+The library supports multiple artists and album artists across all audio formats, following industry standards and technical specifications for each metadata format.
+
+### Format-Specific Standards
+
+#### **ID3v2 (MP3 Files)**
+
+**ID3v2.4 (Recommended)**
+
+- **Multiple TPE1 frames**: Each artist gets their own `TPE1` (Lead Performer/Soloist) frame
+- **Multiple TPE2 frames**: Each album artist gets their own `TPE2` (Band/Orchestra/Accompaniment) frame
+- **Null separator**: Use null character (`\0`) as separator within a single frame
+- **Examples**:
+
+  ```
+  TPE1=Artist One
+  TPE1=Artist Two
+  TPE1=Artist Three
+
+  TPE2=Album Artist One
+  TPE2=Album Artist Two
+  ```
+
+**ID3v2.3 (Legacy)**
+
+- **Single TPE1 frame with separator**: Use consistent delimiter in one frame for track artists
+- **Single TPE2 frame with separator**: Use consistent delimiter in one frame for album artists
+- **Common separators**: Semicolon (`;`), slash (`/`), or double slash (`//`)
+- **Examples**:
+  - `TPE1=Artist One; Artist Two; Artist Three`
+  - `TPE2=Album Artist One; Album Artist Two`
+
+#### **Vorbis Comments (FLAC, Ogg Vorbis)**
+
+**Multiple ARTIST and ALBUMARTIST fields (Recommended)**
+
+- **Separate fields**: Each artist gets their own `ARTIST` field
+- **Separate album artist fields**: Each album artist gets their own `ALBUMARTIST` field
+- **No delimiters needed**: This is the cleanest approach
+- **Examples**:
+
+  ```
+  ARTIST=Artist One
+  ARTIST=Artist Two
+  ARTIST=Artist Three
+
+  ALBUMARTIST=Album Artist One
+  ALBUMARTIST=Album Artist Two
+  ```
+
+#### **RIFF/WAV Files**
+
+**Multiple IART and IPRD fields**
+
+- **Separate IART fields**: Each artist gets their own `IART` (Artist) field
+- **Separate IPRD fields**: Each album artist gets their own `IPRD` (Product) field
+- **Examples**:
+
+  ```
+  IART=Artist One
+  IART=Artist Two
+  IART=Artist Three
+
+  IPRD=Album Artist One
+  IPRD=Album Artist Two
+  ```
+
+#### **ID3v1 (MP3 Legacy)**
+
+**Single field with separator**
+
+- **30-character limit**: Must fit in single `ARTIST` field
+- **No album artist support**: ID3v1 does not support album artist field
+- **Common separators**: Slash (`/`), semicolon (`;`), or comma (`,`)
+- **Example**: `ARTIST=Artist One / Artist Two`
+
+### Library Implementation
+
+The library automatically handles multiple artists and album artists using these approaches:
+
+1. **Reading**: Automatically detects and parses multiple artists and album artists using format-appropriate methods
+2. **Writing**: Uses the best method available for each format (multiple fields when supported, separators when required)
+3. **Separator Priority**: When separators are needed, uses this priority order:
+   - `//` (double slash)
+   - `\\` (double backslash)
+   - `;` (semicolon)
+   - `\` (backslash)
+   - `/` (forward slash)
+   - `,` (comma)
+
+### Example Usage
+
+```python
+from audiometa import update_file_metadata, get_merged_unified_metadata
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+
+# Set multiple artists and album artists
+artists = ["Artist One", "Artist Two", "Artist Three"]
+album_artists = ["Album Artist One", "Album Artist Two"]
+metadata = {
+    UnifiedMetadataKey.ARTISTS_NAMES: artists,
+    UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: album_artists
+}
+
+# Update file (library handles format-specific implementation)
+update_file_metadata("song.mp3", metadata)
+
+# Read back (returns lists of artists and album artists)
+result = get_merged_unified_metadata("song.mp3")
+print(result[UnifiedMetadataKey.ARTISTS_NAMES])
+# Output: ['Artist One', 'Artist Two', 'Artist Three']
+print(result[UnifiedMetadataKey.ALBUM_ARTISTS_NAMES])
+# Output: ['Album Artist One', 'Album Artist Two']
+```
+
+### Multiple Artists/Album Artists Support Summary
+
+| Format      | Track Artists                 | Album Artists               | Reading Method                    | Writing Method             |
+| ----------- | ----------------------------- | --------------------------- | --------------------------------- | -------------------------- |
+| **ID3v2.4** | ✅ Multiple TPE1 frames       | ✅ Multiple TPE2 frames     | Multiple frames or null-separated | Multiple frames            |
+| **ID3v2.3** | ✅ Single TPE1 + separators   | ✅ Single TPE2 + separators | Splits on separators              | Separators in single frame |
+| **ID3v2.2** | ✅ Single TPE1 + separators   | ✅ Single TPE2 + separators | Splits on separators              | Separators in single frame |
+| **Vorbis**  | ✅ Multiple ARTIST fields     | ✅ Multiple ALBUMARTIST     | Multiple fields directly          | Multiple fields            |
+| **RIFF**    | ✅ Multiple IART fields       | ✅ Multiple IPRD fields     | Multiple fields directly          | Multiple fields            |
+| **ID3v1**   | ⚠️ Single ARTIST + separators | ❌ Not supported            | Splits on separators              | Separators in single field |
+
+### Key Implementation Details
+
+| Aspect                 | Implementation                                                    |
+| ---------------------- | ----------------------------------------------------------------- |
+| **Separator Priority** | `//` → `\\` → `;` → `\` → `/` → `,`                               |
+| **Reading Logic**      | Tries multiple separators in order, strips whitespace             |
+| **Writing Strategy**   | Uses multiple fields when supported, separators when required     |
+| **Unified Interface**  | Both `ARTISTS_NAMES` and `ALBUM_ARTISTS_NAMES` return `list[str]` |
+| **Error Handling**     | Gracefully handles mixed formats and malformed data               |
+
+### Best Practices
+
+1. **Prefer multiple fields over delimiters** when the format supports it
+2. **Use consistent separators** when multiple fields aren't supported
+3. **Avoid separators that might appear in artist names** (e.g., avoid comma if artist name contains comma)
+4. **Distinguish between track artists and album artists** - track artists are the performers of individual songs, while album artists represent the primary artist(s) responsible for the entire album
+5. **Test compatibility** across different media players and devices
+6. **Maintain consistency** across your entire music library
+7. **Use album artists for compilations** - set album artist to "Various Artists" or the compilation name while keeping individual track artists
+
 ## Requirements
 
 - Python 3.8+
