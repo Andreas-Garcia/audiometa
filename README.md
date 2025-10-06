@@ -319,6 +319,44 @@ def safe_update_metadata(file_path, metadata):
         return False
 ```
 
+## None Field Handling
+
+When updating metadata fields with `None` values, the library **removes the field entirely** from the file's metadata rather than setting it to a null value. This behavior is consistent across all supported formats and ensures clean, efficient metadata storage.
+
+### Behavior by Format
+
+| Format            | None Handling Behavior                                             |
+| ----------------- | ------------------------------------------------------------------ |
+| **ID3v2 (MP3)**   | Deletes all existing frames for the field, does not add new frames |
+| **Vorbis (FLAC)** | Deletes the field from the metadata dictionary if it exists        |
+| **RIFF (WAV)**    | Skips writing the field entirely (effectively removes it)          |
+
+### Example
+
+```python
+from audiometa import update_file_metadata, get_specific_metadata
+
+# Set a field to None - this will REMOVE the field from the file
+update_file_metadata("song.mp3", {"title": None})
+
+# Reading the field back will return None (because it no longer exists)
+title = get_specific_metadata("song.mp3", "title")
+print(title)  # Output: None
+
+# The field is completely absent from the file's metadata structure
+# This is different from setting it to an empty string:
+update_file_metadata("song.mp3", {"title": ""})
+title = get_specific_metadata("song.mp3", "title")
+print(title)  # Output: "" (empty string, field still exists)
+```
+
+### Why This Design?
+
+- **Clean Metadata**: Prevents accumulation of empty/null fields over time
+- **Efficient Storage**: Reduces file size by not storing unnecessary metadata
+- **Clear Semantics**: `None` means "not set" rather than "set to null"
+- **Format Consistency**: Works the same way across all supported audio formats
+
 ## Requirements
 
 - Python 3.8+
