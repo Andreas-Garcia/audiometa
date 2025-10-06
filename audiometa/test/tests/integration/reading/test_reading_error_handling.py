@@ -1,7 +1,13 @@
 import pytest
 from pathlib import Path
 
-from audiometa import get_merged_unified_metadata
+from audiometa import (
+    get_merged_unified_metadata,
+    get_single_format_app_metadata,
+    get_specific_metadata
+)
+from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError
 
 
@@ -16,3 +22,30 @@ class TestReadingErrorHandling:
         
         with pytest.raises(FileTypeNotSupportedError):
             get_merged_unified_metadata(str(temp_audio_file))
+
+    def test_nonexistent_file_raises_error(self):
+        nonexistent_file = "nonexistent_file.mp3"
+        
+        with pytest.raises(FileNotFoundError):
+            get_merged_unified_metadata(nonexistent_file)
+        
+        with pytest.raises(FileNotFoundError):
+            get_single_format_app_metadata(nonexistent_file, MetadataFormat.ID3V2)
+        
+        with pytest.raises(FileNotFoundError):
+            get_specific_metadata(nonexistent_file, UnifiedMetadataKey.TITLE)
+
+    def test_invalid_metadata_key_returns_none(self, sample_mp3_file: Path):
+        # This should not raise an error, but return None
+        invalid_key = "INVALID_KEY"
+        result = get_specific_metadata(sample_mp3_file, invalid_key)
+        assert result is None
+
+    def test_invalid_format_returns_empty_dict(self, sample_mp3_file: Path):
+        # Try to get Vorbis metadata from MP3 file (should work but return empty)
+        vorbis_metadata = get_single_format_app_metadata(sample_mp3_file, MetadataFormat.VORBIS)
+        assert isinstance(vorbis_metadata, dict)
+        
+        # Try to get RIFF metadata from MP3 file (should work but return empty)
+        riff_metadata = get_single_format_app_metadata(sample_mp3_file, MetadataFormat.RIFF)
+        assert isinstance(riff_metadata, dict)

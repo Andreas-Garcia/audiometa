@@ -61,3 +61,12 @@ class TestId3v1Format:
         # Test specific metadata
         title = get_specific_metadata(audio_file, UnifiedMetadataKey.TITLE)
         assert isinstance(title, str)
+
+    def test_id3v1_error_handling(self, temp_audio_file: Path):
+        # Test ID3v1 with unsupported file type
+        temp_audio_file.write_bytes(b"fake audio content")
+        temp_audio_file = temp_audio_file.with_suffix(".txt")
+        temp_audio_file.write_bytes(b"fake audio content")
+        
+        with pytest.raises(FileTypeNotSupportedError):
+            get_single_format_app_metadata(str(temp_audio_file), MetadataFormat.ID3V1)

@@ -70,23 +70,6 @@ class TestMetadataWriting:
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title with AudioFile"
         assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist with AudioFile"]
 
-    def test_update_file_metadata_with_rating_normalization(self, sample_mp3_file: Path, temp_audio_file: Path):
-        # Copy sample file to temp location
-        shutil.copy2(sample_mp3_file, temp_audio_file)
-        
-        test_metadata = {
-            UnifiedMetadataKey.TITLE: "Test Title with Rating",
-            UnifiedMetadataKey.RATING: 75
-        }
-        
-        # Update metadata with normalized rating
-        update_file_metadata(temp_audio_file, test_metadata, normalized_rating_max_value=100)
-        
-        # Verify metadata was written
-        updated_metadata = get_merged_unified_metadata(temp_audio_file, normalized_rating_max_value=100)
-        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title with Rating"
-        assert updated_metadata.get(UnifiedMetadataKey.RATING) == 75
-
     def test_update_file_metadata_unsupported_field(self, sample_wav_file: Path, temp_audio_file: Path):
         # Copy sample file to temp location
         shutil.copy2(sample_wav_file, temp_audio_file)

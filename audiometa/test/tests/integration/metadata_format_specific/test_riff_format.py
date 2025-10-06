@@ -94,3 +94,12 @@ class TestRiffFormat:
         metadata_from_audio_file = get_merged_unified_metadata(audio_file)
         assert isinstance(metadata_from_audio_file, dict)
         assert UnifiedMetadataKey.TITLE in metadata_from_audio_file
+
+    def test_riff_error_handling(self, temp_audio_file: Path):
+        # Test RIFF with unsupported file type
+        temp_audio_file.write_bytes(b"fake audio content")
+        temp_audio_file = temp_audio_file.with_suffix(".txt")
+        temp_audio_file.write_bytes(b"fake audio content")
+        
+        with pytest.raises(FileTypeNotSupportedError):
+            get_single_format_app_metadata(str(temp_audio_file), MetadataFormat.RIFF)

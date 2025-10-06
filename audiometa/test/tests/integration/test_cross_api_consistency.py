@@ -1,4 +1,4 @@
-"""Tests for error handling across different APIs.
+"""Tests for cross-API error handling consistency.
 
 These tests verify that error handling is consistent across different
 APIs and that appropriate exceptions are raised for various error conditions.
@@ -22,9 +22,9 @@ from audiometa.exceptions import FileTypeNotSupportedError
 
 
 @pytest.mark.integration
-class TestErrorHandling:
+class TestCrossApiConsistency:
 
-    def test_error_handling_integration(self, temp_audio_file: Path):
+    def test_error_handling_consistency_across_apis(self, temp_audio_file: Path):
         # Create a file with unsupported extension
         temp_audio_file.write_bytes(b"fake audio content")
         temp_audio_file = temp_audio_file.with_suffix(".txt")
@@ -51,30 +51,3 @@ class TestErrorHandling:
         
         with pytest.raises(FileTypeNotSupportedError):
             get_duration_in_sec(str(temp_audio_file))
-
-    def test_nonexistent_file_error_handling(self):
-        nonexistent_file = "nonexistent_file.mp3"
-        
-        with pytest.raises(FileNotFoundError):
-            get_merged_unified_metadata(nonexistent_file)
-        
-        with pytest.raises(FileNotFoundError):
-            get_single_format_app_metadata(nonexistent_file, MetadataFormat.ID3V2)
-        
-        with pytest.raises(FileNotFoundError):
-            get_specific_metadata(nonexistent_file, UnifiedMetadataKey.TITLE)
-
-    def test_invalid_metadata_key_error_handling(self, sample_mp3_file: Path):
-        # This should not raise an error, but return None
-        invalid_key = "INVALID_KEY"
-        result = get_specific_metadata(sample_mp3_file, invalid_key)
-        assert result is None
-
-    def test_invalid_format_error_handling(self, sample_mp3_file: Path):
-        # Try to get Vorbis metadata from MP3 file (should work but return empty)
-        vorbis_metadata = get_single_format_app_metadata(sample_mp3_file, MetadataFormat.VORBIS)
-        assert isinstance(vorbis_metadata, dict)
-        
-        # Try to get RIFF metadata from MP3 file (should work but return empty)
-        riff_metadata = get_single_format_app_metadata(sample_mp3_file, MetadataFormat.RIFF)
-        assert isinstance(riff_metadata, dict)
