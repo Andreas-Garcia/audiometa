@@ -319,43 +319,54 @@ def safe_update_metadata(file_path, metadata):
         return False
 ```
 
-## None Field Handling
+## None vs Empty String Handling
 
-When updating metadata fields with `None` values, the library **removes the field entirely** from the file's metadata rather than setting it to a null value. This behavior is consistent across all supported formats and ensures clean, efficient metadata storage.
+The library handles `None` and empty string values differently across audio formats. Here's a summary of the behavior:
 
-### Behavior by Format
+| Format            | Setting to `None`        | Setting to `""` (empty string)   | Read Back Result |
+| ----------------- | ------------------------ | -------------------------------- | ---------------- |
+| **ID3v2 (MP3)**   | Removes field completely | Removes field completely         | `None` / `None`  |
+| **Vorbis (FLAC)** | Removes field completely | Creates field with empty content | `None` / `""`    |
+| **RIFF (WAV)**    | Removes field completely | Removes field completely         | `None` / `None`  |
 
-| Format            | None Handling Behavior                                             |
-| ----------------- | ------------------------------------------------------------------ |
-| **ID3v2 (MP3)**   | Deletes all existing frames for the field, does not add new frames |
-| **Vorbis (FLAC)** | Deletes the field from the metadata dictionary if it exists        |
-| **RIFF (WAV)**    | Skips writing the field entirely (effectively removes it)          |
+### Key Differences
+
+- **ID3v2**: Both `None` and `""` remove the field completely (mutagen removes empty frames automatically)
+- **Vorbis**: `None` removes the field, `""` creates an empty field
+- **RIFF**: Both `None` and `""` remove the field completely
 
 ### Example
 
 ```python
 from audiometa import update_file_metadata, get_specific_metadata
 
-# Set a field to None - this will REMOVE the field from the file
+# MP3 file - same behavior for None and empty string (mutagen removes empty frames)
 update_file_metadata("song.mp3", {"title": None})
-
-# Reading the field back will return None (because it no longer exists)
 title = get_specific_metadata("song.mp3", "title")
-print(title)  # Output: None
+print(title)  # Output: None (field removed)
 
-# The field is completely absent from the file's metadata structure
-# This is different from setting it to an empty string:
 update_file_metadata("song.mp3", {"title": ""})
 title = get_specific_metadata("song.mp3", "title")
-print(title)  # Output: "" (empty string, field still exists)
+print(title)  # Output: None (field removed, mutagen removes empty frames)
+
+# FLAC file - different behavior for None vs empty string (like MP3)
+update_file_metadata("song.flac", {"title": None})
+title = get_specific_metadata("song.flac", "title")
+print(title)  # Output: None (field removed)
+
+update_file_metadata("song.flac", {"title": ""})
+title = get_specific_metadata("song.flac", "title")
+print(title)  # Output: "" (field exists but empty)
+
+# WAV file - same behavior for None and empty string
+update_file_metadata("song.wav", {"title": None})
+title = get_specific_metadata("song.wav", "title")
+print(title)  # Output: None (field removed)
+
+update_file_metadata("song.wav", {"title": ""})
+title = get_specific_metadata("song.wav", "title")
+print(title)  # Output: None (field removed)
 ```
-
-### Why This Design?
-
-- **Clean Metadata**: Prevents accumulation of empty/null fields over time
-- **Efficient Storage**: Reduces file size by not storing unnecessary metadata
-- **Clear Semantics**: `None` means "not set" rather than "set to null"
-- **Format Consistency**: Works the same way across all supported audio formats
 
 ## Requirements
 
