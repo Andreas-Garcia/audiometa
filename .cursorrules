@@ -88,6 +88,15 @@ Do NOT add comments for:
 
 - Must be concise and descriptive
 - Focus on what changed, not how
+- Use conventional commit prefixes:
+  - `feat:` for new features
+  - `fix:` for bug fixes
+  - `refactor:` for code refactoring
+  - `chore:` for maintenance tasks
+  - `chore(test):` for test-related changes (reorganization, new tests, etc.)
+  - `docs:` for documentation changes
+  - `style:` for formatting changes
+  - `perf:` for performance improvements
 
 ## Test Organization
 
