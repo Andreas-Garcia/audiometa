@@ -23,3 +23,4 @@ class MetadataFormat(str, Enum):
             '.mp3': [cls.ID3V2, cls.ID3V1],
             '.wav': [cls.RIFF, cls.ID3V2, cls.ID3V1],
         }
+    
