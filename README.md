@@ -280,82 +280,112 @@ metadata = get_merged_unified_metadata("song.mp3", id3v2_version=(2, 4, 0))
 
 **Note**: ID3v1 is read-only and cannot be written programmatically. The library will read from existing ID3v1 tags but will not attempt to write to them.
 
-### Metadata Preservation Principle
+### Metadata Writing Strategy
 
-The library follows a **"don't overwrite"** principle when writing metadata to files that already contain data in other formats. This ensures maximum compatibility and preserves existing metadata.
+The library provides flexible control over how metadata is written to files that may already contain metadata in other formats. You can choose the strategy that best fits your needs.
 
-#### How It Works
+#### Default Behavior
 
-When you write metadata to a file that already contains metadata in other formats:
+By default, the library writes metadata **only to the native format** for each file type and **does not modify** existing metadata in other formats:
 
-1. **Preserves Existing Metadata**: The library never deletes or overwrites existing metadata in other formats
-2. **Additive Approach**: New metadata is written alongside existing formats
-3. **Format Coexistence**: Multiple metadata formats can and do coexist in the same file
-4. **Precedence-Based Reading**: When reading, the library uses the precedence order to return the "best" value
+- **MP3 files**: Writes to ID3v2 only
+- **FLAC files**: Writes to Vorbis comments only
+- **WAV files**: Writes to RIFF only
 
-#### Examples
+#### Metadata Strategy Options
 
-**MP3 File with ID3v1 + Writing ID3v2**
+You can control metadata writing behavior using the `metadata_strategy` parameter:
 
-```python
-# File already has ID3v1 tags
-# Writing ID3v2 metadata:
-update_file_metadata("song.mp3", {"title": "New Title"})
+**Available Strategies:**
 
-# Result:
-# - ID3v1 tags: Preserved (unchanged)
-# - ID3v2 tags: Added with new metadata
-# - When reading: ID3v2 title is returned (higher precedence)
-```
+1. **`PRESERVE` (Default)**: Write to native format only, preserve existing metadata in other formats
+2. **`CLEANUP`**: Write to native format and remove all non-native metadata formats
+3. **`SYNC`**: Write to native format and synchronize other metadata formats that are already present
+4. **`IGNORE`**: Write to native format only, ignore other formats completely (same as PRESERVE)
 
-**FLAC File with ID3v2 + Writing Vorbis**
+#### Usage Examples
+
+**Default Behavior (PRESERVE strategy)**
 
 ```python
-# File already has ID3v2 tags
-# Writing Vorbis metadata:
-update_file_metadata("song.flac", {"title": "New Title"})
+from audiometa import update_file_metadata
 
-# Result:
-# - ID3v2 tags: Preserved (unchanged)
-# - Vorbis tags: Added with new metadata
-# - When reading: Vorbis title is returned (higher precedence)
-```
-
-**WAV File with ID3v2 + Writing RIFF**
-
-```python
-# File already has ID3v2 tags
-# Writing RIFF metadata:
+# WAV file with existing ID3v2 tags
 update_file_metadata("song.wav", {"title": "New Title"})
 
 # Result:
 # - ID3v2 tags: Preserved (unchanged)
-# - RIFF tags: Added with new metadata
+# - RIFF tags: Updated with new metadata
 # - When reading: ID3v2 title is returned (higher precedence)
 ```
 
-#### Benefits
-
-- **Maximum Compatibility**: Older players can still read legacy formats
-- **Future-Proof**: New formats can be added without breaking existing data
-- **Non-Destructive**: Never loses existing metadata unless explicitly requested
-- **Standards Compliant**: Follows established audio metadata standards
-- **User-Friendly**: Users don't need to understand format complexities
-
-#### Explicit Format Control
-
-If you need to write to a specific format or clean up unwanted formats, you can use the format-specific functions:
+**CLEANUP Strategy - Remove Non-Native Formats**
 
 ```python
 from audiometa import update_file_metadata
+from audiometa.utils.MetadataStrategy import MetadataStrategy
+
+# Clean up WAV file - remove ID3v2, keep only RIFF
+update_file_metadata("song.wav", {"title": "New Title"},
+                    metadata_strategy=MetadataStrategy.CLEANUP)
+
+# Result:
+# - ID3v2 tags: Removed completely
+# - RIFF tags: Updated with new metadata
+# - When reading: Only RIFF metadata available
+```
+
+**SYNC Strategy - Synchronize All Existing Formats**
+
+```python
+# Synchronize all existing metadata formats with same values
+update_file_metadata("song.wav", {"title": "New Title"},
+                    metadata_strategy=MetadataStrategy.SYNC)
+
+# Result:
+# - ID3v2 tags: Synchronized with new metadata
+# - RIFF tags: Synchronized with new metadata
+# - When reading: ID3v2 title is returned (higher precedence)
+```
+
+**Format-Specific Writing**
+
+```python
 from audiometa.utils.MetadataFormat import MetadataFormat
 
-# Write specifically to ID3v2 format
-update_file_metadata("song.mp3", {"title": "Title"}, metadata_format=MetadataFormat.ID3V2)
+# Write specifically to ID3v2 format (even for WAV files)
+update_file_metadata("song.wav", {"title": "New Title"},
+                    metadata_format=MetadataFormat.ID3V2)
 
-# Write specifically to Vorbis format
-update_file_metadata("song.flac", {"title": "Title"}, metadata_format=MetadataFormat.VORBIS)
+# Write specifically to RIFF format
+update_file_metadata("song.wav", {"title": "New Title"},
+                    metadata_format=MetadataFormat.RIFF)
 ```
+
+#### Strategy Benefits
+
+**PRESERVE (Default)**
+
+- **Maximum Compatibility**: Older players can still read legacy formats
+- **Non-Destructive**: Never loses existing metadata
+- **Safe**: Default behavior that won't break existing workflows
+
+**CLEANUP**
+
+- **Best Practice**: Uses only native format for each file type
+- **Clean Files**: Removes format confusion and reduces file size
+- **Standards Compliant**: Follows established audio metadata standards
+
+**SYNC**
+
+- **Consistency**: Keeps all formats synchronized
+- **Compatibility**: Maintains support for different players
+- **Convenience**: Single update affects all existing formats
+
+**IGNORE**
+
+- **Performance**: Fastest option, minimal processing
+- **Simple**: Just writes to native format, ignores everything else
 
 ## Error Handling
 
