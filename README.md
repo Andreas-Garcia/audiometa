@@ -321,16 +321,16 @@ update_file_metadata("song.flac", {"title": "New Title"})
 # - When reading: Vorbis title is returned (higher precedence)
 ```
 
-**WAV File with RIFF + Writing ID3v2**
+**WAV File with ID3v2 + Writing RIFF**
 
 ```python
-# File already has RIFF tags
-# Writing ID3v2 metadata:
+# File already has ID3v2 tags
+# Writing RIFF metadata:
 update_file_metadata("song.wav", {"title": "New Title"})
 
 # Result:
-# - RIFF tags: Preserved (unchanged)
-# - ID3v2 tags: Added with new metadata
+# - ID3v2 tags: Preserved (unchanged)
+# - RIFF tags: Added with new metadata
 # - When reading: ID3v2 title is returned (higher precedence)
 ```
 
