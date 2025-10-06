@@ -14,7 +14,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestId3v1Format:
-    """Test cases for ID3v1 format-specific scenarios."""
 
     def test_id3v1_limitations(self, metadata_id3v1_small_mp3, metadata_id3v1_big_mp3):
         # Small ID3v1 file
@@ -28,7 +27,6 @@ class TestId3v1Format:
         assert len(title) == 30  # ID3v1 title limit
 
     def test_id3v1_metadata_reading(self, metadata_id3v1_small_mp3, metadata_id3v1_small_flac, metadata_id3v1_small_wav):
-        """Test reading ID3v1 metadata from various formats."""
         # MP3 with ID3v1
         metadata = get_merged_unified_metadata(metadata_id3v1_small_mp3)
         assert isinstance(metadata, dict)
@@ -46,7 +44,6 @@ class TestId3v1Format:
         assert UnifiedMetadataKey.TITLE in metadata
 
     def test_metadata_none_files(self, metadata_none_mp3):
-        """Test reading metadata from files with no metadata."""
         # MP3 with no metadata
         metadata = get_merged_unified_metadata(metadata_none_mp3)
         assert isinstance(metadata, dict)
@@ -54,7 +51,6 @@ class TestId3v1Format:
         assert not metadata.get(UnifiedMetadataKey.TITLE) or metadata.get(UnifiedMetadataKey.TITLE) == ""
 
     def test_audio_file_object_reading(self, metadata_id3v1_small_mp3):
-        """Test reading metadata using AudioFile object."""
         audio_file = AudioFile(metadata_id3v1_small_mp3)
         
         # Test merged metadata
