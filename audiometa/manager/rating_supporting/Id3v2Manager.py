@@ -339,6 +339,11 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                                                         app_metadata_value: AppMetadataValue):
         raw_mutagen_metadata_id3: ID3 = cast(ID3, raw_mutagen_metadata)
         raw_mutagen_metadata_id3.delall(raw_metadata_key)
+        
+        # If value is None, don't add any frames (field is removed)
+        if app_metadata_value is None:
+            return
+            
         text_frame_class = self.ID3_TEXT_FRAME_CLASS_MAP[raw_metadata_key]
 
         if raw_metadata_key == self.Id3TextFrame.RATING:

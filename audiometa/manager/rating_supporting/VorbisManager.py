@@ -133,7 +133,7 @@ class VorbisManager(RatingSupportingMetadataManager):
     def _update_formatted_value_in_raw_mutagen_metadata(self, raw_mutagen_metadata: MutagenMetadata,
                                                         raw_metadata_key: RawMetadataKey,
                                                         app_metadata_value: AppMetadataValue):
-        if app_metadata_value:
+        if app_metadata_value is not None:
             if raw_metadata_key not in raw_mutagen_metadata:
                 raw_mutagen_metadata[raw_metadata_key] = [1]
             # Convert BPM to string for Vorbis comments
