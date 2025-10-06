@@ -6,6 +6,7 @@ from pathlib import Path
 from audiometa import (
     get_merged_unified_metadata,
     get_single_format_app_metadata,
+    get_specific_metadata,
     update_file_metadata,
     AudioFile
 )
@@ -131,3 +132,67 @@ class TestVorbisFormat:
         
         with pytest.raises(FileTypeNotSupportedError):
             audio_file.is_flac_file_md5_valid()
+
+    def test_none_field_removal_vorbis(self, sample_flac_file: Path, temp_audio_file: Path):
+        """Test that setting fields to None removes them from FLAC Vorbis metadata."""
+        # Copy sample file to temp location with correct extension
+        temp_flac_file = temp_audio_file.with_suffix('.flac')
+        shutil.copy2(sample_flac_file, temp_flac_file)
+        
+        # First, set some metadata (without rating to avoid configuration issues)
+        initial_metadata = {
+            UnifiedMetadataKey.TITLE: "Test FLAC Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["Test FLAC Artist"],
+            UnifiedMetadataKey.ALBUM_NAME: "Test FLAC Album",
+            UnifiedMetadataKey.BPM: 140
+        }
+        update_file_metadata(temp_flac_file, initial_metadata)
+        
+        # Verify metadata was written
+        metadata = get_merged_unified_metadata(temp_flac_file)
+        assert metadata.get(UnifiedMetadataKey.TITLE) == "Test FLAC Title"
+        assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test FLAC Artist"]
+        assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test FLAC Album"
+        assert metadata.get(UnifiedMetadataKey.BPM) == 140
+        
+        # Now set some fields to None
+        none_metadata = {
+            UnifiedMetadataKey.TITLE: None,
+            UnifiedMetadataKey.BPM: None
+        }
+        update_file_metadata(temp_flac_file, none_metadata)
+        
+        # Verify fields were removed (return None because they don't exist)
+        updated_metadata = get_merged_unified_metadata(temp_flac_file)
+        assert updated_metadata.get(UnifiedMetadataKey.TITLE) is None
+        assert updated_metadata.get(UnifiedMetadataKey.BPM) is None
+        
+        # Verify other fields are still present
+        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test FLAC Artist"]
+        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test FLAC Album"
+        
+        # Verify at Vorbis level that fields were actually deleted
+        vorbis_metadata = get_single_format_app_metadata(temp_flac_file, MetadataFormat.VORBIS)
+        assert vorbis_metadata.get(UnifiedMetadataKey.TITLE) is None
+        assert vorbis_metadata.get(UnifiedMetadataKey.BPM) is None
+
+    def test_none_vs_empty_string_behavior_vorbis(self, sample_flac_file: Path, temp_audio_file: Path):
+        """Test the difference between None and empty string behavior for FLAC Vorbis."""
+        # Copy sample file to temp location with correct extension
+        temp_flac_file = temp_audio_file.with_suffix('.flac')
+        shutil.copy2(sample_flac_file, temp_flac_file)
+        
+        # Set a field to empty string - should create empty field
+        update_file_metadata(temp_flac_file, {UnifiedMetadataKey.TITLE: ""})
+        title = get_specific_metadata(temp_flac_file, UnifiedMetadataKey.TITLE)
+        assert title == ""  # Empty string creates empty field
+        
+        # Set the same field to None - should remove field
+        update_file_metadata(temp_flac_file, {UnifiedMetadataKey.TITLE: None})
+        title = get_specific_metadata(temp_flac_file, UnifiedMetadataKey.TITLE)
+        assert title is None  # None removes field
+        
+        # Set it back to empty string - should create empty field again
+        update_file_metadata(temp_flac_file, {UnifiedMetadataKey.TITLE: ""})
+        title = get_specific_metadata(temp_flac_file, UnifiedMetadataKey.TITLE)
+        assert title == ""  # Empty string creates empty field

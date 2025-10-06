@@ -157,3 +157,66 @@ class TestId3v2Format:
         
         with pytest.raises(FileTypeNotSupportedError):
             get_single_format_app_metadata(str(temp_audio_file), MetadataFormat.ID3V2)
+
+    def test_none_field_removal_id3v2(self, sample_mp3_file: Path, temp_audio_file: Path):
+        """Test that setting fields to None removes them from MP3 ID3v2 metadata."""
+        # Copy sample file to temp location
+        shutil.copy2(sample_mp3_file, temp_audio_file)
+        
+        # First, set some metadata (without rating to avoid configuration issues)
+        initial_metadata = {
+            UnifiedMetadataKey.TITLE: "Test Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"],
+            UnifiedMetadataKey.ALBUM_NAME: "Test Album",
+            UnifiedMetadataKey.BPM: 120
+        }
+        update_file_metadata(temp_audio_file, initial_metadata)
+        
+        # Verify metadata was written
+        metadata = get_merged_unified_metadata(temp_audio_file)
+        assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
+        assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
+        assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
+        assert metadata.get(UnifiedMetadataKey.BPM) == 120
+        
+        # Now set some fields to None
+        none_metadata = {
+            UnifiedMetadataKey.TITLE: None,
+            UnifiedMetadataKey.BPM: None
+        }
+        update_file_metadata(temp_audio_file, none_metadata)
+        
+        # Verify fields were removed (return None because they don't exist)
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
+        assert updated_metadata.get(UnifiedMetadataKey.TITLE) is None
+        assert updated_metadata.get(UnifiedMetadataKey.BPM) is None
+        
+        # Verify other fields are still present
+        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
+        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
+        
+        # Verify at ID3v2 level that frames were actually deleted
+        id3v2_metadata = get_single_format_app_metadata(temp_audio_file, MetadataFormat.ID3V2)
+        assert id3v2_metadata.get(UnifiedMetadataKey.TITLE) is None
+        assert id3v2_metadata.get(UnifiedMetadataKey.BPM) is None
+
+    def test_none_vs_empty_string_behavior_id3v2(self, sample_mp3_file: Path, temp_audio_file: Path):
+        """Test the difference between None and empty string behavior for MP3 ID3v2.
+        Note: mutagen automatically removes empty frames, so empty strings behave like None."""
+        # Copy sample file to temp location
+        shutil.copy2(sample_mp3_file, temp_audio_file)
+        
+        # Set a field to empty string - mutagen removes empty frames, so field is removed
+        update_file_metadata(temp_audio_file, {UnifiedMetadataKey.TITLE: ""})
+        title = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE)
+        assert title is None  # Empty string removes field (mutagen removes empty frames)
+        
+        # Set the same field to None - should remove field
+        update_file_metadata(temp_audio_file, {UnifiedMetadataKey.TITLE: None})
+        title = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE)
+        assert title is None  # None removes field
+        
+        # Set it back to empty string - should remove field again
+        update_file_metadata(temp_audio_file, {UnifiedMetadataKey.TITLE: ""})
+        title = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE)
+        assert title is None  # Empty string removes field (mutagen removes empty frames)

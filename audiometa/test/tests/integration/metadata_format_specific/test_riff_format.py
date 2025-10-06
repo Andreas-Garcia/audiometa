@@ -6,6 +6,7 @@ from pathlib import Path
 from audiometa import (
     get_merged_unified_metadata,
     get_single_format_app_metadata,
+    get_specific_metadata,
     update_file_metadata,
     AudioFile
 )
@@ -149,3 +150,64 @@ class TestRiffFormat:
         
         with pytest.raises(FileTypeNotSupportedError):
             get_single_format_app_metadata(str(temp_audio_file), MetadataFormat.RIFF)
+
+    def test_none_field_removal_riff(self, sample_wav_file: Path, temp_audio_file: Path):
+        """Test that setting fields to None removes them from WAV RIFF metadata."""
+        # Copy sample file to temp location with correct extension
+        temp_wav_file = temp_audio_file.with_suffix('.wav')
+        shutil.copy2(sample_wav_file, temp_wav_file)
+        
+        # First, set some metadata (only supported fields for WAV)
+        initial_metadata = {
+            UnifiedMetadataKey.TITLE: "Test WAV Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["Test WAV Artist"],
+            UnifiedMetadataKey.ALBUM_NAME: "Test WAV Album"
+        }
+        update_file_metadata(temp_wav_file, initial_metadata)
+        
+        # Verify metadata was written
+        metadata = get_merged_unified_metadata(temp_wav_file)
+        assert metadata.get(UnifiedMetadataKey.TITLE) == "Test WAV Title"
+        assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test WAV Artist"]
+        assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test WAV Album"
+        
+        # Now set some fields to None (RiffManager replaces entire INFO chunk, so we need to include fields we want to keep)
+        none_metadata = {
+            UnifiedMetadataKey.TITLE: None,
+            UnifiedMetadataKey.ARTISTS_NAMES: ["Test WAV Artist"],  # Keep this field
+            UnifiedMetadataKey.ALBUM_NAME: "Test WAV Album"  # Keep this field
+        }
+        update_file_metadata(temp_wav_file, none_metadata)
+        
+        # Verify fields were removed (return None because they don't exist)
+        updated_metadata = get_merged_unified_metadata(temp_wav_file)
+        assert updated_metadata.get(UnifiedMetadataKey.TITLE) is None
+        
+        # Verify other fields are still present
+        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test WAV Artist"]
+        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test WAV Album"
+        
+        # Verify at RIFF level that fields were actually removed
+        riff_metadata = get_single_format_app_metadata(temp_wav_file, MetadataFormat.RIFF)
+        assert riff_metadata.get(UnifiedMetadataKey.TITLE) is None
+
+    def test_none_vs_empty_string_behavior_riff(self, sample_wav_file: Path, temp_audio_file: Path):
+        """Test the difference between None and empty string behavior for WAV RIFF."""
+        # Copy sample file to temp location with correct extension
+        temp_wav_file = temp_audio_file.with_suffix('.wav')
+        shutil.copy2(sample_wav_file, temp_wav_file)
+        
+        # Set a field to empty string - should remove field (same as None)
+        update_file_metadata(temp_wav_file, {UnifiedMetadataKey.TITLE: ""})
+        title = get_specific_metadata(temp_wav_file, UnifiedMetadataKey.TITLE)
+        assert title is None  # Empty string removes field in RIFF
+        
+        # Set the same field to None - should remove field
+        update_file_metadata(temp_wav_file, {UnifiedMetadataKey.TITLE: None})
+        title = get_specific_metadata(temp_wav_file, UnifiedMetadataKey.TITLE)
+        assert title is None  # None removes field
+        
+        # Set it back to empty string - should remove field again
+        update_file_metadata(temp_wav_file, {UnifiedMetadataKey.TITLE: ""})
+        title = get_specific_metadata(temp_wav_file, UnifiedMetadataKey.TITLE)
+        assert title is None  # Empty string removes field in RIFF
