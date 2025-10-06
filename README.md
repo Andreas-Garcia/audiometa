@@ -227,9 +227,10 @@ When writing metadata, the library uses these default metadata formats per audio
 
 #### MP3 Files
 
-**Default Writing Format**: ID3v2 (v2.4)
+**Default Writing Format**: ID3v2 (v2.3)
 
 - **Note**: ID3v1 cannot be written to
+- **Version Selection**: You can choose between ID3v2.3 (maximum compatibility) and ID3v2.4 (modern features) using the `id3v2_version` parameter
 
 #### FLAC Files
 
@@ -244,6 +245,38 @@ When writing metadata, the library uses these default metadata formats per audio
 - **Note**: RIFF is the native format for WAV files
 
 **Note**: ID3v1 is read-only and cannot be written programmatically. The library will read from existing ID3v1 tags but will not attempt to write to them.
+
+## ID3v2 Version Selection
+
+The library supports both ID3v2.3 and ID3v2.4 formats for MP3 files. You can choose the version based on your compatibility needs:
+
+### ID3v2.3 (Default - Maximum Compatibility)
+- **Best for**: Maximum compatibility with older players and devices
+- **Supported by**: Windows Media Player, older car systems, most DJ software
+- **Features**: UTF-16 encoding, basic unsynchronization
+
+### ID3v2.4 (Modern Features)
+- **Best for**: Modern players and applications that support it
+- **Supported by**: Modern browsers, recent media players, newer mobile devices
+- **Features**: UTF-8 encoding, per-frame unsynchronization, extended metadata
+
+### Usage Examples
+
+```python
+from audiometa import update_file_metadata, get_merged_unified_metadata
+
+# Use default ID3v2.3 (maximum compatibility)
+update_file_metadata("song.mp3", {"title": "My Song"})
+
+# Explicitly use ID3v2.3
+update_file_metadata("song.mp3", {"title": "My Song"}, id3v2_version=(2, 3, 0))
+
+# Use ID3v2.4 for modern features
+update_file_metadata("song.mp3", {"title": "My Song"}, id3v2_version=(2, 4, 0))
+
+# Reading also supports version selection
+metadata = get_merged_unified_metadata("song.mp3", id3v2_version=(2, 4, 0))
+```
 
 ## Error Handling
 
