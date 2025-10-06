@@ -280,6 +280,83 @@ metadata = get_merged_unified_metadata("song.mp3", id3v2_version=(2, 4, 0))
 
 **Note**: ID3v1 is read-only and cannot be written programmatically. The library will read from existing ID3v1 tags but will not attempt to write to them.
 
+### Metadata Preservation Principle
+
+The library follows a **"don't overwrite"** principle when writing metadata to files that already contain data in other formats. This ensures maximum compatibility and preserves existing metadata.
+
+#### How It Works
+
+When you write metadata to a file that already contains metadata in other formats:
+
+1. **Preserves Existing Metadata**: The library never deletes or overwrites existing metadata in other formats
+2. **Additive Approach**: New metadata is written alongside existing formats
+3. **Format Coexistence**: Multiple metadata formats can and do coexist in the same file
+4. **Precedence-Based Reading**: When reading, the library uses the precedence order to return the "best" value
+
+#### Examples
+
+**MP3 File with ID3v1 + Writing ID3v2**
+
+```python
+# File already has ID3v1 tags
+# Writing ID3v2 metadata:
+update_file_metadata("song.mp3", {"title": "New Title"})
+
+# Result:
+# - ID3v1 tags: Preserved (unchanged)
+# - ID3v2 tags: Added with new metadata
+# - When reading: ID3v2 title is returned (higher precedence)
+```
+
+**FLAC File with ID3v2 + Writing Vorbis**
+
+```python
+# File already has ID3v2 tags
+# Writing Vorbis metadata:
+update_file_metadata("song.flac", {"title": "New Title"})
+
+# Result:
+# - ID3v2 tags: Preserved (unchanged)
+# - Vorbis tags: Added with new metadata
+# - When reading: Vorbis title is returned (higher precedence)
+```
+
+**WAV File with RIFF + Writing ID3v2**
+
+```python
+# File already has RIFF tags
+# Writing ID3v2 metadata:
+update_file_metadata("song.wav", {"title": "New Title"})
+
+# Result:
+# - RIFF tags: Preserved (unchanged)
+# - ID3v2 tags: Added with new metadata
+# - When reading: ID3v2 title is returned (higher precedence)
+```
+
+#### Benefits
+
+- **Maximum Compatibility**: Older players can still read legacy formats
+- **Future-Proof**: New formats can be added without breaking existing data
+- **Non-Destructive**: Never loses existing metadata unless explicitly requested
+- **Standards Compliant**: Follows established audio metadata standards
+- **User-Friendly**: Users don't need to understand format complexities
+
+#### Explicit Format Control
+
+If you need to write to a specific format or clean up unwanted formats, you can use the format-specific functions:
+
+```python
+from audiometa import update_file_metadata
+from audiometa.utils.MetadataFormat import MetadataFormat
+
+# Write specifically to ID3v2 format
+update_file_metadata("song.mp3", {"title": "Title"}, metadata_format=MetadataFormat.ID3V2)
+
+# Write specifically to Vorbis format
+update_file_metadata("song.flac", {"title": "Title"}, metadata_format=MetadataFormat.VORBIS)
+```
+
 ## Error Handling
 
 The library provides specific exception types for different error conditions:
