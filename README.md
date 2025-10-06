@@ -62,10 +62,10 @@ pip install audiometa-python
 ### Basic Usage
 
 ```python
-from audiometa import get_merged_app_metadata, update_file_metadata, AudioFile
+from audiometa import get_merged_unified_metadata, update_file_metadata, AudioFile
 
 # Read metadata from a file
-metadata = get_merged_app_metadata("path/to/your/audio.mp3")
+metadata = get_merged_unified_metadata("path/to/your/audio.mp3")
 print(f"Title: {metadata.get('title', 'Unknown')}")
 print(f"Artist: {metadata.get('artists_names', ['Unknown'])}")
 print(f"Album: {metadata.get('album_name', 'Unknown')}")
@@ -255,7 +255,7 @@ from audiometa.exceptions import (
 )
 
 try:
-    metadata = get_merged_app_metadata("invalid_file.txt")
+    metadata = get_merged_unified_metadata("invalid_file.txt")
 except FileTypeNotSupportedError:
     print("File format not supported")
 except FileCorruptedError:
