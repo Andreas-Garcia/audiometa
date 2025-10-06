@@ -23,10 +23,8 @@ from audiometa.exceptions import FileTypeNotSupportedError
 
 @pytest.mark.integration
 class TestErrorHandling:
-    """Test cases for error handling across APIs."""
 
     def test_error_handling_integration(self, temp_audio_file: Path):
-        """Test error handling integration across different APIs."""
         # Create a file with unsupported extension
         temp_audio_file.write_bytes(b"fake audio content")
         temp_audio_file = temp_audio_file.with_suffix(".txt")
@@ -55,7 +53,6 @@ class TestErrorHandling:
             get_duration_in_sec(str(temp_audio_file))
 
     def test_nonexistent_file_error_handling(self):
-        """Test error handling for non-existent files."""
         nonexistent_file = "nonexistent_file.mp3"
         
         with pytest.raises(FileNotFoundError):
@@ -68,14 +65,12 @@ class TestErrorHandling:
             get_specific_metadata(nonexistent_file, UnifiedMetadataKey.TITLE)
 
     def test_invalid_metadata_key_error_handling(self, sample_mp3_file: Path):
-        """Test error handling for invalid metadata keys."""
         # This should not raise an error, but return None
         invalid_key = "INVALID_KEY"
         result = get_specific_metadata(sample_mp3_file, invalid_key)
         assert result is None
 
     def test_invalid_format_error_handling(self, sample_mp3_file: Path):
-        """Test error handling for invalid format requests."""
         # Try to get Vorbis metadata from MP3 file (should work but return empty)
         vorbis_metadata = get_single_format_app_metadata(sample_mp3_file, MetadataFormat.VORBIS)
         assert isinstance(vorbis_metadata, dict)

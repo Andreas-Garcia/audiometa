@@ -6,7 +6,6 @@ and verifies that the correct precedence rules are applied.
 
 import pytest
 from pathlib import Path
-import tempfile
 import shutil
 
 from audiometa import (
