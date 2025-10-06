@@ -1,6 +1,7 @@
 """Tests for RIFF format-specific metadata scenarios."""
 
 import pytest
+from pathlib import Path
 
 from audiometa import (
     get_merged_unified_metadata,
@@ -11,6 +12,7 @@ from audiometa import (
 import shutil
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.exceptions import FileTypeNotSupportedError
 
 
 @pytest.mark.integration
@@ -60,7 +62,7 @@ class TestRiffFormat:
             UnifiedMetadataKey.ALBUM_NAME: "Test Album WAV",
             UnifiedMetadataKey.GENRE_NAME: "Test Genre WAV"
         }
-        update_file_metadata(temp_audio_file, test_metadata)
+        update_file_metadata(temp_audio_file, test_metadata, normalized_rating_max_value=100)
         metadata = get_merged_unified_metadata(temp_audio_file)
         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title WAV"
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist WAV"]
@@ -94,6 +96,50 @@ class TestRiffFormat:
         metadata_from_audio_file = get_merged_unified_metadata(audio_file)
         assert isinstance(metadata_from_audio_file, dict)
         assert UnifiedMetadataKey.TITLE in metadata_from_audio_file
+
+    def test_multiple_metadata_reading(self, sample_wav_file: Path, temp_audio_file: Path):
+        shutil.copy2(sample_wav_file, temp_audio_file)
+        
+        test_metadata = {
+            # Basic metadata commonly supported across formats
+            UnifiedMetadataKey.TITLE: "Test Song Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"],
+            UnifiedMetadataKey.ALBUM_NAME: "Test Album",
+            UnifiedMetadataKey.GENRE_NAME: "Test Genre"
+        }
+        
+        update_file_metadata(temp_audio_file, test_metadata, normalized_rating_max_value=100)
+        
+        # Verify all fields
+        metadata = get_merged_unified_metadata(temp_audio_file, normalized_rating_max_value=10)
+        
+        # Basic metadata assertions
+        assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Song Title"
+        assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
+        assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
+        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Test Genre"
+
+    def test_multiple_metadata_writing(self, sample_wav_file: Path, temp_audio_file: Path):
+        shutil.copy2(sample_wav_file, temp_audio_file)
+        
+        test_metadata = {
+            # Basic metadata commonly supported across formats
+            UnifiedMetadataKey.TITLE: "Written Song Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["Written Artist"],
+            UnifiedMetadataKey.ALBUM_NAME: "Written Album",
+            UnifiedMetadataKey.GENRE_NAME: "Written Genre"
+        }
+        
+        update_file_metadata(temp_audio_file, test_metadata, normalized_rating_max_value=100)
+        
+        # Verify all fields were written
+        metadata = get_merged_unified_metadata(temp_audio_file, normalized_rating_max_value=10)
+        
+        # Basic metadata assertions
+        assert metadata.get(UnifiedMetadataKey.TITLE) == "Written Song Title"
+        assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Written Artist"]
+        assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Written Album"
+        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Written Genre"
 
     def test_riff_error_handling(self, temp_audio_file: Path):
         # Test RIFF with unsupported file type
