@@ -288,21 +288,41 @@ class RiffManager(RatingSupportingMetadataManager):
         self.audio_file.seek(0)
         file_data = bytearray(self.audio_file.read())
 
-        # Skip any ID3v2 tags that might be present
-        skipped_data = self._skip_id3v2_tags(bytes(file_data))
-        file_data = bytearray(skipped_data)
+        # Check if we should preserve ID3v2 tags based on the calling context
+        # In PRESERVE strategy, we should not strip ID3v2 tags as they will be restored later
+        should_preserve_id3v2 = self._should_preserve_id3v2_tags()
+        
+        if should_preserve_id3v2:
+            # For PRESERVE strategy, work with the full file data including ID3v2 tags
+            # We'll write RIFF metadata without affecting the ID3v2 section
+            pass  # file_data already contains the full file including ID3v2
+        else:
+            # For other strategies (CLEANUP, SYNC, IGNORE), strip ID3v2 tags as before
+            skipped_data = self._skip_id3v2_tags(bytes(file_data))
+            file_data = bytearray(skipped_data)
 
         # Find RIFF header and validate
-        if len(file_data) < 12 or bytes(file_data[:4]) != b'RIFF' or bytes(file_data[8:12]) != b'WAVE':
+        # If ID3v2 tags are present, we need to find the RIFF header after them
+        if should_preserve_id3v2 and file_data.startswith(b'ID3'):
+            # Find RIFF header after ID3v2 tags
+            riff_start = self._find_riff_header_after_id3v2(file_data)
+            if riff_start == -1:
+                raise MetadataNotSupportedError("Invalid WAV file format - RIFF header not found after ID3v2 tags")
+            # Work with the RIFF portion only for metadata updates
+            riff_data = file_data[riff_start:]
+        else:
+            riff_data = file_data
+            
+        if len(riff_data) < 12 or bytes(riff_data[:4]) != b'RIFF' or bytes(riff_data[8:12]) != b'WAVE':
             raise MetadataNotSupportedError("Invalid WAV file format")
 
-        # Find or create LIST INFO chunk
-        info_chunk_start = self._find_info_chunk_in_file_data(file_data)
+        # Find or create LIST INFO chunk in the RIFF data
+        info_chunk_start = self._find_info_chunk_in_file_data(riff_data)
         if info_chunk_start == -1:
-            info_chunk_start = self._create_info_chunk_after_wave_header(file_data)
+            info_chunk_start = self._create_info_chunk_after_wave_header(riff_data)
 
         # Process metadata updates
-        info_chunk_size = int.from_bytes(bytes(file_data[info_chunk_start+4:info_chunk_start+8]), 'little')
+        info_chunk_size = int.from_bytes(bytes(riff_data[info_chunk_start+4:info_chunk_start+8]), 'little')
 
         # Build new tags data
         new_tags_data = bytearray()
@@ -330,16 +350,25 @@ class RiffManager(RatingSupportingMetadataManager):
         new_info_chunk.extend(b'INFO')
         new_info_chunk.extend(new_tags_data)
 
-        # Replace old INFO chunk
-        file_data[info_chunk_start:info_chunk_start + info_chunk_size + 8] = new_info_chunk
+        # Replace old INFO chunk in RIFF data
+        riff_data[info_chunk_start:info_chunk_start + info_chunk_size + 8] = new_info_chunk
 
         # Update RIFF chunk size
-        total_size = len(file_data) - 8  # Exclude RIFF and size fields
-        file_data[4:8] = total_size.to_bytes(4, 'little')
+        total_size = len(riff_data) - 8  # Exclude RIFF and size fields
+        riff_data[4:8] = total_size.to_bytes(4, 'little')
+
+        # If we preserved ID3v2 tags, we need to reconstruct the full file
+        if should_preserve_id3v2 and file_data.startswith(b'ID3'):
+            # Reconstruct the full file with ID3v2 tags + updated RIFF data
+            id3v2_size = self._get_id3v2_size(file_data)
+            final_file_data = bytearray(file_data[:id3v2_size])  # Keep ID3v2 tags
+            final_file_data.extend(riff_data)  # Add updated RIFF data
+        else:
+            final_file_data = riff_data
 
         # Write updated file
         self.audio_file.seek(0)
-        self.audio_file.write(file_data)
+        self.audio_file.write(final_file_data)
 
     def _find_info_chunk_in_file_data(self, file_data: bytearray) -> int:
         pos = 12  # Start after RIFF header
@@ -424,3 +453,85 @@ class RiffManager(RatingSupportingMetadataManager):
         
         # Call parent method with the original metadata
         super().update_file_metadata(app_metadata)
+
+    def _should_preserve_id3v2_tags(self) -> bool:
+        """
+        Determine if ID3v2 tags should be preserved based on the calling context.
+        
+        This method detects if the RIFF manager is being called in a PRESERVE strategy
+        context by checking the call stack. In PRESERVE strategy, the high-level
+        _handle_metadata_strategy function will restore ID3v2 metadata after RIFF
+        writing, so we should not strip it.
+        
+        We only preserve ID3v2 tags when:
+        1. We're in a PRESERVE strategy context
+        2. AND we're writing to RIFF format (not ID3v2 format)
+        """
+        import inspect
+        
+        # Get the call stack
+        frame = inspect.currentframe()
+        try:
+            # Look for _handle_metadata_strategy in the call stack
+            while frame:
+                if frame.f_code.co_name == '_handle_metadata_strategy':
+                    # Check if we're in the PRESERVE strategy branch
+                    # Look at the local variables to determine the strategy and target format
+                    if 'strategy' in frame.f_locals and 'target_format_actual' in frame.f_locals:
+                        strategy = frame.f_locals['strategy']
+                        target_format = frame.f_locals['target_format_actual']
+                        from ...utils.MetadataWritingStrategy import MetadataWritingStrategy
+                        from ...utils.MetadataFormat import MetadataFormat
+                        
+                        # Preserve ID3v2 tags when:
+                        # 1. PRESERVE strategy and target format is RIFF (preserve existing ID3v2 tags)
+                        # 2. SYNC strategy and target format is RIFF (preserve ID3v2 tags that were written by other managers)
+                        if strategy == MetadataWritingStrategy.PRESERVE:
+                            return target_format == MetadataFormat.RIFF
+                        elif strategy == MetadataWritingStrategy.SYNC:
+                            return target_format == MetadataFormat.RIFF
+                        else:
+                            return False
+                frame = frame.f_back
+        finally:
+            del frame
+            
+        # Default to not preserving (for backward compatibility)
+        return False
+
+    def _find_riff_header_after_id3v2(self, file_data: bytearray) -> int:
+        """
+        Find the RIFF header after ID3v2 tags in the file data.
+        Returns the position of the RIFF header or -1 if not found.
+        """
+        if not file_data.startswith(b'ID3'):
+            return -1
+            
+        # Skip ID3v2 tags using existing method
+        skipped_data = self._skip_id3v2_tags(bytes(file_data))
+        if not skipped_data.startswith(b'RIFF'):
+            return -1
+            
+        # Calculate the position where RIFF starts
+        id3v2_size = len(file_data) - len(skipped_data)
+        return id3v2_size
+
+    def _get_id3v2_size(self, file_data: bytearray) -> int:
+        """
+        Get the size of ID3v2 tags at the beginning of the file.
+        Returns the total size including header and data.
+        """
+        if not file_data.startswith(b'ID3'):
+            return 0
+            
+        if len(file_data) < 10:
+            return 0
+            
+        # Get size from synchsafe integer (7 bits per byte)
+        size_bytes = file_data[6:10]
+        size = ((size_bytes[0] & 0x7F) << 21) | \
+               ((size_bytes[1] & 0x7F) << 14) | \
+               ((size_bytes[2] & 0x7F) << 7) | \
+               (size_bytes[3] & 0x7F)
+        
+        return 10 + size  # Header (10 bytes) + data size
