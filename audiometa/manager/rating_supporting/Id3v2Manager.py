@@ -154,8 +154,8 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                 - New frames for more detailed metadata (e.g., TDRC for recording time, TDRL for release time)
                 - Preferred version for new tags
 
-    For the most compatibility, ID3v2.3 will be used as the version for writing metadata.
-    Thus when reading/updating an existing file, the ID3 tags will be updated to v2.3 format.
+    For maximum compatibility and modern features, ID3v2.4 will be used as the version for writing metadata.
+    Thus when reading/updating an existing file, the ID3 tags will be updated to v2.4 format.
     """
 
     ID3_RATING_APP_EMAIL = "audiometa-python@audiometa.dev"
