@@ -85,7 +85,7 @@ class TestFormatSpecificScenarios:
             UnifiedMetadataKey.TITLE: "Test Title MP3",
             UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist MP3"],
             UnifiedMetadataKey.ALBUM_NAME: "Test Album MP3",
-            UnifiedMetadataKey.GENRE: "Test Genre MP3",
+            UnifiedMetadataKey.GENRE_NAME: "Test Genre MP3",
             UnifiedMetadataKey.RATING: 8
         }
         update_file_metadata(temp_audio_file, test_metadata, normalized_rating_max_value=255)
@@ -93,7 +93,7 @@ class TestFormatSpecificScenarios:
         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title MP3"
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist MP3"]
         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album MP3"
-        assert metadata.get(UnifiedMetadataKey.GENRE) == "Test Genre MP3"
+        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Test Genre MP3"
         assert metadata.get(UnifiedMetadataKey.RATING) == 8
         
         # Test FLAC with Vorbis
@@ -102,7 +102,7 @@ class TestFormatSpecificScenarios:
             UnifiedMetadataKey.TITLE: "Test Title FLAC",
             UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist FLAC"],
             UnifiedMetadataKey.ALBUM_NAME: "Test Album FLAC",
-            UnifiedMetadataKey.GENRE: "Test Genre FLAC",
+            UnifiedMetadataKey.GENRE_NAME: "Test Genre FLAC",
             UnifiedMetadataKey.RATING: 7
         }
         update_file_metadata(temp_audio_file, test_metadata, normalized_rating_max_value=100)
@@ -110,7 +110,7 @@ class TestFormatSpecificScenarios:
         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title FLAC"
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist FLAC"]
         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album FLAC"
-        assert metadata.get(UnifiedMetadataKey.GENRE) == "Test Genre FLAC"
+        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Test Genre FLAC"
         assert metadata.get(UnifiedMetadataKey.RATING) == 7
         
         # Test WAV with RIFF
@@ -119,7 +119,7 @@ class TestFormatSpecificScenarios:
             UnifiedMetadataKey.TITLE: "Test Title WAV",
             UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist WAV"],
             UnifiedMetadataKey.ALBUM_NAME: "Test Album WAV",
-            UnifiedMetadataKey.GENRE: "Test Genre WAV",
+            UnifiedMetadataKey.GENRE_NAME: "Test Genre WAV",
             UnifiedMetadataKey.RATING: 9
         }
         update_file_metadata(temp_audio_file, test_metadata, normalized_rating_max_value=100)
@@ -127,6 +127,6 @@ class TestFormatSpecificScenarios:
         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title WAV"
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist WAV"]
         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album WAV"
-        assert metadata.get(UnifiedMetadataKey.GENRE) == "Test Genre WAV"
+        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Test Genre WAV"
         assert metadata.get(UnifiedMetadataKey.RATING) == 9
 

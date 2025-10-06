@@ -16,10 +16,8 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestPublisherMetadata:
-    """Test cases for publisher metadata."""
 
     def test_publisher_metadata_mp3(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test publisher metadata in MP3 file."""
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
         test_metadata = {UnifiedMetadataKey.PUBLISHER: "Test Publisher"}
@@ -45,12 +43,11 @@ class TestPublisherMetadata:
         test_metadata = {UnifiedMetadataKey.PUBLISHER: "WAV Publisher"}
         update_file_metadata(temp_audio_file, test_metadata)
         
-        # WAV files may not support publisher metadata
-        metadata = get_merged_unified_metadata(temp_audio_file)
-        assert UnifiedMetadataKey.PUBLISHER not in metadata or metadata.get(UnifiedMetadataKey.PUBLISHER) is None
+        # WAV files support publisher metadata through ID3v2 tags
+        publisher = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.PUBLISHER)
+        assert publisher == "WAV Publisher"
 
     def test_publisher_metadata_with_audio_file_object(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test publisher metadata using AudioFile object."""
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
         audio_file = AudioFile(temp_audio_file)

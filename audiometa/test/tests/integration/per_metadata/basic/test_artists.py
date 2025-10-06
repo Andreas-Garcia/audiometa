@@ -16,7 +16,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestArtistsMetadata:
-    """Test cases for artists metadata."""
 
     def test_artists_metadata_mp3(self, sample_mp3_file: Path, temp_audio_file: Path):
         shutil.copy2(sample_mp3_file, temp_audio_file)
