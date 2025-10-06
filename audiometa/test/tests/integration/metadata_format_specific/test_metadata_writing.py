@@ -1,4 +1,4 @@
-"""Tests for metadata writing functionality."""
+"""Tests for general metadata writing functionality."""
 
 import pytest
 from pathlib import Path
@@ -20,7 +20,6 @@ from audiometa.exceptions import FileTypeNotSupportedError, MetadataNotSupported
 class TestMetadataWriting:
 
     def test_update_file_metadata_basic_functionality(self, sample_mp3_file: Path, sample_flac_file: Path, sample_wav_file: Path, temp_audio_file: Path):
-        """Test basic metadata writing functionality across all supported formats."""
         test_cases = [
             (sample_mp3_file, {
                 UnifiedMetadataKey.TITLE: "Test MP3 Title",
@@ -150,7 +149,6 @@ class TestMetadataWriting:
             delete_metadata(str(temp_audio_file))
 
     def test_write_metadata_to_files_with_existing_metadata(self, metadata_id3v2_small_mp3, metadata_vorbis_small_flac, metadata_riff_small_wav, temp_audio_file):
-        """Test writing metadata to files that already have existing metadata."""
         test_cases = [
             (metadata_id3v2_small_mp3, {
                 UnifiedMetadataKey.TITLE: "Updated Title MP3",
@@ -183,7 +181,6 @@ class TestMetadataWriting:
             for key, expected_value in test_metadata.items():
                 assert updated_metadata.get(key) == expected_value
 
-
     def test_write_metadata_unsupported_fields(self, metadata_none_wav, temp_audio_file):
         shutil.copy2(metadata_none_wav, temp_audio_file)
         
@@ -205,7 +202,6 @@ class TestMetadataWriting:
         assert UnifiedMetadataKey.RATING not in updated_metadata or updated_metadata.get(UnifiedMetadataKey.RATING) != 8
         assert UnifiedMetadataKey.BPM not in updated_metadata or updated_metadata.get(UnifiedMetadataKey.BPM) != 120
 
-
     def test_write_metadata_partial_update(self, metadata_id3v2_small_mp3, temp_audio_file):
         shutil.copy2(metadata_id3v2_small_mp3, temp_audio_file)
         
@@ -226,35 +222,3 @@ class TestMetadataWriting:
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Partial Update Title"
         # Other fields should remain unchanged
         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == original_album
-
-    def test_mp3_writes_id3v2_4_format(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test that MP3 files are written with ID3v2.4 format."""
-        from mutagen.id3 import ID3
-        
-        # Copy sample file to temp location
-        shutil.copy2(sample_mp3_file, temp_audio_file)
-        
-        # Prepare test metadata (without rating to avoid configuration issues)
-        test_metadata = {
-            UnifiedMetadataKey.TITLE: "ID3v2.4 Test Title",
-            UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2.4 Test Artist"],
-            UnifiedMetadataKey.ALBUM_NAME: "ID3v2.4 Test Album",
-            UnifiedMetadataKey.BPM: 120
-        }
-        
-        # Update metadata using the library
-        update_file_metadata(temp_audio_file, test_metadata)
-        
-        # Verify that the file now contains ID3v2.4 tags
-        id3_tags = ID3(temp_audio_file)
-        assert id3_tags.version == (2, 4, 0), f"Expected ID3v2.4, but got version {id3_tags.version}"
-        
-        # Verify metadata was written correctly
-        updated_metadata = get_merged_unified_metadata(temp_audio_file)
-        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2.4 Test Title"
-        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["ID3v2.4 Test Artist"]
-        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v2.4 Test Album"
-        assert updated_metadata.get(UnifiedMetadataKey.BPM) == 120
-
-
-

@@ -1,73 +1,21 @@
-"""Tests for ID3v2 format-specific metadata scenarios."""
+"""Tests for ID3v2 format writing functionality."""
 
 import pytest
 from pathlib import Path
+import shutil
 
 from audiometa import (
     get_merged_unified_metadata,
     get_single_format_app_metadata,
     get_specific_metadata,
-    update_file_metadata,
-    AudioFile
+    update_file_metadata
 )
-import shutil
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.exceptions import FileTypeNotSupportedError
 
 
 @pytest.mark.integration
-class TestId3v2Format:
-    """Test cases for ID3v2 format-specific scenarios."""
-
-    def test_id3v2_extended_metadata(self, metadata_id3v2_small_mp3, metadata_id3v2_big_mp3):
-        # Small ID3v2 file
-        metadata = get_merged_unified_metadata(metadata_id3v2_small_mp3)
-        title = metadata.get(UnifiedMetadataKey.TITLE)
-        assert len(title) > 30  # ID3v2 can have longer titles
-        
-        # Big ID3v2 file
-        metadata = get_merged_unified_metadata(metadata_id3v2_big_mp3)
-        title = metadata.get(UnifiedMetadataKey.TITLE)
-        assert len(title) > 30  # ID3v2 can have longer titles
-
-    def test_id3v2_metadata_reading_mp3(self, metadata_id3v2_small_mp3):
-        metadata = get_merged_unified_metadata(metadata_id3v2_small_mp3)
-        assert isinstance(metadata, dict)
-        assert UnifiedMetadataKey.TITLE in metadata
-        # ID3v2 can have longer titles than ID3v1
-        assert len(metadata[UnifiedMetadataKey.TITLE]) > 30
-
-    def test_id3v2_metadata_reading_flac(self, metadata_id3v2_small_flac):
-        metadata = get_merged_unified_metadata(metadata_id3v2_small_flac)
-        assert isinstance(metadata, dict)
-        assert UnifiedMetadataKey.TITLE in metadata
-
-    def test_id3v2_metadata_reading_wav(self, metadata_id3v2_small_wav):
-        metadata = get_merged_unified_metadata(metadata_id3v2_small_wav)
-        assert isinstance(metadata, dict)
-        assert UnifiedMetadataKey.TITLE in metadata
-
-    def test_single_format_id3v2_extraction(self, metadata_id3v2_small_mp3):
-        id3v2_metadata = get_single_format_app_metadata(metadata_id3v2_small_mp3, MetadataFormat.ID3V2)
-        assert isinstance(id3v2_metadata, dict)
-        assert UnifiedMetadataKey.TITLE in id3v2_metadata
-
-    def test_audio_file_object_reading(self, metadata_id3v2_small_mp3):
-        audio_file = AudioFile(metadata_id3v2_small_mp3)
-        
-        # Test merged metadata
-        metadata = get_merged_unified_metadata(audio_file)
-        assert isinstance(metadata, dict)
-        assert UnifiedMetadataKey.TITLE in metadata
-        
-        # Test specific metadata
-        title = get_specific_metadata(audio_file, UnifiedMetadataKey.TITLE)
-        assert isinstance(title, str)
-        
-        # Test single format metadata
-        id3v2_metadata = get_single_format_app_metadata(audio_file, MetadataFormat.ID3V2)
-        assert isinstance(id3v2_metadata, dict)
+class TestId3v2Writing:
 
     def test_metadata_writing_mp3(self, metadata_none_mp3, temp_audio_file):
         shutil.copy2(metadata_none_mp3, temp_audio_file)
@@ -85,21 +33,6 @@ class TestId3v2Format:
         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album MP3"
         assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Test Genre MP3"
         assert metadata.get(UnifiedMetadataKey.RATING) == 1
-
-    def test_wav_with_id3v2_and_riff_metadata(self, metadata_id3v2_and_riff_small_wav):
-        # Test that we can read metadata from a WAV file with both ID3v2 and RIFF metadata
-        metadata = get_merged_unified_metadata(metadata_id3v2_and_riff_small_wav)
-        assert isinstance(metadata, dict)
-        assert UnifiedMetadataKey.TITLE in metadata
-        # ID3v2 can have longer titles than ID3v1
-        assert len(metadata[UnifiedMetadataKey.TITLE]) > 30
-        
-        # Test that the file can be processed without errors
-        # This verifies that our fix for handling ID3v2 metadata in WAV files works correctly
-        audio_file = AudioFile(metadata_id3v2_and_riff_small_wav)
-        metadata_from_audio_file = get_merged_unified_metadata(audio_file)
-        assert isinstance(metadata_from_audio_file, dict)
-        assert UnifiedMetadataKey.TITLE in metadata_from_audio_file
 
     def test_multiple_metadata_reading(self, sample_mp3_file: Path, temp_audio_file: Path):
         shutil.copy2(sample_mp3_file, temp_audio_file)
@@ -149,17 +82,7 @@ class TestId3v2Format:
         assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Written Genre"
         assert metadata.get(UnifiedMetadataKey.RATING) == 0
 
-    def test_id3v2_error_handling(self, temp_audio_file: Path):
-        # Test ID3v2 with unsupported file type
-        temp_audio_file.write_bytes(b"fake audio content")
-        temp_audio_file = temp_audio_file.with_suffix(".txt")
-        temp_audio_file.write_bytes(b"fake audio content")
-        
-        with pytest.raises(FileTypeNotSupportedError):
-            get_single_format_app_metadata(str(temp_audio_file), MetadataFormat.ID3V2)
-
     def test_none_field_removal_id3v2(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test that setting fields to None removes them from MP3 ID3v2 metadata."""
         # Copy sample file to temp location
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
@@ -201,8 +124,6 @@ class TestId3v2Format:
         assert id3v2_metadata.get(UnifiedMetadataKey.BPM) is None
 
     def test_none_vs_empty_string_behavior_id3v2(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test the difference between None and empty string behavior for MP3 ID3v2.
-        Note: mutagen automatically removes empty frames, so empty strings behave like None."""
         # Copy sample file to temp location
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
@@ -220,3 +141,31 @@ class TestId3v2Format:
         update_file_metadata(temp_audio_file, {UnifiedMetadataKey.TITLE: ""})
         title = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE)
         assert title is None  # Empty string removes field (mutagen removes empty frames)
+
+    def test_mp3_writes_id3v2_4_format(self, sample_mp3_file: Path, temp_audio_file: Path):
+        from mutagen.id3 import ID3
+        
+        # Copy sample file to temp location
+        shutil.copy2(sample_mp3_file, temp_audio_file)
+        
+        # Prepare test metadata (without rating to avoid configuration issues)
+        test_metadata = {
+            UnifiedMetadataKey.TITLE: "ID3v2.4 Test Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2.4 Test Artist"],
+            UnifiedMetadataKey.ALBUM_NAME: "ID3v2.4 Test Album",
+            UnifiedMetadataKey.BPM: 120
+        }
+        
+        # Update metadata using the library
+        update_file_metadata(temp_audio_file, test_metadata)
+        
+        # Verify that the file now contains ID3v2.4 tags
+        id3_tags = ID3(temp_audio_file)
+        assert id3_tags.version == (2, 4, 0), f"Expected ID3v2.4, but got version {id3_tags.version}"
+        
+        # Verify metadata was written correctly
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
+        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2.4 Test Title"
+        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["ID3v2.4 Test Artist"]
+        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v2.4 Test Album"
+        assert updated_metadata.get(UnifiedMetadataKey.BPM) == 120

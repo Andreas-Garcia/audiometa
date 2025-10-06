@@ -1,59 +1,21 @@
-"""Tests for Vorbis format-specific metadata scenarios."""
+"""Tests for Vorbis format writing functionality."""
 
 import pytest
 from pathlib import Path
+import shutil
 
 from audiometa import (
     get_merged_unified_metadata,
     get_single_format_app_metadata,
     get_specific_metadata,
-    update_file_metadata,
-    AudioFile
+    update_file_metadata
 )
-import shutil
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.exceptions import FileTypeNotSupportedError
 
 
 @pytest.mark.integration
-class TestVorbisFormat:
-
-    def test_vorbis_metadata_capabilities(self, metadata_vorbis_small_flac, metadata_vorbis_big_flac):
-        # Small Vorbis file
-        metadata = get_merged_unified_metadata(metadata_vorbis_small_flac)
-        title = metadata.get(UnifiedMetadataKey.TITLE)
-        assert len(title) > 30  # Vorbis can have longer titles
-        
-        # Big Vorbis file
-        metadata = get_merged_unified_metadata(metadata_vorbis_big_flac)
-        title = metadata.get(UnifiedMetadataKey.TITLE)
-        assert len(title) > 30  # Vorbis can have longer titles
-
-    def test_vorbis_metadata_reading(self, metadata_vorbis_small_flac):
-        metadata = get_merged_unified_metadata(metadata_vorbis_small_flac)
-        assert isinstance(metadata, dict)
-        assert UnifiedMetadataKey.TITLE in metadata
-        # Vorbis can have very long titles
-        assert len(metadata[UnifiedMetadataKey.TITLE]) > 30
-
-    def test_single_format_vorbis_extraction(self, metadata_vorbis_small_flac):
-        vorbis_metadata = get_single_format_app_metadata(metadata_vorbis_small_flac, MetadataFormat.VORBIS)
-        assert isinstance(vorbis_metadata, dict)
-        assert UnifiedMetadataKey.TITLE in vorbis_metadata
-
-    def test_metadata_none_files(self, metadata_none_flac):
-        # FLAC with no metadata
-        metadata = get_merged_unified_metadata(metadata_none_flac)
-        assert isinstance(metadata, dict)
-
-    def test_audio_file_object_reading(self, metadata_vorbis_small_flac):
-        audio_file = AudioFile(metadata_vorbis_small_flac)
-        
-        # Test merged metadata
-        metadata = get_merged_unified_metadata(audio_file)
-        assert isinstance(metadata, dict)
-        assert UnifiedMetadataKey.TITLE in metadata
+class TestVorbisWriting:
 
     def test_metadata_writing_flac(self, metadata_none_flac, temp_audio_file):
         shutil.copy2(metadata_none_flac, temp_audio_file)
@@ -71,13 +33,6 @@ class TestVorbisFormat:
         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album FLAC"
         assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Test Genre FLAC"
         assert metadata.get(UnifiedMetadataKey.RATING) == 1
-
-    def test_flac_md5_validation(self, sample_flac_file):
-        audio_file = AudioFile(sample_flac_file)
-        
-        # This should not raise an exception
-        is_valid = audio_file.is_flac_file_md5_valid()
-        assert isinstance(is_valid, bool)
 
     def test_multiple_metadata_reading(self, sample_flac_file: Path, temp_audio_file: Path):
         shutil.copy2(sample_flac_file, temp_audio_file)
@@ -127,14 +82,7 @@ class TestVorbisFormat:
         assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Written Genre"
         assert metadata.get(UnifiedMetadataKey.RATING) == 0
 
-    def test_flac_md5_validation_non_flac(self, sample_mp3_file):
-        audio_file = AudioFile(sample_mp3_file)
-        
-        with pytest.raises(FileTypeNotSupportedError):
-            audio_file.is_flac_file_md5_valid()
-
     def test_none_field_removal_vorbis(self, sample_flac_file: Path, temp_audio_file: Path):
-        """Test that setting fields to None removes them from FLAC Vorbis metadata."""
         # Copy sample file to temp location with correct extension
         temp_flac_file = temp_audio_file.with_suffix('.flac')
         shutil.copy2(sample_flac_file, temp_flac_file)
@@ -177,7 +125,6 @@ class TestVorbisFormat:
         assert vorbis_metadata.get(UnifiedMetadataKey.BPM) is None
 
     def test_none_vs_empty_string_behavior_vorbis(self, sample_flac_file: Path, temp_audio_file: Path):
-        """Test the difference between None and empty string behavior for FLAC Vorbis."""
         # Copy sample file to temp location with correct extension
         temp_flac_file = temp_audio_file.with_suffix('.flac')
         shutil.copy2(sample_flac_file, temp_flac_file)

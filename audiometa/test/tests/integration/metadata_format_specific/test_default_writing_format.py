@@ -27,11 +27,10 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
+@pytest.mark.integration
 class TestDefaultWritingFormat:
-    """Test default writing metadata format for each audio format."""
 
     def test_mp3_default_writes_to_id3v2(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test that MP3 files write to ID3v2 format by default."""
         # Copy sample file to temp location
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
@@ -61,7 +60,6 @@ class TestDefaultWritingFormat:
         assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["MP3 Test Artist"]
 
     def test_flac_default_writes_to_vorbis(self, sample_flac_file: Path, temp_audio_file: Path):
-        """Test that FLAC files write to Vorbis format by default."""
         # Copy sample file to temp location
         shutil.copy2(sample_flac_file, temp_audio_file)
         
@@ -91,7 +89,6 @@ class TestDefaultWritingFormat:
         assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["FLAC Test Artist"]
 
     def test_wav_default_writes_to_riff(self, sample_wav_file: Path, temp_audio_file: Path):
-        """Test that WAV files write to RIFF format by default."""
         # Copy sample file to temp location
         shutil.copy2(sample_wav_file, temp_audio_file)
         
@@ -119,7 +116,6 @@ class TestDefaultWritingFormat:
         assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["WAV Test Artist"]
 
     def test_format_priority_order_matches_defaults(self):
-        """Test that the format priority order matches the documented defaults."""
         priorities = MetadataFormat.get_priorities()
         
         # MP3 files: ID3v2 should be first (default)
@@ -135,7 +131,6 @@ class TestDefaultWritingFormat:
         assert wav_priorities[0] == MetadataFormat.RIFF, "WAV default should be RIFF"
 
     def test_default_format_consistency_across_audio_types(self, sample_mp3_file: Path, sample_flac_file: Path, sample_wav_file: Path):
-        """Test that default format behavior is consistent across different audio types."""
         test_cases = [
             (sample_mp3_file, MetadataFormat.ID3V2, "MP3"),
             (sample_flac_file, MetadataFormat.VORBIS, "FLAC"),
@@ -167,7 +162,6 @@ class TestDefaultWritingFormat:
                     temp_path.unlink(missing_ok=True)
 
     def test_id3v1_read_only_limitation(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test that ID3v1 format is read-only and cannot be written to."""
         # Copy sample file to temp location
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
@@ -197,7 +191,6 @@ class TestDefaultWritingFormat:
         ('.wav', MetadataFormat.RIFF)
     ])
     def test_default_format_for_audio_extension(self, audio_format: str, expected_default: MetadataFormat):
-        """Test that each audio format extension has the correct default metadata format."""
         priorities = MetadataFormat.get_priorities()
         format_priorities = priorities.get(audio_format)
         
