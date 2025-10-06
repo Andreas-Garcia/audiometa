@@ -31,20 +31,19 @@ class TestId3v2Format:
         title = metadata.get(UnifiedMetadataKey.TITLE)
         assert len(title) > 30  # ID3v2 can have longer titles
 
-    def test_id3v2_metadata_reading(self, metadata_id3v2_small_mp3, metadata_id3v2_small_flac, metadata_id3v2_small_wav):
-        # MP3 with ID3v2
+    def test_id3v2_metadata_reading_mp3(self, metadata_id3v2_small_mp3):
         metadata = get_merged_unified_metadata(metadata_id3v2_small_mp3)
         assert isinstance(metadata, dict)
         assert UnifiedMetadataKey.TITLE in metadata
         # ID3v2 can have longer titles than ID3v1
         assert len(metadata[UnifiedMetadataKey.TITLE]) > 30
-        
-        # FLAC with ID3v2
+
+    def test_id3v2_metadata_reading_flac(self, metadata_id3v2_small_flac):
         metadata = get_merged_unified_metadata(metadata_id3v2_small_flac)
         assert isinstance(metadata, dict)
         assert UnifiedMetadataKey.TITLE in metadata
-        
-        # WAV with ID3v2
+
+    def test_id3v2_metadata_reading_wav(self, metadata_id3v2_small_wav):
         metadata = get_merged_unified_metadata(metadata_id3v2_small_wav)
         assert isinstance(metadata, dict)
         assert UnifiedMetadataKey.TITLE in metadata
