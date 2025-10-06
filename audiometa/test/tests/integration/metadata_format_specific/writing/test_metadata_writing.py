@@ -227,5 +227,34 @@ class TestMetadataWriting:
         # Other fields should remain unchanged
         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == original_album
 
+    def test_mp3_writes_id3v2_4_format(self, sample_mp3_file: Path, temp_audio_file: Path):
+        """Test that MP3 files are written with ID3v2.4 format."""
+        from mutagen.id3 import ID3
+        
+        # Copy sample file to temp location
+        shutil.copy2(sample_mp3_file, temp_audio_file)
+        
+        # Prepare test metadata (without rating to avoid configuration issues)
+        test_metadata = {
+            UnifiedMetadataKey.TITLE: "ID3v2.4 Test Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2.4 Test Artist"],
+            UnifiedMetadataKey.ALBUM_NAME: "ID3v2.4 Test Album",
+            UnifiedMetadataKey.BPM: 120
+        }
+        
+        # Update metadata using the library
+        update_file_metadata(temp_audio_file, test_metadata)
+        
+        # Verify that the file now contains ID3v2.4 tags
+        id3_tags = ID3(temp_audio_file)
+        assert id3_tags.version == (2, 4, 0), f"Expected ID3v2.4, but got version {id3_tags.version}"
+        
+        # Verify metadata was written correctly
+        updated_metadata = get_merged_unified_metadata(temp_audio_file)
+        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2.4 Test Title"
+        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["ID3v2.4 Test Artist"]
+        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v2.4 Test Album"
+        assert updated_metadata.get(UnifiedMetadataKey.BPM) == 120
+
 
 
