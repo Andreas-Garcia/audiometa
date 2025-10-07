@@ -212,14 +212,30 @@ The library supports a comprehensive set of metadata fields across different aud
 
 ### Reading Priorities (Tag Precedence)
 
-When the same metadata tag exists in multiple formats within the same file, the library follows this precedence order for reading:
+When the same metadata tag exists in multiple formats within the same file, the library follows file-specific precedence orders for reading:
+
+#### FLAC Files
 
 1. **Vorbis** (highest precedence)
 2. **ID3v2**
-3. **RIFF**
-4. **ID3v1** (lowest precedence, read-only)
+3. **ID3v1** (lowest precedence, read-only)
 
-**Example**: If a title exists in both ID3v1 and ID3v2, the ID3v2 title will be returned.
+#### MP3 Files
+
+1. **ID3v2** (highest precedence)
+2. **ID3v1** (lowest precedence, read-only)
+
+#### WAV Files
+
+1. **RIFF** (highest precedence)
+2. **ID3v2**
+3. **ID3v1** (lowest precedence, read-only)
+
+**Examples**:
+
+- For MP3 files: If a title exists in both ID3v1 and ID3v2, the ID3v2 title will be returned.
+- For WAV files: If a title exists in both RIFF and ID3v2, the RIFF title will be returned.
+- For FLAC files: If a title exists in both Vorbis and ID3v2, the Vorbis title will be returned.
 
 ### Writing Defaults by Audio Format
 
@@ -323,11 +339,11 @@ update_file_metadata("song.wav", {"title": "New Title"})
 
 ```python
 from audiometa import update_file_metadata
-from audiometa.utils.MetadataStrategy import MetadataStrategy
+from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 
 # Clean up WAV file - remove ID3v2, keep only RIFF
 update_file_metadata("song.wav", {"title": "New Title"},
-                    metadata_strategy=MetadataStrategy.CLEANUP)
+                    metadata_strategy=MetadataWritingStrategy.CLEANUP)
 
 # Result:
 # - ID3v2 tags: Removed completely
@@ -340,7 +356,7 @@ update_file_metadata("song.wav", {"title": "New Title"},
 ```python
 # Synchronize all existing metadata formats with same values
 update_file_metadata("song.wav", {"title": "New Title"},
-                    metadata_strategy=MetadataStrategy.SYNC)
+                    metadata_strategy=MetadataWritingStrategy.SYNC)
 
 # Result:
 # - ID3v2 tags: Synchronized with new metadata
