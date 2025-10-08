@@ -24,7 +24,7 @@ class TestLanguageWriting:
         test_language = "fr"
         test_metadata = {UnifiedMetadataKey.LANGUAGE: test_language}
         update_file_metadata(temp_wav_file, test_metadata, metadata_format=MetadataFormat.RIFF)
-        language = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.LANGUAGE)
+        language = get_specific_metadata(temp_wav_file, UnifiedMetadataKey.LANGUAGE)
         assert language == test_language
 
     def test_vorbis(self, metadata_none_flac, temp_flac_file):
@@ -32,5 +32,5 @@ class TestLanguageWriting:
         test_language = "de"
         test_metadata = {UnifiedMetadataKey.LANGUAGE: test_language}
         update_file_metadata(temp_flac_file, test_metadata, metadata_format=MetadataFormat.VORBIS)
-        language = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.LANGUAGE)
+        language = get_specific_metadata(temp_flac_file, UnifiedMetadataKey.LANGUAGE)
         assert language == test_language

@@ -25,7 +25,7 @@ class TestBpmWriting:
         test_metadata = {UnifiedMetadataKey.BPM: test_bpm}
         update_file_metadata(temp_wav_file, test_metadata, metadata_format=MetadataFormat.RIFF)
         # RIFF may not support BPM metadata
-        bpm = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.BPM)
+        bpm = get_specific_metadata(temp_wav_file, UnifiedMetadataKey.BPM)
         assert bpm is None or bpm == test_bpm
 
     def test_vorbis(self, metadata_none_flac, temp_flac_file):
@@ -33,5 +33,5 @@ class TestBpmWriting:
         test_bpm = 140
         test_metadata = {UnifiedMetadataKey.BPM: test_bpm}
         update_file_metadata(temp_flac_file, test_metadata, metadata_format=MetadataFormat.VORBIS)
-        bpm = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.BPM)
+        bpm = get_specific_metadata(temp_flac_file, UnifiedMetadataKey.BPM)
         assert bpm == test_bpm

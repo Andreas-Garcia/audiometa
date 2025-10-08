@@ -24,7 +24,7 @@ class TestTrackNumberWriting:
         test_track_number = 2
         test_metadata = {UnifiedMetadataKey.TRACK_NUMBER: test_track_number}
         update_file_metadata(temp_wav_file, test_metadata, metadata_format=MetadataFormat.RIFF)
-        track_number = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TRACK_NUMBER)
+        track_number = get_specific_metadata(temp_wav_file, UnifiedMetadataKey.TRACK_NUMBER)
         assert track_number == test_track_number
 
     def test_vorbis(self, metadata_none_flac, temp_flac_file):
@@ -32,5 +32,5 @@ class TestTrackNumberWriting:
         test_track_number = 3
         test_metadata = {UnifiedMetadataKey.TRACK_NUMBER: test_track_number}
         update_file_metadata(temp_flac_file, test_metadata, metadata_format=MetadataFormat.VORBIS)
-        track_number = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TRACK_NUMBER)
+        track_number = get_specific_metadata(temp_flac_file, UnifiedMetadataKey.TRACK_NUMBER)
         assert track_number == test_track_number

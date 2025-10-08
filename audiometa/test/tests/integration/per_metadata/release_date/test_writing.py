@@ -24,7 +24,7 @@ class TestReleaseDateWriting:
         test_release_date = "2024-02-01"
         test_metadata = {UnifiedMetadataKey.RELEASE_DATE: test_release_date}
         update_file_metadata(temp_wav_file, test_metadata, metadata_format=MetadataFormat.RIFF)
-        release_date = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.RELEASE_DATE)
+        release_date = get_specific_metadata(temp_wav_file, UnifiedMetadataKey.RELEASE_DATE)
         assert release_date == test_release_date
 
     def test_vorbis(self, metadata_none_flac, temp_flac_file):
@@ -32,5 +32,5 @@ class TestReleaseDateWriting:
         test_release_date = "2024-03-01"
         test_metadata = {UnifiedMetadataKey.RELEASE_DATE: test_release_date}
         update_file_metadata(temp_flac_file, test_metadata, metadata_format=MetadataFormat.VORBIS)
-        release_date = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.RELEASE_DATE)
+        release_date = get_specific_metadata(temp_flac_file, UnifiedMetadataKey.RELEASE_DATE)
         assert release_date == test_release_date

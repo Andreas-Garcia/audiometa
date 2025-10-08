@@ -24,7 +24,7 @@ class TestLyricsWriting:
         test_lyrics = "RIFF test lyrics\nWith multiple lines\nFor testing purposes"
         test_metadata = {UnifiedMetadataKey.LYRICS: test_lyrics}
         update_file_metadata(temp_wav_file, test_metadata, metadata_format=MetadataFormat.RIFF)
-        lyrics = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.LYRICS)
+        lyrics = get_specific_metadata(temp_wav_file, UnifiedMetadataKey.LYRICS)
         assert lyrics == test_lyrics
 
     def test_vorbis(self, metadata_none_flac, temp_flac_file):
@@ -32,5 +32,5 @@ class TestLyricsWriting:
         test_lyrics = "Vorbis test lyrics\nWith multiple lines\nFor testing purposes"
         test_metadata = {UnifiedMetadataKey.LYRICS: test_lyrics}
         update_file_metadata(temp_flac_file, test_metadata, metadata_format=MetadataFormat.VORBIS)
-        lyrics = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.LYRICS)
+        lyrics = get_specific_metadata(temp_flac_file, UnifiedMetadataKey.LYRICS)
         assert lyrics == test_lyrics

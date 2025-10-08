@@ -24,7 +24,7 @@ class TestPublisherWriting:
         test_publisher = "Test Publisher RIFF"
         test_metadata = {UnifiedMetadataKey.PUBLISHER: test_publisher}
         update_file_metadata(temp_wav_file, test_metadata, metadata_format=MetadataFormat.RIFF)
-        publisher = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.PUBLISHER)
+        publisher = get_specific_metadata(temp_wav_file, UnifiedMetadataKey.PUBLISHER)
         assert publisher == test_publisher
 
     def test_vorbis(self, metadata_none_flac, temp_flac_file):
@@ -32,5 +32,5 @@ class TestPublisherWriting:
         test_publisher = "Test Publisher Vorbis"
         test_metadata = {UnifiedMetadataKey.PUBLISHER: test_publisher}
         update_file_metadata(temp_flac_file, test_metadata, metadata_format=MetadataFormat.VORBIS)
-        publisher = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.PUBLISHER)
+        publisher = get_specific_metadata(temp_flac_file, UnifiedMetadataKey.PUBLISHER)
         assert publisher == test_publisher

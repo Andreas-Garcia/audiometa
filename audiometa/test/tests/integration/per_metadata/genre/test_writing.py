@@ -24,7 +24,7 @@ class TestGenreWriting:
         test_genre = "Test Genre RIFF"
         test_metadata = {UnifiedMetadataKey.GENRE_NAME: test_genre}
         update_file_metadata(temp_wav_file, test_metadata, metadata_format=MetadataFormat.RIFF)
-        metadata = get_merged_unified_metadata(temp_audio_file)
+        metadata = get_merged_unified_metadata(temp_wav_file)
         assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == test_genre
 
     def test_vorbis(self, metadata_none_flac, temp_flac_file):
@@ -32,5 +32,5 @@ class TestGenreWriting:
         test_genre = "Test Genre Vorbis"
         test_metadata = {UnifiedMetadataKey.GENRE_NAME: test_genre}
         update_file_metadata(temp_flac_file, test_metadata, metadata_format=MetadataFormat.VORBIS)
-        metadata = get_merged_unified_metadata(temp_audio_file)
+        metadata = get_merged_unified_metadata(temp_flac_file)
         assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == test_genre

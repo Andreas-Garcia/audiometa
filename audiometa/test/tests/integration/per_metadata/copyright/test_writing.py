@@ -24,7 +24,7 @@ class TestCopyrightWriting:
         test_copyright = "© 2024 Test Label RIFF"
         test_metadata = {UnifiedMetadataKey.COPYRIGHT: test_copyright}
         update_file_metadata(temp_wav_file, test_metadata, metadata_format=MetadataFormat.RIFF)
-        copyright_info = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.COPYRIGHT)
+        copyright_info = get_specific_metadata(temp_wav_file, UnifiedMetadataKey.COPYRIGHT)
         assert copyright_info == test_copyright
 
     def test_vorbis(self, metadata_none_flac, temp_flac_file):
@@ -32,5 +32,5 @@ class TestCopyrightWriting:
         test_copyright = "© 2024 Test Label Vorbis"
         test_metadata = {UnifiedMetadataKey.COPYRIGHT: test_copyright}
         update_file_metadata(temp_flac_file, test_metadata, metadata_format=MetadataFormat.VORBIS)
-        copyright_info = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.COPYRIGHT)
+        copyright_info = get_specific_metadata(temp_flac_file, UnifiedMetadataKey.COPYRIGHT)
         assert copyright_info == test_copyright
