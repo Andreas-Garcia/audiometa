@@ -76,6 +76,7 @@ class VorbisManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.GENRE_NAME: self.VorbisKey.GENRE_NAME,
             UnifiedMetadataKey.RATING: None,
             UnifiedMetadataKey.LANGUAGE: self.VorbisKey.LANGUAGE,
+            UnifiedMetadataKey.RELEASE_DATE: self.VorbisKey.DATE,
             UnifiedMetadataKey.BPM: self.VorbisKey.BPM,
         }
         metadata_keys_direct_map_write = {
@@ -86,6 +87,7 @@ class VorbisManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.GENRE_NAME: self.VorbisKey.GENRE_NAME,
             UnifiedMetadataKey.RATING: None,
             UnifiedMetadataKey.LANGUAGE: self.VorbisKey.LANGUAGE,
+            UnifiedMetadataKey.RELEASE_DATE: self.VorbisKey.DATE,
             UnifiedMetadataKey.BPM: self.VorbisKey.BPM,
         }
         super().__init__(audio_file=audio_file,

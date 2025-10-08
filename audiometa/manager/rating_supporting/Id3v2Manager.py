@@ -3,7 +3,7 @@ from typing import Type, cast
 
 from mutagen._file import FileType as MutagenMetadata
 from mutagen.id3 import ID3
-from mutagen.id3._frames import COMM, POPM, TALB, TBPM, TCOM, TCON, TCOP, TDRC, TENC, TIT2, TKEY, TLAN, TMOO, TPE1, TPE2, TPUB, TRCK, TSRC, TYER, USLT, WOAR
+from mutagen.id3._frames import COMM, POPM, TALB, TBPM, TCOM, TCON, TCOP, TDRC, TDRL, TDAT, TENC, TIT2, TKEY, TLAN, TMOO, TPE1, TPE2, TPUB, TRCK, TSRC, TYER, USLT, WOAR
 from mutagen.id3._util import ID3NoHeaderError
 
 
@@ -174,7 +174,9 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         RATING = 'POPM'
         LANGUAGE = 'TLAN'
         RECORDING_TIME = 'TDRC'  # ID3v2.4 recording time
+        RELEASE_TIME = 'TDRL'  # ID3v2.4 release time
         YEAR = 'TYER'  # ID3v2.3 year
+        DATE = 'TDAT'  # ID3v2.3 date (DDMM)
         TRACK_NUMBER = 'TRCK'
         BPM = 'TBPM'
         
@@ -198,7 +200,9 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         Id3TextFrame.GENRE_NAME: TCON,
         Id3TextFrame.LANGUAGE: TLAN,
         Id3TextFrame.RECORDING_TIME: TDRC,
+        Id3TextFrame.RELEASE_TIME: TDRL,
         Id3TextFrame.YEAR: TYER,
+        Id3TextFrame.DATE: TDAT,
         Id3TextFrame.TRACK_NUMBER: TRCK,
         Id3TextFrame.BPM: TBPM,
         Id3TextFrame.RATING: POPM,
@@ -224,6 +228,8 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.GENRE_NAME: self.Id3TextFrame.GENRE_NAME,
             UnifiedMetadataKey.RATING: None,
             UnifiedMetadataKey.LANGUAGE: self.Id3TextFrame.LANGUAGE,
+            UnifiedMetadataKey.RELEASE_DATE: self.Id3TextFrame.RELEASE_TIME,
+            UnifiedMetadataKey.TRACK_NUMBER: self.Id3TextFrame.TRACK_NUMBER,
             UnifiedMetadataKey.BPM: self.Id3TextFrame.BPM,
             UnifiedMetadataKey.COMPOSER: self.Id3TextFrame.COMPOSER,
             UnifiedMetadataKey.PUBLISHER: self.Id3TextFrame.PUBLISHER,
@@ -244,6 +250,8 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.GENRE_NAME: self.Id3TextFrame.GENRE_NAME,
             UnifiedMetadataKey.RATING: self.Id3TextFrame.RATING,
             UnifiedMetadataKey.LANGUAGE: self.Id3TextFrame.LANGUAGE,
+            UnifiedMetadataKey.RELEASE_DATE: self.Id3TextFrame.RELEASE_TIME,
+            UnifiedMetadataKey.TRACK_NUMBER: self.Id3TextFrame.TRACK_NUMBER,
             UnifiedMetadataKey.BPM: self.Id3TextFrame.BPM,
             UnifiedMetadataKey.COMPOSER: self.Id3TextFrame.COMPOSER,
             UnifiedMetadataKey.PUBLISHER: self.Id3TextFrame.PUBLISHER,
