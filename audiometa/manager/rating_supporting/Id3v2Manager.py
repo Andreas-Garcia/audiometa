@@ -378,6 +378,9 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         elif raw_metadata_key == self.Id3TextFrame.BPM:
             # Handle TBPM frames (BPM must be a string)
             raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=str(app_metadata_value)))
+        elif raw_metadata_key == self.Id3TextFrame.TRACK_NUMBER:
+            # Handle TRCK frames (track number must be a string)
+            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=str(app_metadata_value)))
         else:
             raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=app_metadata_value))
 
