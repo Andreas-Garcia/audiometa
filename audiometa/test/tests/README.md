@@ -178,7 +178,7 @@ The script helper strategy uses external command-line tools to set up test metad
 
 ### Script Helper Approach
 
-The test suite uses a **streamlined script helper approach** that eliminates the need for source file parameters:
+The test suite uses a **streamlined script helper approach**:
 
 ```python
 test_file = create_test_file_with_metadata(
