@@ -21,7 +21,7 @@ from audiometa import (
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.test.tests.test_script_helpers import create_test_file_with_specific_metadata
+from audiometa.test.tests.test_script_helpers import create_test_file_with_metadata
 
 
 @pytest.mark.integration
@@ -54,8 +54,7 @@ class TestConflictingMetadata:
             "title": "Original Title",
             "artist": "Original Artist"
         }
-        create_test_file_with_specific_metadata(
-            sample_wav_file,
+        create_test_file_with_metadata(
             temp_wav_file,
             initial_metadata,
             "wav"
@@ -90,8 +89,7 @@ class TestConflictingMetadata:
             "title": "Original Title",
             "artist": "Original Artist"
         }
-        create_test_file_with_specific_metadata(
-            sample_flac_file,
+        create_test_file_with_metadata(
             temp_audio_file,
             initial_metadata,
             "flac"
@@ -126,8 +124,7 @@ class TestConflictingMetadata:
             "title": "Original Title",
             "artist": "Original Artist"
         }
-        create_test_file_with_specific_metadata(
-            sample_mp3_file,
+        create_test_file_with_metadata(
             temp_audio_file,
             initial_metadata,
             "mp3"
@@ -155,8 +152,7 @@ class TestConflictingMetadata:
             "title": "Original Title",
             "artist": "Original Artist"
         }
-        create_test_file_with_specific_metadata(
-            sample_mp3_file,
+        create_test_file_with_metadata(
             temp_audio_file,
             initial_metadata,
             "mp3"
@@ -179,8 +175,7 @@ class TestConflictingMetadata:
             "title": "Original Title",
             "artist": "Original Artist"
         }
-        create_test_file_with_specific_metadata(
-            sample_mp3_file,
+        create_test_file_with_metadata(
             temp_audio_file,
             initial_metadata,
             "mp3"

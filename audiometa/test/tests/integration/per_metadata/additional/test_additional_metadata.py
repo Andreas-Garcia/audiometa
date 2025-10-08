@@ -17,21 +17,20 @@ from audiometa import (
 )
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
-from audiometa.test.tests.test_script_helpers import create_test_file_with_specific_metadata
+from audiometa.test.tests.test_script_helpers import create_test_file_with_metadata
 
 
 @pytest.mark.integration
 class TestAdditionalMetadata:
 
-    def test_complete_additional_metadata_mp3(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_complete_additional_metadata_mp3(self, temp_audio_file: Path):
         # Use external script to set basic metadata first
         basic_metadata = {
             "title": "Test Title",
             "artist": "Test Artist",
             "album": "Test Album"
         }
-        create_test_file_with_specific_metadata(
-            sample_mp3_file,
+        create_test_file_with_metadata(
             temp_audio_file,
             basic_metadata,
             "mp3"
@@ -66,14 +65,13 @@ class TestAdditionalMetadata:
         assert metadata.get(UnifiedMetadataKey.MOOD) == "Happy"
         assert metadata.get(UnifiedMetadataKey.KEY) == "C"
 
-    def test_additional_metadata_with_audio_file_object(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_additional_metadata_with_audio_file_object(self, temp_audio_file: Path):
         # Use external script to set basic metadata first
         basic_metadata = {
             "title": "Test Title",
             "artist": "Test Artist"
         }
-        create_test_file_with_specific_metadata(
-            sample_mp3_file,
+        create_test_file_with_metadata(
             temp_audio_file,
             basic_metadata,
             "mp3"

@@ -16,20 +16,19 @@ from audiometa import (
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.test.tests.test_script_helpers import create_test_file_with_specific_metadata
+from audiometa.test.tests.test_script_helpers import create_test_file_with_metadata
 
 
 @pytest.mark.integration
 class TestRiffWriting:
 
-    def test_metadata_writing_wav(self, metadata_none_wav, temp_audio_file):
+    def test_metadata_writing_wav(self, temp_audio_file):
         # Use external script to set basic metadata first
         basic_metadata = {
             "title": "Original Title",
             "artist": "Original Artist"
         }
-        create_test_file_with_specific_metadata(
-            metadata_none_wav,
+        create_test_file_with_metadata(
             temp_audio_file,
             basic_metadata,
             "wav"
@@ -49,14 +48,13 @@ class TestRiffWriting:
         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album WAV"
         assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Test Genre WAV"
 
-    def test_multiple_metadata_reading(self, sample_wav_file: Path, temp_audio_file: Path):
+    def test_multiple_metadata_reading(self, temp_audio_file: Path):
         # Use external script to set basic metadata first
         basic_metadata = {
             "title": "Original Title",
             "artist": "Original Artist"
         }
-        create_test_file_with_specific_metadata(
-            sample_wav_file,
+        create_test_file_with_metadata(
             temp_audio_file,
             basic_metadata,
             "wav"
@@ -82,14 +80,13 @@ class TestRiffWriting:
         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
         assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Test Genre"
 
-    def test_multiple_metadata_writing(self, sample_wav_file: Path, temp_audio_file: Path):
+    def test_multiple_metadata_writing(self, temp_audio_file: Path):
         # Use external script to set basic metadata first
         basic_metadata = {
             "title": "Original Title",
             "artist": "Original Artist"
         }
-        create_test_file_with_specific_metadata(
-            sample_wav_file,
+        create_test_file_with_metadata(
             temp_audio_file,
             basic_metadata,
             "wav"
@@ -115,18 +112,16 @@ class TestRiffWriting:
         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Written Album"
         assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Written Genre"
 
-    def test_none_field_removal_riff(self, sample_wav_file: Path, temp_audio_file: Path):
+    def test_none_field_removal_riff(self, temp_audio_file: Path):
         # Copy sample file to temp location with correct extension
         temp_wav_file = temp_audio_file.with_suffix('.wav')
-        shutil.copy2(sample_wav_file, temp_wav_file)
         
         # Use external script to set initial metadata
         initial_metadata = {
             "title": "Original Title",
             "artist": "Original Artist"
         }
-        create_test_file_with_specific_metadata(
-            sample_wav_file,
+        create_test_file_with_metadata(
             temp_wav_file,
             initial_metadata,
             "wav"
@@ -167,18 +162,16 @@ class TestRiffWriting:
         riff_metadata = get_single_format_app_metadata(temp_wav_file, MetadataFormat.RIFF)
         assert riff_metadata.get(UnifiedMetadataKey.TITLE) is None
 
-    def test_none_vs_empty_string_behavior_riff(self, sample_wav_file: Path, temp_audio_file: Path):
+    def test_none_vs_empty_string_behavior_riff(self, temp_audio_file: Path):
         # Copy sample file to temp location with correct extension
         temp_wav_file = temp_audio_file.with_suffix('.wav')
-        shutil.copy2(sample_wav_file, temp_wav_file)
         
         # Use external script to set initial metadata
         initial_metadata = {
             "title": "Original Title",
             "artist": "Original Artist"
         }
-        create_test_file_with_specific_metadata(
-            sample_wav_file,
+        create_test_file_with_metadata(
             temp_wav_file,
             initial_metadata,
             "wav"

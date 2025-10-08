@@ -12,7 +12,7 @@ import shutil
 from pathlib import Path
 from audiometa import AudioFile, get_merged_unified_metadata, get_specific_metadata, update_file_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.test.tests.test_script_helpers import create_test_file_with_specific_metadata
+from audiometa.test.tests.test_script_helpers import create_test_file_with_metadata
 
 
 @pytest.mark.e2e
@@ -37,8 +37,7 @@ class TestUserScenarios:
                 "title": f"Original Track {i + 1}",
                 "artist": "Original Artist"
             }
-            create_test_file_with_specific_metadata(
-                file_path,
+            create_test_file_with_metadata(
                 temp_file,
                 basic_metadata,
                 format_type
@@ -63,8 +62,7 @@ class TestUserScenarios:
             "artist": "Original Artist",
             "album": "Original Album"
         }
-        create_test_file_with_specific_metadata(
-            sample_mp3_file,
+        create_test_file_with_metadata(
             temp_audio_file,
             initial_metadata,
             "mp3"
@@ -118,8 +116,7 @@ class TestUserScenarios:
                 "title": "Original Title",
                 "artist": "Original Artist"
             }
-            create_test_file_with_specific_metadata(
-                file_path,
+            create_test_file_with_metadata(
                 temp_file,
                 basic_metadata,
                 format_type

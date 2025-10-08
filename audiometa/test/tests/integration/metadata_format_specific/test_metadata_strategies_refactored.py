@@ -24,7 +24,7 @@ from audiometa import (
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.test.tests.test_script_helpers import create_test_file_with_specific_metadata
+from audiometa.test.tests.test_script_helpers import create_test_file_with_metadata
 
 
 @pytest.mark.integration
@@ -41,8 +41,7 @@ class TestMetadataStrategies:
             "artist": "ID3v2 Artist",
             "album": "ID3v2 Album"
         }
-        create_test_file_with_specific_metadata(
-            sample_wav_file, 
+        create_test_file_with_metadata(
             temp_wav_file, 
             id3v2_metadata, 
             "wav"  # Note: This will use bwfmetaedit, but we need ID3v2
