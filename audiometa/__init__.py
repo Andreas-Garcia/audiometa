@@ -126,11 +126,11 @@ def get_merged_unified_metadata(
     return result
 
 
-def get_specific_metadata(file: FILE_TYPE, app_metadata_key: UnifiedMetadataKey, id3v2_version: tuple[int, int, int] | None = None) -> AppMetadataValue:
+def get_specific_metadata(file: FILE_TYPE, app_metadata_key: UnifiedMetadataKey, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None) -> AppMetadataValue:
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
 
-    managers_prioritized = _get_metadata_managers(file=file, id3v2_version=id3v2_version)
+    managers_prioritized = _get_metadata_managers(file=file, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
     
     # Try each manager in priority order until we find a value
     for _, manager in managers_prioritized.items():

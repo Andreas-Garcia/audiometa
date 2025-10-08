@@ -30,17 +30,28 @@ class TestRatingErrorHandling:
             update_file_metadata(nonexistent_file, {UnifiedMetadataKey.RATING: 85})
 
     def test_rating_invalid_values(self, sample_mp3_file: Path, temp_audio_file: Path):
-        # Test with invalid rating values - should handle gracefully
-        invalid_ratings = [-1, 101, "invalid", None]
+        # Test with invalid rating values
+        temp_audio_file.write_bytes(sample_mp3_file.read_bytes())
         
-        for invalid_rating in invalid_ratings:
-            # Copy file for each test
-            temp_audio_file.write_bytes(sample_mp3_file.read_bytes())
-            
-            # This should not raise an error, but may not set the rating
-            update_file_metadata(temp_audio_file, {UnifiedMetadataKey.RATING: invalid_rating})
-            
-            # Verify the file is still readable
-            metadata = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.RATING)
-            # Rating should be None or a valid value, not the invalid input
-            assert metadata is None or isinstance(metadata, (int, float))
+        # Test invalid string value - should raise ValueError
+        with pytest.raises(ValueError, match="Invalid rating value: invalid. Expected a numeric value."):
+            update_file_metadata(temp_audio_file, {UnifiedMetadataKey.RATING: "invalid"}, normalized_rating_max_value=100)
+        
+        # Test out-of-range numeric values - should be clamped to valid range
+        # -1 should be clamped to 0 (0 stars)
+        temp_audio_file.write_bytes(sample_mp3_file.read_bytes())  # Fresh file
+        update_file_metadata(temp_audio_file, {UnifiedMetadataKey.RATING: -1}, normalized_rating_max_value=100)
+        metadata = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+        assert metadata == 0  # Should be clamped to 0
+        
+        # 101 should be clamped to 100 (5 stars)
+        temp_audio_file.write_bytes(sample_mp3_file.read_bytes())  # Fresh file
+        update_file_metadata(temp_audio_file, {UnifiedMetadataKey.RATING: 101}, normalized_rating_max_value=100)
+        metadata = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+        assert metadata == 100  # Should be clamped to 100
+        
+        # Test None value (should be handled gracefully by removing the rating)
+        temp_audio_file.write_bytes(sample_mp3_file.read_bytes())  # Fresh file
+        update_file_metadata(temp_audio_file, {UnifiedMetadataKey.RATING: None}, normalized_rating_max_value=100)
+        metadata = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+        assert metadata is None
