@@ -487,12 +487,14 @@ The library handles `None` and empty string values differently across audio form
 | **ID3v2 (MP3)**   | Removes field completely | Removes field completely         | `None` / `None`  |
 | **Vorbis (FLAC)** | Removes field completely | Creates field with empty content | `None` / `""`    |
 | **RIFF (WAV)**    | Removes field completely | Removes field completely         | `None` / `None`  |
+| **ID3v1 (MP3)**   | ❌ **Not supported**     | ❌ **Not supported**             | Read-only format |
 
 ### Key Differences
 
 - **ID3v2**: Both `None` and `""` remove the field completely (mutagen removes empty frames automatically)
 - **Vorbis**: `None` removes the field, `""` creates an empty field
 - **RIFF**: Both `None` and `""` remove the field completely
+- **ID3v1**: Not supported
 
 ### Example
 
