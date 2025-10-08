@@ -47,14 +47,13 @@ class TestMetadataWriting:
         
         for test_metadata, format_type in test_cases:
             # Use external script to set metadata instead of app's update function
-            create_test_file_with_metadata(
-                temp_audio_file,
+            test_file = create_test_file_with_metadata(
                 test_metadata,
                 format_type
             )
             
             # Now test that our reading logic works correctly
-            updated_metadata = get_merged_unified_metadata(temp_audio_file)
+            updated_metadata = get_merged_unified_metadata(test_file)
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == test_metadata["title"]
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == [test_metadata["artist"]]
             assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == test_metadata["album"]
@@ -67,14 +66,13 @@ class TestMetadataWriting:
             "title": "Test Title with AudioFile",
             "artist": "Test Artist with AudioFile"
         }
-        create_test_file_with_metadata(
-            temp_audio_file,
+        test_file = create_test_file_with_metadata(
             test_metadata,
             "mp3"
         )
         
         # Test that AudioFile object works with reading functions
-        audio_file = AudioFile(temp_audio_file)
+        audio_file = AudioFile(test_file)
         updated_metadata = get_merged_unified_metadata(audio_file)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title with AudioFile"
         assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist with AudioFile"]
@@ -85,8 +83,7 @@ class TestMetadataWriting:
             "title": "Test Title",
             "artist": "Test Artist"
         }
-        create_test_file_with_metadata(
-            temp_audio_file,
+        test_file = create_test_file_with_metadata(
             test_metadata,
             "wav"
         )
@@ -99,10 +96,10 @@ class TestMetadataWriting:
         }
         
         # This should not raise an error, but BPM should be ignored
-        update_file_metadata(temp_audio_file, unsupported_metadata)
+        update_file_metadata(test_file, unsupported_metadata)
         
         # Verify only supported metadata was written
-        updated_metadata = get_merged_unified_metadata(temp_audio_file)
+        updated_metadata = get_merged_unified_metadata(test_file)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
         # BPM should not be present for WAV files
         assert UnifiedMetadataKey.BPM not in updated_metadata
@@ -113,22 +110,21 @@ class TestMetadataWriting:
             "title": "Test Title to Delete",
             "artist": "Test Artist to Delete"
         }
-        create_test_file_with_metadata(
-            temp_audio_file,
+        test_file = create_test_file_with_metadata(
             test_metadata,
             "mp3"
         )
         
         # Verify metadata was added
-        updated_metadata = get_merged_unified_metadata(temp_audio_file)
+        updated_metadata = get_merged_unified_metadata(test_file)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title to Delete"
         
         # Delete metadata
-        result = delete_metadata(temp_audio_file)
+        result = delete_metadata(test_file)
         assert result is True
         
         # Verify metadata was deleted (should be empty or minimal)
-        deleted_metadata = get_merged_unified_metadata(temp_audio_file)
+        deleted_metadata = get_merged_unified_metadata(test_file)
         # After deletion, metadata should be empty or contain only technical info
         assert UnifiedMetadataKey.TITLE not in deleted_metadata or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "Test Title to Delete"
 
@@ -138,14 +134,13 @@ class TestMetadataWriting:
             "title": "Test Title",
             "artist": "Test Artist"
         }
-        create_test_file_with_metadata(
-            temp_audio_file,
+        test_file = create_test_file_with_metadata(
             test_metadata,
             "mp3"
         )
         
         # Delete only ID3v2 metadata
-        result = delete_metadata(temp_audio_file, MetadataFormat.ID3V2)
+        result = delete_metadata(test_file, MetadataFormat.ID3V2)
         assert result is True
 
     def test_delete_metadata_with_audio_file_object(self, temp_audio_file: Path):
@@ -154,13 +149,12 @@ class TestMetadataWriting:
             "title": "Test Title",
             "artist": "Test Artist"
         }
-        create_test_file_with_metadata(
-            temp_audio_file,
+        test_file = create_test_file_with_metadata(
             test_metadata,
             "mp3"
         )
         
-        audio_file = AudioFile(temp_audio_file)
+        audio_file = AudioFile(test_file)
         result = delete_metadata(audio_file)
         assert result is True
 
@@ -207,14 +201,13 @@ class TestMetadataWriting:
         
         for test_metadata, format_type in test_cases:
             # Use external script to set metadata instead of app's update function
-            create_test_file_with_metadata(
-                temp_audio_file,
+            test_file = create_test_file_with_metadata(
                 test_metadata,
                 format_type
             )
             
             # Now test that our reading logic works correctly
-            updated_metadata = get_merged_unified_metadata(temp_audio_file)
+            updated_metadata = get_merged_unified_metadata(test_file)
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == test_metadata["title"]
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == [test_metadata["artist"]]
             assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == test_metadata["album"]
@@ -228,8 +221,7 @@ class TestMetadataWriting:
             "artist": "WAV Test Artist",
             "album": "WAV Test Album"
         }
-        create_test_file_with_metadata(
-            temp_audio_file,
+        test_file = create_test_file_with_metadata(
             test_metadata,
             "wav"
         )
@@ -244,8 +236,8 @@ class TestMetadataWriting:
             UnifiedMetadataKey.BPM: 120    # This should be ignored for WAV
         }
         
-        update_file_metadata(temp_audio_file, unsupported_metadata)
-        updated_metadata = get_merged_unified_metadata(temp_audio_file)
+        update_file_metadata(test_file, unsupported_metadata)
+        updated_metadata = get_merged_unified_metadata(test_file)
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "WAV Test Title"
         assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["WAV Test Artist"]
         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "WAV Test Album"
@@ -260,14 +252,13 @@ class TestMetadataWriting:
             "artist": "Original Artist",
             "album": "Original Album"
         }
-        create_test_file_with_metadata(
-            temp_audio_file,
+        test_file = create_test_file_with_metadata(
             initial_metadata,
             "mp3"
         )
         
         # Get original metadata
-        original_metadata = get_merged_unified_metadata(temp_audio_file)
+        original_metadata = get_merged_unified_metadata(test_file)
         original_album = original_metadata.get(UnifiedMetadataKey.ALBUM_NAME)
         
         # Update only title using app's function (this is what we're testing)
@@ -275,8 +266,8 @@ class TestMetadataWriting:
             UnifiedMetadataKey.TITLE: "Partial Update Title"
         }
         
-        update_file_metadata(temp_audio_file, test_metadata)
-        updated_metadata = get_merged_unified_metadata(temp_audio_file)
+        update_file_metadata(test_file, test_metadata)
+        updated_metadata = get_merged_unified_metadata(test_file)
         
         # Title should be updated
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Partial Update Title"

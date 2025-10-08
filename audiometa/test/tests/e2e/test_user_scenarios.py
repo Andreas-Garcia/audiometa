@@ -18,7 +18,7 @@ from audiometa.test.tests.test_script_helpers import create_test_file_with_metad
 @pytest.mark.e2e
 class TestUserScenarios:
     
-    def test_music_library_organization(self, sample_mp3_file, sample_flac_file, sample_wav_file, temp_audio_file):
+    def test_music_library_organization(self, sample_mp3_file, sample_flac_file, sample_wav_file, test_file):
         # Simulate a user organizing their music library
         
         sample_files = [
@@ -29,7 +29,7 @@ class TestUserScenarios:
         
         for i, (file_path, format_type) in enumerate(sample_files[:3]):  # Test with first 3 files
             # Copy to temp location to avoid modifying versioned files
-            temp_file = temp_audio_file.with_suffix(file_path.suffix)
+            temp_file = test_file.with_suffix(file_path.suffix)
             shutil.copy2(file_path, temp_file)
             
             # Set basic metadata using external script
@@ -37,8 +37,7 @@ class TestUserScenarios:
                 "title": f"Original Track {i + 1}",
                 "artist": "Original Artist"
             }
-            create_test_file_with_metadata(
-                temp_file,
+            test_file = create_test_file_with_metadata(
                 basic_metadata,
                 format_type
             )
@@ -54,7 +53,7 @@ class TestUserScenarios:
             assert get_specific_metadata(temp_file, UnifiedMetadataKey.ALBUM_NAME) == "My Music Library"
             assert get_specific_metadata(temp_file, UnifiedMetadataKey.TITLE) == f"Track {i + 1}"
     
-    def test_metadata_import_export_workflow(self, sample_mp3_file, temp_audio_file):
+    def test_metadata_import_export_workflow(self, sample_mp3_file, test_file):
         # Simulate a user importing metadata from external source
         # Use external script to set initial metadata
         initial_metadata = {
@@ -62,17 +61,16 @@ class TestUserScenarios:
             "artist": "Original Artist",
             "album": "Original Album"
         }
-        create_test_file_with_metadata(
-            temp_audio_file,
+        test_file = create_test_file_with_metadata(
             initial_metadata,
             "mp3"
         )
         
         # Export current metadata
         metadata = {
-            'title': get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE),
-            'artist': get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES),
-            'album': get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ALBUM_NAME)
+            'title': get_specific_metadata(test_file, UnifiedMetadataKey.TITLE),
+            'artist': get_specific_metadata(test_file, UnifiedMetadataKey.ARTISTS_NAMES),
+            'album': get_specific_metadata(test_file, UnifiedMetadataKey.ALBUM_NAME)
         }
         
         # Simulate external metadata update
@@ -85,13 +83,13 @@ class TestUserScenarios:
             UnifiedMetadataKey.ARTISTS_NAMES: metadata['artist'],
             UnifiedMetadataKey.ALBUM_NAME: metadata['album']
         }
-        update_file_metadata(temp_audio_file, test_metadata)
+        update_file_metadata(test_file, test_metadata)
         
         # Verify the import worked
-        assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE) == "Updated Title"
-        assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES) == ["Updated Artist"]
+        assert get_specific_metadata(test_file, UnifiedMetadataKey.TITLE) == "Updated Title"
+        assert get_specific_metadata(test_file, UnifiedMetadataKey.ARTISTS_NAMES) == ["Updated Artist"]
     
-    def test_cross_format_compatibility(self, sample_mp3_file, sample_flac_file, sample_wav_file, temp_audio_file):
+    def test_cross_format_compatibility(self, sample_mp3_file, sample_flac_file, sample_wav_file, test_file):
         # Test that metadata works consistently across MP3, FLAC, etc.
         
         test_metadata = {
@@ -108,7 +106,7 @@ class TestUserScenarios:
         
         for file_path, format_type in sample_files:
             # Copy to temp location to avoid modifying versioned files
-            temp_file = temp_audio_file.with_suffix(file_path.suffix)
+            temp_file = test_file.with_suffix(file_path.suffix)
             shutil.copy2(file_path, temp_file)
             
             # Set basic metadata using external script
@@ -116,8 +114,7 @@ class TestUserScenarios:
                 "title": "Original Title",
                 "artist": "Original Artist"
             }
-            create_test_file_with_metadata(
-                temp_file,
+            test_file = create_test_file_with_metadata(
                 basic_metadata,
                 format_type
             )

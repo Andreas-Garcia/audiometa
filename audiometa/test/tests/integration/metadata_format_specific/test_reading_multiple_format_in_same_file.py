@@ -54,8 +54,7 @@ class TestConflictingMetadata:
             "title": "Original Title",
             "artist": "Original Artist"
         }
-        create_test_file_with_metadata(
-            temp_wav_file,
+        test_file = create_test_file_with_metadata(
             initial_metadata,
             "wav"
         )
@@ -83,14 +82,13 @@ class TestConflictingMetadata:
         assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["RIFF Artist"]
         assert merged_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "RIFF Album"
 
-    def test_vorbis_vs_id3v2_precedence_flac(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_vorbis_vs_id3v2_precedence_flac(self, sample_flac_file: Path, test_file: Path):
         # Use external script to set initial metadata
         initial_metadata = {
             "title": "Original Title",
             "artist": "Original Artist"
         }
-        create_test_file_with_metadata(
-            temp_audio_file,
+        test_file = create_test_file_with_metadata(
             initial_metadata,
             "flac"
         )
@@ -109,23 +107,22 @@ class TestConflictingMetadata:
         }
         
         # Write ID3v2 first, then Vorbis
-        update_file_metadata(temp_audio_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
-        update_file_metadata(temp_audio_file, vorbis_metadata, metadata_format=MetadataFormat.VORBIS)
+        update_file_metadata(test_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
+        update_file_metadata(test_file, vorbis_metadata, metadata_format=MetadataFormat.VORBIS)
         
         # Merged metadata should prefer Vorbis
-        merged_metadata = get_merged_unified_metadata(temp_audio_file)
+        merged_metadata = get_merged_unified_metadata(test_file)
         assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "Vorbis Title"
         assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Vorbis Artist"]
         assert merged_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Vorbis Album"
 
-    def test_partial_conflicts(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_partial_conflicts(self, sample_mp3_file: Path, test_file: Path):
         # Use external script to set initial metadata
         initial_metadata = {
             "title": "Original Title",
             "artist": "Original Artist"
         }
-        create_test_file_with_metadata(
-            temp_audio_file,
+        test_file = create_test_file_with_metadata(
             initial_metadata,
             "mp3"
         )
@@ -137,23 +134,22 @@ class TestConflictingMetadata:
             UnifiedMetadataKey.ALBUM_NAME: "ID3v2 Album"
         }
         
-        update_file_metadata(temp_audio_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
+        update_file_metadata(test_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
         
-        merged_metadata = get_merged_unified_metadata(temp_audio_file)
+        merged_metadata = get_merged_unified_metadata(test_file)
         
         # Title should come from ID3v2
         assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
         # Album should come from ID3v2
         assert merged_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v2 Album"
 
-    def test_rating_precedence_rules(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_rating_precedence_rules(self, sample_mp3_file: Path, test_file: Path):
         # Use external script to set initial metadata
         initial_metadata = {
             "title": "Original Title",
             "artist": "Original Artist"
         }
-        create_test_file_with_metadata(
-            temp_audio_file,
+        test_file = create_test_file_with_metadata(
             initial_metadata,
             "mp3"
         )
@@ -162,21 +158,20 @@ class TestConflictingMetadata:
         # Test ID3v2 rating precedence
         id3v2_metadata = {UnifiedMetadataKey.RATING: 5}
         
-        update_file_metadata(temp_audio_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
+        update_file_metadata(test_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
         
-        merged_metadata = get_merged_unified_metadata(temp_audio_file)
+        merged_metadata = get_merged_unified_metadata(test_file)
         
         # Should use ID3v2 rating
         assert merged_metadata.get(UnifiedMetadataKey.RATING) == 5
 
-    def test_audio_file_object_with_conflicts(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_audio_file_object_with_conflicts(self, sample_mp3_file: Path, test_file: Path):
         # Use external script to set initial metadata
         initial_metadata = {
             "title": "Original Title",
             "artist": "Original Artist"
         }
-        create_test_file_with_metadata(
-            temp_audio_file,
+        test_file = create_test_file_with_metadata(
             initial_metadata,
             "mp3"
         )
@@ -185,10 +180,10 @@ class TestConflictingMetadata:
         # This test focuses on ID3v2 metadata with AudioFile object
         id3v2_metadata = {UnifiedMetadataKey.TITLE: "ID3v2 Title"}
         
-        update_file_metadata(temp_audio_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
+        update_file_metadata(test_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
         
         # Test with AudioFile object
-        audio_file = AudioFile(temp_audio_file)
+        audio_file = AudioFile(test_file)
         merged_metadata = get_merged_unified_metadata(audio_file)
         
         assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"

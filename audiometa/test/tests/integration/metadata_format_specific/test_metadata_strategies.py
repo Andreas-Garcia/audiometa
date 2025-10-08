@@ -31,18 +31,13 @@ from audiometa.test.tests.test_script_helpers import create_test_file_with_metad
 class TestMetadataStrategies:
 
     def test_preserve_strategy_wav_with_id3v2(self, sample_wav_file: Path, temp_audio_file: Path):
-        # Copy sample file to temp location with correct extension
-        temp_wav_file = temp_audio_file.with_suffix('.wav')
-        shutil.copy2(sample_wav_file, temp_wav_file)
-        
         # First, add ID3v2 metadata using external script
         id3v2_metadata = {
             "title": "ID3v2 Title",
             "artist": "ID3v2 Artist",
             "album": "ID3v2 Album"
         }
-        create_test_file_with_metadata(
-            temp_wav_file, 
+        test_file = create_test_file_with_metadata(
             id3v2_metadata, 
             "wav"  # Note: This will use bwfmetaedit, but we need ID3v2
         )
@@ -54,11 +49,11 @@ class TestMetadataStrategies:
             "--song=ID3v2 Title",
             "--artist=ID3v2 Artist", 
             "--album=ID3v2 Album",
-            str(temp_wav_file)
+            str(test_file)
         ], check=True)
         
         # Verify ID3v2 metadata was written
-        id3v2_result = get_single_format_app_metadata(temp_wav_file, MetadataFormat.ID3V2)
+        id3v2_result = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
         assert id3v2_result.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
         
         # Now write RIFF metadata with PRESERVE strategy (default)
@@ -68,11 +63,11 @@ class TestMetadataStrategies:
             UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Artist"],
             UnifiedMetadataKey.ALBUM_NAME: "RIFF Album"
         }
-        update_file_metadata(temp_wav_file, riff_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
+        update_file_metadata(test_file, riff_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
         
         # Verify both formats exist
-        id3v2_after = get_single_format_app_metadata(temp_wav_file, MetadataFormat.ID3V2)
-        riff_after = get_single_format_app_metadata(temp_wav_file, MetadataFormat.RIFF)
+        id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+        riff_after = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
         
         # ID3v2 should be preserved (unchanged)
         assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
@@ -80,13 +75,17 @@ class TestMetadataStrategies:
         assert riff_after.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
         
         # Merged metadata should prefer RIFF (WAV native format has higher precedence)
-        merged = get_merged_unified_metadata(temp_wav_file)
+        merged = get_merged_unified_metadata(test_file)
         assert merged.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
 
     def test_cleanup_strategy_wav_with_id3v2(self, sample_wav_file: Path, temp_audio_file: Path):
-        # Copy sample file to temp location with correct extension
-        temp_wav_file = temp_audio_file.with_suffix('.wav')
-        shutil.copy2(sample_wav_file, temp_wav_file)
+        # Create test file with basic metadata first
+        basic_metadata = {
+            "title": "Basic Title",
+            "artist": "Basic Artist",
+            "album": "Basic Album"
+        }
+        test_file = create_test_file_with_metadata(basic_metadata, "wav")
         
         # First, add ID3v2 metadata using external script
         import subprocess
@@ -95,11 +94,11 @@ class TestMetadataStrategies:
             "--song=ID3v2 Title",
             "--artist=ID3v2 Artist", 
             "--album=ID3v2 Album",
-            str(temp_wav_file)
+            str(test_file)
         ], check=True)
         
         # Verify ID3v2 metadata was written
-        id3v2_result = get_single_format_app_metadata(temp_wav_file, MetadataFormat.ID3V2)
+        id3v2_result = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
         assert id3v2_result.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
         
         # Now write RIFF metadata with CLEANUP strategy
@@ -108,24 +107,28 @@ class TestMetadataStrategies:
             UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Artist"],
             UnifiedMetadataKey.ALBUM_NAME: "RIFF Album"
         }
-        update_file_metadata(temp_wav_file, riff_metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
+        update_file_metadata(test_file, riff_metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
         
         # Verify ID3v2 was removed
-        id3v2_after = get_single_format_app_metadata(temp_wav_file, MetadataFormat.ID3V2)
+        id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
         assert id3v2_after.get(UnifiedMetadataKey.TITLE) is None
         
         # Verify RIFF has new metadata
-        riff_after = get_single_format_app_metadata(temp_wav_file, MetadataFormat.RIFF)
+        riff_after = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
         assert riff_after.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
         
         # Merged metadata should only have RIFF (ID3v2 was cleaned up)
-        merged = get_merged_unified_metadata(temp_wav_file)
+        merged = get_merged_unified_metadata(test_file)
         assert merged.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
 
     def test_sync_strategy_wav_with_id3v2(self, sample_wav_file: Path, temp_audio_file: Path):
-        # Copy sample file to temp location with correct extension
-        temp_wav_file = temp_audio_file.with_suffix('.wav')
-        shutil.copy2(sample_wav_file, temp_wav_file)
+        # Create test file with basic metadata first
+        basic_metadata = {
+            "title": "Basic Title",
+            "artist": "Basic Artist",
+            "album": "Basic Album"
+        }
+        test_file = create_test_file_with_metadata(basic_metadata, "wav")
         
         # First, add ID3v2 metadata using external script
         import subprocess
@@ -134,11 +137,11 @@ class TestMetadataStrategies:
             "--song=Original ID3v2 Title",
             "--artist=Original ID3v2 Artist", 
             "--album=Original ID3v2 Album",
-            str(temp_wav_file)
+            str(test_file)
         ], check=True)
         
         # Verify ID3v2 metadata was written
-        id3v2_result = get_single_format_app_metadata(temp_wav_file, MetadataFormat.ID3V2)
+        id3v2_result = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
         assert id3v2_result.get(UnifiedMetadataKey.TITLE) == "Original ID3v2 Title"
         
         # Now write RIFF metadata with SYNC strategy
@@ -149,13 +152,13 @@ class TestMetadataStrategies:
             UnifiedMetadataKey.ARTISTS_NAMES: ["Synced Artist"],
             UnifiedMetadataKey.ALBUM_NAME: "Synced Album"
         }
-        update_file_metadata(temp_wav_file, sync_metadata, 
+        update_file_metadata(test_file, sync_metadata, 
                            metadata_format=MetadataFormat.ID3V2, 
                            metadata_strategy=MetadataWritingStrategy.SYNC)
         
         # Verify both formats have the synced metadata
-        id3v2_after = get_single_format_app_metadata(temp_wav_file, MetadataFormat.ID3V2)
-        riff_after = get_single_format_app_metadata(temp_wav_file, MetadataFormat.RIFF)
+        id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+        riff_after = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
         
         # ID3v2 should have the synced metadata
         assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "Synced Title"
@@ -163,13 +166,13 @@ class TestMetadataStrategies:
         assert riff_after.get(UnifiedMetadataKey.TITLE) == "Synced Title"
         
         # Merged metadata should prefer ID3v2 (higher precedence)
-        merged = get_merged_unified_metadata(temp_wav_file)
+        merged = get_merged_unified_metadata(test_file)
         assert merged.get(UnifiedMetadataKey.TITLE) == "Synced Title"
 
     def test_ignore_strategy_wav_with_id3v2(self, sample_wav_file: Path, temp_audio_file: Path):
         # Copy sample file to temp location with correct extension
-        temp_wav_file = temp_audio_file.with_suffix('.wav')
-        shutil.copy2(sample_wav_file, temp_wav_file)
+        test_file = temp_audio_file.with_suffix('.wav')
+        shutil.copy2(sample_wav_file, test_file)
         
         # First, add ID3v2 metadata using external script
         import subprocess
@@ -178,11 +181,11 @@ class TestMetadataStrategies:
             "--song=ID3v2 Title",
             "--artist=ID3v2 Artist", 
             "--album=ID3v2 Album",
-            str(temp_wav_file)
+            str(test_file)
         ], check=True)
         
         # Verify ID3v2 metadata was written
-        id3v2_result = get_single_format_app_metadata(temp_wav_file, MetadataFormat.ID3V2)
+        id3v2_result = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
         assert id3v2_result.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
         
         # Now write RIFF metadata with IGNORE strategy
@@ -192,25 +195,25 @@ class TestMetadataStrategies:
             UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Artist"],
             UnifiedMetadataKey.ALBUM_NAME: "RIFF Album"
         }
-        update_file_metadata(temp_wav_file, riff_metadata, metadata_strategy=MetadataWritingStrategy.IGNORE)
+        update_file_metadata(test_file, riff_metadata, metadata_strategy=MetadataWritingStrategy.IGNORE)
         
         # Verify RIFF has new metadata
-        riff_after = get_single_format_app_metadata(temp_wav_file, MetadataFormat.RIFF)
+        riff_after = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
         assert riff_after.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
         
         # Note: Due to RiffManager behavior, ID3v2 tags are stripped when writing RIFF
         # This is a limitation of the current implementation
-        id3v2_after = get_single_format_app_metadata(temp_wav_file, MetadataFormat.ID3V2)
+        id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
         # ID3v2 metadata may be lost due to RiffManager stripping it
         
         # Merged metadata should prefer RIFF (since ID3v2 was stripped)
-        merged = get_merged_unified_metadata(temp_wav_file)
+        merged = get_merged_unified_metadata(test_file)
         assert merged.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
 
     def test_default_strategy_is_preserve(self, sample_wav_file: Path, temp_audio_file: Path):
         # Copy sample file to temp location with correct extension
-        temp_wav_file = temp_audio_file.with_suffix('.wav')
-        shutil.copy2(sample_wav_file, temp_wav_file)
+        test_file = temp_audio_file.with_suffix('.wav')
+        shutil.copy2(sample_wav_file, test_file)
         
         # First, add ID3v2 metadata using external script
         import subprocess
@@ -218,7 +221,7 @@ class TestMetadataStrategies:
             "mid3v2", 
             "--song=ID3v2 Title",
             "--artist=ID3v2 Artist",
-            str(temp_wav_file)
+            str(test_file)
         ], check=True)
         
         # Now write RIFF metadata without specifying strategy (should default to PRESERVE)
@@ -226,11 +229,11 @@ class TestMetadataStrategies:
             UnifiedMetadataKey.TITLE: "RIFF Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Artist"]
         }
-        update_file_metadata(temp_wav_file, riff_metadata)
+        update_file_metadata(test_file, riff_metadata)
         
         # Verify both formats exist (PRESERVE strategy)
-        id3v2_after = get_single_format_app_metadata(temp_wav_file, MetadataFormat.ID3V2)
-        riff_after = get_single_format_app_metadata(temp_wav_file, MetadataFormat.RIFF)
+        id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+        riff_after = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
         
         # ID3v2 should be preserved
         assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
@@ -238,6 +241,6 @@ class TestMetadataStrategies:
         assert riff_after.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
         
         # Merged metadata should prefer RIFF (WAV native format)
-        merged = get_merged_unified_metadata(temp_wav_file)
+        merged = get_merged_unified_metadata(test_file)
         assert merged.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
 
