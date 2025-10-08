@@ -110,9 +110,196 @@ pytest -m "not e2e"
 pytest -m unit
 ```
 
-## Test Data
+## Test Data Strategy
 
-Test audio files are located in `../data/audio_files/` (separate from the test directory) and are shared across all test categories through fixtures defined in `conftest.py`.
+The test suite uses a **hybrid approach** for test data management, combining pre-created files with on-the-fly generation to optimize for both performance and flexibility.
+
+### Pre-created Test Files (`../data/audio_files/`)
+
+**176 pre-created audio files** covering specific scenarios and edge cases:
+
+- **Edge cases**: Corrupted files, bad extensions, unusual filenames
+- **Metadata combinations**: Files with specific metadata formats and values
+- **Performance scenarios**: Different bitrates, durations, and file sizes
+- **Regression tests**: Known problematic files that previously caused issues
+- **Format validation**: Files with multiple metadata formats in the same file
+
+**Benefits:**
+
+- ⚡ **Fast**: Instant access, no script execution overhead
+- 🎯 **Reliable**: Pre-tested and known to work correctly
+- 📊 **Comprehensive**: Covers complex scenarios that would be difficult to generate
+- 🔄 **Stable**: Consistent across test runs
+
+### On-the-fly Generation (Script Helpers)
+
+**Dynamic test file creation** using external command-line tools:
+
+- **Writing tests**: When testing the application's metadata writing functionality
+- **Dynamic scenarios**: Specific metadata combinations not available in pre-created files
+- **Clean state**: Fresh files for each test run
+- **Isolation**: Prevents test setup from depending on the code being tested
+
+**How Script Helpers Work:**
+
+The script helper strategy uses external command-line tools to set up test metadata:
+
+1. **External Scripts**: Located in `../data/scripts/`, these are shell scripts that use standard audio metadata tools:
+
+   - `set-id3v2-max-metadata.sh` - Uses `mid3v2` to set ID3v2 metadata
+   - `set-vorbis-max-metadata.sh` - Uses `metaflac` to set Vorbis metadata
+   - `set-riff-max-metadata.sh` - Uses `bwfmetaedit` to set RIFF metadata
+   - `set-id3v1-max-metadata.sh` - Uses `mid3v2` to set ID3v1 metadata
+   - `remove-id3.py` - Removes ID3 metadata
+   - `remove-riff.py` - Removes RIFF metadata
+
+2. **ScriptHelper Class**: Provides a Python interface to these external scripts:
+
+   ```python
+   from audiometa.test.tests.test_script_helpers import ScriptHelper
+
+   helper = ScriptHelper()
+   helper.set_id3v2_max_metadata(test_file)
+   helper.set_vorbis_max_metadata(test_file)
+   ```
+
+3. **Convenience Functions**: High-level functions for common test scenarios:
+   - `create_test_file_with_metadata()` - Creates files with maximum metadata for all formats
+   - `create_test_file_with_specific_metadata()` - Creates files with specific metadata values
+
+**Benefits:**
+
+- 🔧 **Flexible**: Can create any metadata scenario on demand
+- 🧪 **Isolated**: Test setup doesn't depend on the code being tested
+- 🆕 **Fresh**: Clean state for each test
+- 🎛️ **Configurable**: Easy to modify test scenarios
+- **Reliability**: Uses proven external tools for metadata setup
+- **Maintainability**: Clear separation between test setup and test logic
+
+### Temporary Files (Fixtures)
+
+**Empty audio files** created during test execution:
+
+- **Basic functionality**: Simple read/write operations
+- **Error handling**: Testing with empty or invalid files
+- **Clean slate**: Starting point for dynamic test scenarios
+
+### When to Use Each Approach
+
+| Scenario                      | Approach          | Reason                                                                        |
+| ----------------------------- | ----------------- | ----------------------------------------------------------------------------- |
+| Reading existing metadata     | Pre-created files | Fast, reliable, comprehensive coverage                                        |
+| Testing writing functionality | Script helpers    | Set up test data with external tools, then test app's writing by reading back |
+| Edge case testing             | Pre-created files | Complex scenarios already prepared                                            |
+| Dynamic test scenarios        | Script helpers    | Flexible, on-demand creation                                                  |
+| Basic functionality           | Temporary files   | Simple, clean, fast                                                           |
+| Regression testing            | Pre-created files | Known problematic files                                                       |
+
+### Examples for Each Scenario
+
+#### Reading existing metadata (Pre-created files)
+
+```python
+def test_read_metadata_from_pre_created_file(sample_mp3_file):
+    """Test reading metadata from a pre-created file with known metadata."""
+    audio_file = AudioFile(sample_mp3_file)
+    metadata = audio_file.read_metadata()
+    assert metadata.title == "Sample Title"
+    assert metadata.artist == "Sample Artist"
+```
+
+#### Testing writing functionality (Script helpers)
+
+```python
+def test_write_metadata_using_script_helper(temp_audio_file):
+    """Test writing metadata by setting up with external tools, then testing our app."""
+    # Use script helper to set up test data with external tools
+    helper = ScriptHelper()
+    helper.set_id3v2_max_metadata(temp_audio_file)
+
+    # Now test our application's writing functionality
+    audio_file = AudioFile(temp_audio_file)
+    audio_file.write_metadata({"title": "New Title"})
+
+    # Verify by reading back
+    metadata = audio_file.read_metadata()
+    assert metadata.title == "New Title"
+```
+
+#### Edge case testing (Pre-created files)
+
+```python
+def test_corrupted_metadata_handling(corrupted_mp3_file):
+    """Test handling of corrupted metadata using pre-created problematic file."""
+    audio_file = AudioFile(corrupted_mp3_file)
+    # Test that our app gracefully handles corrupted metadata
+    with pytest.raises(CorruptedMetadataError):
+        audio_file.read_metadata()
+```
+
+#### Dynamic test scenarios (Script helpers)
+
+```python
+def test_specific_metadata_combination():
+    """Test a specific metadata scenario not available in pre-created files."""
+    with tempfile.NamedTemporaryFile(suffix='.mp3') as temp_file:
+        # Create specific metadata combination on demand
+        helper = ScriptHelper()
+        helper.create_file_with_metadata(temp_file.name, {
+            "title": "Custom Title",
+            "artist": "Custom Artist",
+            "genre": "Custom Genre"
+        })
+
+        audio_file = AudioFile(temp_file.name)
+        metadata = audio_file.read_metadata()
+        assert metadata.genre == "Custom Genre"
+```
+
+#### Basic functionality (Temporary files)
+
+```python
+def test_basic_read_write_operations(empty_mp3_file):
+    """Test basic functionality with a simple temporary file."""
+    audio_file = AudioFile(empty_mp3_file)
+
+    # Test writing
+    audio_file.write_metadata({"title": "Test Title"})
+
+    # Test reading
+    metadata = audio_file.read_metadata()
+    assert metadata.title == "Test Title"
+```
+
+#### Regression testing (Pre-created files)
+
+```python
+def test_regression_issue_123(problematic_wav_file):
+    """Test a specific regression that was fixed in issue #123."""
+    # This file previously caused a crash
+    audio_file = AudioFile(problematic_wav_file)
+    metadata = audio_file.read_metadata()
+    # Verify the fix works
+    assert metadata is not None
+```
+
+### File Organization
+
+```
+../data/audio_files/           # Pre-created test files
+├── sample.mp3                 # Basic sample files
+├── metadata=*.mp3            # Metadata scenarios
+├── rating_*.wav              # Rating test cases
+├── artists=*.mp3             # Artist metadata tests
+└── duration=*.flac           # Duration test cases
+
+../data/scripts/               # External scripts for generation
+├── set-id3v2-max-metadata.sh
+├── set-vorbis-max-metadata.sh
+└── remove-*.py
+```
+
+All test files are shared across test categories through fixtures defined in `conftest.py`.
 
 ## Fixtures
 

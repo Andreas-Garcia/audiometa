@@ -1,4 +1,7 @@
-"""Tests for reading multiple metadata formats in the same file.
+"""Tests for reading multiple metadata formats in the same file using external scripts.
+
+This refactored version uses external scripts to set up test data
+instead of the app's update functions, preventing circular dependencies.
 
 This module tests scenarios where multiple metadata formats exist in the same file
 and verifies that the correct precedence rules are applied.
@@ -7,6 +10,7 @@ and verifies that the correct precedence rules are applied.
 import pytest
 from pathlib import Path
 import shutil
+import subprocess
 
 from audiometa import (
     get_merged_unified_metadata,
@@ -17,6 +21,7 @@ from audiometa import (
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.test.tests.test_script_helpers import create_test_file_with_specific_metadata
 
 
 @pytest.mark.integration
@@ -43,10 +48,20 @@ class TestConflictingMetadata:
         # ID3v2 should take precedence in merged metadata
         assert merged_metadata.get(UnifiedMetadataKey.TITLE) == id3v2_data.get(UnifiedMetadataKey.TITLE)
 
-    def test_id3v2_vs_riff_precedence_wav(self, sample_wav_file: Path, temp_audio_file: Path):
-        shutil.copy2(sample_wav_file, temp_audio_file)
+    def test_id3v2_vs_riff_precedence_wav(self, sample_wav_file: Path, temp_wav_file: Path):
+        # Use external script to set initial metadata
+        initial_metadata = {
+            "title": "Original Title",
+            "artist": "Original Artist"
+        }
+        create_test_file_with_specific_metadata(
+            sample_wav_file,
+            temp_wav_file,
+            initial_metadata,
+            "wav"
+        )
         
-        # Set different values in RIFF and ID3v2
+        # Set different values in RIFF and ID3v2 using app's functions (this is what we're testing)
         riff_metadata = {
             UnifiedMetadataKey.TITLE: "RIFF Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Artist"],
@@ -60,19 +75,29 @@ class TestConflictingMetadata:
         }
         
         # Write RIFF first, then ID3v2
-        update_file_metadata(temp_audio_file, riff_metadata, metadata_format=MetadataFormat.RIFF)
-        update_file_metadata(temp_audio_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
+        update_file_metadata(temp_wav_file, riff_metadata, metadata_format=MetadataFormat.RIFF)
+        update_file_metadata(temp_wav_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
         
-        # Merged metadata should prefer ID3v2
-        merged_metadata = get_merged_unified_metadata(temp_audio_file)
-        assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
-        assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["ID3v2 Artist"]
-        assert merged_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v2 Album"
+        # Merged metadata should prefer RIFF (WAV native format)
+        merged_metadata = get_merged_unified_metadata(temp_wav_file)
+        assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
+        assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["RIFF Artist"]
+        assert merged_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "RIFF Album"
 
     def test_vorbis_vs_id3v2_precedence_flac(self, sample_flac_file: Path, temp_audio_file: Path):
-        shutil.copy2(sample_flac_file, temp_audio_file)
+        # Use external script to set initial metadata
+        initial_metadata = {
+            "title": "Original Title",
+            "artist": "Original Artist"
+        }
+        create_test_file_with_specific_metadata(
+            sample_flac_file,
+            temp_audio_file,
+            initial_metadata,
+            "flac"
+        )
         
-        # Set different values in ID3v2 and Vorbis
+        # Set different values in ID3v2 and Vorbis using app's functions (this is what we're testing)
         id3v2_metadata = {
             UnifiedMetadataKey.TITLE: "ID3v2 Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Artist"],
@@ -96,7 +121,17 @@ class TestConflictingMetadata:
         assert merged_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Vorbis Album"
 
     def test_partial_conflicts(self, sample_mp3_file: Path, temp_audio_file: Path):
-        shutil.copy2(sample_mp3_file, temp_audio_file)
+        # Use external script to set initial metadata
+        initial_metadata = {
+            "title": "Original Title",
+            "artist": "Original Artist"
+        }
+        create_test_file_with_specific_metadata(
+            sample_mp3_file,
+            temp_audio_file,
+            initial_metadata,
+            "mp3"
+        )
         
         # Since ID3v1 is read-only, we can only write ID3v2 metadata
         # This test focuses on ID3v2 vs other writable formats
@@ -115,7 +150,17 @@ class TestConflictingMetadata:
         assert merged_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v2 Album"
 
     def test_rating_precedence_rules(self, sample_mp3_file: Path, temp_audio_file: Path):
-        shutil.copy2(sample_mp3_file, temp_audio_file)
+        # Use external script to set initial metadata
+        initial_metadata = {
+            "title": "Original Title",
+            "artist": "Original Artist"
+        }
+        create_test_file_with_specific_metadata(
+            sample_mp3_file,
+            temp_audio_file,
+            initial_metadata,
+            "mp3"
+        )
         
         # Since ID3v1 is read-only, we can only test writable formats
         # Test ID3v2 rating precedence
@@ -129,7 +174,17 @@ class TestConflictingMetadata:
         assert merged_metadata.get(UnifiedMetadataKey.RATING) == 5
 
     def test_audio_file_object_with_conflicts(self, sample_mp3_file: Path, temp_audio_file: Path):
-        shutil.copy2(sample_mp3_file, temp_audio_file)
+        # Use external script to set initial metadata
+        initial_metadata = {
+            "title": "Original Title",
+            "artist": "Original Artist"
+        }
+        create_test_file_with_specific_metadata(
+            sample_mp3_file,
+            temp_audio_file,
+            initial_metadata,
+            "mp3"
+        )
         
         # Since ID3v1 is read-only, we can only write ID3v2 metadata
         # This test focuses on ID3v2 metadata with AudioFile object

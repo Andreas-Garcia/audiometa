@@ -1,5 +1,8 @@
 """
-End-to-end tests for complete user workflows.
+End-to-end tests for complete user workflows using external scripts.
+
+This refactored version uses external scripts to set up test data
+instead of the app's update functions, preventing circular dependencies.
 
 These tests verify that the entire system works as expected for real users,
 including file I/O, error handling, and complete metadata editing workflows.
@@ -20,14 +23,13 @@ from audiometa import (
     get_duration_in_sec
 )
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.test.tests.test_script_helpers import create_test_file_with_specific_metadata
 
 
 @pytest.mark.e2e
 class TestCompleteWorkflows:
-    """Test complete user workflows from start to finish."""
     
     def test_complete_metadata_editing_workflow(self, sample_mp3_file, temp_audio_file):
-        """Test a complete metadata editing workflow."""
         # This is an e2e test - it tests the entire user journey
         # 1. Load a file
         # 2. Read existing metadata
@@ -35,15 +37,25 @@ class TestCompleteWorkflows:
         # 4. Save changes
         # 5. Verify persistence
         
-        # Copy sample file to temp location to avoid modifying versioned files
-        shutil.copy2(sample_mp3_file, temp_audio_file)
+        # Use external script to set initial metadata
+        initial_metadata = {
+            "title": "Original Title",
+            "artist": "Original Artist",
+            "album": "Original Album"
+        }
+        create_test_file_with_specific_metadata(
+            sample_mp3_file,
+            temp_audio_file,
+            initial_metadata,
+            "mp3"
+        )
         
         # Read existing metadata
         original_metadata = get_merged_unified_metadata(temp_audio_file)
         original_title = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE)
         original_artist = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         
-        # Edit metadata
+        # Edit metadata using app's function (this is what we're testing)
         test_metadata = {
             UnifiedMetadataKey.TITLE: "New Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["New Artist"],
@@ -67,14 +79,31 @@ class TestCompleteWorkflows:
         # E2E test for batch operations
         results = []
         
-        sample_files = [sample_mp3_file, sample_flac_file, sample_wav_file]
-        for file_path in sample_files:
+        sample_files = [
+            (sample_mp3_file, "mp3"),
+            (sample_flac_file, "flac"), 
+            (sample_wav_file, "wav")
+        ]
+        
+        for file_path, format_type in sample_files:
             try:
                 # Copy to temp location to avoid modifying versioned files
                 temp_file = temp_audio_file.with_suffix(file_path.suffix)
                 shutil.copy2(file_path, temp_file)
                 
-                # Update metadata using functional API
+                # Set initial metadata using external script
+                initial_metadata = {
+                    "title": "Batch Test Title",
+                    "artist": "Batch Test Artist"
+                }
+                create_test_file_with_specific_metadata(
+                    file_path,
+                    temp_file,
+                    initial_metadata,
+                    format_type
+                )
+                
+                # Update metadata using functional API (this is what we're testing)
                 test_metadata = {
                     UnifiedMetadataKey.ALBUM_NAME: "Batch Album",
                     UnifiedMetadataKey.COMMENT: "Batch processing test"
@@ -90,17 +119,22 @@ class TestCompleteWorkflows:
         assert success_count > 0
     
     def test_error_recovery_workflow(self, sample_mp3_file, temp_audio_file):
-        """Test error handling and recovery in real scenarios."""
         # E2E test for error scenarios
-        # Copy to temp location to avoid modifying versioned files
-        shutil.copy2(sample_mp3_file, temp_audio_file)
+        # Use external script to set initial metadata
+        initial_metadata = {
+            "title": "Original Title",
+            "artist": "Original Artist"
+        }
+        create_test_file_with_specific_metadata(
+            sample_mp3_file,
+            temp_audio_file,
+            initial_metadata,
+            "mp3"
+        )
         
         # Test invalid operations
         with pytest.raises(ValueError):
             update_file_metadata(temp_audio_file, {UnifiedMetadataKey.TRACK_NUMBER: -1})  # Invalid track number
-        
-        # Test file corruption handling
-        # (This would test what happens with corrupted files)
         
         # Test recovery after errors
         test_metadata = {UnifiedMetadataKey.TITLE: "Recovery Test"}
@@ -110,15 +144,24 @@ class TestCompleteWorkflows:
         assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE) == "Recovery Test"
 
     def test_complete_metadata_workflow_mp3(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test complete metadata workflow with MP3 file using functional API."""
-        # Copy sample file to temp location
-        shutil.copy2(sample_mp3_file, temp_audio_file)
+        # Use external script to set initial metadata
+        initial_metadata = {
+            "title": "Initial MP3 Title",
+            "artist": "Initial MP3 Artist",
+            "album": "Initial MP3 Album"
+        }
+        create_test_file_with_specific_metadata(
+            sample_mp3_file,
+            temp_audio_file,
+            initial_metadata,
+            "mp3"
+        )
         
         # 1. Read initial metadata
-        initial_metadata = get_merged_unified_metadata(temp_audio_file)
-        assert isinstance(initial_metadata, dict)
+        initial_metadata_result = get_merged_unified_metadata(temp_audio_file)
+        assert isinstance(initial_metadata_result, dict)
         
-        # 2. Update metadata
+        # 2. Update metadata using app's function (this is what we're testing)
         test_metadata = {
             UnifiedMetadataKey.TITLE: "Integration Test Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["Integration Test Artist"],
@@ -154,15 +197,24 @@ class TestCompleteWorkflows:
         assert UnifiedMetadataKey.TITLE not in deleted_metadata or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "Integration Test Title"
 
     def test_complete_metadata_workflow_flac(self, sample_flac_file: Path, temp_audio_file: Path):
-        """Test complete metadata workflow with FLAC file using functional API."""
-        # Copy sample file to temp location
-        shutil.copy2(sample_flac_file, temp_audio_file)
+        # Use external script to set initial metadata
+        initial_metadata = {
+            "title": "Initial FLAC Title",
+            "artist": "Initial FLAC Artist",
+            "album": "Initial FLAC Album"
+        }
+        create_test_file_with_specific_metadata(
+            sample_flac_file,
+            temp_audio_file,
+            initial_metadata,
+            "flac"
+        )
         
         # 1. Read initial metadata
-        initial_metadata = get_merged_unified_metadata(temp_audio_file)
-        assert isinstance(initial_metadata, dict)
+        initial_metadata_result = get_merged_unified_metadata(temp_audio_file)
+        assert isinstance(initial_metadata_result, dict)
         
-        # 2. Update metadata
+        # 2. Update metadata using app's function (this is what we're testing)
         test_metadata = {
             UnifiedMetadataKey.TITLE: "FLAC Integration Test Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["FLAC Integration Test Artist"],
@@ -189,15 +241,25 @@ class TestCompleteWorkflows:
         assert duration > 0
 
     def test_complete_metadata_workflow_wav(self, sample_wav_file: Path, temp_audio_file: Path):
-        """Test complete metadata workflow with WAV file using functional API."""
-        # Copy sample file to temp location
-        shutil.copy2(sample_wav_file, temp_audio_file)
+        # Use external script to set initial metadata
+        initial_metadata = {
+            "title": "Initial WAV Title",
+            "artist": "Initial WAV Artist",
+            "album": "Initial WAV Album"
+        }
+        create_test_file_with_specific_metadata(
+            sample_wav_file,
+            temp_audio_file,
+            initial_metadata,
+            "wav"
+        )
         
         # 1. Read initial metadata
-        initial_metadata = get_merged_unified_metadata(temp_audio_file)
-        assert isinstance(initial_metadata, dict)
+        initial_metadata_result = get_merged_unified_metadata(temp_audio_file)
+        assert isinstance(initial_metadata_result, dict)
         
-        # 2. Update metadata (WAV doesn't support rating or BPM)
+        # 2. Update metadata using app's function (this is what we're testing)
+        # WAV doesn't support rating or BPM
         test_metadata = {
             UnifiedMetadataKey.TITLE: "WAV Integration Test Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["WAV Integration Test Artist"],
@@ -232,9 +294,17 @@ class TestCompleteWorkflows:
             assert isinstance(duration, float)
 
     def test_metadata_with_different_rating_normalizations(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test metadata handling with different rating normalizations."""
-        # Copy sample file to temp location
-        shutil.copy2(sample_mp3_file, temp_audio_file)
+        # Use external script to set initial metadata
+        initial_metadata = {
+            "title": "Initial Rating Test",
+            "artist": "Initial Artist"
+        }
+        create_test_file_with_specific_metadata(
+            sample_mp3_file,
+            temp_audio_file,
+            initial_metadata,
+            "mp3"
+        )
         
         # Test with 0-100 rating scale
         test_metadata_100 = {
@@ -259,7 +329,6 @@ class TestCompleteWorkflows:
         assert metadata_255.get(UnifiedMetadataKey.RATING) == 191
 
     def test_error_handling_workflow(self, temp_audio_file: Path):
-        """Test error handling in the complete workflow."""
         # Create a file with unsupported extension
         temp_audio_file.write_bytes(b"fake audio content")
         temp_audio_file = temp_audio_file.with_suffix(".txt")

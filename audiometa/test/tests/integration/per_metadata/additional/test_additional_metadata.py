@@ -1,4 +1,8 @@
-"""Tests for complete additional metadata workflows."""
+"""Tests for complete additional metadata workflows using external scripts.
+
+This refactored version uses external scripts to set up test data
+instead of the app's update functions, preventing circular dependencies.
+"""
 
 import pytest
 from pathlib import Path
@@ -13,16 +17,27 @@ from audiometa import (
 )
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.test.tests.test_script_helpers import create_test_file_with_specific_metadata
 
 
 @pytest.mark.integration
 class TestAdditionalMetadata:
-    """Test cases for complete additional metadata workflows."""
 
     def test_complete_additional_metadata_mp3(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test all additional metadata fields together in MP3 file."""
-        shutil.copy2(sample_mp3_file, temp_audio_file)
+        # Use external script to set basic metadata first
+        basic_metadata = {
+            "title": "Test Title",
+            "artist": "Test Artist",
+            "album": "Test Album"
+        }
+        create_test_file_with_specific_metadata(
+            sample_mp3_file,
+            temp_audio_file,
+            basic_metadata,
+            "mp3"
+        )
         
+        # Now test additional metadata using app's function (this is what we're testing)
         test_metadata = {
             UnifiedMetadataKey.COMPOSER: "Test Composer",
             UnifiedMetadataKey.PUBLISHER: "Test Publisher",
@@ -52,8 +67,17 @@ class TestAdditionalMetadata:
         assert metadata.get(UnifiedMetadataKey.KEY) == "C"
 
     def test_additional_metadata_with_audio_file_object(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test additional metadata using AudioFile object."""
-        shutil.copy2(sample_mp3_file, temp_audio_file)
+        # Use external script to set basic metadata first
+        basic_metadata = {
+            "title": "Test Title",
+            "artist": "Test Artist"
+        }
+        create_test_file_with_specific_metadata(
+            sample_mp3_file,
+            temp_audio_file,
+            basic_metadata,
+            "mp3"
+        )
         
         audio_file = AudioFile(temp_audio_file)
         test_metadata = {
@@ -70,7 +94,6 @@ class TestAdditionalMetadata:
         assert metadata.get(UnifiedMetadataKey.COMMENT) == "AudioFile Comment"
 
     def test_empty_additional_metadata_handling(self, sample_mp3_file: Path):
-        """Test handling of empty or missing additional metadata."""
         # Test reading from file with no additional metadata
         metadata = get_merged_unified_metadata(sample_mp3_file)
         assert isinstance(metadata, dict)

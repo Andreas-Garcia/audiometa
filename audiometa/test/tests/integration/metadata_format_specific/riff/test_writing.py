@@ -1,4 +1,8 @@
-"""Tests for RIFF format writing functionality."""
+"""Tests for RIFF format writing functionality using external scripts.
+
+This refactored version uses external scripts to set up test data
+instead of the app's update functions, preventing circular dependencies.
+"""
 
 import pytest
 from pathlib import Path
@@ -12,13 +16,26 @@ from audiometa import (
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.test.tests.test_script_helpers import create_test_file_with_specific_metadata
 
 
 @pytest.mark.integration
 class TestRiffWriting:
 
     def test_metadata_writing_wav(self, metadata_none_wav, temp_audio_file):
-        shutil.copy2(metadata_none_wav, temp_audio_file)
+        # Use external script to set basic metadata first
+        basic_metadata = {
+            "title": "Original Title",
+            "artist": "Original Artist"
+        }
+        create_test_file_with_specific_metadata(
+            metadata_none_wav,
+            temp_audio_file,
+            basic_metadata,
+            "wav"
+        )
+        
+        # Now test RIFF writing using app's function (this is what we're testing)
         test_metadata = {
             UnifiedMetadataKey.TITLE: "Test Title WAV",
             UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist WAV"],
@@ -33,8 +50,19 @@ class TestRiffWriting:
         assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Test Genre WAV"
 
     def test_multiple_metadata_reading(self, sample_wav_file: Path, temp_audio_file: Path):
-        shutil.copy2(sample_wav_file, temp_audio_file)
+        # Use external script to set basic metadata first
+        basic_metadata = {
+            "title": "Original Title",
+            "artist": "Original Artist"
+        }
+        create_test_file_with_specific_metadata(
+            sample_wav_file,
+            temp_audio_file,
+            basic_metadata,
+            "wav"
+        )
         
+        # Now test RIFF writing using app's function (this is what we're testing)
         test_metadata = {
             # Basic metadata commonly supported across formats
             UnifiedMetadataKey.TITLE: "Test Song Title",
@@ -55,8 +83,19 @@ class TestRiffWriting:
         assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Test Genre"
 
     def test_multiple_metadata_writing(self, sample_wav_file: Path, temp_audio_file: Path):
-        shutil.copy2(sample_wav_file, temp_audio_file)
+        # Use external script to set basic metadata first
+        basic_metadata = {
+            "title": "Original Title",
+            "artist": "Original Artist"
+        }
+        create_test_file_with_specific_metadata(
+            sample_wav_file,
+            temp_audio_file,
+            basic_metadata,
+            "wav"
+        )
         
+        # Now test RIFF writing using app's function (this is what we're testing)
         test_metadata = {
             # Basic metadata commonly supported across formats
             UnifiedMetadataKey.TITLE: "Written Song Title",
@@ -81,7 +120,20 @@ class TestRiffWriting:
         temp_wav_file = temp_audio_file.with_suffix('.wav')
         shutil.copy2(sample_wav_file, temp_wav_file)
         
-        # First, set some metadata (only supported fields for WAV)
+        # Use external script to set initial metadata
+        initial_metadata = {
+            "title": "Original Title",
+            "artist": "Original Artist"
+        }
+        create_test_file_with_specific_metadata(
+            sample_wav_file,
+            temp_wav_file,
+            initial_metadata,
+            "wav"
+        )
+        
+        # First, set some metadata using app's function (this is what we're testing)
+        # Only supported fields for WAV
         initial_metadata = {
             UnifiedMetadataKey.TITLE: "Test WAV Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["Test WAV Artist"],
@@ -119,6 +171,18 @@ class TestRiffWriting:
         # Copy sample file to temp location with correct extension
         temp_wav_file = temp_audio_file.with_suffix('.wav')
         shutil.copy2(sample_wav_file, temp_wav_file)
+        
+        # Use external script to set initial metadata
+        initial_metadata = {
+            "title": "Original Title",
+            "artist": "Original Artist"
+        }
+        create_test_file_with_specific_metadata(
+            sample_wav_file,
+            temp_wav_file,
+            initial_metadata,
+            "wav"
+        )
         
         # Set a field to empty string - should remove field (same as None)
         update_file_metadata(temp_wav_file, {UnifiedMetadataKey.TITLE: ""})
