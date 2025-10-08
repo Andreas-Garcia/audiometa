@@ -96,6 +96,7 @@ class RiffManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.LANGUAGE: self.RiffTagKey.LANGUAGE,
             UnifiedMetadataKey.RELEASE_DATE: self.RiffTagKey.DATE,
             UnifiedMetadataKey.COMPOSER: self.RiffTagKey.COMPOSER,
+            UnifiedMetadataKey.COPYRIGHT: self.RiffTagKey.COPYRIGHT,
             # AppMetadataKey.TRACK_NUMBER: None,
         }
         metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] = {
@@ -108,6 +109,7 @@ class RiffManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.LANGUAGE: self.RiffTagKey.LANGUAGE,
             UnifiedMetadataKey.RELEASE_DATE: self.RiffTagKey.DATE,
             UnifiedMetadataKey.COMPOSER: self.RiffTagKey.COMPOSER,
+            UnifiedMetadataKey.COPYRIGHT: self.RiffTagKey.COPYRIGHT,
             # AppMetadataKey.TRACK_NUMBER: self.RiffTagKey.TRACK_NUMBER,
         }
         super().__init__(audio_file=audio_file,
