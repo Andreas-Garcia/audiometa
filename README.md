@@ -723,6 +723,23 @@ black audio_metadata/
 isort audio_metadata/
 ```
 
+### Commit Message Conventions
+
+This project follows conventional commit message format. Use these prefixes:
+
+- `feat:` - New features
+- `fix:` - Bug fixes
+- `fix(test):` - Fixing a bug in a test
+- `test:` - General test update/fix
+- `refactor:` - Code refactoring
+- `chore:` - Non-functional maintenance
+- `chore(test):` - Maintenance related to tests (rare)
+- `docs:` - Documentation changes
+- `style:` - Formatting changes
+- `perf:` - Performance improvements
+
+**Note**: As of 2025 Oct. 8th, we updated our commit message conventions for test-related changes. Previous commits may use older conventions, but going forward we use the prefixes listed above.
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
