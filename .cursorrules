@@ -98,6 +98,26 @@ Do NOT add comments for:
   - `style:` for formatting changes
   - `perf:` for performance improvements
 
+#### Test-Related Commit Prefixes
+
+Use `chore(test):` for:
+
+- Test reorganization or restructuring
+- Standardizing test patterns (e.g., using script helpers consistently)
+- Adding new test files or test utilities
+- Updating test fixtures or test data
+- Test maintenance and cleanup
+
+Use `feat:` for:
+
+- Adding new functionality that requires new tests
+- New test features or capabilities
+
+Use `fix:` for:
+
+- Fixing broken tests
+- Correcting test logic or assertions
+
 ## Test Organization
 
 ### Test Naming
