@@ -21,7 +21,7 @@ class TestGenreWriting:
 
     def test_riff(self, metadata_none_wav, temp_wav_file):
         shutil.copy2(metadata_none_wav, temp_wav_file)
-        test_genre = "Test Genre RIFF"
+        test_genre = "Rock"
         test_metadata = {UnifiedMetadataKey.GENRE_NAME: test_genre}
         update_file_metadata(temp_wav_file, test_metadata, metadata_format=MetadataFormat.RIFF)
         metadata = get_merged_unified_metadata(temp_wav_file)
