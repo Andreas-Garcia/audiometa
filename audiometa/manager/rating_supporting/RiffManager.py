@@ -291,6 +291,11 @@ class RiffManager(RatingSupportingMetadataManager):
         if not self.metadata_keys_direct_map_write:
             raise ConfigurationError('metadata_keys_direct_map_write must be set')
 
+        # Validate that all metadata fields are supported by RIFF format
+        for app_metadata_key in app_metadata.keys():
+            if app_metadata_key not in self.metadata_keys_direct_map_write:
+                raise MetadataNotSupportedError(f'{app_metadata_key} metadata not supported by RIFF format')
+
         # Read the entire file into a mutable bytearray
         self.audio_file.seek(0)
         file_data = bytearray(self.audio_file.read())
