@@ -127,6 +127,30 @@ def get_merged_unified_metadata(
 
 
 def get_specific_metadata(file: FILE_TYPE, app_metadata_key: UnifiedMetadataKey, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None) -> AppMetadataValue:
+    """
+    Get a specific metadata field from an audio file.
+    
+    Args:
+        file: Audio file path or AudioFile object
+        app_metadata_key: The metadata field to retrieve
+        normalized_rating_max_value: Maximum value for rating normalization (0-10 scale).
+            Only used when app_metadata_key is RATING. For other metadata fields,
+            this parameter is ignored. Defaults to None (no normalization).
+        id3v2_version: ID3v2 version tuple for ID3v2-specific operations
+        
+    Returns:
+        The metadata value or None if not found
+        
+    Examples:
+        # Get title (normalized_rating_max_value ignored)
+        title = get_specific_metadata("song.mp3", UnifiedMetadataKey.TITLE)
+        
+        # Get rating without normalization
+        rating = get_specific_metadata("song.mp3", UnifiedMetadataKey.RATING)
+        
+        # Get rating with 0-100 normalization
+        rating = get_specific_metadata("song.mp3", UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+    """
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
 
