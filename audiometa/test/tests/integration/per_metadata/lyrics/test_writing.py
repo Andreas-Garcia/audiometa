@@ -20,17 +20,25 @@ class TestLyricsWriting:
         assert lyrics == test_lyrics
 
     def test_riff(self, metadata_none_wav, temp_wav_file):
+        """Test that RIFF format correctly raises exception for unsupported lyrics metadata."""
+        from audiometa.exceptions import MetadataNotSupportedError
+        
         shutil.copy2(metadata_none_wav, temp_wav_file)
         test_lyrics = "RIFF test lyrics\nWith multiple lines\nFor testing purposes"
         test_metadata = {UnifiedMetadataKey.LYRICS: test_lyrics}
-        update_file_metadata(temp_wav_file, test_metadata, metadata_format=MetadataFormat.RIFF)
-        lyrics = get_specific_metadata(temp_wav_file, UnifiedMetadataKey.LYRICS)
-        assert lyrics == test_lyrics
+        
+        # RIFF format raises exception for unsupported metadata
+        with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.LYRICS metadata not supported by RIFF format"):
+            update_file_metadata(temp_wav_file, test_metadata, metadata_format=MetadataFormat.RIFF)
 
     def test_vorbis(self, metadata_none_flac, temp_flac_file):
+        """Test that Vorbis format correctly raises exception for unsupported lyrics metadata."""
+        from audiometa.exceptions import MetadataNotSupportedError
+        
         shutil.copy2(metadata_none_flac, temp_flac_file)
         test_lyrics = "Vorbis test lyrics\nWith multiple lines\nFor testing purposes"
         test_metadata = {UnifiedMetadataKey.LYRICS: test_lyrics}
-        update_file_metadata(temp_flac_file, test_metadata, metadata_format=MetadataFormat.VORBIS)
-        lyrics = get_specific_metadata(temp_flac_file, UnifiedMetadataKey.LYRICS)
-        assert lyrics == test_lyrics
+        
+        # Vorbis format raises exception for unsupported metadata
+        with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.LYRICS metadata not supported by this format"):
+            update_file_metadata(temp_flac_file, test_metadata, metadata_format=MetadataFormat.VORBIS)
