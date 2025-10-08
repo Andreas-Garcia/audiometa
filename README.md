@@ -319,6 +319,23 @@ You can control metadata writing behavior using the `metadata_strategy` paramete
 3. **`SYNC`**: Write to native format and synchronize other metadata formats that are already present
 4. **`IGNORE`**: Write to native format only, ignore other formats completely (same as PRESERVE)
 
+#### ID3v1 Exceptions
+
+**ID3v1 metadata cannot be modified or deleted** due to its read-only nature:
+
+- **Read-only format**: ID3v1 is treated as read-only due to its fixed 128-byte structure
+- **Strategy limitations**: All strategies (PRESERVE, CLEANUP, SYNC) cannot preserve ID3v1 metadata
+- **Error handling**: Attempting to modify ID3v1 metadata will raise `MetadataNotSupportedError`
+- **Overwrite behavior**: When ID3v2 metadata is written, it overwrites the ID3v1 tag
+
+**Important**: ID3v1 metadata cannot be preserved when writing ID3v2 metadata because:
+
+1. ID3v1 is read-only and cannot be written back
+2. Writing ID3v2 metadata overwrites the ID3v1 tag at the end of the file
+3. The PRESERVE strategy cannot restore ID3v1 metadata after writing ID3v2
+
+This means that if a file contains both ID3v1 and ID3v2 tags, writing new metadata will result in the ID3v1 tag being overwritten with the new values.
+
 #### Usage Examples
 
 **Default Behavior (PRESERVE strategy)**
