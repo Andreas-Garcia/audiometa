@@ -9,13 +9,14 @@ from pathlib import Path
 
 from audiometa import get_merged_unified_metadata, get_specific_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.tests.test_script_helpers import create_test_file_with_metadata
 
 
 @pytest.mark.integration
 class TestTitleWriting:
-    def test_mp3(self, temp_audio_file):
-        test_title = "Test Title MP3"
+    def test_id3v2(self, temp_audio_file):
+        test_title = "Test Title ID3v2"
         test_metadata = {"title": test_title}
         
         # Use external script to set metadata instead of app's update function
@@ -28,8 +29,8 @@ class TestTitleWriting:
         title = get_specific_metadata(test_file, UnifiedMetadataKey.TITLE)
         assert title == test_title
 
-    def test_wav(self, temp_audio_file):
-        test_title = "Test Title WAV"
+    def test_riff(self, metadata_none_wav, temp_wav_file):
+        test_title = "Test Title RIFF"
         test_metadata = {"title": test_title}
         
         # Use external script to set metadata instead of app's update function
@@ -42,8 +43,8 @@ class TestTitleWriting:
         title = get_specific_metadata(test_file, UnifiedMetadataKey.TITLE)
         assert title == test_title
 
-    def test_flac(self, temp_audio_file):
-        test_title = "Test Title FLAC"
+    def test_vorbis(self, metadata_none_flac, temp_flac_file):
+        test_title = "Test Title Vorbis"
         test_metadata = {"title": test_title}
         
         # Use external script to set metadata instead of app's update function
