@@ -86,6 +86,39 @@ def _get_metadata_managers(
 
 def get_single_format_app_metadata(
         file: FILE_TYPE, tag_format: MetadataFormat, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None) -> AppMetadata:
+    """
+    Get metadata from a specific format only.
+    
+    This function reads metadata from only the specified format, unlike
+    get_merged_unified_metadata which reads from all available formats.
+    
+    Args:
+        file: Audio file path or AudioFile object
+        tag_format: Specific metadata format to read from
+        normalized_rating_max_value: Maximum value for rating normalization (0-10 scale).
+            When provided, ratings are normalized to this scale. Defaults to None (raw values).
+        id3v2_version: ID3v2 version tuple for ID3v2-specific operations
+        
+    Returns:
+        Dictionary containing metadata from the specified format only
+        
+    Raises:
+        FileTypeNotSupportedError: If the file format is not supported
+        FileNotFoundError: If the file does not exist
+        
+    Examples:
+        # Get only ID3v2 metadata
+        metadata = get_single_format_app_metadata("song.mp3", MetadataFormat.ID3V2)
+        print(metadata.get(UnifiedMetadataKey.TITLE))
+        
+        # Get only Vorbis metadata from FLAC
+        metadata = get_single_format_app_metadata("song.flac", MetadataFormat.VORBIS)
+        print(metadata.get(UnifiedMetadataKey.ARTISTS_NAMES))
+        
+        # Get ID3v2 metadata with normalized ratings
+        metadata = get_single_format_app_metadata("song.mp3", MetadataFormat.ID3V2, normalized_rating_max_value=100)
+        print(metadata.get(UnifiedMetadataKey.RATING))  # Returns 0-100
+    """
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
 
@@ -96,6 +129,38 @@ def get_single_format_app_metadata(
 
 def get_merged_unified_metadata(
         file: FILE_TYPE, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None) -> AppMetadata:
+    """
+    Get all available metadata from an audio file, merging data from multiple formats.
+    
+    This function reads metadata from all available formats (ID3v1, ID3v2, Vorbis, RIFF)
+    and returns a unified dictionary with the best available data for each field.
+    
+    Args:
+        file: Audio file path or AudioFile object
+        normalized_rating_max_value: Maximum value for rating normalization (0-10 scale).
+            When provided, ratings are normalized to this scale. Defaults to None (raw values).
+        id3v2_version: ID3v2 version tuple for ID3v2-specific operations
+        
+    Returns:
+        Dictionary containing all available metadata fields
+        
+    Raises:
+        FileTypeNotSupportedError: If the file format is not supported
+        FileNotFoundError: If the file does not exist
+        
+    Examples:
+        # Get all metadata with raw rating values
+        metadata = get_merged_unified_metadata("song.mp3")
+        print(metadata.get(UnifiedMetadataKey.TITLE))
+        
+        # Get all metadata with normalized ratings (0-100 scale)
+        metadata = get_merged_unified_metadata("song.mp3", normalized_rating_max_value=100)
+        print(metadata.get(UnifiedMetadataKey.RATING))  # Returns 0-100
+        
+        # Get metadata from FLAC file
+        metadata = get_merged_unified_metadata("song.flac")
+        print(metadata.get(UnifiedMetadataKey.ARTISTS_NAMES))
+    """
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
 
@@ -173,6 +238,51 @@ def update_file_metadata(
         file: FILE_TYPE, app_metadata: AppMetadata, normalized_rating_max_value: int | None = None, 
         id3v2_version: tuple[int, int, int] | None = None, metadata_strategy: MetadataWritingStrategy | None = None,
         metadata_format: MetadataFormat | None = None) -> None:
+    """
+    Update metadata in an audio file.
+    
+    This function writes metadata to the specified audio file using the appropriate
+    format manager. It supports multiple writing strategies and format selection.
+    
+    Args:
+        file: Audio file path or AudioFile object
+        app_metadata: Dictionary containing metadata to write
+        normalized_rating_max_value: Maximum value for rating normalization (0-10 scale).
+            When provided, ratings are normalized to this scale. Defaults to None (raw values).
+        id3v2_version: ID3v2 version tuple for ID3v2-specific operations
+        metadata_strategy: Writing strategy (PRESERVE, CLEANUP, SYNC, IGNORE). Defaults to PRESERVE.
+        metadata_format: Specific format to write to. If None, uses the file's native format.
+        
+    Returns:
+        None
+        
+    Raises:
+        FileTypeNotSupportedError: If the file format is not supported
+        FileNotFoundError: If the file does not exist
+        MetadataNotSupportedError: If the metadata field is not supported by the format
+        ValueError: If invalid rating values are provided
+        
+    Examples:
+        # Basic metadata update
+        metadata = {
+            UnifiedMetadataKey.TITLE: "New Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["Artist Name"]
+        }
+        update_file_metadata("song.mp3", metadata)
+        
+        # Update with rating normalization
+        metadata = {
+            UnifiedMetadataKey.TITLE: "New Title",
+            UnifiedMetadataKey.RATING: 75  # Will be normalized to 0-100 scale
+        }
+        update_file_metadata("song.mp3", metadata, normalized_rating_max_value=100)
+        
+        # Clean up other formats (remove ID3v1, keep only ID3v2)
+        update_file_metadata("song.mp3", metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
+        
+        # Write to specific format
+        update_file_metadata("song.mp3", metadata, metadata_format=MetadataFormat.ID3V2)
+    """
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
     
@@ -269,24 +379,114 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
 
 
 def delete_metadata(file, tag_format: MetadataFormat | None = None, id3v2_version: tuple[int, int, int] | None = None) -> bool:
+    """
+    Delete all metadata from an audio file.
+    
+    This function removes all metadata tags from the specified audio file.
+    If a specific format is provided, only that format's metadata is deleted.
+    
+    Args:
+        file: Audio file path or AudioFile object
+        tag_format: Specific format to delete metadata from. If None, deletes from native format.
+        id3v2_version: ID3v2 version tuple for ID3v2-specific operations
+        
+    Returns:
+        True if metadata was successfully deleted, False otherwise
+        
+    Raises:
+        FileTypeNotSupportedError: If the file format is not supported
+        FileNotFoundError: If the file does not exist
+        
+    Examples:
+        # Delete all metadata from native format
+        success = delete_metadata("song.mp3")
+        
+        # Delete only ID3v2 metadata (keep ID3v1)
+        success = delete_metadata("song.mp3", tag_format=MetadataFormat.ID3V2)
+        
+        # Delete Vorbis metadata from FLAC
+        success = delete_metadata("song.flac", tag_format=MetadataFormat.VORBIS)
+    """
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
     return _get_metadata_manager(file, tag_format=tag_format, id3v2_version=id3v2_version).delete_metadata()
 
 
 def get_bitrate(file: FILE_TYPE) -> int:
+    """
+    Get the bitrate of an audio file.
+    
+    Args:
+        file: Audio file path or AudioFile object
+        
+    Returns:
+        Bitrate in bits per second
+        
+    Raises:
+        FileTypeNotSupportedError: If the file format is not supported
+        FileNotFoundError: If the file does not exist
+        
+    Examples:
+        bitrate = get_bitrate("song.mp3")
+        print(f"Bitrate: {bitrate} bps")
+    """
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
     return file.get_bitrate()
 
 
 def get_duration_in_sec(file: FILE_TYPE) -> float:
+    """
+    Get the duration of an audio file in seconds.
+    
+    Args:
+        file: Audio file path or AudioFile object
+        
+    Returns:
+        Duration in seconds as a float
+        
+    Raises:
+        FileTypeNotSupportedError: If the file format is not supported
+        FileNotFoundError: If the file does not exist
+        
+    Examples:
+        duration = get_duration_in_sec("song.mp3")
+        print(f"Duration: {duration:.2f} seconds")
+        
+        # Convert to minutes
+        minutes = duration / 60
+        print(f"Duration: {minutes:.2f} minutes")
+    """
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
     return file.get_duration_in_sec()
 
 
 def is_flac_md5_valid(file: FILE_TYPE) -> bool:
+    """
+    Check if a FLAC file's MD5 signature is valid.
+    
+    This function verifies the integrity of a FLAC file by checking its MD5 signature.
+    Only works with FLAC files.
+    
+    Args:
+        file: Audio file path or AudioFile object (must be FLAC)
+        
+    Returns:
+        True if MD5 signature is valid, False otherwise
+        
+    Raises:
+        FileTypeNotSupportedError: If the file is not a FLAC file
+        FileNotFoundError: If the file does not exist
+        
+    Examples:
+        # Check FLAC file integrity
+        is_valid = is_flac_md5_valid("song.flac")
+        if is_valid:
+            print("FLAC file is intact")
+        else:
+            print("FLAC file may be corrupted")
+    """
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
     return file.is_flac_file_md5_valid()
@@ -313,6 +513,28 @@ def fix_md5_checking(file: FILE_TYPE) -> str:
 
 
 def delete_potential_id3_metadata_with_header(file: FILE_TYPE) -> None:
+    """
+    Delete ID3 metadata headers from an audio file.
+    
+    This function attempts to remove ID3 metadata headers from the file.
+    It's a low-level operation that directly manipulates the file structure.
+    
+    Args:
+        file: Audio file path or AudioFile object
+        
+    Returns:
+        None
+        
+    Raises:
+        FileNotFoundError: If the file does not exist
+        
+    Examples:
+        # Remove ID3 headers from MP3 file
+        delete_potential_id3_metadata_with_header("song.mp3")
+        
+        # This is typically used for cleanup operations
+        # when you want to remove all ID3 metadata
+    """
     if not isinstance(file, AudioFile):
         audio_file = AudioFile(file)
     try:
