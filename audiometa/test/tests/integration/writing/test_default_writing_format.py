@@ -200,8 +200,9 @@ class TestDefaultWritingFormat:
         
         # ID3v1 should remain unchanged (read-only)
         id3v1_metadata = get_single_format_app_metadata(temp_audio_file, MetadataFormat.ID3V1)
-        # ID3v1 might be empty or contain old data, but shouldn't have our new title
-        # (unless it was already there, which is fine for this test)
+        # ID3v1 should not have our new title since it's read-only
+        # It might be empty or contain old data, but not our new title
+        assert id3v1_metadata.get(UnifiedMetadataKey.TITLE) != "ID3v1 Test Title"
 
     @pytest.mark.parametrize("audio_format,expected_default", [
         ('.mp3', MetadataFormat.ID3V2),
