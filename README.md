@@ -91,6 +91,87 @@ pip install audiometa-python
 - **Dependencies**: Automatically installed with the package
 - **Required Tools**: ffprobe (for WAV file processing), flac (for FLAC MD5 validation)
 
+### Installing Required Tools
+
+The library requires two external tools for full functionality:
+
+#### ffprobe (for WAV file processing)
+
+**macOS:**
+
+```bash
+# Using Homebrew
+brew install ffmpeg
+
+# Using MacPorts
+sudo port install ffmpeg
+```
+
+**Ubuntu/Debian:**
+
+```bash
+sudo apt update
+sudo apt install ffmpeg
+```
+
+**CentOS/RHEL/Fedora:**
+
+```bash
+# CentOS/RHEL
+sudo yum install ffmpeg
+
+# Fedora
+sudo dnf install ffmpeg
+```
+
+**Windows:**
+
+- Download from [https://ffmpeg.org/download.html](https://ffmpeg.org/download.html)
+- Add to your system PATH
+
+#### flac (for FLAC MD5 validation)
+
+**macOS:**
+
+```bash
+# Using Homebrew
+brew install flac
+
+# Using MacPorts
+sudo port install flac
+```
+
+**Ubuntu/Debian:**
+
+```bash
+sudo apt update
+sudo apt install flac
+```
+
+**CentOS/RHEL/Fedora:**
+
+```bash
+# CentOS/RHEL
+sudo yum install flac
+
+# Fedora
+sudo dnf install flac
+```
+
+**Windows:**
+
+- Download from [https://xiph.org/flac/download.html](https://xiph.org/flac/download.html)
+- Add to your system PATH
+
+#### Verifying Installation
+
+After installation, verify the tools are available:
+
+```bash
+ffprobe -version
+flac --version
+```
+
 ## Getting Started
 
 ### What You Need
