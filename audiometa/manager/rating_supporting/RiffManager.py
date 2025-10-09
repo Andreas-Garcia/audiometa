@@ -50,8 +50,12 @@ class RiffManager(RatingSupportingMetadataManager):
     Unsupported Metadata:
     RIFF format has limited metadata support compared to other formats. The following metadata fields are NOT supported
     and will raise MetadataNotSupportedError if provided:
-    - Rating: RIFF format does not have a standard rating field
     - Genre: Limited to predefined genre codes (0-147) or text mode
+    
+    Rating Support:
+    RIFF format supports rating through the custom IRTD chunk, which is used by some applications
+    as an analogy to ID3 tags. While not part of the official RIFF specification, it's widely
+    recognized and supported by many audio applications.
     
     When attempting to update unsupported metadata, the manager will raise MetadataNotSupportedError with a clear
     message indicating which field is not supported by the RIFF format.
@@ -454,27 +458,6 @@ class RiffManager(RatingSupportingMetadataManager):
             if name and name.lower() == genre_name_lower:
                 return code
         return 12  # Default to 'Other' genre if not found
-
-    def update_file_metadata(self, app_metadata: AppMetadata):
-        """
-        Update RIFF metadata in the WAV file.
-        
-        Args:
-            app_metadata: Dictionary containing metadata to update
-            
-        Raises:
-            MetadataNotSupportedError: If unsupported metadata fields are provided
-                (e.g., rating, unsupported genre formats)
-            FileTypeNotSupportedError: If the file is not a WAV file
-            MetadataNotSupportedError: If the file format is invalid or corrupted
-        """
-        # Check for unsupported metadata fields and raise appropriate exceptions
-        # RIFF format has limited metadata support - rating is not supported
-        if UnifiedMetadataKey.RATING in app_metadata:
-            raise MetadataNotSupportedError(f'{UnifiedMetadataKey.RATING} metadata not supported by RIFF format')
-        
-        # Call parent method with the original metadata
-        super().update_file_metadata(app_metadata)
 
     def _should_preserve_id3v2_tags(self) -> bool:
         """
