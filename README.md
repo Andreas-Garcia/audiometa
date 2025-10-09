@@ -319,6 +319,25 @@ You can control metadata writing behavior using the `metadata_strategy` paramete
 2. **`PRESERVE`**: Write to native format only, preserve existing metadata in other formats
 3. **`CLEANUP`**: Write to native format and remove all non-native metadata formats
 
+#### Forced Format Behavior
+
+When you specify a `metadata_format` parameter, you **cannot** also specify a `metadata_strategy`:
+
+- **Write only to the specified format**: Other formats are left completely untouched
+- **Fail fast on unsupported fields**: Raises `MetadataNotSupportedError` for any unsupported metadata
+- **Predictable behavior**: No side effects on other metadata formats
+
+```python
+# Correct usage - specify only the format
+update_file_metadata("song.mp3", metadata,
+                    metadata_format=MetadataFormat.RIFF)  # Writes only to RIFF, ignores ID3v2
+
+# This will raise ValueError - cannot specify both parameters
+update_file_metadata("song.mp3", metadata,
+                    metadata_format=MetadataFormat.RIFF,
+                    metadata_strategy=MetadataWritingStrategy.CLEANUP)  # Raises ValueError
+```
+
 #### ID3v1 Exceptions
 
 **ID3v1 metadata cannot be modified or deleted** due to its read-only nature:
@@ -434,34 +453,45 @@ except FileCorruptedError:
     print("File is corrupted")
 except MetadataNotSupportedError:
     print("Metadata field not supported for this format")
+except ValueError as e:
+    print(f"Invalid parameters: {e}")
 ```
 
 ## Unsupported Metadata Handling
 
-The library handles unsupported metadata differently depending on the strategy used:
+The library handles unsupported metadata differently depending on the context:
 
+- **Forced format** (when `metadata_format` is specified): Always fails fast by raising `MetadataNotSupportedError` for any unsupported field
 - **SYNC strategy (default)**: Handles unsupported fields gracefully by logging warnings and continuing with supported fields
 - **Other strategies (PRESERVE, CLEANUP)**: Follow a "fail fast, fail clearly" approach by raising `MetadataNotSupportedError` when any field is not supported
 
 ### Format-Specific Limitations
 
-| Format         | SYNC Strategy (Default)                                     | Other Strategies (PRESERVE, CLEANUP)                        |
-| -------------- | ----------------------------------------------------------- | ----------------------------------------------------------- |
-| **RIFF (WAV)** | Logs warnings for unsupported fields, writes supported ones | Any unsupported metadata raises `MetadataNotSupportedError` |
-| **ID3v1**      | Logs warnings for unsupported fields, writes supported ones | Any unsupported metadata raises `MetadataNotSupportedError` |
-| **ID3v2**      | All fields supported                                        | All fields supported                                        |
-| **Vorbis**     | All fields supported                                        | All fields supported                                        |
+| Format         | Forced Format     | SYNC Strategy (Default)                                     | Other Strategies (PRESERVE, CLEANUP)                        |
+| -------------- | ----------------- | ----------------------------------------------------------- | ----------------------------------------------------------- |
+| **RIFF (WAV)** | Always fails fast | Logs warnings for unsupported fields, writes supported ones | Any unsupported metadata raises `MetadataNotSupportedError` |
+| **ID3v1**      | Always fails fast | Logs warnings for unsupported fields, writes supported ones | Any unsupported metadata raises `MetadataNotSupportedError` |
+| **ID3v2**      | Always fails fast | All fields supported                                        | All fields supported                                        |
+| **Vorbis**     | Always fails fast | All fields supported                                        | All fields supported                                        |
 
 ### Example: Handling Unsupported Metadata
 
 ```python
 from audiometa import update_file_metadata
 from audiometa.exceptions import MetadataNotSupportedError
+from audiometa.utils.MetadataFormat import MetadataFormat
 import warnings
 
 # SYNC strategy (default) - handles unsupported fields gracefully
 update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120})
 # Result: Writes title and rating to RIFF, logs warning about BPM, continues
+
+# Forced format - always fails fast for unsupported fields
+try:
+    update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
+                        metadata_format=MetadataFormat.RIFF)
+except MetadataNotSupportedError as e:
+    print(f"BPM not supported in RIFF format: {e}")
 
 # PRESERVE strategy - fails fast for unsupported fields
 try:

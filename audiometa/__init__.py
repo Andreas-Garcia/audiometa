@@ -252,7 +252,9 @@ def update_file_metadata(
             When provided, ratings are normalized to this scale. Defaults to None (raw values).
         id3v2_version: ID3v2 version tuple for ID3v2-specific operations
         metadata_strategy: Writing strategy (SYNC, PRESERVE, CLEANUP). Defaults to SYNC.
+            Ignored when metadata_format is specified.
         metadata_format: Specific format to write to. If None, uses the file's native format.
+            When specified, strategy is ignored and metadata is written only to this format.
         
     Returns:
         None
@@ -261,12 +263,19 @@ def update_file_metadata(
         FileTypeNotSupportedError: If the file format is not supported
         FileNotFoundError: If the file does not exist
         MetadataNotSupportedError: If the metadata field is not supported by the format (only for PRESERVE, CLEANUP strategies)
-        ValueError: If invalid rating values are provided
+        ValueError: If invalid rating values are provided or both metadata_strategy and metadata_format are specified
         
     Note:
-        The SYNC strategy (default) handles unsupported metadata fields gracefully by logging warnings
-        and continuing with supported fields. Other strategies will raise MetadataNotSupportedError
-        if any metadata field is not supported by the target format.
+        Cannot specify both metadata_strategy and metadata_format simultaneously. Choose one approach:
+        
+        - Use metadata_strategy for multi-format management (SYNC, PRESERVE, CLEANUP)
+        - Use metadata_format for single-format writing (writes only to specified format)
+        
+        When metadata_format is specified, metadata is written only to that format and unsupported
+        fields will raise MetadataNotSupportedError.
+        
+        When metadata_strategy is used (default SYNC), unsupported metadata fields are handled
+        gracefully with warnings, while other strategies raise MetadataNotSupportedError.
         
     Examples:
         # Basic metadata update
@@ -292,6 +301,15 @@ def update_file_metadata(
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
     
+    # Validate that both parameters are not specified simultaneously
+    if metadata_strategy is not None and metadata_format is not None:
+        raise ValueError(
+            "Cannot specify both metadata_strategy and metadata_format. "
+            "When metadata_format is specified, strategy is not applicable. "
+            "Choose either: use metadata_strategy for multi-format management, "
+            "or metadata_format for single-format writing."
+        )
+    
     # Default to SYNC strategy if not specified
     if metadata_strategy is None:
         metadata_strategy = MetadataWritingStrategy.SYNC
@@ -312,6 +330,14 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
         target_format_actual = target_format
     else:
         target_format_actual = MetadataFormat.get_priorities().get(file.file_extension)[0]
+    
+    # When a specific format is forced, ignore strategy and write only to that format
+    if target_format:
+        all_managers = _get_metadata_managers(
+            file=file, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
+        target_manager = all_managers[target_format_actual]
+        target_manager.update_file_metadata(app_metadata)
+        return
     
     # Get all available managers for this file type
     all_managers = _get_metadata_managers(

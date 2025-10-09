@@ -15,6 +15,7 @@ from audiometa import (
     update_file_metadata,
     delete_metadata,
     get_merged_unified_metadata,
+    get_single_format_app_metadata,
     AudioFile
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -132,6 +133,80 @@ class TestMetadataWriting:
         # This should raise MetadataNotSupportedError for unsupported fields with PRESERVE strategy
         with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
             update_file_metadata(test_file, unsupported_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
+
+    def test_update_file_metadata_forced_format_fails_fast(self, temp_audio_file: Path):
+        # Use external script to set basic metadata
+        test_metadata = {
+            "title": "Test Title",
+            "artist": "Test Artist"
+        }
+        test_file = create_test_file_with_metadata(
+            test_metadata,
+            "wav"
+        )
+        
+        # Test that forced format always fails fast on unsupported fields
+        # WAV files don't support BPM in RIFF format
+        unsupported_metadata = {
+            UnifiedMetadataKey.TITLE: "Test Title",
+            UnifiedMetadataKey.BPM: 120  # This should raise MetadataNotSupportedError
+        }
+        
+        # This should raise MetadataNotSupportedError because format is forced
+        with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
+            update_file_metadata(test_file, unsupported_metadata, 
+                               metadata_format=MetadataFormat.RIFF)
+
+    def test_update_file_metadata_forced_format_writes_only_to_specified_format(self, temp_audio_file: Path):
+        # Use external script to set ID3v2 metadata
+        test_metadata = {
+            "title": "Original ID3v2 Title",
+            "artist": "Original ID3v2 Artist"
+        }
+        test_file = create_test_file_with_metadata(
+            test_metadata,
+            "mp3"
+        )
+        
+        # Force RIFF format on MP3 file (should write only to RIFF, leave ID3v2 untouched)
+        new_metadata = {
+            UnifiedMetadataKey.TITLE: "New RIFF Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["New RIFF Artist"]
+        }
+        
+        # This should write only to RIFF format, leaving ID3v2 unchanged
+        update_file_metadata(test_file, new_metadata, 
+                           metadata_format=MetadataFormat.RIFF)  # Only specify format
+        
+        # Verify RIFF has new metadata
+        riff_metadata = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
+        assert riff_metadata.get(UnifiedMetadataKey.TITLE) == "New RIFF Title"
+        
+        # Verify ID3v2 still has original metadata (forced format doesn't affect other formats)
+        id3v2_metadata = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+        assert id3v2_metadata.get(UnifiedMetadataKey.TITLE) == "Original ID3v2 Title"
+
+    def test_update_file_metadata_parameter_conflict_error(self, temp_audio_file: Path):
+        # Use external script to set basic metadata
+        test_metadata = {
+            "title": "Test Title",
+            "artist": "Test Artist"
+        }
+        test_file = create_test_file_with_metadata(
+            test_metadata,
+            "wav"
+        )
+        
+        # Test that specifying both parameters raises ValueError
+        metadata = {
+            UnifiedMetadataKey.TITLE: "Test Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"]
+        }
+        
+        with pytest.raises(ValueError, match="Cannot specify both metadata_strategy and metadata_format"):
+            update_file_metadata(test_file, metadata,
+                               metadata_format=MetadataFormat.RIFF,
+                               metadata_strategy=MetadataWritingStrategy.SYNC)
 
     def test_delete_metadata_mp3(self, temp_audio_file: Path):
         # First add some metadata using external script
