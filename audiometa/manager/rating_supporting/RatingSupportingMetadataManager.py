@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
 from ...audio_file import AudioFile
-from ...exceptions import ConfigurationError
+from ...exceptions import ConfigurationError, InvalidRatingValueError
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from ...utils.rating_profiles import RatingReadProfile, RatingWriteProfile
 from ...utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
@@ -87,6 +87,6 @@ class RatingSupportingMetadataManager(MetadataManager):
                     file_rating = self._convert_normalized_rating_to_file_rating(normalized_rating=normalized_rating)
                     app_metadata[UnifiedMetadataKey.RATING] = file_rating
                 except (TypeError, ValueError):
-                    raise ValueError(f"Invalid rating value: {value}. Expected a numeric value.")
+                    raise InvalidRatingValueError(f"Invalid rating value: {value}. Expected a numeric value.")
 
         super().update_file_metadata(app_metadata)
