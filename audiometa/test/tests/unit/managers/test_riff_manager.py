@@ -1,4 +1,4 @@
-"""Tests for RIFF metadata manager."""
+
 
 import pytest
 from pathlib import Path
@@ -11,7 +11,6 @@ from audiometa.exceptions import FileTypeNotSupportedError, MetadataNotSupported
 
 @pytest.mark.unit
 class TestRiffManager:
-    """Test cases for RIFF metadata manager."""
 
     def test_riff_manager_wav(self, sample_wav_file: Path):
         audio_file = AudioFile(sample_wav_file)
@@ -21,14 +20,12 @@ class TestRiffManager:
         assert isinstance(metadata, dict)
 
     def test_riff_manager_unsupported_format(self, sample_mp3_file: Path):
-        """Test RIFF manager with unsupported format raises error."""
         audio_file = AudioFile(sample_mp3_file)
         
         with pytest.raises(FileTypeNotSupportedError):
             RiffManager(audio_file)
 
     def test_riff_manager_update_metadata(self, sample_wav_file: Path, temp_wav_file: Path):
-        """Test updating metadata with RIFF manager."""
         import shutil
         shutil.copy2(sample_wav_file, temp_wav_file)
         
@@ -50,7 +47,6 @@ class TestRiffManager:
         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "RIFF Test Album"
 
     def test_riff_manager_rating_not_supported(self, sample_wav_file: Path, temp_wav_file: Path):
-        """Test that RIFF manager raises exception for unsupported rating."""
         import shutil
         shutil.copy2(sample_wav_file, temp_wav_file)
         

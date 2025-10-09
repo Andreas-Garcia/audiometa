@@ -1,4 +1,4 @@
-"""Tests for reading title metadata."""
+
 
 import pytest
 

@@ -1,4 +1,4 @@
-"""Tests for Vorbis metadata manager."""
+
 
 import pytest
 from pathlib import Path
@@ -10,7 +10,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.unit
 class TestVorbisManager:
-    """Test cases for Vorbis metadata manager."""
 
     def test_vorbis_manager_flac(self, sample_flac_file: Path):
         audio_file = AudioFile(sample_flac_file)
@@ -28,7 +27,6 @@ class TestVorbisManager:
         assert isinstance(metadata, dict)
 
     def test_vorbis_manager_update_metadata(self, sample_flac_file: Path, temp_audio_file: Path):
-        """Test updating metadata with Vorbis manager."""
         import shutil
         shutil.copy2(sample_flac_file, temp_audio_file)
         

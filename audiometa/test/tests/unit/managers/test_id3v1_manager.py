@@ -1,4 +1,4 @@
-"""Tests for ID3v1 metadata manager."""
+
 
 import pytest
 from pathlib import Path
@@ -11,7 +11,6 @@ from audiometa.exceptions import MetadataNotSupportedError
 
 @pytest.mark.unit
 class TestId3v1Manager:
-    """Test cases for ID3v1 metadata manager."""
 
     def test_id3v1_manager_mp3(self, sample_mp3_file: Path):
         audio_file = AudioFile(sample_mp3_file)

@@ -1,4 +1,4 @@
-"""Tests for reading release date metadata."""
+
 
 import pytest
 

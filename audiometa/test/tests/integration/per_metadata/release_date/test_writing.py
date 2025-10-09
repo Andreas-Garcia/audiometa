@@ -1,4 +1,4 @@
-"""Tests for writing release date metadata."""
+
 
 import pytest
 import shutil

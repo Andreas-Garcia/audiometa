@@ -355,10 +355,8 @@ class TestMetadataStrategies:
 
 
 class TestUnsupportedFieldsHandling:
-    """Test unsupported fields handling functionality with fail_on_unsupported_field parameter."""
 
     def test_fail_on_unsupported_field_sync_strategy(self):
-        """Test that fail_on_unsupported_field=True fails when no format supports a field."""
         # Create a WAV file (RIFF format) which has limited metadata support
         with TempFileWithMetadata({"title": "Test"}, "wav") as test_file:
             # Try to write metadata that includes REPLAYGAIN, which is not supported by any format
@@ -376,7 +374,6 @@ class TestUnsupportedFieldsHandling:
             assert "REPLAYGAIN" in str(exc_info.value)
 
     def test_fail_on_unsupported_field_sync_strategy_graceful_default(self):
-        """Test that fail_on_unsupported_field=False (default) handles unsupported fields gracefully."""
         # Create a WAV file (RIFF format) which has limited metadata support
         with TempFileWithMetadata({"title": "Test"}, "wav") as test_file:
             # Try to write metadata that includes REPLAYGAIN, which is not supported by any format
@@ -400,7 +397,6 @@ class TestUnsupportedFieldsHandling:
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
 
     def test_fail_on_unsupported_field_no_writing_done(self):
-        """Test that when fail_on_unsupported_field=True fails, no writing is actually done to the file."""
         # Create a WAV file with initial metadata
         initial_metadata = {
             "title": "Original Title",
@@ -431,7 +427,6 @@ class TestUnsupportedFieldsHandling:
             assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist
 
     def test_fail_on_unsupported_field_no_changes_mp3_id3v2_only(self):
-        """Test that when fail_on_unsupported_field=True fails on MP3 with ID3v2, no changes are made."""
         # Create MP3 file with initial metadata
         initial_metadata = {
             "title": "Original MP3 Title",
@@ -461,7 +456,6 @@ class TestUnsupportedFieldsHandling:
             assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist
 
     def test_fail_on_unsupported_field_no_changes_flac_vorbis_only(self):
-        """Test that when fail_on_unsupported_field=True fails on FLAC with Vorbis, no changes are made."""
         # Create FLAC file with initial metadata
         initial_metadata = {
             "title": "Original FLAC Title",
@@ -491,7 +485,6 @@ class TestUnsupportedFieldsHandling:
             assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist
 
     def test_fail_on_unsupported_field_no_changes_wav_riff_only(self):
-        """Test that when fail_on_unsupported_field=True fails on WAV with RIFF, no changes are made."""
         # Create WAV file with initial metadata
         initial_metadata = {
             "title": "Original WAV Title",

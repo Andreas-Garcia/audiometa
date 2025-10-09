@@ -1,4 +1,4 @@
-"""Tests for writing album metadata."""
+
 
 import pytest
 import shutil

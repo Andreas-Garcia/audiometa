@@ -1,4 +1,4 @@
-"""Tests for writing composer metadata."""
+
 
 import pytest
 import shutil

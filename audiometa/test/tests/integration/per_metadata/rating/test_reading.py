@@ -1,4 +1,4 @@
-"""Tests for reading rating metadata."""
+
 
 import pytest
 

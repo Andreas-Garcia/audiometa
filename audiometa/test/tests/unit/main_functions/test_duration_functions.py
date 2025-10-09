@@ -1,4 +1,4 @@
-"""Tests for duration-related functions."""
+
 
 import pytest
 from pathlib import Path
@@ -9,7 +9,6 @@ from audiometa.exceptions import FileTypeNotSupportedError
 
 @pytest.mark.unit
 class TestDurationFunctions:
-    """Test cases for duration-related functions."""
 
     def test_get_duration_in_sec_mp3(self, sample_mp3_file: Path):
         duration = get_duration_in_sec(sample_mp3_file)

@@ -1,4 +1,4 @@
-"""Tests for writing artists metadata."""
+
 
 import pytest
 import shutil

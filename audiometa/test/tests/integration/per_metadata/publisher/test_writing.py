@@ -1,4 +1,4 @@
-"""Tests for writing publisher metadata."""
+
 
 import pytest
 import shutil
@@ -19,7 +19,6 @@ class TestPublisherWriting:
         assert publisher == test_publisher
 
     def test_riff(self, metadata_none_wav, temp_wav_file):
-        """Test that RIFF format correctly raises exception for unsupported publisher metadata."""
         from audiometa.exceptions import MetadataNotSupportedError
         
         shutil.copy2(metadata_none_wav, temp_wav_file)
@@ -31,7 +30,6 @@ class TestPublisherWriting:
             update_file_metadata(temp_wav_file, test_metadata, metadata_format=MetadataFormat.RIFF)
 
     def test_vorbis(self, metadata_none_flac, temp_flac_file):
-        """Test that Vorbis format correctly raises exception for unsupported publisher metadata."""
         from audiometa.exceptions import MetadataNotSupportedError
         
         shutil.copy2(metadata_none_flac, temp_flac_file)

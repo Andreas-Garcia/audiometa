@@ -1,4 +1,4 @@
-"""Tests for writing BPM metadata."""
+
 
 import pytest
 import shutil
@@ -19,7 +19,6 @@ class TestBpmWriting:
         assert bpm == test_bpm
 
     def test_riff(self, metadata_none_wav, temp_wav_file):
-        """Test that RIFF format correctly raises exception for unsupported BPM metadata."""
         from audiometa.exceptions import MetadataNotSupportedError
         
         shutil.copy2(metadata_none_wav, temp_wav_file)

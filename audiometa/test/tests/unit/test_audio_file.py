@@ -1,4 +1,4 @@
-"""Unit tests for AudioFile class basic functionality."""
+
 
 import pytest
 from pathlib import Path
@@ -9,7 +9,6 @@ from audiometa.exceptions import FileTypeNotSupportedError
 
 @pytest.mark.unit
 class TestAudioFile:
-    """Unit test cases for AudioFile class basic functionality."""
 
     def test_audio_file_with_string_path(self, sample_mp3_file: Path):
         audio_file = AudioFile(str(sample_mp3_file))
@@ -22,12 +21,10 @@ class TestAudioFile:
         assert audio_file.file_extension == ".mp3"
 
     def test_audio_file_nonexistent_file(self):
-        """Test AudioFile with non-existent file raises FileNotFoundError."""
         with pytest.raises(FileNotFoundError):
             AudioFile("nonexistent_file.mp3")
 
     def test_audio_file_unsupported_type(self, temp_audio_file: Path):
-        """Test AudioFile with unsupported file type."""
         # Create a file with unsupported extension
         temp_audio_file.write_bytes(b"fake audio content")
         temp_audio_file = temp_audio_file.with_suffix(".txt")

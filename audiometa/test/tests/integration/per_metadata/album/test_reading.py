@@ -1,4 +1,3 @@
-"""Tests for reading album metadata."""
 
 import pytest
 

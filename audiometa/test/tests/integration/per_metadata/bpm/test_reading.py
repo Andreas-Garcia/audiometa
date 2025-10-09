@@ -1,4 +1,4 @@
-"""Tests for reading BPM metadata."""
+
 
 import pytest
 

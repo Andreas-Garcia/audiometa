@@ -1,4 +1,4 @@
-"""Tests for reading artists metadata."""
+
 
 import pytest
 

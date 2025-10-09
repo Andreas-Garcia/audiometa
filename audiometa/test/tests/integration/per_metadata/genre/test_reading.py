@@ -1,4 +1,4 @@
-"""Tests for reading genre metadata."""
+
 
 import pytest
 

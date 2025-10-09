@@ -1,4 +1,4 @@
-"""Tests for FLAC MD5-related functions."""
+
 
 import pytest
 from pathlib import Path
@@ -10,14 +10,12 @@ from audiometa.exceptions import FileTypeNotSupportedError
 
 @pytest.mark.unit
 class TestFlacMd5Functions:
-    """Test cases for FLAC MD5-related functions."""
 
     def test_is_flac_md5_valid_flac(self, sample_flac_file: Path):
         is_valid = is_flac_md5_valid(sample_flac_file)
         assert isinstance(is_valid, bool)
 
     def test_is_flac_md5_valid_non_flac(self, sample_mp3_file: Path):
-        """Test FLAC MD5 validation on non-FLAC file raises error."""
         with pytest.raises(FileTypeNotSupportedError):
             is_flac_md5_valid(sample_mp3_file)
 
@@ -40,7 +38,6 @@ class TestFlacMd5Functions:
         Path(fixed_file_path).unlink()
 
     def test_fix_md5_checking_non_flac(self, sample_mp3_file: Path):
-        """Test fixing MD5 checking on non-FLAC file raises error."""
         with pytest.raises(FileTypeNotSupportedError):
             fix_md5_checking(sample_mp3_file)
 

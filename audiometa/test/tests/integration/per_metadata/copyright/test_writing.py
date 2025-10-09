@@ -1,4 +1,4 @@
-"""Tests for writing copyright metadata."""
+
 
 import pytest
 import shutil

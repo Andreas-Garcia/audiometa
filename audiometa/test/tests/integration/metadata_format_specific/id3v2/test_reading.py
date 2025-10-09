@@ -1,4 +1,4 @@
-"""Tests for ID3v2 format reading functionality."""
+
 
 import pytest
 from pathlib import Path

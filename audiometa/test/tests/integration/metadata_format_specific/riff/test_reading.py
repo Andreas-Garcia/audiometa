@@ -1,4 +1,4 @@
-"""Tests for RIFF format reading functionality."""
+
 
 import pytest
 from pathlib import Path

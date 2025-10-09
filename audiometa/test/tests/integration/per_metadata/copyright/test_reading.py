@@ -1,4 +1,4 @@
-"""Tests for reading copyright metadata."""
+
 
 import pytest
 

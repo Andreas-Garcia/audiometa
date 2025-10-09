@@ -1,4 +1,4 @@
-"""Tests for reading publisher metadata."""
+
 
 import pytest
 

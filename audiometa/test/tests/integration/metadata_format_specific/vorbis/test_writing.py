@@ -1,4 +1,4 @@
-"""Tests for Vorbis format writing functionality."""
+
 
 import pytest
 from pathlib import Path

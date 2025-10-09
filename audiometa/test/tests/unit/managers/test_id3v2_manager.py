@@ -1,4 +1,4 @@
-"""Tests for ID3v2 metadata manager."""
+
 
 import pytest
 from pathlib import Path
@@ -10,7 +10,6 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.unit
 class TestId3v2Manager:
-    """Test cases for ID3v2 metadata manager."""
 
     def test_id3v2_manager_mp3(self, sample_mp3_file: Path):
         audio_file = AudioFile(sample_mp3_file)
@@ -34,7 +33,6 @@ class TestId3v2Manager:
         assert isinstance(metadata, dict)
 
     def test_id3v2_manager_update_metadata(self, sample_mp3_file: Path, temp_audio_file: Path):
-        """Test updating metadata with ID3v2 manager."""
         import shutil
         shutil.copy2(sample_mp3_file, temp_audio_file)
         

@@ -1,4 +1,4 @@
-"""Tests for reading composer metadata."""
+
 
 import pytest
 

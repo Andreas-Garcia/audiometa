@@ -1,4 +1,4 @@
-"""Tests for reading lyrics metadata."""
+
 
 import pytest
 

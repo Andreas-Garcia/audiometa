@@ -1,4 +1,4 @@
-"""Integration tests for AudioFile class with metadata APIs."""
+
 
 import pytest
 from pathlib import Path
@@ -15,11 +15,9 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestAudioFileIntegration:
-    """Integration test cases for AudioFile class with metadata APIs."""
 
 
     def test_audio_file_object_integration(self, sample_mp3_file: Path):
-        """Test integration between AudioFile object and functional APIs."""
         audio_file = AudioFile(sample_mp3_file)
         
         # Test that AudioFile object works with functional APIs

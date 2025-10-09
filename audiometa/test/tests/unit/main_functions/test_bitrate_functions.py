@@ -1,4 +1,4 @@
-"""Tests for bitrate-related functions."""
+
 
 import pytest
 from pathlib import Path
@@ -9,7 +9,6 @@ from audiometa.exceptions import FileTypeNotSupportedError
 
 @pytest.mark.unit
 class TestBitrateFunctions:
-    """Test cases for bitrate-related functions."""
 
     def test_get_bitrate_mp3(self, sample_mp3_file: Path):
         bitrate = get_bitrate(sample_mp3_file)

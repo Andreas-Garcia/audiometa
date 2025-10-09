@@ -1,4 +1,4 @@
-"""Tests for Vorbis format reading functionality."""
+
 
 import pytest
 
