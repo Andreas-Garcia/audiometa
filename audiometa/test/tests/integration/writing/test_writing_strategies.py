@@ -10,6 +10,7 @@ This module tests the different metadata writing strategies:
 """
 
 import pytest
+import warnings
 from pathlib import Path
 import shutil
 from typing import Any
@@ -20,6 +21,7 @@ from audiometa import (
     get_merged_unified_metadata,
     AudioFile
 )
+from audiometa.exceptions import MetadataNotSupportedError
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -97,25 +99,25 @@ class TestMetadataStrategies:
             id3v2_result = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
             assert id3v2_result.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
             
-                        # Now write RIFF metadata with CLEANUP strategy
-                        riff_metadata = {
-                            UnifiedMetadataKey.TITLE: "RIFF Title",
-                            UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Artist"],
-                            UnifiedMetadataKey.ALBUM_NAME: "RIFF Album"
-                        }
-                        update_file_metadata(test_file, riff_metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
+            # Now write RIFF metadata with CLEANUP strategy
+            riff_metadata = {
+                UnifiedMetadataKey.TITLE: "RIFF Title",
+                UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Artist"],
+                UnifiedMetadataKey.ALBUM_NAME: "RIFF Album"
+            }
+            update_file_metadata(test_file, riff_metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
             
-                        # Verify ID3v2 was removed
-                        id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
-                        assert id3v2_after.get(UnifiedMetadataKey.TITLE) is None
+            # Verify ID3v2 was removed
+            id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+            assert id3v2_after.get(UnifiedMetadataKey.TITLE) is None
             
-                        # Verify RIFF has new metadata
-                        riff_after = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
-                        assert riff_after.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
+            # Verify RIFF has new metadata
+            riff_after = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
+            assert riff_after.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
             
-                        # Merged metadata should only have RIFF (ID3v2 was cleaned up)
-                        merged = get_merged_unified_metadata(test_file)
-                        assert merged.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
+            # Merged metadata should only have RIFF (ID3v2 was cleaned up)
+            merged = get_merged_unified_metadata(test_file)
+            assert merged.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
 
     def test_sync_strategy_wav_with_id3v2(self, sample_wav_file: Path, temp_audio_file: Path):
         # Create test file with basic metadata first
@@ -350,4 +352,171 @@ class TestMetadataStrategies:
             update_file_metadata(test_file, {
                 UnifiedMetadataKey.TITLE: "New Title"
             }, metadata_format=MetadataFormat.ID3V1)
+
+
+class TestUnsupportedFieldsHandling:
+    """Test unsupported fields handling functionality with fail_on_unsupported_field parameter."""
+
+    def test_fail_on_unsupported_field_sync_strategy(self):
+        """Test that fail_on_unsupported_field=True fails when no format supports a field."""
+        # Create a WAV file (RIFF format) which has limited metadata support
+        with TempFileWithMetadata({"title": "Test"}, "wav") as test_file:
+            # Try to write metadata that includes REPLAYGAIN, which is not supported by any format
+            # This should fail when fail_on_unsupported_field=True
+            test_metadata = {
+                UnifiedMetadataKey.TITLE: "Test Title",
+                UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # REPLAYGAIN is not supported by any format
+            }
+            
+            # Should fail because REPLAYGAIN is not supported by any format
+            with pytest.raises(MetadataNotSupportedError) as exc_info:
+                update_file_metadata(test_file, test_metadata, fail_on_unsupported_field=True)
+            
+            assert "Fields not supported by any format" in str(exc_info.value)
+            assert "REPLAYGAIN" in str(exc_info.value)
+
+    def test_fail_on_unsupported_field_sync_strategy_graceful_default(self):
+        """Test that fail_on_unsupported_field=False (default) handles unsupported fields gracefully."""
+        # Create a WAV file (RIFF format) which has limited metadata support
+        with TempFileWithMetadata({"title": "Test"}, "wav") as test_file:
+            # Try to write metadata that includes REPLAYGAIN, which is not supported by any format
+            # This should succeed with warnings when fail_on_unsupported_field=False (default)
+            test_metadata = {
+                UnifiedMetadataKey.TITLE: "Test Title",
+                UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # REPLAYGAIN is not supported by any format
+            }
+            
+            # Should succeed with warnings (default behavior)
+            with warnings.catch_warnings(record=True) as w:
+                warnings.simplefilter("always")
+                update_file_metadata(test_file, test_metadata)  # fail_on_unsupported_field=False by default
+                
+                # Should have warnings about unsupported fields
+                assert len(w) > 0
+                assert any("doesn't support some metadata fields" in str(warning.message) for warning in w)
+            
+            # Verify that supported fields were written
+            metadata = get_merged_unified_metadata(test_file)
+            assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
+
+    def test_fail_on_unsupported_field_no_writing_done(self):
+        """Test that when fail_on_unsupported_field=True fails, no writing is actually done to the file."""
+        # Create a WAV file with initial metadata
+        initial_metadata = {
+            "title": "Original Title",
+            "artist": "Original Artist"
+        }
+        with TempFileWithMetadata(initial_metadata, "wav") as test_file:
+            # Verify initial metadata exists
+            initial_read = get_merged_unified_metadata(test_file)
+            assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original Title"
+            assert initial_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original Artist"]
+            
+            # Try to write metadata that includes REPLAYGAIN, which is not supported by any format
+            # This should fail when fail_on_unsupported_field=True
+            test_metadata = {
+                UnifiedMetadataKey.TITLE: "New Title",  # This should NOT be written
+                UnifiedMetadataKey.ARTISTS_NAMES: ["New Artist"],  # This should NOT be written
+                UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # REPLAYGAIN is not supported by any format
+            }
+            
+            # Should fail because REPLAYGAIN is not supported by any format
+            with pytest.raises(MetadataNotSupportedError):
+                update_file_metadata(test_file, test_metadata, fail_on_unsupported_field=True)
+            
+            # Verify that NO writing was done - file should still have original metadata
+            final_read = get_merged_unified_metadata(test_file)
+            assert final_read.get(UnifiedMetadataKey.TITLE) == "Original Title"  # Should be unchanged
+            assert final_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original Artist"]  # Should be unchanged
+            assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist
+
+    def test_fail_on_unsupported_field_no_changes_mp3_id3v2_only(self):
+        """Test that when fail_on_unsupported_field=True fails on MP3 with ID3v2, no changes are made."""
+        # Create MP3 file with initial metadata
+        initial_metadata = {
+            "title": "Original MP3 Title",
+            "artist": "Original MP3 Artist"
+        }
+        with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
+            # Verify initial metadata exists
+            initial_read = get_merged_unified_metadata(test_file)
+            assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original MP3 Title"
+            assert initial_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original MP3 Artist"]
+            
+            # Try to write metadata with unsupported field (REPLAYGAIN is not supported by any format)
+            test_metadata = {
+                UnifiedMetadataKey.TITLE: "New MP3 Title",  # Should NOT be written
+                UnifiedMetadataKey.ARTISTS_NAMES: ["New MP3 Artist"],  # Should NOT be written
+                UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # Not supported by any format
+            }
+            
+            # Should fail because REPLAYGAIN is not supported by any format
+            with pytest.raises(MetadataNotSupportedError):
+                update_file_metadata(test_file, test_metadata, fail_on_unsupported_field=True)
+            
+            # Verify that NO writing was done - file should still have original metadata
+            final_read = get_merged_unified_metadata(test_file)
+            assert final_read.get(UnifiedMetadataKey.TITLE) == "Original MP3 Title"  # Should be unchanged
+            assert final_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original MP3 Artist"]  # Should be unchanged
+            assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist
+
+    def test_fail_on_unsupported_field_no_changes_flac_vorbis_only(self):
+        """Test that when fail_on_unsupported_field=True fails on FLAC with Vorbis, no changes are made."""
+        # Create FLAC file with initial metadata
+        initial_metadata = {
+            "title": "Original FLAC Title",
+            "artist": "Original FLAC Artist"
+        }
+        with TempFileWithMetadata(initial_metadata, "flac") as test_file:
+            # Verify initial metadata exists
+            initial_read = get_merged_unified_metadata(test_file)
+            assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original FLAC Title"
+            assert initial_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original FLAC Artist"]
+            
+            # Try to write metadata with unsupported field (REPLAYGAIN is not supported by any format)
+            test_metadata = {
+                UnifiedMetadataKey.TITLE: "New FLAC Title",  # Should NOT be written
+                UnifiedMetadataKey.ARTISTS_NAMES: ["New FLAC Artist"],  # Should NOT be written
+                UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # Not supported by any format
+            }
+            
+            # Should fail because REPLAYGAIN is not supported by any format
+            with pytest.raises(MetadataNotSupportedError):
+                update_file_metadata(test_file, test_metadata, fail_on_unsupported_field=True)
+            
+            # Verify that NO writing was done - file should still have original metadata
+            final_read = get_merged_unified_metadata(test_file)
+            assert final_read.get(UnifiedMetadataKey.TITLE) == "Original FLAC Title"  # Should be unchanged
+            assert final_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original FLAC Artist"]  # Should be unchanged
+            assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist
+
+    def test_fail_on_unsupported_field_no_changes_wav_riff_only(self):
+        """Test that when fail_on_unsupported_field=True fails on WAV with RIFF, no changes are made."""
+        # Create WAV file with initial metadata
+        initial_metadata = {
+            "title": "Original WAV Title",
+            "artist": "Original WAV Artist"
+        }
+        with TempFileWithMetadata(initial_metadata, "wav") as test_file:
+            # Verify initial metadata exists
+            initial_read = get_merged_unified_metadata(test_file)
+            assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"
+            assert initial_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original WAV Artist"]
+            
+            # Try to write metadata with unsupported field (REPLAYGAIN is not supported by any format)
+            test_metadata = {
+                UnifiedMetadataKey.TITLE: "New WAV Title",  # Should NOT be written
+                UnifiedMetadataKey.ARTISTS_NAMES: ["New WAV Artist"],  # Should NOT be written
+                UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # Not supported by any format
+            }
+            
+            # Should fail because REPLAYGAIN is not supported by any format
+            with pytest.raises(MetadataNotSupportedError):
+                update_file_metadata(test_file, test_metadata, fail_on_unsupported_field=True)
+            
+            # Verify that NO writing was done - file should still have original metadata
+            final_read = get_merged_unified_metadata(test_file)
+            assert final_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"  # Should be unchanged
+            assert final_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original WAV Artist"]  # Should be unchanged
+            assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist
 

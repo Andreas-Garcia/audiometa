@@ -108,7 +108,7 @@ class TestConflictingMetadata:
             assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Vorbis Artist"]
             assert merged_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Vorbis Album"
 
-    def test_partial_conflicts(self, sample_mp3_file: Path, test_file: Path):
+    def test_partial_conflicts(self):
         # Use external script to set initial metadata
         initial_metadata = {
             "title": "Original Title",
@@ -132,7 +132,7 @@ class TestConflictingMetadata:
             # Album should come from ID3v2
             assert merged_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v2 Album"
 
-    def test_rating_precedence_rules(self, sample_mp3_file: Path, test_file: Path):
+    def test_rating_precedence_rules(self):
         # Use external script to set initial metadata
         initial_metadata = {
             "title": "Original Title",
@@ -151,7 +151,7 @@ class TestConflictingMetadata:
             # Should use ID3v2 rating
             assert merged_metadata.get(UnifiedMetadataKey.RATING) == 5
 
-    def test_audio_file_object_with_conflicts(self, sample_mp3_file: Path, test_file: Path):
+    def test_audio_file_object_with_conflicts(self):
         # Use external script to set initial metadata
         initial_metadata = {
             "title": "Original Title",

@@ -463,6 +463,7 @@ The library handles unsupported metadata differently depending on the context:
 
 - **Forced format** (when `metadata_format` is specified): Always fails fast by raising `MetadataNotSupportedError` for any unsupported field
 - **SYNC strategy (default)**: Handles unsupported fields gracefully by logging warnings and continuing with supported fields
+- **SYNC strategy with `fail_on_unsupported_field=True`**: Fails fast if any field is not supported by NO format
 - **Other strategies (PRESERVE, CLEANUP)**: Follow a "fail fast, fail clearly" approach by raising `MetadataNotSupportedError` when any field is not supported
 
 ### Format-Specific Limitations
@@ -485,6 +486,13 @@ import warnings
 # SYNC strategy (default) - handles unsupported fields gracefully
 update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120})
 # Result: Writes title and rating to RIFF, logs warning about BPM, continues
+
+# SYNC strategy with strict validation - fails if any field unsupported by ALL formats
+try:
+    update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
+                        fail_on_unsupported_field=True)
+except MetadataNotSupportedError as e:
+    print(f"Some metadata fields not supported by any format: {e}")
 
 # Forced format - always fails fast for unsupported fields
 try:
