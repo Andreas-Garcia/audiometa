@@ -48,11 +48,16 @@ class TestRatingWriting:
             "wav"
         )
         
-        # RIFF format doesn't support rating metadata - should raise MetadataNotSupportedError
+        # RIFF format now supports rating metadata through IRTD chunk
         test_rating = 75
         test_metadata = {UnifiedMetadataKey.RATING: test_rating}
-        with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.RATING metadata not supported by RIFF format"):
-            update_file_metadata(test_file, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
+        update_file_metadata(test_file, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
+        
+        # Verify the rating was written and can be read back
+        from audiometa import get_specific_metadata
+        rating = get_specific_metadata(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+        assert rating is not None
+        assert isinstance(rating, int)
 
     def test_vorbis(self, metadata_none_flac, temp_flac_file):
         # Use external script to set basic metadata first
