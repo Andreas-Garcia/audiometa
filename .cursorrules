@@ -16,6 +16,9 @@ class TestArtistsMetadata:
 def test_artists_metadata_mp3():
     """Test artists metadata for MP3 files."""
 
+def test_forced_format_affects_delete_metadata_behavior():
+    """Test that forced format affects delete_metadata behavior."""
+
 def get_user_name():
     """This function returns the user's name."""
     return user.name
@@ -30,6 +33,9 @@ def calculate_total(price, tax):
 ```python
 class TestArtistsMetadata:
     def test_artists_metadata_mp3(self, sample_mp3_file: Path, temp_audio_file: Path):
+        # Test implementation here
+
+    def test_forced_format_affects_delete_metadata_behavior(self):
         # Test implementation here
 
 def get_user_name():
