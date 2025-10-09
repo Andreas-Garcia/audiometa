@@ -18,11 +18,13 @@ from audiometa import (
     get_single_format_app_metadata,
     AudioFile
 )
+from audiometa.exceptions import MetadataWritingConflictParametersError
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError, MetadataNotSupportedError
 from audiometa.test.tests.test_script_helpers import create_test_file_with_metadata
+from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata, create_test_file_with_metadata_cleanup
 
 
 @pytest.mark.integration
@@ -86,31 +88,28 @@ class TestMetadataWriting:
             "title": "Test Title",
             "artist": "Test Artist"
         }
-        test_file = create_test_file_with_metadata(
-            test_metadata,
-            "wav"
-        )
         
-        # Test that SYNC strategy (default) handles unsupported fields gracefully
-        # WAV files don't support BPM in RIFF format
-        unsupported_metadata = {
-            UnifiedMetadataKey.TITLE: "Test Title",
-            UnifiedMetadataKey.BPM: 120  # This should be skipped with a warning
-        }
-        
-        # This should NOT raise MetadataNotSupportedError with SYNC strategy (default)
-        # It should write the supported fields and log a warning about BPM
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            update_file_metadata(test_file, unsupported_metadata)
+        with TempFileWithMetadata(test_metadata, "wav") as test_file:
+                # Test that SYNC strategy (default) handles unsupported fields gracefully
+                # WAV files don't support BPM in RIFF format
+                unsupported_metadata = {
+                    UnifiedMetadataKey.TITLE: "Test Title",
+                    UnifiedMetadataKey.BPM: 120  # This should be skipped with a warning
+                }
             
-            # Check that a warning was issued about the unsupported field
-            assert len(w) > 0
-            assert any("BPM" in str(warning.message) for warning in w)
-        
-        # Verify that the supported field was written
-        updated_metadata = get_merged_unified_metadata(test_file)
-        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
+                # This should NOT raise MetadataNotSupportedError with SYNC strategy (default)
+                # It should write the supported fields and log a warning about BPM
+                with warnings.catch_warnings(record=True) as w:
+                    warnings.simplefilter("always")
+                    update_file_metadata(test_file, unsupported_metadata)
+                
+                    # Check that a warning was issued about the unsupported field
+                    assert len(w) > 0
+                    assert any("BPM" in str(warning.message) for warning in w)
+            
+                # Verify that the supported field was written
+                updated_metadata = get_merged_unified_metadata(test_file)
+                assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
 
     def test_update_file_metadata_unsupported_field_preserve_strategy(self, temp_audio_file: Path):
         # Use external script to set basic metadata
@@ -203,7 +202,7 @@ class TestMetadataWriting:
             UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"]
         }
         
-        with pytest.raises(ValueError, match="Cannot specify both metadata_strategy and metadata_format"):
+        with pytest.raises(MetadataWritingConflictParametersError, match="Cannot specify both metadata_strategy and metadata_format"):
             update_file_metadata(test_file, metadata,
                                metadata_format=MetadataFormat.RIFF,
                                metadata_strategy=MetadataWritingStrategy.SYNC)
@@ -325,35 +324,32 @@ class TestMetadataWriting:
             "artist": "WAV Test Artist",
             "album": "WAV Test Album"
         }
-        test_file = create_test_file_with_metadata(
-            test_metadata,
-            "wav"
-        )
         
-        # Test that SYNC strategy (default) handles unsupported fields gracefully
-        # WAV supports RATING via IRTD chunk, but BPM is not supported
-        unsupported_metadata = {
-            UnifiedMetadataKey.TITLE: "WAV Test Title",
-            UnifiedMetadataKey.ARTISTS_NAMES: ["WAV Test Artist"],
-            UnifiedMetadataKey.ALBUM_NAME: "WAV Test Album",
-            UnifiedMetadataKey.BPM: 120    # This should be skipped with a warning
-        }
-        
-        # This should NOT raise MetadataNotSupportedError with SYNC strategy (default)
-        # It should write the supported fields and log a warning about BPM
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            update_file_metadata(test_file, unsupported_metadata)
+        with TempFileWithMetadata(test_metadata, "wav") as test_file:
+                # Test that SYNC strategy (default) handles unsupported fields gracefully
+                # WAV supports RATING via IRTD chunk, but BPM is not supported
+                unsupported_metadata = {
+                    UnifiedMetadataKey.TITLE: "WAV Test Title",
+                    UnifiedMetadataKey.ARTISTS_NAMES: ["WAV Test Artist"],
+                    UnifiedMetadataKey.ALBUM_NAME: "WAV Test Album",
+                    UnifiedMetadataKey.BPM: 120    # This should be skipped with a warning
+                }
             
-            # Check that a warning was issued about the unsupported field
-            assert len(w) > 0
-            assert any("BPM" in str(warning.message) for warning in w)
-        
-        # Verify that the supported fields were written
-        updated_metadata = get_merged_unified_metadata(test_file)
-        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "WAV Test Title"
-        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["WAV Test Artist"]
-        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "WAV Test Album"
+                # This should NOT raise MetadataNotSupportedError with SYNC strategy (default)
+                # It should write the supported fields and log a warning about BPM
+                with warnings.catch_warnings(record=True) as w:
+                    warnings.simplefilter("always")
+                    update_file_metadata(test_file, unsupported_metadata)
+                
+                    # Check that a warning was issued about the unsupported field
+                    assert len(w) > 0
+                    assert any("BPM" in str(warning.message) for warning in w)
+            
+                # Verify that the supported fields were written
+                updated_metadata = get_merged_unified_metadata(test_file)
+                assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "WAV Test Title"
+                assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["WAV Test Artist"]
+                assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "WAV Test Album"
 
     def test_write_metadata_partial_update(self, temp_audio_file):
         # Use external script to set initial metadata
@@ -362,24 +358,21 @@ class TestMetadataWriting:
             "artist": "Original Artist",
             "album": "Original Album"
         }
-        test_file = create_test_file_with_metadata(
-            initial_metadata,
-            "mp3"
-        )
         
-        # Get original metadata
-        original_metadata = get_merged_unified_metadata(test_file)
-        original_album = original_metadata.get(UnifiedMetadataKey.ALBUM_NAME)
-        
-        # Update only title using app's function (this is what we're testing)
-        test_metadata = {
-            UnifiedMetadataKey.TITLE: "Partial Update Title"
-        }
-        
-        update_file_metadata(test_file, test_metadata)
-        updated_metadata = get_merged_unified_metadata(test_file)
-        
-        # Title should be updated
-        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Partial Update Title"
-        # Other fields should remain unchanged
-        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == original_album
+        with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
+                # Get original metadata
+                original_metadata = get_merged_unified_metadata(test_file)
+                original_album = original_metadata.get(UnifiedMetadataKey.ALBUM_NAME)
+            
+                # Update only title using app's function (this is what we're testing)
+                test_metadata = {
+                    UnifiedMetadataKey.TITLE: "Partial Update Title"
+                }
+            
+                update_file_metadata(test_file, test_metadata)
+                updated_metadata = get_merged_unified_metadata(test_file)
+            
+                # Title should be updated
+                assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Partial Update Title"
+                # Other fields should remain unchanged
+                assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == original_album

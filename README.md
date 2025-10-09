@@ -332,10 +332,10 @@ When you specify a `metadata_format` parameter, you **cannot** also specify a `m
 update_file_metadata("song.mp3", metadata,
                     metadata_format=MetadataFormat.RIFF)  # Writes only to RIFF, ignores ID3v2
 
-# This will raise ValueError - cannot specify both parameters
+# This will raise MetadataWritingConflictParametersError - cannot specify both parameters
 update_file_metadata("song.mp3", metadata,
                     metadata_format=MetadataFormat.RIFF,
-                    metadata_strategy=MetadataWritingStrategy.CLEANUP)  # Raises ValueError
+                    metadata_strategy=MetadataWritingStrategy.CLEANUP)  # Raises MetadataWritingConflictParametersError
 ```
 
 #### ID3v1 Exceptions

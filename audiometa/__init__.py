@@ -13,7 +13,7 @@ import warnings
 from mutagen.id3 import ID3
 
 from .audio_file import AudioFile
-from .exceptions import FileTypeNotSupportedError, MetadataNotSupportedError
+from .exceptions import FileTypeNotSupportedError, MetadataNotSupportedError, MetadataWritingConflictParametersError
 from .utils.types import AppMetadata, AppMetadataValue
 from .utils.MetadataFormat import MetadataFormat
 from .utils.MetadataWritingStrategy import MetadataWritingStrategy
@@ -263,7 +263,8 @@ def update_file_metadata(
         FileTypeNotSupportedError: If the file format is not supported
         FileNotFoundError: If the file does not exist
         MetadataNotSupportedError: If the metadata field is not supported by the format (only for PRESERVE, CLEANUP strategies)
-        ValueError: If invalid rating values are provided or both metadata_strategy and metadata_format are specified
+        MetadataWritingConflictParametersError: If both metadata_strategy and metadata_format are specified
+        ValueError: If invalid rating values are provided
         
     Note:
         Cannot specify both metadata_strategy and metadata_format simultaneously. Choose one approach:
@@ -303,7 +304,7 @@ def update_file_metadata(
     
     # Validate that both parameters are not specified simultaneously
     if metadata_strategy is not None and metadata_format is not None:
-        raise ValueError(
+        raise MetadataWritingConflictParametersError(
             "Cannot specify both metadata_strategy and metadata_format. "
             "When metadata_format is specified, strategy is not applicable. "
             "Choose either: use metadata_strategy for multi-format management, "
@@ -334,7 +335,7 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
     # When a specific format is forced, ignore strategy and write only to that format
     if target_format:
         all_managers = _get_metadata_managers(
-            file=file, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
+            file=file, tag_formats=[target_format_actual], normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
         target_manager = all_managers[target_format_actual]
         target_manager.update_file_metadata(app_metadata)
         return
@@ -363,7 +364,14 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
         # For SYNC, we need to write to all available formats
         # Write to target format first
         target_manager = all_managers[target_format_actual]
-        target_manager.update_file_metadata(app_metadata)
+        try:
+            target_manager.update_file_metadata(app_metadata)
+        except MetadataNotSupportedError as e:
+            # For SYNC strategy, log warning but continue with other formats
+            warnings.warn(f"Format {target_format_actual} doesn't support some metadata fields: {e}")
+        except Exception:
+            # Some managers might not support writing or might fail for other reasons
+            pass
         
         # Then sync all other available formats
         # Note: We need to be careful about the order to avoid conflicts

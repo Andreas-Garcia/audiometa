@@ -38,3 +38,16 @@ class MetadataNotSupportedError(Exception):
 class ConfigurationError(Exception):
     """Raised when there's a configuration error in the metadata manager."""
     pass
+
+
+class MetadataWritingConflictParametersError(Exception):
+    """Raised when conflicting metadata writing parameters are specified.
+    
+    This error indicates that the user has provided parameters that cannot
+    be used together for metadata writing operations.
+    
+    Examples:
+        - Specifying both metadata_strategy and metadata_format
+        - Other mutually exclusive metadata writing parameters
+    """
+    pass
