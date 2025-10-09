@@ -12,7 +12,7 @@ For detailed metadata support information, see the README.md file.
 from mutagen.id3 import ID3
 
 from .audio_file import AudioFile
-from .exceptions import FileTypeNotSupportedError
+from .exceptions import FileTypeNotSupportedError, MetadataNotSupportedError
 from .utils.types import AppMetadata, AppMetadataValue
 from .utils.MetadataFormat import MetadataFormat
 from .utils.MetadataWritingStrategy import MetadataWritingStrategy
@@ -349,8 +349,11 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
         for fmt, manager in other_managers.items():
             try:
                 manager.update_file_metadata(app_metadata)
+            except MetadataNotSupportedError:
+                # Re-raise unsupported metadata errors - they should not be silently ignored
+                raise
             except Exception:
-                # Some managers might not support writing or might fail
+                # Some managers might not support writing or might fail for other reasons
                 pass
                 
     elif strategy == MetadataWritingStrategy.PRESERVE:
@@ -373,8 +376,11 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
             try:
                 manager = other_managers[fmt]
                 manager.update_file_metadata(metadata)
+            except MetadataNotSupportedError:
+                # Re-raise unsupported metadata errors - they should not be silently ignored
+                raise
             except Exception:
-                # Some managers might not support writing or might fail
+                # Some managers might not support writing or might fail for other reasons
                 pass
 
 
