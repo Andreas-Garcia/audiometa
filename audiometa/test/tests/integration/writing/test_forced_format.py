@@ -211,7 +211,6 @@ class TestForcedFormat:
             assert riff_after.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original RIFF Artist"]
 
     def test_forced_format_with_rating_field(self):
-        """Test forced format behavior with rating field."""
         # Create MP3 file with basic metadata
         initial_metadata = {
             "title": "Test Title",
@@ -255,7 +254,6 @@ class TestForcedFormat:
             assert id3v2_metadata.get(UnifiedMetadataKey.RATING) == 196
 
     def test_forced_format_delete_metadata(self):
-        """Test that forced format affects delete_metadata behavior."""
         # Create WAV file with both RIFF and ID3v2 metadata
         initial_metadata = {
             "title": "Original RIFF Title",
