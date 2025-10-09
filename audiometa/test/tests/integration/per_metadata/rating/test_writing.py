@@ -13,6 +13,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.exceptions import MetadataNotSupportedError
 from audiometa.test.tests.test_script_helpers import create_test_file_with_metadata
+from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
 
 
 @pytest.mark.integration
@@ -23,19 +24,16 @@ class TestRatingWriting:
             "title": "Test Title",
             "artist": "Test Artist"
         }
-        test_file = create_test_file_with_metadata(
-            basic_metadata,
-            "mp3"
-        )
         
-        # Now test rating writing using app's function (this is what we're testing)
-        test_rating = 85
-        test_metadata = {UnifiedMetadataKey.RATING: test_rating}
-        update_file_metadata(test_file, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
-        metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
-        # Check that rating was set (may be normalized to a different value)
-        assert metadata.get(UnifiedMetadataKey.RATING) is not None
-        assert metadata.get(UnifiedMetadataKey.RATING) > 0
+        with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
+                # Now test rating writing using app's function (this is what we're testing)
+                test_rating = 85
+                test_metadata = {UnifiedMetadataKey.RATING: test_rating}
+                update_file_metadata(test_file, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
+                metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+                # Check that rating was set (may be normalized to a different value)
+                assert metadata.get(UnifiedMetadataKey.RATING) is not None
+                assert metadata.get(UnifiedMetadataKey.RATING) > 0
 
     def test_riff(self, metadata_none_wav, temp_wav_file):
         # Use external script to set basic metadata first
@@ -43,21 +41,18 @@ class TestRatingWriting:
             "title": "Test Title",
             "artist": "Test Artist"
         }
-        test_file = create_test_file_with_metadata(
-            basic_metadata,
-            "wav"
-        )
         
-        # RIFF format now supports rating metadata through IRTD chunk
-        test_rating = 75
-        test_metadata = {UnifiedMetadataKey.RATING: test_rating}
-        update_file_metadata(test_file, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
-        
-        # Verify the rating was written and can be read back
-        from audiometa import get_specific_metadata
-        rating = get_specific_metadata(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
-        assert rating is not None
-        assert isinstance(rating, int)
+        with TempFileWithMetadata(basic_metadata, "wav") as test_file:
+                # RIFF format now supports rating metadata through IRTD chunk
+                test_rating = 75
+                test_metadata = {UnifiedMetadataKey.RATING: test_rating}
+                update_file_metadata(test_file, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
+            
+                # Verify the rating was written and can be read back
+                from audiometa import get_specific_metadata
+                rating = get_specific_metadata(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+                assert rating is not None
+                assert isinstance(rating, int)
 
     def test_vorbis(self, metadata_none_flac, temp_flac_file):
         # Use external script to set basic metadata first
@@ -65,16 +60,13 @@ class TestRatingWriting:
             "title": "Test Title",
             "artist": "Test Artist"
         }
-        test_file = create_test_file_with_metadata(
-            basic_metadata,
-            "flac"
-        )
         
-        # Now test rating writing using app's function (this is what we're testing)
-        test_rating = 90
-        test_metadata = {UnifiedMetadataKey.RATING: test_rating}
-        update_file_metadata(test_file, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS)
-        metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
-        # Check that rating was set (may be normalized to a different value)
-        assert metadata.get(UnifiedMetadataKey.RATING) is not None
-        assert metadata.get(UnifiedMetadataKey.RATING) > 0
+        with TempFileWithMetadata(basic_metadata, "flac") as test_file:
+                # Now test rating writing using app's function (this is what we're testing)
+                test_rating = 90
+                test_metadata = {UnifiedMetadataKey.RATING: test_rating}
+                update_file_metadata(test_file, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS)
+                metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+                # Check that rating was set (may be normalized to a different value)
+                assert metadata.get(UnifiedMetadataKey.RATING) is not None
+                assert metadata.get(UnifiedMetadataKey.RATING) > 0

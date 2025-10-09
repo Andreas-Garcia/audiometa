@@ -264,7 +264,7 @@ def update_file_metadata(
         FileNotFoundError: If the file does not exist
         MetadataNotSupportedError: If the metadata field is not supported by the format (only for PRESERVE, CLEANUP strategies)
         MetadataWritingConflictParametersError: If both metadata_strategy and metadata_format are specified
-        ValueError: If invalid rating values are provided
+        InvalidRatingValueError: If invalid rating values are provided
         
     Note:
         Cannot specify both metadata_strategy and metadata_format simultaneously. Choose one approach:
@@ -369,7 +369,11 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
         except MetadataNotSupportedError as e:
             # For SYNC strategy, log warning but continue with other formats
             warnings.warn(f"Format {target_format_actual} doesn't support some metadata fields: {e}")
-        except Exception:
+        except Exception as e:
+            # Re-raise user errors (like InvalidRatingValueError) immediately
+            from .exceptions import InvalidRatingValueError, ConfigurationError
+            if isinstance(e, (InvalidRatingValueError, ConfigurationError)):
+                raise
             # Some managers might not support writing or might fail for other reasons
             pass
         

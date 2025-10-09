@@ -51,3 +51,17 @@ class MetadataWritingConflictParametersError(Exception):
         - Other mutually exclusive metadata writing parameters
     """
     pass
+
+
+class InvalidRatingValueError(Exception):
+    """Raised when an invalid rating value is provided.
+    
+    This error indicates that the rating value cannot be converted to a valid
+    numeric rating or is not in the expected format.
+    
+    Examples:
+        - Non-numeric string values like "invalid" or "abc"
+        - Values that cannot be converted to integers
+        - None values when a rating is expected
+    """
+    pass
