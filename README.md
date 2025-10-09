@@ -1,6 +1,6 @@
 # AudioMeta Python
 
-A comprehensive Python library for reading and writing audio metadata across multiple formats including MP3, FLAC, and WAV.
+A comprehensive Python library for reading and writing audio metadata across multiple formats including MP3, FLAC and WAV.
 
 ## Table of Contents
 
@@ -34,7 +34,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
 - **Technical Information**: Access to bitrate, duration, sample rate, channels, and more
 - **Error Handling**: Robust error handling with specific exception types
 - **Type Hints**: Full type annotation support for better IDE integration
-- **Cross-platform**: Works on Windows, macOS, and Linux
+- **Cross-platform**: Works on Windows, macOS, and Linux (requires ffprobe and flac tools for full functionality)
 - **Performance Optimized**: Efficient batch operations and memory management
 - **Extensive Testing**: Comprehensive test coverage with 500+ tests
 
