@@ -1,7 +1,6 @@
 """Tests for exception classes."""
 
 import pytest
-from pathlib import Path
 
 from audiometa.exceptions import (
     FileCorruptedError,

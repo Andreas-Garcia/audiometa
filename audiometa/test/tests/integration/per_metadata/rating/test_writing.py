@@ -5,14 +5,10 @@ instead of the app's update functions, preventing circular dependencies.
 """
 
 import pytest
-from pathlib import Path
-import shutil
 
 from audiometa import get_merged_unified_metadata, update_file_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
-from audiometa.exceptions import MetadataNotSupportedError
-from audiometa.test.tests.test_script_helpers import create_test_file_with_metadata
 from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
 
 

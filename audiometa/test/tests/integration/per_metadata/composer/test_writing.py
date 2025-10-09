@@ -1,7 +1,6 @@
 """Tests for writing composer metadata."""
 
 import pytest
-from pathlib import Path
 import shutil
 
 from audiometa import get_specific_metadata, update_file_metadata

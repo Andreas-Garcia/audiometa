@@ -1,7 +1,6 @@
 """Tests for reading rating metadata."""
 
 import pytest
-from pathlib import Path
 
 from audiometa import get_merged_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey

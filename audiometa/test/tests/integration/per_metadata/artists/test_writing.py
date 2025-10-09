@@ -1,7 +1,6 @@
 """Tests for writing artists metadata."""
 
 import pytest
-from pathlib import Path
 import shutil
 
 from audiometa import get_merged_unified_metadata, update_file_metadata
