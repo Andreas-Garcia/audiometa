@@ -22,7 +22,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
 | ID3v1  | ✅   | ❌    | ❌             | Read-only, limited to 30 chars per field |
 | ID3v2  | ✅   | ✅    | ✅             | Full feature support                     |
 | Vorbis | ✅   | ✅    | ✅             | FLAC files                               |
-| RIFF   | ✅   | ✅    | ❌             | WAV files                                |
+| RIFF   | ✅   | ✅    | ✅\*           | WAV files, \*via non-standard IRTD chunk |
 
 ## File Format Support by Metadata Manager
 
@@ -138,7 +138,7 @@ The library supports a comprehensive set of metadata fields across different aud
 | ----------------- | -------------- | -------------- | ------------ | ------------- | -------------------- |
 | Text Encoding     | ASCII          | UTF-8/16/ISO   | UTF-8        | ASCII/UTF-8   | UTF-8                |
 | Max Text Length   | 30 chars       | ~8M chars      | ~8M chars    | ~1M chars     | Format limit         |
-| Rating Range      | Not supported  | 0-255#         | 0-100#       | Not supported | 0-10#                |
+| Rating Range      | Not supported  | 0-255#         | 0-100#       | 0-100#\*      | 0-10#                |
 | Track Number      | 0-255#         | 0-255#         | Unlimited#   | Unlimited#    | Format limit         |
 | Disc Number       | Not supported  | 0-255#         | Unlimited#   | Not supported | Format limit         |
 | Operations        | R              | R/W            | R/W          | R/W           | ✓                    |
@@ -160,7 +160,7 @@ The library supports a comprehensive set of metadata fields across different aud
 | Genre             | ✓ (1#)         | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                    |
 | Release Date      | ✓ (4)          | ✓ (10)         | ✓ (10)       | ✓ (10)        | ✓                    |
 | Track Number      | ✓ (1#)         | ✓ (0-255#)     | ✓ (Unlim#)   | ✓ (Unlim#)    | ✓                    |
-| Rating            |                | ✓ (0-255#)     | ✓ (0-100#)   |               | ✓                    |
+| Rating            |                | ✓ (0-255#)     | ✓ (0-100#)   | ✓ (0-100#\*)  | ✓                    |
 | BPM               |                | ✓ (0-65535#)   | ✓ (0-65535#) |               | ✓                    |
 | Language          |                | ✓ (3)          | ✓ (3)        |               | ✓                    |
 | Composer          |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                    |
@@ -207,6 +207,7 @@ The library supports a comprehensive set of metadata fields across different aud
 - (10MB#): Maximum 10 megabytes binary data
 - (~8M): Approximately 8 million characters (format limit)
 - (~1M): Approximately 1 million characters (format limit)
+- (\*): Non-standard implementation (IRTD chunk for RIFF rating)
 
 **AudioMeta Support Column**: Shows the library's unified interface capabilities. The library does not impose artificial limits - it respects each format's native capabilities. Text fields can be as long as the format allows, and numeric ranges follow the format's specifications. The library provides consistent UTF-8 encoding and normalized rating handling (0-10 scale) across all supported formats.
 
