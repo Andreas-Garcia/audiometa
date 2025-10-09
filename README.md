@@ -226,12 +226,84 @@ update_file_metadata("path/to/your/audio.mp3", new_metadata)
 
 ### Deleting Metadata
 
+There are two ways to remove metadata from audio files:
+
+#### 1. Delete All Metadata (Complete Removal)
+
 ```python
 from audiometa import delete_all_metadata
 
-# Delete all metadata from a file
+# Delete ALL metadata from a file (removes metadata headers entirely)
 success = delete_all_metadata("path/to/your/audio.mp3")
-print(f"Metadata deleted: {success}")
+print(f"All metadata deleted: {success}")
+
+# Delete metadata from specific format only
+from audiometa.utils.MetadataFormat import MetadataFormat
+success = delete_all_metadata("song.wav", tag_format=MetadataFormat.ID3V2)
+# This removes only ID3v2 tags, keeps RIFF metadata
+```
+
+**Important**: This function removes the metadata headers/containers entirely from the file, not just the content. This means:
+
+- ID3v2 tag structure is completely removed
+- Vorbis comment blocks are completely removed
+- RIFF INFO chunks are completely removed
+- File size is significantly reduced
+
+#### 2. Remove Specific Fields (Selective Removal)
+
+```python
+from audiometa import update_file_metadata, UnifiedMetadataKey
+
+# Remove only specific fields by setting them to None
+update_file_metadata("path/to/your/audio.mp3", {
+    UnifiedMetadataKey.TITLE: None,        # Remove title field
+    UnifiedMetadataKey.ARTISTS_NAMES: None # Remove artist field
+    # Other fields remain unchanged
+})
+
+# This removes only the specified fields while keeping:
+# - Other metadata fields intact
+# - Metadata headers/containers in place
+# - File size mostly unchanged
+```
+
+**When to use each approach:**
+
+- **`delete_all_metadata()`**: When you want to completely strip all metadata from a file
+- **Setting fields to `None`**: When you want to clean up specific fields while preserving others
+
+#### Comparison Table
+
+| Aspect               | `delete_all_metadata()`   | Setting fields to `None`      |
+| -------------------- | ------------------------- | ----------------------------- |
+| **Scope**            | Removes ALL metadata      | Removes only specified fields |
+| **Metadata headers** | **Completely removed**    | **Preserved**                 |
+| **File size**        | Significantly reduced     | Minimal change                |
+| **Other fields**     | All removed               | Unchanged                     |
+| **Use case**         | Complete cleanup          | Selective cleanup             |
+| **Performance**      | Faster (single operation) | Slower (field-by-field)       |
+
+#### Example Scenarios
+
+**Scenario 1: Complete Privacy Cleanup**
+
+```python
+# Remove ALL metadata for privacy
+delete_all_metadata("personal_recording.mp3")
+# Result: File has no metadata headers at all (ID3v2 tags completely removed)
+```
+
+**Scenario 2: Clean Up Specific Information**
+
+```python
+# Remove only personal info, keep technical metadata
+update_file_metadata("song.mp3", {
+    UnifiedMetadataKey.TITLE: None,           # Remove title
+    UnifiedMetadataKey.ARTISTS_NAMES: None,   # Remove artist
+    # Keep album, genre, year, etc.
+})
+# Result: File keeps metadata headers but removes specific fields
 ```
 
 ### Working with AudioFile
