@@ -30,11 +30,11 @@ class TestApiConsistency:
             assert isinstance(metadata, dict)
             
             # All files should support specific metadata queries
-            title = get_specific_metadata(file_path, UnifiedMetadataKey.TITLE)
+            title = metadata.get(UnifiedMetadataKey.TITLE)
             assert title is None or isinstance(title, str)
             
             # All files should support technical metadata
-            artists = get_specific_metadata(file_path, UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             assert artists is None or isinstance(artists, list)
 
     def test_metadata_manager_integration_mp3(self, sample_mp3_file: Path):
@@ -89,9 +89,9 @@ class TestApiConsistency:
             assert isinstance(metadata, dict)
             
             # All files should support specific metadata queries
-            title = get_specific_metadata(file_path, UnifiedMetadataKey.TITLE)
+            title = metadata.get(UnifiedMetadataKey.TITLE)
             assert title is None or isinstance(title, str)
             
             # All files should support technical metadata
-            artists = get_specific_metadata(file_path, UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             assert artists is None or isinstance(artists, list)

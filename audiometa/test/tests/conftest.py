@@ -1,6 +1,5 @@
 """Test configuration for audiometa-python tests."""
 
-import os
 import tempfile
 from pathlib import Path
 from typing import Generator

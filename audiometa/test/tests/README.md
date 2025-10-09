@@ -163,9 +163,8 @@ The script helper strategy uses external command-line tools to set up test metad
    helper.set_vorbis_max_metadata(test_file)
    ```
 
-3. **Convenience Functions**: High-level functions for common test scenarios:
-   - `create_test_file_with_metadata()` - Creates files with specific metadata values
-   - `create_test_file_with_specific_metadata()` - Legacy function for backward compatibility
+3. **Test File Management**: Safe ways to create temporary test files:
+   - `TempFileWithMetadata` - **RECOMMENDED**: Context manager for automatic cleanup
 
 **Benefits:**
 
@@ -176,15 +175,39 @@ The script helper strategy uses external command-line tools to set up test metad
 - **Reliability**: Uses proven external tools for metadata setup
 - **Maintainability**: Clear separation between test setup and test logic
 
+**⚠️ Important: Test File Management**
+
+**NEVER use `create_test_file_with_metadata()` directly in tests!** This function has been moved to `_internal_test_helpers.py` to prevent direct usage. It causes test pollution because files persist after tests complete.
+
+**✅ Correct usage:**
+
+```python
+def test_something():
+    with TempFileWithMetadata(metadata, "mp3") as test_file:
+        # ... test code ...
+    # File automatically cleaned up!
+```
+
+**❌ Wrong usage:**
+
+```python
+def test_something():
+    test_file = create_test_file_with_metadata(metadata, "mp3")
+    # ... test code ...
+    # File persists and causes test pollution!
+```
+
 ### Script Helper Approach
 
 The test suite uses a **streamlined script helper approach**:
 
 ```python
-test_file = create_test_file_with_metadata(
+with TempFileWithMetadata(
     basic_metadata,     # Metadata to set
     "mp3"               # Format type
-)
+) as test_file:
+    # Use test_file for testing
+    # File is automatically cleaned up
 ```
 
 **Benefits of the streamlined approach:**
@@ -230,21 +253,20 @@ def test_read_metadata_from_pre_created_file(sample_mp3_file):
 #### Testing writing functionality (Script helpers)
 
 ```python
-def test_write_metadata_using_script_helper(temp_audio_file):
+def test_write_metadata_using_script_helper():
     """Test writing metadata by setting up with external tools, then testing our app."""
     # Use script helper to set up test data
-    test_file = create_test_file_with_metadata(
+    with TempFileWithMetadata(
         {"title": "Original Title", "artist": "Original Artist"},
         "mp3"
-    )
+    ) as test_file:
+        # Now test our application's writing functionality
+        audio_file = AudioFile(test_file)
+        audio_file.write_metadata({"title": "New Title"})
 
-    # Now test our application's writing functionality
-    audio_file = AudioFile(test_file)
-    audio_file.write_metadata({"title": "New Title"})
-
-    # Verify by reading back
-    metadata = audio_file.read_metadata()
-    assert metadata.title == "New Title"
+        # Verify by reading back
+        metadata = audio_file.read_metadata()
+        assert metadata.title == "New Title"
 ```
 
 #### Edge case testing (Pre-created files)
@@ -261,22 +283,20 @@ def test_corrupted_metadata_handling(corrupted_mp3_file):
 #### Dynamic test scenarios (Script helpers)
 
 ```python
-def test_specific_metadata_combination(temp_audio_file):
+def test_specific_metadata_combination():
     """Test a specific metadata scenario not available in pre-created files."""
     # Create specific metadata combination on demand
-    create_test_file_with_metadata(
-        temp_audio_file,
+    with TempFileWithMetadata(
         {
             "title": "Custom Title",
             "artist": "Custom Artist",
             "genre": "Custom Genre"
         },
         "mp3"
-    )
-
-    audio_file = AudioFile(temp_audio_file)
-    metadata = audio_file.read_metadata()
-    assert metadata.genre == "Custom Genre"
+    ) as test_file:
+        audio_file = AudioFile(test_file)
+        metadata = audio_file.read_metadata()
+        assert metadata.genre == "Custom Genre"
 ```
 
 #### Basic functionality (Temporary files)
