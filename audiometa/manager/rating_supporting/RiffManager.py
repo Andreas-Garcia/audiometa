@@ -144,12 +144,12 @@ class RiffManager(RatingSupportingMetadataManager):
             return data[10 + size:]
         return data
 
-    def _extract_riff_metadata_directly(self, file_data: bytes) -> dict[str, str]:
+    def _extract_riff_metadata_directly(self, file_data: bytes) -> dict[str, list[str]]:
         """
         Manually extract metadata from RIFF chunks without relying on external libraries.
         This method directly parses the RIFF structure to extract metadata from the INFO chunk.
         """
-        info_tags: dict[str, str] = {}
+        info_tags: dict[str, list[str]] = {}
 
         # Skip ID3v2 if present
         file_data = self._skip_id3v2_tags(file_data)
@@ -183,7 +183,9 @@ class RiffManager(RatingSupportingMetadataManager):
                                 # Split on null byte and take first part if exists
                                 field_value = field_value.split('\x00')[0].strip()
                                 if field_id in self.RiffTagKey and field_value:
-                                    info_tags[field_id] = field_value
+                                    if field_id not in info_tags:
+                                        info_tags[field_id] = []
+                                    info_tags[field_id].append(field_value)
                             except UnicodeDecodeError:
                                 pass
 
@@ -250,6 +252,7 @@ class RiffManager(RatingSupportingMetadataManager):
             info_tags = getattr(raw_mutagen_metadata_wav, 'info')
             for key, value in info_tags.items():
                 if key in self.RiffTagKey:
+                    # info_tags now contains lists of values, so we can pass them directly
                     raw_metadata_dict[key] = value
 
         return raw_metadata_dict
@@ -347,13 +350,19 @@ class RiffManager(RatingSupportingMetadataManager):
             if not riff_key:
                 continue
 
-            # Prepare tag value
-            value_bytes = self._prepare_tag_value(value, app_key)
-            if not value_bytes:
-                continue
-
-            # Create tag data with proper alignment
-            new_tags_data.extend(self._create_aligned_metadata_with_proper_padding(riff_key, value_bytes))
+            # Handle multiple values (e.g., multiple artists)
+            if isinstance(value, list):
+                for item in value:
+                    if item is None or item == "":
+                        continue
+                    value_bytes = self._prepare_tag_value(item, app_key)
+                    if value_bytes:
+                        new_tags_data.extend(self._create_aligned_metadata_with_proper_padding(riff_key, value_bytes))
+            else:
+                # Single value
+                value_bytes = self._prepare_tag_value(value, app_key)
+                if value_bytes:
+                    new_tags_data.extend(self._create_aligned_metadata_with_proper_padding(riff_key, value_bytes))
 
         # Create new INFO chunk
         new_info_chunk = bytearray()
@@ -414,6 +423,7 @@ class RiffManager(RatingSupportingMetadataManager):
 
     def _prepare_tag_value(self, value: AppMetadataValue, app_key: UnifiedMetadataKey) -> bytes | None:
         """Prepare the tag value for writing, handling special cases."""
+        # Handle list values (should not happen in this method anymore due to upstream processing)
         if isinstance(value, list):
             value = value[0] if value else ""
 
