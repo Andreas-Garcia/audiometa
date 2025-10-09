@@ -88,21 +88,16 @@ class TestMetadataWriting:
             "wav"
         )
         
-        # Now test that unsupported fields are handled correctly
+        # Now test that unsupported fields raise MetadataNotSupportedError
         # WAV files don't support BPM in RIFF format
         unsupported_metadata = {
             UnifiedMetadataKey.TITLE: "Test Title",
-            UnifiedMetadataKey.BPM: 120  # This should be ignored for WAV files
+            UnifiedMetadataKey.BPM: 120  # This should raise MetadataNotSupportedError for WAV files
         }
         
-        # This should not raise an error, but BPM should be ignored
-        update_file_metadata(test_file, unsupported_metadata)
-        
-        # Verify only supported metadata was written
-        updated_metadata = get_merged_unified_metadata(test_file)
-        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
-        # BPM should not be present for WAV files
-        assert UnifiedMetadataKey.BPM not in updated_metadata
+        # This should raise MetadataNotSupportedError for unsupported fields
+        with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
+            update_file_metadata(test_file, unsupported_metadata)
 
     def test_delete_metadata_mp3(self, temp_audio_file: Path):
         # First add some metadata using external script
@@ -226,24 +221,18 @@ class TestMetadataWriting:
             "wav"
         )
         
-        # Now test that unsupported fields are handled correctly
-        # WAV doesn't support rating or BPM
+        # Now test that unsupported fields raise MetadataNotSupportedError
+        # WAV supports RATING via IRTD chunk, but BPM is not supported
         unsupported_metadata = {
             UnifiedMetadataKey.TITLE: "WAV Test Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["WAV Test Artist"],
             UnifiedMetadataKey.ALBUM_NAME: "WAV Test Album",
-            UnifiedMetadataKey.RATING: 8,  # This should be ignored for WAV
-            UnifiedMetadataKey.BPM: 120    # This should be ignored for WAV
+            UnifiedMetadataKey.BPM: 120    # This should raise MetadataNotSupportedError for WAV
         }
         
-        update_file_metadata(test_file, unsupported_metadata)
-        updated_metadata = get_merged_unified_metadata(test_file)
-        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "WAV Test Title"
-        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["WAV Test Artist"]
-        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "WAV Test Album"
-        # Rating and BPM should not be present for WAV
-        assert UnifiedMetadataKey.RATING not in updated_metadata or updated_metadata.get(UnifiedMetadataKey.RATING) != 8
-        assert UnifiedMetadataKey.BPM not in updated_metadata or updated_metadata.get(UnifiedMetadataKey.BPM) != 120
+        # This should raise MetadataNotSupportedError for unsupported fields
+        with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
+            update_file_metadata(test_file, unsupported_metadata)
 
     def test_write_metadata_partial_update(self, temp_audio_file):
         # Use external script to set initial metadata
