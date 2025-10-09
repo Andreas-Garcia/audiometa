@@ -303,11 +303,11 @@ The library provides flexible control over how metadata is written to files that
 
 #### Default Behavior
 
-By default, the library writes metadata **only to the native format** for each file type and **does not modify** existing metadata in other formats:
+By default, the library uses the **SYNC strategy** which writes metadata to the native format and synchronizes other metadata formats that are already present. This provides the best user experience by writing metadata where possible and handling unsupported fields gracefully.
 
-- **MP3 files**: Writes to ID3v2 only
-- **FLAC files**: Writes to Vorbis comments only
-- **WAV files**: Writes to RIFF only
+- **MP3 files**: Writes to ID3v2 and syncs other formats
+- **FLAC files**: Writes to Vorbis comments and syncs other formats
+- **WAV files**: Writes to RIFF and syncs other formats
 
 #### Metadata Strategy Options
 
@@ -315,10 +315,9 @@ You can control metadata writing behavior using the `metadata_strategy` paramete
 
 **Available Strategies:**
 
-1. **`PRESERVE` (Default)**: Write to native format only, preserve existing metadata in other formats
-2. **`CLEANUP`**: Write to native format and remove all non-native metadata formats
-3. **`SYNC`**: Write to native format and synchronize other metadata formats that are already present
-4. **`IGNORE`**: Write to native format only, ignore other formats completely (same as PRESERVE)
+1. **`SYNC` (Default)**: Write to native format and synchronize other metadata formats that are already present. Handles unsupported fields gracefully with warnings.
+2. **`PRESERVE`**: Write to native format only, preserve existing metadata in other formats
+3. **`CLEANUP`**: Write to native format and remove all non-native metadata formats
 
 #### ID3v1 Exceptions
 
@@ -339,7 +338,7 @@ This means that if a file contains both ID3v1 and ID3v2 tags, writing new metada
 
 #### Usage Examples
 
-**Default Behavior (PRESERVE strategy)**
+**Default Behavior (SYNC strategy)**
 
 ```python
 from audiometa import update_file_metadata
@@ -348,8 +347,8 @@ from audiometa import update_file_metadata
 update_file_metadata("song.wav", {"title": "New Title"})
 
 # Result:
-# - ID3v2 tags: Preserved (unchanged)
-# - RIFF tags: Updated with new metadata
+# - RIFF tags: Updated with new metadata (native format)
+# - ID3v2 tags: Synchronized with new metadata
 # - When reading: ID3v2 title is returned (higher precedence)
 ```
 
@@ -416,11 +415,6 @@ update_file_metadata("song.wav", {"title": "New Title"},
 - **Compatibility**: Maintains support for different players
 - **Convenience**: Single update affects all existing formats
 
-**IGNORE**
-
-- **Performance**: Fastest option, minimal processing
-- **Simple**: Just writes to native format, ignores everything else
-
 ## Error Handling
 
 The library provides specific exception types for different error conditions:
@@ -444,33 +438,35 @@ except MetadataNotSupportedError:
 
 ## Unsupported Metadata Handling
 
-The library follows a **"fail fast, fail clearly"** approach for unsupported metadata. When attempting to update metadata that is not supported by a specific format, the library will raise `MetadataNotSupportedError` with a clear message.
+The library handles unsupported metadata differently depending on the strategy used:
+
+- **SYNC strategy (default)**: Handles unsupported fields gracefully by logging warnings and continuing with supported fields
+- **Other strategies (PRESERVE, CLEANUP)**: Follow a "fail fast, fail clearly" approach by raising `MetadataNotSupportedError` when any field is not supported
 
 ### Format-Specific Limitations
 
-| Format         | Behavior                                                    |
-| -------------- | ----------------------------------------------------------- |
-| **RIFF (WAV)** | Any unsupported metadata raises `MetadataNotSupportedError` |
-| **ID3v1**      | Any unsupported metadata raises `MetadataNotSupportedError` |
-| **ID3v2**      | All fields supported                                        |
-| **Vorbis**     | All fields supported                                        |
+| Format         | SYNC Strategy (Default)                                     | Other Strategies (PRESERVE, CLEANUP)                        |
+| -------------- | ----------------------------------------------------------- | ----------------------------------------------------------- |
+| **RIFF (WAV)** | Logs warnings for unsupported fields, writes supported ones | Any unsupported metadata raises `MetadataNotSupportedError` |
+| **ID3v1**      | Logs warnings for unsupported fields, writes supported ones | Any unsupported metadata raises `MetadataNotSupportedError` |
+| **ID3v2**      | All fields supported                                        | All fields supported                                        |
+| **Vorbis**     | All fields supported                                        | All fields supported                                        |
 
 ### Example: Handling Unsupported Metadata
 
 ```python
 from audiometa import update_file_metadata
 from audiometa.exceptions import MetadataNotSupportedError
+import warnings
 
-# This will work - all fields are supported in MP3 files
-try:
-    update_file_metadata("song.mp3", {"title": "Song", "rating": 85, "bpm": 120})
-    print("Metadata updated successfully")
-except MetadataNotSupportedError as e:
-    print(f"Some metadata fields not supported: {e}")
+# SYNC strategy (default) - handles unsupported fields gracefully
+update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120})
+# Result: Writes title and rating to RIFF, logs warning about BPM, continues
 
-# This will raise an exception - some fields not supported in WAV files
+# PRESERVE strategy - fails fast for unsupported fields
 try:
-    update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120})
+    update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
+                        metadata_strategy=MetadataWritingStrategy.PRESERVE)
 except MetadataNotSupportedError as e:
     print(f"Some metadata fields not supported in WAV files: {e}")
 ```

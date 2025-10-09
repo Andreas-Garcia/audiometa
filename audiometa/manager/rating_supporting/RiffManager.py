@@ -316,7 +316,7 @@ class RiffManager(RatingSupportingMetadataManager):
             # We'll write RIFF metadata without affecting the ID3v2 section
             pass  # file_data already contains the full file including ID3v2
         else:
-            # For other strategies (CLEANUP, SYNC, IGNORE), strip ID3v2 tags as before
+            # For other strategies (CLEANUP, SYNC), strip ID3v2 tags as before
             skipped_data = self._skip_id3v2_tags(bytes(file_data))
             file_data = bytearray(skipped_data)
 

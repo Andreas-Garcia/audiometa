@@ -5,6 +5,7 @@ instead of the app's update functions, preventing circular dependencies.
 """
 
 import pytest
+import warnings
 from pathlib import Path
 import tempfile
 import shutil
@@ -17,6 +18,7 @@ from audiometa import (
     AudioFile
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError, MetadataNotSupportedError
 from audiometa.test.tests.test_script_helpers import create_test_file_with_metadata
@@ -77,7 +79,7 @@ class TestMetadataWriting:
         assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title with AudioFile"
         assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist with AudioFile"]
 
-    def test_update_file_metadata_unsupported_field(self, temp_audio_file: Path):
+    def test_update_file_metadata_unsupported_field_sync_strategy(self, temp_audio_file: Path):
         # Use external script to set basic metadata
         test_metadata = {
             "title": "Test Title",
@@ -88,16 +90,48 @@ class TestMetadataWriting:
             "wav"
         )
         
-        # Now test that unsupported fields raise MetadataNotSupportedError
+        # Test that SYNC strategy (default) handles unsupported fields gracefully
+        # WAV files don't support BPM in RIFF format
+        unsupported_metadata = {
+            UnifiedMetadataKey.TITLE: "Test Title",
+            UnifiedMetadataKey.BPM: 120  # This should be skipped with a warning
+        }
+        
+        # This should NOT raise MetadataNotSupportedError with SYNC strategy (default)
+        # It should write the supported fields and log a warning about BPM
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            update_file_metadata(test_file, unsupported_metadata)
+            
+            # Check that a warning was issued about the unsupported field
+            assert len(w) > 0
+            assert any("BPM" in str(warning.message) for warning in w)
+        
+        # Verify that the supported field was written
+        updated_metadata = get_merged_unified_metadata(test_file)
+        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
+
+    def test_update_file_metadata_unsupported_field_preserve_strategy(self, temp_audio_file: Path):
+        # Use external script to set basic metadata
+        test_metadata = {
+            "title": "Test Title",
+            "artist": "Test Artist"
+        }
+        test_file = create_test_file_with_metadata(
+            test_metadata,
+            "wav"
+        )
+        
+        # Test that PRESERVE strategy still fails fast for unsupported fields
         # WAV files don't support BPM in RIFF format
         unsupported_metadata = {
             UnifiedMetadataKey.TITLE: "Test Title",
             UnifiedMetadataKey.BPM: 120  # This should raise MetadataNotSupportedError for WAV files
         }
         
-        # This should raise MetadataNotSupportedError for unsupported fields
+        # This should raise MetadataNotSupportedError for unsupported fields with PRESERVE strategy
         with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
-            update_file_metadata(test_file, unsupported_metadata)
+            update_file_metadata(test_file, unsupported_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
 
     def test_delete_metadata_mp3(self, temp_audio_file: Path):
         # First add some metadata using external script
@@ -209,7 +243,7 @@ class TestMetadataWriting:
             if "rating" in test_metadata:
                 assert updated_metadata.get(UnifiedMetadataKey.RATING) == test_metadata["rating"]
 
-    def test_write_metadata_unsupported_fields(self, temp_audio_file):
+    def test_write_metadata_unsupported_fields_sync_strategy(self, temp_audio_file):
         # Use external script to set basic metadata
         test_metadata = {
             "title": "WAV Test Title",
@@ -221,18 +255,30 @@ class TestMetadataWriting:
             "wav"
         )
         
-        # Now test that unsupported fields raise MetadataNotSupportedError
+        # Test that SYNC strategy (default) handles unsupported fields gracefully
         # WAV supports RATING via IRTD chunk, but BPM is not supported
         unsupported_metadata = {
             UnifiedMetadataKey.TITLE: "WAV Test Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["WAV Test Artist"],
             UnifiedMetadataKey.ALBUM_NAME: "WAV Test Album",
-            UnifiedMetadataKey.BPM: 120    # This should raise MetadataNotSupportedError for WAV
+            UnifiedMetadataKey.BPM: 120    # This should be skipped with a warning
         }
         
-        # This should raise MetadataNotSupportedError for unsupported fields
-        with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
+        # This should NOT raise MetadataNotSupportedError with SYNC strategy (default)
+        # It should write the supported fields and log a warning about BPM
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
             update_file_metadata(test_file, unsupported_metadata)
+            
+            # Check that a warning was issued about the unsupported field
+            assert len(w) > 0
+            assert any("BPM" in str(warning.message) for warning in w)
+        
+        # Verify that the supported fields were written
+        updated_metadata = get_merged_unified_metadata(test_file)
+        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "WAV Test Title"
+        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["WAV Test Artist"]
+        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "WAV Test Album"
 
     def test_write_metadata_partial_update(self, temp_audio_file):
         # Use external script to set initial metadata

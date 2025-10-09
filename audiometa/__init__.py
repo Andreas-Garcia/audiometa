@@ -9,6 +9,7 @@ Note: OGG file support is planned but not yet implemented.
 For detailed metadata support information, see the README.md file.
 """
 
+import warnings
 from mutagen.id3 import ID3
 
 from .audio_file import AudioFile
@@ -250,7 +251,7 @@ def update_file_metadata(
         normalized_rating_max_value: Maximum value for rating normalization (0-10 scale).
             When provided, ratings are normalized to this scale. Defaults to None (raw values).
         id3v2_version: ID3v2 version tuple for ID3v2-specific operations
-        metadata_strategy: Writing strategy (PRESERVE, CLEANUP, SYNC, IGNORE). Defaults to PRESERVE.
+        metadata_strategy: Writing strategy (SYNC, PRESERVE, CLEANUP). Defaults to SYNC.
         metadata_format: Specific format to write to. If None, uses the file's native format.
         
     Returns:
@@ -259,8 +260,13 @@ def update_file_metadata(
     Raises:
         FileTypeNotSupportedError: If the file format is not supported
         FileNotFoundError: If the file does not exist
-        MetadataNotSupportedError: If the metadata field is not supported by the format
+        MetadataNotSupportedError: If the metadata field is not supported by the format (only for PRESERVE, CLEANUP strategies)
         ValueError: If invalid rating values are provided
+        
+    Note:
+        The SYNC strategy (default) handles unsupported metadata fields gracefully by logging warnings
+        and continuing with supported fields. Other strategies will raise MetadataNotSupportedError
+        if any metadata field is not supported by the target format.
         
     Examples:
         # Basic metadata update
@@ -286,23 +292,12 @@ def update_file_metadata(
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
     
-    # Default to PRESERVE strategy if not specified
+    # Default to SYNC strategy if not specified
     if metadata_strategy is None:
-        metadata_strategy = MetadataWritingStrategy.PRESERVE
+        metadata_strategy = MetadataWritingStrategy.SYNC
     
     # Handle strategy-specific behavior before writing
-    if metadata_strategy in [MetadataWritingStrategy.CLEANUP, MetadataWritingStrategy.SYNC, MetadataWritingStrategy.PRESERVE]:
-        _handle_metadata_strategy(file, app_metadata, metadata_strategy, normalized_rating_max_value, id3v2_version, metadata_format)
-    else:
-        # For IGNORE strategy, just write to the target format
-        if metadata_format:
-            target_manager = _get_metadata_manager(
-                file=file, tag_format=metadata_format, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
-        else:
-            target_manager = _get_metadata_manager(
-                file=file, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
-        
-        target_manager.update_file_metadata(app_metadata=app_metadata)
+    _handle_metadata_strategy(file, app_metadata, metadata_strategy, normalized_rating_max_value, id3v2_version, metadata_format)
 
 
 def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strategy: MetadataWritingStrategy, 
@@ -349,9 +344,10 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
         for fmt, manager in other_managers.items():
             try:
                 manager.update_file_metadata(app_metadata)
-            except MetadataNotSupportedError:
-                # Re-raise unsupported metadata errors - they should not be silently ignored
-                raise
+            except MetadataNotSupportedError as e:
+                # For SYNC strategy, log warning but continue with other formats
+                warnings.warn(f"Format {fmt} doesn't support some metadata fields: {e}")
+                continue
             except Exception:
                 # Some managers might not support writing or might fail for other reasons
                 pass

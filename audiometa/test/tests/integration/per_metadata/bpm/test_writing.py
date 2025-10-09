@@ -22,14 +22,15 @@ class TestBpmWriting:
     def test_riff(self, metadata_none_wav, temp_wav_file):
         """Test that RIFF format correctly raises exception for unsupported BPM metadata."""
         from audiometa.exceptions import MetadataNotSupportedError
+        from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
         
         shutil.copy2(metadata_none_wav, temp_wav_file)
         test_bpm = 120
         test_metadata = {UnifiedMetadataKey.BPM: test_bpm}
         
-        # RIFF format raises exception for unsupported metadata
+        # RIFF format raises exception for unsupported metadata with PRESERVE strategy
         with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
-            update_file_metadata(temp_wav_file, test_metadata, metadata_format=MetadataFormat.RIFF)
+            update_file_metadata(temp_wav_file, test_metadata, metadata_format=MetadataFormat.RIFF, metadata_strategy=MetadataWritingStrategy.PRESERVE)
 
     def test_vorbis(self, metadata_none_flac, temp_flac_file):
         shutil.copy2(metadata_none_flac, temp_flac_file)
