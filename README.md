@@ -2,6 +2,29 @@
 
 A comprehensive Python library for reading and writing audio metadata across multiple formats including MP3, FLAC, WAV, and more.
 
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Supported Formats](#supported-formats)
+- [Core API Reference](#core-api-reference)
+  - [Reading Metadata](#reading-metadata)
+  - [Writing Metadata](#writing-metadata)
+  - [Deleting Metadata](#deleting-metadata)
+  - [AudioFile Class](#audiofile-class)
+- [Advanced Features](#advanced-features)
+  - [Format-Specific Operations](#format-specific-operations)
+  - [Writing Strategies](#writing-strategies)
+  - [Multiple Artists Handling](#multiple-artists-and-album-artists-handling)
+  - [Error Handling](#error-handling)
+- [Metadata Field Reference](#metadata-field-reference)
+- [Requirements](#requirements)
+- [Development](#development)
+- [License](#license)
+- [Contributing](#contributing)
+- [Changelog](#changelog)
+
 ## Features
 
 - **Multi-format Support**: ID3v1, ID3v2, Vorbis (FLAC), and RIFF (WAV) metadata formats
@@ -10,46 +33,50 @@ A comprehensive Python library for reading and writing audio metadata across mul
 - **Rating Support**: Normalized rating handling across different formats
 - **Technical Information**: Access to bitrate, duration, sample rate, channels, and more
 - **Error Handling**: Robust error handling with specific exception types
+- **Type Hints**: Full type annotation support for better IDE integration
+- **Cross-platform**: Works on Windows, macOS, and Linux
+- **Performance Optimized**: Efficient batch operations and memory management
+- **Extensive Testing**: Comprehensive test coverage with 500+ tests
 
 **Note**: OGG file support is planned but not yet implemented.
 
-- **Type Hints**: Full type annotation support for better IDE integration
-
 ## Supported Formats
 
-| Format | Read | Write | Rating Support | Notes                                    |
-| ------ | ---- | ----- | -------------- | ---------------------------------------- |
-| ID3v1  | ✅   | ❌    | ❌             | Read-only, limited to 30 chars per field |
-| ID3v2  | ✅   | ✅    | ✅             | Full feature support                     |
-| Vorbis | ✅   | ✅    | ✅             | FLAC files                               |
-| RIFF   | ✅   | ✅    | ✅\*           | WAV files, \*via non-standard IRTD chunk |
+| Format | Read | Write | Rating Support | File Types     | Notes                                                      |
+| ------ | ---- | ----- | -------------- | -------------- | ---------------------------------------------------------- |
+| ID3v1  | ✅   | ❌    | ❌             | MP3, FLAC, WAV | Read-only, limited to 30 chars per field                   |
+| ID3v2  | ✅   | ✅    | ✅             | MP3, WAV, FLAC | Full feature support, most versatile                       |
+| Vorbis | ✅   | ✅    | ✅             | FLAC           | Native format for FLAC files                               |
+| RIFF   | ✅   | ✅    | ✅\*           | WAV            | Native format for WAV files, \*via non-standard IRTD chunk |
 
-## File Format Support by Metadata Manager
+### Format Capabilities
 
-Each metadata manager has specific file format requirements and support:
+**ID3v1 (Read-only)**
 
-### ID3v1 Manager
-
-- **Primary Support**: MP3 files (native ID3v1 format, optimal)
-- **Extended Support**: FLAC and WAV files that may contain ID3v1 tags (not optimal but supported)
+- **Primary Support**: MP3 files (native format)
+- **Extended Support**: FLAC and WAV files with ID3v1 tags
+- **Limitations**: 30-character field limits, no album artist support
 - **Operations**: Read-only (writing not supported due to fixed 128-byte structure)
-- **Note**: While ID3v1 is natively designed for MP3 files, some FLAC and WAV files may contain ID3v1 tags, which this manager can read
 
-### ID3v2 Manager
+**ID3v2 (Full Support)**
 
 - **Supported Formats**: MP3, WAV, FLAC
-- **Note**: ID3v2 is the most versatile format and works across multiple file types
+- **Features**: All metadata fields, multiple artists, cover art, extended metadata
+- **Versions**: Supports ID3v2.3 (default) and ID3v2.4
+- **Note**: Most versatile format, works across multiple file types
 
-### Vorbis Manager
+**Vorbis (FLAC Native)**
 
 - **Primary Support**: FLAC files (native Vorbis comments)
-- **Note**: Vorbis comments are the standard metadata format for FLAC files
+- **Features**: All metadata fields, multiple artists, cover art
+- **Note**: Standard metadata format for FLAC files
 
-### RIFF Manager
+**RIFF (WAV Native)**
 
 - **Strict Support**: WAV files only
-- **Limitations**: Some metadata fields not supported (raises `MetadataNotSupportedError`)
-- **Note**: RIFF is the native metadata format for WAV files and is not supported in other formats
+- **Features**: Most metadata fields, some limitations
+- **Limitations**: Some fields not supported (BPM, lyrics, etc.)
+- **Note**: Native metadata format for WAV files
 
 ## Installation
 
@@ -57,18 +84,54 @@ Each metadata manager has specific file format requirements and support:
 pip install audiometa-python
 ```
 
+### System Requirements
+
+- **Python**: 3.8 or higher
+- **Operating Systems**: Windows, macOS, Linux
+- **Dependencies**: Automatically installed with the package
+- **Optional Tools**: ffprobe (for WAV files), flac (for FLAC MD5 validation)
+
+## Getting Started
+
+### What You Need
+
+- Python 3.8+
+- Audio files (MP3, FLAC, WAV)
+- Basic Python knowledge
+
+### Your First Steps
+
+1. **Install the library** using pip
+2. **Try reading metadata** from an existing audio file
+3. **Update some metadata** to see how writing works
+4. **Explore advanced features** like format-specific operations
+
+### Common Use Cases
+
+- **Music library management**: Organize and clean up metadata
+- **Metadata cleanup**: Remove unwanted or duplicate information
+- **Format conversion**: Migrate metadata between formats
+- **Batch processing**: Update multiple files at once
+- **Privacy protection**: Remove personal information from files
+
 ## Quick Start
 
-### Basic Usage
+### Reading Metadata
 
 ```python
-from audiometa import get_merged_unified_metadata, update_file_metadata, AudioFile
+from audiometa import get_merged_unified_metadata
 
-# Read metadata from a file
+# Read all metadata from a file
 metadata = get_merged_unified_metadata("path/to/your/audio.mp3")
 print(f"Title: {metadata.get('title', 'Unknown')}")
 print(f"Artist: {metadata.get('artists_names', ['Unknown'])}")
 print(f"Album: {metadata.get('album_name', 'Unknown')}")
+```
+
+### Writing Metadata
+
+```python
+from audiometa import update_file_metadata
 
 # Update metadata
 new_metadata = {
@@ -78,6 +141,16 @@ new_metadata = {
     'rating': 85
 }
 update_file_metadata("path/to/your/audio.mp3", new_metadata)
+```
+
+### Deleting Metadata
+
+```python
+from audiometa import delete_all_metadata
+
+# Delete all metadata from a file
+success = delete_all_metadata("path/to/your/audio.mp3")
+print(f"Metadata deleted: {success}")
 ```
 
 ### Working with AudioFile
@@ -92,43 +165,250 @@ audio_file = AudioFile("path/to/your/audio.flac")
 print(f"Duration: {audio_file.get_duration_in_sec()} seconds")
 print(f"Bitrate: {audio_file.get_bitrate()} kbps")
 print(f"File extension: {audio_file.file_extension}")
-
-# Check FLAC MD5 validity
-if audio_file.file_extension == '.flac':
-    is_valid = audio_file.is_flac_file_md5_valid()
-    print(f"FLAC MD5 valid: {is_valid}")
 ```
 
-### Format-Specific Operations
+## Core API Reference
+
+### Reading Metadata
+
+#### `get_merged_unified_metadata(file_path)`
+
+Reads all metadata from a file and returns a unified dictionary.
+
+```python
+from audiometa import get_merged_unified_metadata
+
+metadata = get_merged_unified_metadata("song.mp3")
+print(metadata['title'])  # Song title
+print(metadata['artists_names'])  # List of artists
+```
+
+#### `get_single_format_app_metadata(file_path, format)`
+
+Reads metadata from a specific format only.
 
 ```python
 from audiometa import get_single_format_app_metadata, MetadataFormat
 
 # Read only ID3v2 metadata
-id3v2_metadata = get_single_format_app_metadata(
-    "path/to/your/audio.mp3",
-    MetadataFormat.ID3V2
-)
+id3v2_metadata = get_single_format_app_metadata("song.mp3", MetadataFormat.ID3V2)
 
 # Read only Vorbis metadata
-vorbis_metadata = get_single_format_app_metadata(
-    "path/to/your/audio.flac",
-    MetadataFormat.VORBIS
-)
+vorbis_metadata = get_single_format_app_metadata("song.flac", MetadataFormat.VORBIS)
 ```
 
-### Specific Metadata Fields
+#### `get_specific_metadata(file_path, field)`
+
+Reads a specific metadata field.
 
 ```python
-from audiometa import get_specific_metadata, AppMetadataKey
+from audiometa import get_specific_metadata, UnifiedMetadataKey
 
-# Get specific metadata fields
-title = get_specific_metadata("path/to/your/audio.mp3", AppMetadataKey.TITLE)
-rating = get_specific_metadata("path/to/your/audio.mp3", AppMetadataKey.RATING)
-bpm = get_specific_metadata("path/to/your/audio.mp3", AppMetadataKey.BPM)
+title = get_specific_metadata("song.mp3", UnifiedMetadataKey.TITLE)
+rating = get_specific_metadata("song.mp3", UnifiedMetadataKey.RATING)
 ```
 
-## Supported Metadata Fields
+### Writing Metadata
+
+#### `update_file_metadata(file_path, metadata, **options)`
+
+Updates metadata in a file.
+
+```python
+from audiometa import update_file_metadata
+
+# Basic writing
+update_file_metadata("song.mp3", {
+    'title': 'New Title',
+    'artists_names': ['Artist Name'],
+    'rating': 85
+})
+
+# Format-specific writing
+from audiometa.utils.MetadataFormat import MetadataFormat
+update_file_metadata("song.wav", metadata, metadata_format=MetadataFormat.RIFF)
+
+# Strategy-based writing
+from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
+update_file_metadata("song.mp3", metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
+```
+
+### Deleting Metadata
+
+#### `delete_all_metadata(file_path, tag_format=None)`
+
+Deletes all metadata or metadata from a specific format.
+
+```python
+from audiometa import delete_all_metadata, MetadataFormat
+
+# Delete all metadata
+delete_all_metadata("song.mp3")
+
+# Delete only ID3v2 metadata
+delete_all_metadata("song.mp3", tag_format=MetadataFormat.ID3V2)
+
+# Delete only Vorbis metadata
+delete_all_metadata("song.flac", tag_format=MetadataFormat.VORBIS)
+```
+
+**Complete Deletion Behavior:**
+
+- **No `tag_format` specified**: Deletes all metadata from the file's native format
+- **`tag_format` specified**: Deletes only metadata from that specific format
+- **Removes headers entirely**: This is a destructive operation that removes metadata container structures
+- **Significantly reduces file size**: Removes all metadata overhead
+- **Returns**: `True` if successful, `False` if deletion fails
+- **ID3v1**: Cannot be deleted (read-only format)
+
+**When to Use `delete_all_metadata` vs Setting to `None`:**
+
+- **Use `delete_all_metadata`**: When you want to remove ALL metadata or ALL metadata of a specific format completely
+- **Use `None` values**: When you want to remove only specific fields while keeping others
+
+```python
+# Remove everything completely - use delete_all_metadata
+delete_all_metadata("song.mp3")
+
+# Remove only title and artist - use None values
+update_file_metadata("song.mp3", {"title": None, "artists_names": None})
+```
+
+### AudioFile Class
+
+#### Object-oriented approach for working with audio files
+
+```python
+from audiometa import AudioFile
+
+# Create an AudioFile instance
+audio_file = AudioFile("path/to/your/audio.flac")
+
+# Get technical information
+print(f"Duration: {audio_file.get_duration_in_sec()} seconds")
+print(f"Bitrate: {audio_file.get_bitrate()} kbps")
+print(f"Sample Rate: {audio_file.get_sample_rate()} Hz")
+print(f"Channels: {audio_file.get_channels()}")
+print(f"File extension: {audio_file.file_extension}")
+
+# Check FLAC MD5 validity
+if audio_file.file_extension == '.flac':
+    is_valid = audio_file.is_flac_file_md5_valid()
+    print(f"FLAC MD5 valid: {is_valid}")
+
+# Get metadata using the object
+metadata = audio_file.get_merged_unified_metadata()
+print(f"Title: {metadata.get('title', 'Unknown')}")
+```
+
+## Advanced Features
+
+### Format-Specific Operations
+
+#### Reading from Specific Formats
+
+```python
+from audiometa import get_single_format_app_metadata, MetadataFormat
+
+# Read only ID3v2 metadata
+id3v2_metadata = get_single_format_app_metadata("song.mp3", MetadataFormat.ID3V2)
+
+# Read only Vorbis metadata
+vorbis_metadata = get_single_format_app_metadata("song.flac", MetadataFormat.VORBIS)
+
+# Read only RIFF metadata
+riff_metadata = get_single_format_app_metadata("song.wav", MetadataFormat.RIFF)
+```
+
+#### Writing to Specific Formats
+
+```python
+from audiometa import update_file_metadata
+from audiometa.utils.MetadataFormat import MetadataFormat
+
+# Write specifically to ID3v2 format (even for WAV files)
+update_file_metadata("song.wav", {"title": "New Title"}, metadata_format=MetadataFormat.ID3V2)
+
+# Write specifically to RIFF format
+update_file_metadata("song.wav", {"title": "New Title"}, metadata_format=MetadataFormat.RIFF)
+```
+
+### Writing Strategies
+
+The library provides flexible control over how metadata is written to files that may already contain metadata in other formats.
+
+#### Available Strategies
+
+1. **`SYNC` (Default)**: Write to native format and synchronize other metadata formats that are already present
+2. **`PRESERVE`**: Write to native format only, preserve existing metadata in other formats
+3. **`CLEANUP`**: Write to native format and remove all non-native metadata formats
+
+#### Usage Examples
+
+```python
+from audiometa import update_file_metadata
+from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
+
+# SYNC strategy (default) - synchronize all existing formats
+update_file_metadata("song.wav", {"title": "New Title"},
+                    metadata_strategy=MetadataWritingStrategy.SYNC)
+
+# CLEANUP strategy - remove non-native formats
+update_file_metadata("song.wav", {"title": "New Title"},
+                    metadata_strategy=MetadataWritingStrategy.CLEANUP)
+
+# PRESERVE strategy - keep other formats unchanged
+update_file_metadata("song.wav", {"title": "New Title"},
+                    metadata_strategy=MetadataWritingStrategy.PRESERVE)
+```
+
+### Multiple Artists and Album Artists Handling
+
+The library supports multiple artists and album artists across all audio formats.
+
+```python
+from audiometa import update_file_metadata, get_merged_unified_metadata
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+
+# Set multiple artists and album artists
+artists = ["Artist One", "Artist Two", "Artist Three"]
+album_artists = ["Album Artist One", "Album Artist Two"]
+metadata = {
+    UnifiedMetadataKey.ARTISTS_NAMES: artists,
+    UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: album_artists
+}
+
+# Update file (library handles format-specific implementation)
+update_file_metadata("song.mp3", metadata)
+
+# Read back (returns lists of artists and album artists)
+result = get_merged_unified_metadata("song.mp3")
+print(result[UnifiedMetadataKey.ARTISTS_NAMES])
+# Output: ['Artist One', 'Artist Two', 'Artist Three']
+```
+
+### Error Handling
+
+The library provides specific exception types for different error conditions:
+
+```python
+from audiometa.exceptions import (
+    FileCorruptedError,
+    FileTypeNotSupportedError,
+    MetadataNotSupportedError
+)
+
+try:
+    metadata = get_merged_unified_metadata("invalid_file.txt")
+except FileTypeNotSupportedError:
+    print("File format not supported")
+except FileCorruptedError:
+    print("File is corrupted")
+except MetadataNotSupportedError:
+    print("Metadata field not supported for this format")
+```
+
+## Metadata Field Reference
 
 The library supports a comprehensive set of metadata fields across different audio formats. The table below shows which fields are supported by each format:
 
@@ -434,30 +714,7 @@ update_file_metadata("song.wav", {"title": "New Title"},
 - **Compatibility**: Maintains support for different players
 - **Convenience**: Single update affects all existing formats
 
-## Error Handling
-
-The library provides specific exception types for different error conditions:
-
-```python
-from audiometa.exceptions import (
-    FileCorruptedError,
-    FileTypeNotSupportedError,
-    MetadataNotSupportedError
-)
-
-try:
-    metadata = get_merged_unified_metadata("invalid_file.txt")
-except FileTypeNotSupportedError:
-    print("File format not supported")
-except FileCorruptedError:
-    print("File is corrupted")
-except MetadataNotSupportedError:
-    print("Metadata field not supported for this format")
-except ValueError as e:
-    print(f"Invalid parameters: {e}")
-```
-
-## Unsupported Metadata Handling
+### Unsupported Metadata Handling
 
 The library handles unsupported metadata differently depending on the context:
 
@@ -466,7 +723,7 @@ The library handles unsupported metadata differently depending on the context:
 - **SYNC strategy with `fail_on_unsupported_field=True`**: Fails fast if any field is not supported by NO format
 - **Other strategies (PRESERVE, CLEANUP)**: Follow a "fail fast, fail clearly" approach by raising `MetadataNotSupportedError` when any field is not supported
 
-### Format-Specific Limitations
+#### Format-Specific Limitations
 
 | Format         | Forced Format     | SYNC Strategy (Default)                                     | Other Strategies (PRESERVE, CLEANUP)                        |
 | -------------- | ----------------- | ----------------------------------------------------------- | ----------------------------------------------------------- |
@@ -475,24 +732,16 @@ The library handles unsupported metadata differently depending on the context:
 | **ID3v2**      | Always fails fast | All fields supported                                        | All fields supported                                        |
 | **Vorbis**     | Always fails fast | All fields supported                                        | All fields supported                                        |
 
-### Example: Handling Unsupported Metadata
+#### Example: Handling Unsupported Metadata
 
 ```python
 from audiometa import update_file_metadata
 from audiometa.exceptions import MetadataNotSupportedError
 from audiometa.utils.MetadataFormat import MetadataFormat
-import warnings
 
 # SYNC strategy (default) - handles unsupported fields gracefully
 update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120})
 # Result: Writes title and rating to RIFF, logs warning about BPM, continues
-
-# SYNC strategy with strict validation - fails if any field unsupported by ALL formats
-try:
-    update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
-                        fail_on_unsupported_field=True)
-except MetadataNotSupportedError as e:
-    print(f"Some metadata fields not supported by any format: {e}")
 
 # Forced format - always fails fast for unsupported fields
 try:
@@ -500,39 +749,11 @@ try:
                         metadata_format=MetadataFormat.RIFF)
 except MetadataNotSupportedError as e:
     print(f"BPM not supported in RIFF format: {e}")
-
-# PRESERVE strategy - fails fast for unsupported fields
-try:
-    update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
-                        metadata_strategy=MetadataWritingStrategy.PRESERVE)
-except MetadataNotSupportedError as e:
-    print(f"Some metadata fields not supported in WAV files: {e}")
 ```
 
-### Best Practices
+### None vs Empty String Handling
 
-1. **Check format support** before updating metadata
-2. **Handle exceptions** gracefully in your application
-3. **Use format-specific managers** for advanced control
-4. **Filter unsupported fields** before bulk updates
-
-```python
-# Example: Safe metadata update
-def safe_update_metadata(file_path, metadata):
-    try:
-        update_file_metadata(file_path, metadata)
-        return True
-    except MetadataNotSupportedError as e:
-        print(f"Some metadata fields not supported: {e}")
-        return False
-    except Exception as e:
-        print(f"Error updating metadata: {e}")
-        return False
-```
-
-## None vs Empty String Handling
-
-The library handles `None` and empty string values differently across audio formats. Here's a summary of the behavior:
+The library handles `None` and empty string values differently across audio formats:
 
 | Format            | Setting to `None`        | Setting to `""` (empty string)   | Read Back Result |
 | ----------------- | ------------------------ | -------------------------------- | ---------------- |
@@ -541,28 +762,17 @@ The library handles `None` and empty string values differently across audio form
 | **RIFF (WAV)**    | Removes field completely | Removes field completely         | `None` / `None`  |
 | **ID3v1 (MP3)**   | ❌ **Not supported**     | ❌ **Not supported**             | Read-only format |
 
-### Key Differences
-
-- **ID3v2**: Both `None` and `""` remove the field completely (mutagen removes empty frames automatically)
-- **Vorbis**: `None` removes the field, `""` creates an empty field
-- **RIFF**: Both `None` and `""` remove the field completely
-- **ID3v1**: Not supported
-
-### Example
+#### Example
 
 ```python
 from audiometa import update_file_metadata, get_specific_metadata
 
-# MP3 file - same behavior for None and empty string (mutagen removes empty frames)
+# MP3 file - same behavior for None and empty string
 update_file_metadata("song.mp3", {"title": None})
 title = get_specific_metadata("song.mp3", "title")
 print(title)  # Output: None (field removed)
 
-update_file_metadata("song.mp3", {"title": ""})
-title = get_specific_metadata("song.mp3", "title")
-print(title)  # Output: None (field removed, mutagen removes empty frames)
-
-# FLAC file - different behavior for None vs empty string (like MP3)
+# FLAC file - different behavior for None vs empty string
 update_file_metadata("song.flac", {"title": None})
 title = get_specific_metadata("song.flac", "title")
 print(title)  # Output: None (field removed)
@@ -570,163 +780,7 @@ print(title)  # Output: None (field removed)
 update_file_metadata("song.flac", {"title": ""})
 title = get_specific_metadata("song.flac", "title")
 print(title)  # Output: "" (field exists but empty)
-
-# WAV file - same behavior for None and empty string
-update_file_metadata("song.wav", {"title": None})
-title = get_specific_metadata("song.wav", "title")
-print(title)  # Output: None (field removed)
-
-update_file_metadata("song.wav", {"title": ""})
-title = get_specific_metadata("song.wav", "title")
-print(title)  # Output: None (field removed)
 ```
-
-## Multiple Artists and Album Artists Handling
-
-The library supports multiple artists and album artists across all audio formats, following industry standards and technical specifications for each metadata format.
-
-### Format-Specific Standards
-
-#### **ID3v2 (MP3 Files)**
-
-**ID3v2.4 (Recommended)**
-
-- **Multiple TPE1 frames**: Each artist gets their own `TPE1` (Lead Performer/Soloist) frame
-- **Multiple TPE2 frames**: Each album artist gets their own `TPE2` (Band/Orchestra/Accompaniment) frame
-- **Null separator**: Use null character (`\0`) as separator within a single frame
-- **Examples**:
-
-  ```
-  TPE1=Artist One
-  TPE1=Artist Two
-  TPE1=Artist Three
-
-  TPE2=Album Artist One
-  TPE2=Album Artist Two
-  ```
-
-**ID3v2.3 (Legacy)**
-
-- **Single TPE1 frame with separator**: Use consistent delimiter in one frame for track artists
-- **Single TPE2 frame with separator**: Use consistent delimiter in one frame for album artists
-- **Common separators**: Semicolon (`;`), slash (`/`), or double slash (`//`)
-- **Examples**:
-  - `TPE1=Artist One; Artist Two; Artist Three`
-  - `TPE2=Album Artist One; Album Artist Two`
-
-#### **Vorbis Comments (FLAC, Ogg Vorbis)**
-
-**Multiple ARTIST and ALBUMARTIST fields (Recommended)**
-
-- **Separate fields**: Each artist gets their own `ARTIST` field
-- **Separate album artist fields**: Each album artist gets their own `ALBUMARTIST` field
-- **No delimiters needed**: This is the cleanest approach
-- **Examples**:
-
-  ```
-  ARTIST=Artist One
-  ARTIST=Artist Two
-  ARTIST=Artist Three
-
-  ALBUMARTIST=Album Artist One
-  ALBUMARTIST=Album Artist Two
-  ```
-
-#### **RIFF/WAV Files**
-
-**Multiple IART and IPRD fields**
-
-- **Separate IART fields**: Each artist gets their own `IART` (Artist) field
-- **Separate IPRD fields**: Each album artist gets their own `IPRD` (Product) field
-- **Examples**:
-
-  ```
-  IART=Artist One
-  IART=Artist Two
-  IART=Artist Three
-
-  IPRD=Album Artist One
-  IPRD=Album Artist Two
-  ```
-
-#### **ID3v1 (MP3 Legacy)**
-
-**Single field with separator**
-
-- **30-character limit**: Must fit in single `ARTIST` field
-- **No album artist support**: ID3v1 does not support album artist field
-- **Common separators**: Slash (`/`), semicolon (`;`), or comma (`,`)
-- **Example**: `ARTIST=Artist One / Artist Two`
-
-### Library Implementation
-
-The library automatically handles multiple artists and album artists using these approaches:
-
-1. **Reading**: Automatically detects and parses multiple artists and album artists using format-appropriate methods
-2. **Writing**: Uses the best method available for each format (multiple fields when supported, separators when required)
-3. **Separator Priority**: When separators are needed, uses this priority order:
-   - `//` (double slash)
-   - `\\` (double backslash)
-   - `;` (semicolon)
-   - `\` (backslash)
-   - `/` (forward slash)
-   - `,` (comma)
-
-### Example Usage
-
-```python
-from audiometa import update_file_metadata, get_merged_unified_metadata
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-
-# Set multiple artists and album artists
-artists = ["Artist One", "Artist Two", "Artist Three"]
-album_artists = ["Album Artist One", "Album Artist Two"]
-metadata = {
-    UnifiedMetadataKey.ARTISTS_NAMES: artists,
-    UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: album_artists
-}
-
-# Update file (library handles format-specific implementation)
-update_file_metadata("song.mp3", metadata)
-
-# Read back (returns lists of artists and album artists)
-result = get_merged_unified_metadata("song.mp3")
-print(result[UnifiedMetadataKey.ARTISTS_NAMES])
-# Output: ['Artist One', 'Artist Two', 'Artist Three']
-print(result[UnifiedMetadataKey.ALBUM_ARTISTS_NAMES])
-# Output: ['Album Artist One', 'Album Artist Two']
-```
-
-### Multiple Artists/Album Artists Support Summary
-
-| Format      | Track Artists                 | Album Artists               | Reading Method                    | Writing Method             |
-| ----------- | ----------------------------- | --------------------------- | --------------------------------- | -------------------------- |
-| **ID3v2.4** | ✅ Multiple TPE1 frames       | ✅ Multiple TPE2 frames     | Multiple frames or null-separated | Multiple frames            |
-| **ID3v2.3** | ✅ Single TPE1 + separators   | ✅ Single TPE2 + separators | Splits on separators              | Separators in single frame |
-| **ID3v2.2** | ✅ Single TPE1 + separators   | ✅ Single TPE2 + separators | Splits on separators              | Separators in single frame |
-| **Vorbis**  | ✅ Multiple ARTIST fields     | ✅ Multiple ALBUMARTIST     | Multiple fields directly          | Multiple fields            |
-| **RIFF**    | ✅ Multiple IART fields       | ✅ Multiple IPRD fields     | Multiple fields directly          | Multiple fields            |
-| **ID3v1**   | ⚠️ Single ARTIST + separators | ❌ Not supported            | Splits on separators              | Separators in single field |
-
-### Key Implementation Details
-
-| Aspect                 | Implementation                                                    |
-| ---------------------- | ----------------------------------------------------------------- |
-| **Separator Priority** | `//` → `\\` → `;` → `\` → `/` → `,`                               |
-| **Reading Logic**      | Tries multiple separators in order, strips whitespace             |
-| **Writing Strategy**   | Uses multiple fields when supported, separators when required     |
-| **Unified Interface**  | Both `ARTISTS_NAMES` and `ALBUM_ARTISTS_NAMES` return `list[str]` |
-| **Error Handling**     | Gracefully handles mixed formats and malformed data               |
-
-### Best Practices
-
-1. **Prefer multiple fields over delimiters** when the format supports it
-2. **Use consistent separators** when multiple fields aren't supported
-3. **Avoid separators that might appear in artist names** (e.g., avoid comma if artist name contains comma)
-4. **Distinguish between track artists and album artists** - track artists are the performers of individual songs, while album artists represent the primary artist(s) responsible for the entire album
-5. **Test compatibility** across different media players and devices
-6. **Maintain consistency** across your entire music library
-7. **Use album artists for compilations** - set album artist to "Various Artists" or the compilation name while keeping individual track artists
 
 ## Requirements
 
@@ -750,6 +804,8 @@ pip install -e ".[dev]"
 ```bash
 pytest
 ```
+
+For detailed information about the test suite, including test organization, data files, and testing strategies, see the [Test Documentation](audiometa/test/tests/README.md).
 
 ### Code Formatting
 
