@@ -3,7 +3,7 @@ from pathlib import Path
 
 from audiometa import get_specific_metadata, update_file_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.exceptions import FileTypeNotSupportedError
+from audiometa.exceptions import FileTypeNotSupportedError, InvalidRatingValueError
 
 
 @pytest.mark.integration
@@ -33,8 +33,8 @@ class TestRatingErrorHandling:
         # Test with invalid rating values
         temp_audio_file.write_bytes(sample_mp3_file.read_bytes())
         
-        # Test invalid string value - should raise ValueError
-        with pytest.raises(ValueError, match="Invalid rating value: invalid. Expected a numeric value."):
+        # Test invalid string value - should raise InvalidRatingValueError
+        with pytest.raises(InvalidRatingValueError, match="Invalid rating value: invalid. Expected a numeric value."):
             update_file_metadata(temp_audio_file, {UnifiedMetadataKey.RATING: "invalid"}, normalized_rating_max_value=100)
         
         # Test out-of-range numeric values - should be clamped to valid range
