@@ -1,0 +1,36 @@
+import pytest
+
+from audiometa import delete_all_metadata
+from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
+
+
+@pytest.mark.integration
+class TestComprehensiveRiffDeletion:
+
+    def test_comprehensive_riff_header_deletion_wav(self):        
+        # Create comprehensive metadata with RIFF supported fields only
+        comprehensive_metadata = {
+            "title": "Comprehensive WAV Test Title",
+            "artist": "WAV Artist One",
+            "album": "Comprehensive WAV Test Album",
+            "genre": "WAV Test Genre",
+            "year": "2023",
+            "comment": "WAV Test Comment"
+        }
+        
+        with TempFileWithMetadata(comprehensive_metadata, "wav") as test_file:
+            # Check headers before deletion
+            before_headers = test_file.get_metadata_headers_present()
+            print(f"WAV headers before deletion: {before_headers}")
+            # Note: RIFF headers might not be created by the library in all cases
+            # We'll test deletion regardless of whether headers are present
+            
+            # Delete all metadata
+            result = delete_all_metadata(test_file)
+            assert result is True
+            
+            # Check headers after deletion
+            after_headers = test_file.get_metadata_headers_present()
+            print(f"WAV headers after deletion: {after_headers}")
+            # Verify no RIFF headers remain after deletion
+            assert not after_headers['riff'], "RIFF should be removed"
