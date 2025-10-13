@@ -328,6 +328,12 @@ def update_file_metadata(
         
         # Write to specific format
         update_file_metadata("song.mp3", metadata, metadata_format=MetadataFormat.ID3V2)
+        
+        # Remove specific fields by setting them to None
+        update_file_metadata("song.mp3", {
+            UnifiedMetadataKey.TITLE: None,        # Removes title field
+            UnifiedMetadataKey.ARTISTS_NAMES: None # Removes artist field
+        })
     """
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
@@ -462,38 +468,74 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
                 pass
 
 
-def delete_metadata(file, tag_format: MetadataFormat | None = None, id3v2_version: tuple[int, int, int] | None = None) -> bool:
+def delete_all_metadata(file, tag_format: MetadataFormat | None = None, id3v2_version: tuple[int, int, int] | None = None) -> bool:
     """
-    Delete all metadata from an audio file.
+    Delete all metadata from an audio file, including metadata headers.
     
-    This function removes all metadata tags from the specified audio file.
-    If a specific format is provided, only that format's metadata is deleted.
+    This function completely removes all metadata tags and their container structures
+    from the specified audio file. This is a destructive operation that removes
+    metadata headers entirely, not just the content.
     
     Args:
         file: Audio file path or AudioFile object
-        tag_format: Specific format to delete metadata from. If None, deletes from native format.
+        tag_format: Specific format to delete metadata from. If None, deletes from ALL supported formats.
         id3v2_version: ID3v2 version tuple for ID3v2-specific operations
         
     Returns:
-        True if metadata was successfully deleted, False otherwise
+        True if metadata was successfully deleted from at least one format, False otherwise
         
     Raises:
         FileTypeNotSupportedError: If the file format is not supported
         FileNotFoundError: If the file does not exist
         
     Examples:
-        # Delete all metadata from native format
-        success = delete_metadata("song.mp3")
+        # Delete ALL metadata from ALL supported formats (removes headers completely)
+        success = delete_all_metadata("song.mp3")
         
-        # Delete only ID3v2 metadata (keep ID3v1)
-        success = delete_metadata("song.mp3", tag_format=MetadataFormat.ID3V2)
+        # Delete only ID3v2 metadata (keep ID3v1, removes ID3v2 headers)
+        success = delete_all_metadata("song.mp3", tag_format=MetadataFormat.ID3V2)
         
-        # Delete Vorbis metadata from FLAC
-        success = delete_metadata("song.flac", tag_format=MetadataFormat.VORBIS)
+        # Delete Vorbis metadata from FLAC (removes Vorbis comment blocks)
+        success = delete_all_metadata("song.flac", tag_format=MetadataFormat.VORBIS)
+        
+    Note:
+        This function removes metadata headers entirely, significantly reducing file size.
+        This is different from setting individual fields to None, which only removes
+        specific fields while preserving the metadata structure and other fields.
+        
+        When no tag_format is specified, the function attempts to delete metadata from
+        ALL supported formats for the file type. Some formats may not support deletion
+        (e.g., ID3v1 is read-only) and will be skipped silently.
+        
+        Use cases:
+        - Complete privacy cleanup (remove all metadata)
+        - File size optimization (remove all metadata headers)
+        - Format cleanup (remove specific format metadata)
+        
+        For selective field removal, use update_file_metadata with None values instead.
     """
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
-    return _get_metadata_manager(file, tag_format=tag_format, id3v2_version=id3v2_version).delete_metadata()
+    
+    # If specific format requested, delete only that format
+    if tag_format:
+        return _get_metadata_manager(file, tag_format=tag_format, id3v2_version=id3v2_version).delete_metadata()
+    
+    # Delete from all supported formats for this file type
+    all_managers = _get_metadata_managers(file, normalized_rating_max_value=None, id3v2_version=id3v2_version)
+    success_count = 0
+    
+    for format_type, manager in all_managers.items():
+        try:
+            if manager.delete_metadata():
+                success_count += 1
+        except Exception:
+            # Some formats may not support deletion (e.g., ID3v1) or may fail
+            # Continue with other formats
+            pass
+    
+    # Return True if at least one format was successfully deleted
+    return success_count > 0
 
 
 def get_bitrate(file: FILE_TYPE) -> int:
