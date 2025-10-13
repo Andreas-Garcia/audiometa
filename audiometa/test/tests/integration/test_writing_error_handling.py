@@ -3,7 +3,7 @@ from pathlib import Path
 
 from audiometa import (
     update_file_metadata,
-    delete_metadata
+    delete_all_metadata
 )
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError
@@ -22,7 +22,7 @@ class TestWritingErrorHandling:
             update_file_metadata(str(temp_audio_file), {UnifiedMetadataKey.TITLE: "Test"})
         
         with pytest.raises(FileTypeNotSupportedError):
-            delete_metadata(str(temp_audio_file))
+            delete_all_metadata(str(temp_audio_file))
 
     def test_nonexistent_file_raises_error(self):
         nonexistent_file = "nonexistent_file.mp3"
@@ -30,5 +30,4 @@ class TestWritingErrorHandling:
         with pytest.raises(FileNotFoundError):
             update_file_metadata(nonexistent_file, {UnifiedMetadataKey.TITLE: "Test"})
         
-        with pytest.raises(FileNotFoundError):
-            delete_metadata(nonexistent_file)
+        # Note: delete_all_metadata error handling tests have been moved to test_delete_all_metadata.py

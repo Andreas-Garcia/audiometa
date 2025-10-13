@@ -12,7 +12,7 @@ from audiometa import (
     update_file_metadata,
     get_single_format_app_metadata,
     get_merged_unified_metadata,
-    delete_metadata
+    delete_all_metadata
 )
 from audiometa.exceptions import (
     MetadataNotSupportedError,
@@ -244,38 +244,7 @@ class TestForcedFormat:
             # Rating 85 on 0-100 scale becomes 196 on 0-255 scale (85 * 255 / 100 = 216.75, rounded to 196)
             assert id3v2_metadata.get(UnifiedMetadataKey.RATING) == 196
 
-    def test_forced_format_delete_metadata(self):
-        # Create WAV file with both RIFF and ID3v2 metadata
-        initial_metadata = {
-            "title": "Original RIFF Title",
-            "artist": "Original RIFF Artist"
-        }
-        with TempFileWithMetadata(initial_metadata, "wav") as test_file:
-            # Add ID3v2 metadata using the library directly
-            id3v2_metadata = {
-                UnifiedMetadataKey.TITLE: "Original ID3v2 Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Original ID3v2 Artist"]
-            }
-            update_file_metadata(test_file, id3v2_metadata, 
-                               metadata_format=MetadataFormat.ID3V2)
-            
-            # Verify both formats have metadata
-            riff_before = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
-            id3v2_before = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
-            assert riff_before.get(UnifiedMetadataKey.TITLE) == "Original RIFF Title"
-            assert id3v2_before.get(UnifiedMetadataKey.TITLE) == "Original ID3v2 Title"
-            
-            # Delete metadata from ID3v2 format only
-            result = delete_metadata(test_file, tag_format=MetadataFormat.ID3V2)
-            assert result is True
-            
-            # Verify ID3v2 metadata was deleted
-            id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
-            assert id3v2_after.get(UnifiedMetadataKey.TITLE) is None
-            
-            # Verify RIFF metadata was NOT deleted (forced format only affects specified format)
-            riff_after = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
-            assert riff_after.get(UnifiedMetadataKey.TITLE) == "Original RIFF Title"
+    # Note: delete_all_metadata tests have been moved to test_delete_all_metadata.py
 
     def test_forced_format_validation_before_writing(self):
         # Create WAV file with initial metadata

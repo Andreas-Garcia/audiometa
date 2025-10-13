@@ -10,7 +10,7 @@ from pathlib import Path
 
 from audiometa import (
     update_file_metadata,
-    delete_metadata,
+    delete_all_metadata,
     get_merged_unified_metadata,
     get_single_format_app_metadata,
     AudioFile
@@ -179,47 +179,7 @@ class TestMetadataWriting:
                                metadata_format=MetadataFormat.RIFF,
                                metadata_strategy=MetadataWritingStrategy.SYNC)
 
-    def test_delete_metadata_mp3(self):
-        # First add some metadata using external script
-        test_metadata = {
-            "title": "Test Title to Delete",
-            "artist": "Test Artist to Delete"
-        }
-        with TempFileWithMetadata(test_metadata, "mp3") as test_file:
-            # Verify metadata was added
-            updated_metadata = get_merged_unified_metadata(test_file)
-            assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title to Delete"
-        
-        # Delete metadata
-        result = delete_metadata(test_file)
-        assert result is True
-        
-        # Verify metadata was deleted (should be empty or minimal)
-        deleted_metadata = get_merged_unified_metadata(test_file)
-        # After deletion, metadata should be empty or contain only technical info
-        assert UnifiedMetadataKey.TITLE not in deleted_metadata or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "Test Title to Delete"
-
-    def test_delete_metadata_with_specific_format(self):
-        # First add some metadata using external script
-        test_metadata = {
-            "title": "Test Title",
-            "artist": "Test Artist"
-        }
-        with TempFileWithMetadata(test_metadata, "mp3") as test_file:
-            # Delete only ID3v2 metadata
-            result = delete_metadata(test_file, MetadataFormat.ID3V2)
-        assert result is True
-
-    def test_delete_metadata_with_audio_file_object(self):
-        # First add some metadata using external script
-        test_metadata = {
-            "title": "Test Title",
-            "artist": "Test Artist"
-        }
-        with TempFileWithMetadata(test_metadata, "mp3") as test_file:
-            audio_file = AudioFile(test_file)
-        result = delete_metadata(audio_file)
-        assert result is True
+    # Note: delete_all_metadata tests have been moved to test_delete_all_metadata.py
 
     def test_update_metadata_unsupported_file_type(self, temp_audio_file: Path):
         # Create a file with unsupported extension
@@ -239,7 +199,7 @@ class TestMetadataWriting:
         temp_audio_file.write_bytes(b"fake audio content")
         
         with pytest.raises(FileTypeNotSupportedError):
-            delete_metadata(str(temp_audio_file))
+            delete_all_metadata(str(temp_audio_file))
 
     def test_write_metadata_to_files_with_existing_metadata(self):
         test_cases = [

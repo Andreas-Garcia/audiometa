@@ -15,7 +15,7 @@ from audiometa import (
     AudioFile,
     get_merged_unified_metadata,
     update_file_metadata,
-    delete_metadata,
+    delete_all_metadata,
     get_bitrate,
     get_duration_in_sec
 )
@@ -158,7 +158,7 @@ class TestCompleteWorkflows:
             assert duration > 0
             
             # 5. Delete metadata
-            delete_result = delete_metadata(test_file)
+            delete_result = delete_all_metadata(test_file)
             assert delete_result is True
             
             # 6. Verify metadata was deleted
@@ -294,7 +294,7 @@ class TestCompleteWorkflows:
             update_file_metadata(str(test_file), {UnifiedMetadataKey.TITLE: "Test"})
         
         with pytest.raises(Exception):  # FileTypeNotSupportedError
-            delete_metadata(str(test_file))
+            delete_all_metadata(str(test_file))
         
         with pytest.raises(Exception):  # FileTypeNotSupportedError
             get_bitrate(str(test_file))
