@@ -138,6 +138,10 @@ class MetadataManager:
         if not value[0]:
             return None
         if app_metadata_key_optional_type == int:
+            # Handle ID3v2 track number format "track/total" (e.g., "99/99")
+            if app_metadata_key == UnifiedMetadataKey.TRACK_NUMBER and "/" in str(value[0]):
+                track_str = str(value[0]).split("/")[0].strip()
+                return int(track_str) if track_str.isdigit() else None
             return int(value[0]) if value else None
         if app_metadata_key_optional_type == float:
             return float(value[0]) if value else None

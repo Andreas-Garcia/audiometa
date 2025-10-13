@@ -951,6 +951,60 @@ The library supports a comprehensive set of metadata fields across different aud
 | Musicians         |                | ✓ (Format)     | ✓ (Format)   |               |                      |
 | Part of Set       |                | ✓ (Format)     | ✓ (Format)   |               |                      |
 
+### Track Number Formats
+
+The library handles different track number formats across audio metadata standards:
+
+#### ID3v2 Format (MP3, WAV, FLAC)
+
+- **Format**: `"track/total"` (e.g., `"5/12"`, `"99/99"`)
+- **Parsing**: Library extracts only the track number (first part before `/`)
+- **Why extract only the track number?**
+  - **Industry Standard**: This is the standard practice used by Mutagen, eyed3, and most audio players
+  - **ID3v2 Specification**: The specification allows both simple (`"5"`) and complex (`"5/12"`) formats
+  - **User Experience**: Users typically care about "track 5" rather than "track 5 of 12"
+  - **Compatibility**: Works consistently across different tagging software and players
+  - **Consistency**: Provides uniform behavior regardless of how the file was originally tagged
+- **Examples**:
+  - `"5/12"` → Track number: `5`
+  - `"99/99"` → Track number: `99`
+  - `"1"` → Track number: `1` (simple format also supported)
+
+#### ID3v1 Format (MP3, FLAC, WAV)
+
+- **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
+- **Parsing**: Direct conversion to integer
+- **Examples**:
+  - `"5"` → Track number: `5`
+  - `"12"` → Track number: `12`
+
+#### Vorbis Format (FLAC)
+
+- **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
+- **Parsing**: Direct conversion to integer
+- **Examples**:
+  - `"5"` → Track number: `5`
+  - `"12"` → Track number: `12`
+
+#### RIFF Format (WAV)
+
+- **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
+- **Parsing**: Direct conversion to integer
+- **Examples**:
+  - `"5"` → Track number: `5`
+  - `"12"` → Track number: `12`
+
+#### Edge Case Handling
+
+The library gracefully handles common edge cases:
+
+- `"5/"` → Track number: `5` (trailing slash ignored)
+- `"/12"` → Track number: `None` (no track number before slash)
+- `"abc/def"` → Track number: `None` (non-numeric values)
+- `""` → Track number: `None` (empty string)
+- `"5/12/15"` → Track number: `5` (takes first part before first slash)
+- `"5-12"` → `ValueError` (different separator, no slash)
+
 ### Legend
 
 - ✓: Supported
