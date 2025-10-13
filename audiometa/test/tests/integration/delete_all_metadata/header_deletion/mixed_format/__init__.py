@@ -1,0 +1,1 @@
+# Mixed format deletion tests

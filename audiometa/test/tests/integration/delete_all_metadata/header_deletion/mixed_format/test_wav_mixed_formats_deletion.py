@@ -8,10 +8,8 @@ from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
 
 @pytest.mark.integration
 class TestWAVMixedFormatsDeletion:
-    """Test deletion of all metadata from WAV files with both ID3v2 and RIFF metadata."""
 
     def test_delete_all_metadata_wav_with_both_id3v2_and_riff(self):
-        """Test that delete_all_metadata removes both ID3v2 and RIFF metadata from WAV files."""
         # Create WAV file with RIFF metadata first
         riff_metadata = {
             "title": "RIFF Title",
