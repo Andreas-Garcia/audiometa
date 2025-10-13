@@ -31,6 +31,9 @@ dependencies = [
     "mutagen>=1.45.0",
 ]
 
+[project.scripts]
+audiometa = "audiometa.cli:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0.0",
