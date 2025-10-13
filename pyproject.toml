@@ -10,6 +10,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
+    {name = "Andreas Garcia"},
     {name = "AudioMeta Python Contributors"}
 ]
 keywords = ["audio", "metadata", "mp3", "flac", "wav", "id3", "vorbis", "riff"]
