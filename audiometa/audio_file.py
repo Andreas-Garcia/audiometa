@@ -29,6 +29,10 @@ class AudioFile:
             # Handle pathlib.Path objects
             self.file = file
             self.file_path = str(file)
+        elif hasattr(file, 'path'):
+            # Handle objects with a path attribute (like TempFileWithMetadata)
+            self.file = file
+            self.file_path = str(file.path)
         elif hasattr(file, 'name'):
             # Handle file-like objects with a name attribute
             self.file = file
@@ -196,6 +200,9 @@ class AudioFile:
         """
         if hasattr(self.file, 'name'):
             return self.file.name
+        elif hasattr(self.file, 'path'):
+            # Handle objects with a path attribute (like TempFileWithMetadata)
+            return self.file.path.name
         elif isinstance(self.file, str):
             return os.path.basename(self.file)
         elif isinstance(self.file, Path):

@@ -68,11 +68,11 @@ class TestConflictingMetadata:
             }
             
             # Write RIFF first, then ID3v2
-            update_file_metadata(test_file, riff_metadata, metadata_format=MetadataFormat.RIFF)
-            update_file_metadata(test_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
+            update_file_metadata(test_file.path, riff_metadata, metadata_format=MetadataFormat.RIFF)
+            update_file_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
             
             # Merged metadata should prefer RIFF (WAV native format)
-            merged_metadata = get_merged_unified_metadata(test_file)
+            merged_metadata = get_merged_unified_metadata(test_file.path)
             assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
             assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["RIFF Artist"]
             assert merged_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "RIFF Album"
@@ -99,11 +99,11 @@ class TestConflictingMetadata:
             }
             
             # Write ID3v2 first, then Vorbis
-            update_file_metadata(test_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
-            update_file_metadata(test_file, vorbis_metadata, metadata_format=MetadataFormat.VORBIS)
+            update_file_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
+            update_file_metadata(test_file.path, vorbis_metadata, metadata_format=MetadataFormat.VORBIS)
             
             # Merged metadata should prefer Vorbis
-            merged_metadata = get_merged_unified_metadata(test_file)
+            merged_metadata = get_merged_unified_metadata(test_file.path)
             assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "Vorbis Title"
             assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Vorbis Artist"]
             assert merged_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Vorbis Album"
@@ -123,9 +123,9 @@ class TestConflictingMetadata:
                 UnifiedMetadataKey.ALBUM_NAME: "ID3v2 Album"
             }
             
-            update_file_metadata(test_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
+            update_file_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
             
-            merged_metadata = get_merged_unified_metadata(test_file)
+            merged_metadata = get_merged_unified_metadata(test_file.path)
             
             # Title should come from ID3v2
             assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
@@ -144,9 +144,9 @@ class TestConflictingMetadata:
             # Test ID3v2 rating precedence
             id3v2_metadata = {UnifiedMetadataKey.RATING: 5}
             
-            update_file_metadata(test_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
+            update_file_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
             
-            merged_metadata = get_merged_unified_metadata(test_file)
+            merged_metadata = get_merged_unified_metadata(test_file.path)
             
             # Should use ID3v2 rating
             assert merged_metadata.get(UnifiedMetadataKey.RATING) == 5
@@ -163,10 +163,10 @@ class TestConflictingMetadata:
             # This test focuses on ID3v2 metadata with AudioFile object
             id3v2_metadata = {UnifiedMetadataKey.TITLE: "ID3v2 Title"}
             
-            update_file_metadata(test_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
+            update_file_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
             
             # Test with AudioFile object
-            audio_file = AudioFile(test_file)
+            audio_file = AudioFile(test_file.path)
             merged_metadata = get_merged_unified_metadata(audio_file)
             
             assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"

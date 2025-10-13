@@ -20,7 +20,7 @@ class TestTitleWriting:
         # Use external script to set metadata instead of app's update function
         with TempFileWithMetadata(test_metadata, "mp3") as test_file:
             # Now test that our reading logic works correctly
-            title = get_specific_metadata(test_file, UnifiedMetadataKey.TITLE)
+            title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
             assert title == test_title
 
     def test_riff(self, metadata_none_wav, temp_wav_file):
@@ -30,7 +30,7 @@ class TestTitleWriting:
         # Use external script to set metadata instead of app's update function
         with TempFileWithMetadata(test_metadata, "wav") as test_file:
             # Now test that our reading logic works correctly
-            title = get_specific_metadata(test_file, UnifiedMetadataKey.TITLE)
+            title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
             assert title == test_title
 
     def test_vorbis(self, metadata_none_flac, temp_flac_file):
@@ -40,5 +40,5 @@ class TestTitleWriting:
         # Use external script to set metadata instead of app's update function
         with TempFileWithMetadata(test_metadata, "flac") as test_file:
             # Now test that our reading logic works correctly
-            title = get_specific_metadata(test_file, UnifiedMetadataKey.TITLE)
+            title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
             assert title == test_title

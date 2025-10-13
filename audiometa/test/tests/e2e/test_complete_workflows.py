@@ -52,7 +52,7 @@ class TestCompleteWorkflows:
             }
             
             # Save changes
-            update_file_metadata(test_file, test_metadata)
+            update_file_metadata(test_file.path, test_metadata)
             
             # Verify persistence by reloading
             metadata = get_merged_unified_metadata(test_file)
@@ -89,7 +89,7 @@ class TestCompleteWorkflows:
                         UnifiedMetadataKey.ALBUM_NAME: "Batch Album",
                         UnifiedMetadataKey.COMMENT: "Batch processing test"
                     }
-                    update_file_metadata(test_file, test_metadata)
+                    update_file_metadata(test_file.path, test_metadata)
                     results.append(("success", file_path))
             except Exception as e:
                 results.append(("error", file_path, str(e)))
@@ -109,11 +109,11 @@ class TestCompleteWorkflows:
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             # Test invalid operations
             with pytest.raises(ValueError):
-                update_file_metadata(test_file, {UnifiedMetadataKey.TRACK_NUMBER: -1})  # Invalid track number
+                update_file_metadata(test_file.path, {UnifiedMetadataKey.TRACK_NUMBER: -1})  # Invalid track number
         
             # Test recovery after errors
             test_metadata = {UnifiedMetadataKey.TITLE: "Recovery Test"}
-            update_file_metadata(test_file, test_metadata)
+            update_file_metadata(test_file.path, test_metadata)
         
             # Verify the file is still usable
             metadata = get_merged_unified_metadata(test_file)
@@ -139,7 +139,7 @@ class TestCompleteWorkflows:
                 UnifiedMetadataKey.RATING: 90,
                 UnifiedMetadataKey.BPM: 130
             }
-            update_file_metadata(test_file, test_metadata)
+            update_file_metadata(test_file.path, test_metadata)
             
             # 3. Verify metadata was updated
             updated_metadata = get_merged_unified_metadata(test_file)
@@ -186,7 +186,7 @@ class TestCompleteWorkflows:
                 UnifiedMetadataKey.RATING: 85,
                 UnifiedMetadataKey.BPM: 140
             }
-            update_file_metadata(test_file, test_metadata)
+            update_file_metadata(test_file.path, test_metadata)
             
             # 3. Verify metadata was updated
             updated_metadata = get_merged_unified_metadata(test_file)
@@ -223,7 +223,7 @@ class TestCompleteWorkflows:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["WAV Integration Test Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "WAV Integration Test Album"
             }
-            update_file_metadata(test_file, test_metadata)
+            update_file_metadata(test_file.path, test_metadata)
             
             # 3. Verify metadata was updated
             updated_metadata = get_merged_unified_metadata(test_file)
@@ -263,7 +263,7 @@ class TestCompleteWorkflows:
                             UnifiedMetadataKey.TITLE: "Rating Test 100",
                             UnifiedMetadataKey.RATING: 75
                         }
-                        update_file_metadata(test_file, test_metadata_100, normalized_rating_max_value=100)
+                        update_file_metadata(test_file.path, test_metadata_100, normalized_rating_max_value=100)
             
                         metadata_100 = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
                         assert metadata_100.get(UnifiedMetadataKey.TITLE) == "Rating Test 100"
@@ -274,7 +274,7 @@ class TestCompleteWorkflows:
                             UnifiedMetadataKey.TITLE: "Rating Test 255",
                             UnifiedMetadataKey.RATING: 191  # 75% of 255
                         }
-                        update_file_metadata(test_file, test_metadata_255, normalized_rating_max_value=255)
+                        update_file_metadata(test_file.path, test_metadata_255, normalized_rating_max_value=255)
             
                         metadata_255 = get_merged_unified_metadata(test_file, normalized_rating_max_value=255)
                         assert metadata_255.get(UnifiedMetadataKey.TITLE) == "Rating Test 255"

@@ -121,7 +121,7 @@ class TestDeleteAllMetadataAllFormats:
                 UnifiedMetadataKey.TITLE: "ID3v2 Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Artist"]
             }
-            update_file_metadata(test_file, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
+            update_file_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
             
             # Delete all metadata - should succeed even if ID3v1 cannot be deleted
             result = delete_all_metadata(test_file)

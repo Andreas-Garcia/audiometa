@@ -82,7 +82,7 @@ class TestDeleteAllMetadataFormatSpecific:
                 UnifiedMetadataKey.TITLE: "Original ID3v2 Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Original ID3v2 Artist"]
             }
-            update_file_metadata(test_file, id3v2_metadata, 
+            update_file_metadata(test_file.path, id3v2_metadata, 
                                metadata_format=MetadataFormat.ID3V2)
             
             # Verify both formats have metadata

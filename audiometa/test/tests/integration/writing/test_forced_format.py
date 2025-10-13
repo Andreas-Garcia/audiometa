@@ -40,7 +40,7 @@ class TestForcedFormat:
                 UnifiedMetadataKey.TITLE: "Original ID3v2 Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Original ID3v2 Artist"]
             }
-            update_file_metadata(test_file, id3v2_metadata, 
+            update_file_metadata(test_file.path, id3v2_metadata, 
                                metadata_format=MetadataFormat.ID3V2)
             
             # Verify both formats have their respective metadata
@@ -56,7 +56,7 @@ class TestForcedFormat:
             }
             
             # This should write only to ID3v2 format, leaving RIFF unchanged
-            update_file_metadata(test_file, new_metadata, 
+            update_file_metadata(test_file.path, new_metadata, 
                                metadata_format=MetadataFormat.ID3V2)
             
             # Verify ID3v2 has new metadata
@@ -84,7 +84,7 @@ class TestForcedFormat:
             
             # This should raise MetadataNotSupportedError because format is forced
             with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
-                update_file_metadata(test_file, unsupported_metadata, 
+                update_file_metadata(test_file.path, unsupported_metadata, 
                                    metadata_format=MetadataFormat.RIFF)
 
     def test_forced_format_succeeds_with_supported_fields(self):
@@ -102,7 +102,7 @@ class TestForcedFormat:
             }
             
             # This should succeed because all fields are supported by RIFF
-            update_file_metadata(test_file, supported_metadata, 
+            update_file_metadata(test_file.path, supported_metadata, 
                                metadata_format=MetadataFormat.RIFF)
             
             # Verify RIFF has new metadata
@@ -125,7 +125,7 @@ class TestForcedFormat:
             
             # This should raise error because both parameters are specified
             with pytest.raises(MetadataWritingConflictParametersError, match="Cannot specify both metadata_strategy and metadata_format"):
-                update_file_metadata(test_file, metadata,
+                update_file_metadata(test_file.path, metadata,
                                    metadata_format=MetadataFormat.RIFF,
                                    metadata_strategy=MetadataWritingStrategy.SYNC)
 
@@ -143,7 +143,7 @@ class TestForcedFormat:
             
             # Try to force Vorbis format on MP3 file (not supported)
             with pytest.raises(FileTypeNotSupportedError, match="Tag format MetadataFormat.VORBIS not supported for file extension .mp3"):
-                update_file_metadata(test_file, metadata, 
+                update_file_metadata(test_file.path, metadata, 
                                    metadata_format=MetadataFormat.VORBIS)
 
     def test_forced_format_id3v1_read_only_limitation(self):
@@ -159,7 +159,7 @@ class TestForcedFormat:
             
             # ID3v1 is read-only, so this should fail
             with pytest.raises(MetadataNotSupportedError):
-                update_file_metadata(test_file, metadata, 
+                update_file_metadata(test_file.path, metadata, 
                                    metadata_format=MetadataFormat.ID3V1)
 
     def test_forced_format_multiple_formats_present(self):
@@ -174,7 +174,7 @@ class TestForcedFormat:
                 UnifiedMetadataKey.TITLE: "Original ID3v2 Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Original ID3v2 Artist"]
             }
-            update_file_metadata(test_file, id3v2_metadata, 
+            update_file_metadata(test_file.path, id3v2_metadata, 
                                metadata_format=MetadataFormat.ID3V2)
             
             # Verify both formats have original metadata
@@ -189,7 +189,7 @@ class TestForcedFormat:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["New ID3v2 Artist"]
             }
             
-            update_file_metadata(test_file, new_metadata, 
+            update_file_metadata(test_file.path, new_metadata, 
                                metadata_format=MetadataFormat.ID3V2)
             
             # Verify ID3v2 was updated
@@ -217,7 +217,7 @@ class TestForcedFormat:
             
             # This should fail because normalized_rating_max_value is not set
             with pytest.raises(Exception):  # ConfigurationError
-                update_file_metadata(test_file, metadata_with_rating, 
+                update_file_metadata(test_file.path, metadata_with_rating, 
                                    metadata_format=MetadataFormat.ID3V2)
 
     def test_forced_format_with_rating_field_success(self):
@@ -234,7 +234,7 @@ class TestForcedFormat:
             }
             
             # This should succeed with proper configuration
-            update_file_metadata(test_file, metadata_with_rating, 
+            update_file_metadata(test_file.path, metadata_with_rating, 
                                metadata_format=MetadataFormat.ID3V2,
                                normalized_rating_max_value=100)
             
@@ -263,7 +263,7 @@ class TestForcedFormat:
             
             # This should fail because BPM is not supported by RIFF
             with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
-                update_file_metadata(test_file, mixed_metadata, 
+                update_file_metadata(test_file.path, mixed_metadata, 
                                    metadata_format=MetadataFormat.RIFF)
             
             # Verify NO changes were made to the file (validation happens before writing)

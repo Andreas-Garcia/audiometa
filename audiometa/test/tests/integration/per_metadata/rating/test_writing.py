@@ -25,7 +25,7 @@ class TestRatingWriting:
                 # Now test rating writing using app's function (this is what we're testing)
                 test_rating = 85
                 test_metadata = {UnifiedMetadataKey.RATING: test_rating}
-                update_file_metadata(test_file, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
+                update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
                 metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
                 # Check that rating was set (may be normalized to a different value)
                 assert metadata.get(UnifiedMetadataKey.RATING) is not None
@@ -42,11 +42,11 @@ class TestRatingWriting:
                 # RIFF format now supports rating metadata through IRTD chunk
                 test_rating = 75
                 test_metadata = {UnifiedMetadataKey.RATING: test_rating}
-                update_file_metadata(test_file, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
+                update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
             
                 # Verify the rating was written and can be read back
                 from audiometa import get_specific_metadata
-                rating = get_specific_metadata(test_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+                rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
                 assert rating is not None
                 assert isinstance(rating, int)
 
@@ -61,7 +61,7 @@ class TestRatingWriting:
                 # Now test rating writing using app's function (this is what we're testing)
                 test_rating = 90
                 test_metadata = {UnifiedMetadataKey.RATING: test_rating}
-                update_file_metadata(test_file, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS)
+                update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS)
                 metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
                 # Check that rating was set (may be normalized to a different value)
                 assert metadata.get(UnifiedMetadataKey.RATING) is not None

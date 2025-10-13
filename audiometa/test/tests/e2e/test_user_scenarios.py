@@ -38,10 +38,10 @@ class TestUserScenarios:
                     UnifiedMetadataKey.ALBUM_NAME: "My Music Library",
                     UnifiedMetadataKey.TITLE: f"Track {i + 1}"
                 }
-                update_file_metadata(test_file, test_metadata)
+                update_file_metadata(test_file.path, test_metadata)
                 
                 # Verify the organization worked
-                metadata = get_merged_unified_metadata(test_file)
+                metadata = get_merged_unified_metadata(test_file.path)
                 assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "My Music Library"
                 assert metadata.get(UnifiedMetadataKey.TITLE) == f"Track {i + 1}"
     
@@ -55,7 +55,7 @@ class TestUserScenarios:
         }
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             # Export current metadata
-            current_metadata = get_merged_unified_metadata(test_file)
+            current_metadata = get_merged_unified_metadata(test_file.path)
             metadata = {
                 'title': current_metadata.get(UnifiedMetadataKey.TITLE),
                 'artist': current_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES),
@@ -72,10 +72,10 @@ class TestUserScenarios:
                 UnifiedMetadataKey.ARTISTS_NAMES: metadata['artist'],
                 UnifiedMetadataKey.ALBUM_NAME: metadata['album']
             }
-            update_file_metadata(test_file, test_metadata)
+            update_file_metadata(test_file.path, test_metadata)
             
             # Verify the import worked
-            updated_metadata = get_merged_unified_metadata(test_file)
+            updated_metadata = get_merged_unified_metadata(test_file.path)
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Updated Title"
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Updated Artist"]
     
@@ -102,10 +102,10 @@ class TestUserScenarios:
             }
             with TempFileWithMetadata(basic_metadata, format_type) as test_file:
                 # Set metadata using app's function (this is what we're testing)
-                update_file_metadata(test_file, test_metadata)
+                update_file_metadata(test_file.path, test_metadata)
                 
                 # Verify metadata was set correctly
-                metadata = get_merged_unified_metadata(test_file)
+                metadata = get_merged_unified_metadata(test_file.path)
                 assert metadata.get(UnifiedMetadataKey.TITLE) == test_metadata[UnifiedMetadataKey.TITLE]
                 assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == test_metadata[UnifiedMetadataKey.ARTISTS_NAMES]
                 assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == test_metadata[UnifiedMetadataKey.ALBUM_NAME]

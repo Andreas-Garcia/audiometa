@@ -51,7 +51,7 @@ class TestMetadataStrategies:
             ], check=True)
             
             # Verify ID3v2 metadata was written
-            id3v2_result = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+            id3v2_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
             assert id3v2_result.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
             
             # Now write RIFF metadata with PRESERVE strategy (default)
@@ -61,11 +61,11 @@ class TestMetadataStrategies:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "RIFF Album"
             }
-            update_file_metadata(test_file, riff_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
+            update_file_metadata(test_file.path, riff_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
             
             # Verify both formats exist
-            id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
-            riff_after = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
+            id3v2_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+            riff_after = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
             
             # ID3v2 should be preserved (unchanged)
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
@@ -96,7 +96,7 @@ class TestMetadataStrategies:
             ], check=True)
             
             # Verify ID3v2 metadata was written
-            id3v2_result = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+            id3v2_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
             assert id3v2_result.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
             
             # Now write RIFF metadata with CLEANUP strategy
@@ -105,14 +105,14 @@ class TestMetadataStrategies:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "RIFF Album"
             }
-            update_file_metadata(test_file, riff_metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
+            update_file_metadata(test_file.path, riff_metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
             
             # Verify ID3v2 was removed
-            id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+            id3v2_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) is None
             
             # Verify RIFF has new metadata
-            riff_after = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
+            riff_after = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
             assert riff_after.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
             
             # Merged metadata should only have RIFF (ID3v2 was cleaned up)
@@ -139,7 +139,7 @@ class TestMetadataStrategies:
                         ], check=True)
             
                         # Verify ID3v2 metadata was written
-                        id3v2_result = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+                        id3v2_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
                         assert id3v2_result.get(UnifiedMetadataKey.TITLE) == "Original ID3v2 Title"
             
                         # Now write RIFF metadata with SYNC strategy
@@ -150,13 +150,13 @@ class TestMetadataStrategies:
                             UnifiedMetadataKey.ARTISTS_NAMES: ["Synced Artist"],
                             UnifiedMetadataKey.ALBUM_NAME: "Synced Album"
                         }
-                        update_file_metadata(test_file, sync_metadata, 
+                        update_file_metadata(test_file.path, sync_metadata, 
                                            metadata_format=MetadataFormat.ID3V2, 
                                            metadata_strategy=MetadataWritingStrategy.SYNC)
         
                     # Verify both formats have the synced metadata
-        id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
-        riff_after = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
+        id3v2_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+        riff_after = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
         
         # ID3v2 should have the synced metadata
         assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "Synced Title"
@@ -186,11 +186,11 @@ class TestMetadataStrategies:
             UnifiedMetadataKey.TITLE: "RIFF Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Artist"]
         }
-        update_file_metadata(test_file, riff_metadata)
+        update_file_metadata(test_file.path, riff_metadata)
         
         # Verify both formats exist (SYNC strategy should sync both)
-        id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
-        riff_after = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
+        id3v2_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+        riff_after = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
         
         # Both formats should have the new metadata (SYNC strategy)
         assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
@@ -217,7 +217,7 @@ class TestMetadataStrategies:
         ], check=True)
         
         # Verify ID3v1 metadata was written
-        id3v1_result = get_single_format_app_metadata(test_file, MetadataFormat.ID3V1)
+        id3v1_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
         assert id3v1_result.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
         
         # Now write ID3v2 metadata with PRESERVE strategy
@@ -227,15 +227,15 @@ class TestMetadataStrategies:
             UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Artist"],
             UnifiedMetadataKey.ALBUM_NAME: "ID3v2 Album"
         }
-        update_file_metadata(test_file, id3v2_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
+        update_file_metadata(test_file.path, id3v2_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
         
         # Verify ID3v1 metadata is NOT preserved (read-only limitation)
         # When ID3v2 is written, it overwrites the ID3v1 tag
-        id3v1_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V1)
+        id3v1_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
         assert id3v1_after.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"  # ID3v1 was overwritten
         
         # Verify ID3v2 metadata was written
-        id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+        id3v2_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
         assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
         
         # Merged metadata should prefer ID3v2 (higher precedence)
@@ -259,7 +259,7 @@ class TestMetadataStrategies:
         ], check=True)
         
         # Verify ID3v1 metadata was written
-        id3v1_result = get_single_format_app_metadata(test_file, MetadataFormat.ID3V1)
+        id3v1_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
         assert id3v1_result.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
         
         # Now write ID3v2 metadata with CLEANUP strategy
@@ -269,15 +269,15 @@ class TestMetadataStrategies:
             UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Artist"],
             UnifiedMetadataKey.ALBUM_NAME: "ID3v2 Album"
         }
-        update_file_metadata(test_file, id3v2_metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
+        update_file_metadata(test_file.path, id3v2_metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
         
         # Verify ID3v1 metadata is NOT preserved (read-only limitation)
         # When ID3v2 is written, it overwrites the ID3v1 tag
-        id3v1_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V1)
+        id3v1_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
         assert id3v1_after.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"  # ID3v1 was overwritten
         
         # Verify ID3v2 metadata was written
-        id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+        id3v2_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
         assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
         
         # Merged metadata should prefer ID3v2 (higher precedence)
@@ -301,7 +301,7 @@ class TestMetadataStrategies:
         ], check=True)
         
         # Verify ID3v1 metadata was written
-        id3v1_result = get_single_format_app_metadata(test_file, MetadataFormat.ID3V1)
+        id3v1_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
         assert id3v1_result.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
         
         # Now write ID3v2 metadata with SYNC strategy
@@ -311,15 +311,15 @@ class TestMetadataStrategies:
             UnifiedMetadataKey.ARTISTS_NAMES: ["Synced Artist"],
             UnifiedMetadataKey.ALBUM_NAME: "Synced Album"
         }
-        update_file_metadata(test_file, id3v2_metadata, metadata_strategy=MetadataWritingStrategy.SYNC)
+        update_file_metadata(test_file.path, id3v2_metadata, metadata_strategy=MetadataWritingStrategy.SYNC)
         
         # Verify ID3v1 metadata is NOT preserved (read-only limitation)
         # When ID3v2 is written, it overwrites the ID3v1 tag
-        id3v1_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V1)
+        id3v1_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
         assert id3v1_after.get(UnifiedMetadataKey.TITLE) == "Synced Title"  # ID3v1 was overwritten
         
         # Verify ID3v2 metadata was written with synced values
-        id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+        id3v2_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
         assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "Synced Title"
         
         # Merged metadata should prefer ID3v2 (higher precedence)
@@ -343,13 +343,13 @@ class TestMetadataStrategies:
         ], check=True)
         
         # Verify ID3v1 metadata was written
-        id3v1_result = get_single_format_app_metadata(test_file, MetadataFormat.ID3V1)
+        id3v1_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
         assert id3v1_result.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
         
         # Attempt to modify ID3v1 metadata directly should raise error
         from audiometa.exceptions import MetadataNotSupportedError
         with pytest.raises(MetadataNotSupportedError):
-            update_file_metadata(test_file, {
+            update_file_metadata(test_file.path, {
                 UnifiedMetadataKey.TITLE: "New Title"
             }, metadata_format=MetadataFormat.ID3V1)
 
@@ -368,7 +368,7 @@ class TestUnsupportedFieldsHandling:
             
             # Should fail because REPLAYGAIN is not supported by any format
             with pytest.raises(MetadataNotSupportedError) as exc_info:
-                update_file_metadata(test_file, test_metadata, fail_on_unsupported_field=True)
+                update_file_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
             
             assert "Fields not supported by any format" in str(exc_info.value)
             assert "REPLAYGAIN" in str(exc_info.value)
@@ -386,7 +386,7 @@ class TestUnsupportedFieldsHandling:
             # Should succeed with warnings (default behavior)
             with warnings.catch_warnings(record=True) as w:
                 warnings.simplefilter("always")
-                update_file_metadata(test_file, test_metadata)  # fail_on_unsupported_field=False by default
+                update_file_metadata(test_file.path, test_metadata)  # fail_on_unsupported_field=False by default
                 
                 # Should have warnings about unsupported fields
                 assert len(w) > 0
@@ -418,7 +418,7 @@ class TestUnsupportedFieldsHandling:
             
             # Should fail because REPLAYGAIN is not supported by any format
             with pytest.raises(MetadataNotSupportedError):
-                update_file_metadata(test_file, test_metadata, fail_on_unsupported_field=True)
+                update_file_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
             
             # Verify that NO writing was done - file should still have original metadata
             final_read = get_merged_unified_metadata(test_file)
@@ -447,7 +447,7 @@ class TestUnsupportedFieldsHandling:
             
             # Should fail because REPLAYGAIN is not supported by any format
             with pytest.raises(MetadataNotSupportedError):
-                update_file_metadata(test_file, test_metadata, fail_on_unsupported_field=True)
+                update_file_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
             
             # Verify that NO writing was done - file should still have original metadata
             final_read = get_merged_unified_metadata(test_file)
@@ -476,7 +476,7 @@ class TestUnsupportedFieldsHandling:
             
             # Should fail because REPLAYGAIN is not supported by any format
             with pytest.raises(MetadataNotSupportedError):
-                update_file_metadata(test_file, test_metadata, fail_on_unsupported_field=True)
+                update_file_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
             
             # Verify that NO writing was done - file should still have original metadata
             final_read = get_merged_unified_metadata(test_file)
@@ -505,7 +505,7 @@ class TestUnsupportedFieldsHandling:
             
             # Should fail because REPLAYGAIN is not supported by any format
             with pytest.raises(MetadataNotSupportedError):
-                update_file_metadata(test_file, test_metadata, fail_on_unsupported_field=True)
+                update_file_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
             
             # Verify that NO writing was done - file should still have original metadata
             final_read = get_merged_unified_metadata(test_file)
