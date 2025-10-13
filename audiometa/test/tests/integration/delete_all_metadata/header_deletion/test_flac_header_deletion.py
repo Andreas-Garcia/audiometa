@@ -15,9 +15,10 @@ class TestFLACHeaderDeletion:
             "album": "FLAC Test Album"
         }
         
-        with TempFileWithMetadata(test_metadata, "flac") as test_file:
+        temp_file_manager = TempFileWithMetadata(test_metadata, "flac")
+        with temp_file_manager as test_file:
             # Check headers before deletion
-            before_headers = test_file.get_metadata_headers_present()
+            before_headers = temp_file_manager.get_metadata_headers_present()
             print(f"FLAC headers before deletion: {before_headers}")
             
             # Delete all metadata
@@ -25,14 +26,15 @@ class TestFLACHeaderDeletion:
             assert result is True
             
             # Check headers after deletion
-            after_headers = test_file.get_metadata_headers_present()
+            after_headers = temp_file_manager.get_metadata_headers_present()
             print(f"FLAC headers after deletion: {after_headers}")
 
     def test_header_detection_for_flac_format(self):        
         # Test FLAC format
-        with TempFileWithMetadata({"title": "FLAC Test"}, "flac") as flac_file:
+        temp_file_manager = TempFileWithMetadata({"title": "FLAC Test"}, "flac")
+        with temp_file_manager as flac_file:
             # FLAC might have both ID3v2 and Vorbis comments
-            headers = flac_file.get_metadata_headers_present()
+            headers = temp_file_manager.get_metadata_headers_present()
             print(f"FLAC headers: {headers}")
             # At least one should be present
             assert headers['id3v2'] or headers['vorbis'], "FLAC should have some metadata headers"
@@ -41,5 +43,5 @@ class TestFLACHeaderDeletion:
             result = delete_all_metadata(flac_file)
             assert result is True
             # After deletion, headers should be removed
-            headers_after = flac_file.get_metadata_headers_present()
+            headers_after = temp_file_manager.get_metadata_headers_present()
             print(f"FLAC headers after deletion: {headers_after}")

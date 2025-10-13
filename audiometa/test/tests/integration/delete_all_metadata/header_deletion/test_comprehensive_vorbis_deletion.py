@@ -18,9 +18,10 @@ class TestComprehensiveVorbisDeletion:
             "comment": "FLAC Test Comment"
         }
         
-        with TempFileWithMetadata(comprehensive_metadata, "flac") as test_file:
+        temp_file_manager = TempFileWithMetadata(comprehensive_metadata, "flac")
+        with temp_file_manager as test_file:
             # Check headers before deletion
-            before_headers = test_file.get_metadata_headers_present()
+            before_headers = temp_file_manager.get_metadata_headers_present()
             print(f"FLAC headers before deletion: {before_headers}")
             assert before_headers['vorbis'], "Vorbis should be present before deletion"
             
@@ -29,6 +30,6 @@ class TestComprehensiveVorbisDeletion:
             assert result is True
             
             # Check headers after deletion
-            after_headers = test_file.get_metadata_headers_present()
+            after_headers = temp_file_manager.get_metadata_headers_present()
             print(f"FLAC headers after deletion: {after_headers}")
             assert not after_headers['vorbis'], "Vorbis should be removed"

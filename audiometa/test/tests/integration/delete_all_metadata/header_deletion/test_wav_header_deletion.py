@@ -15,9 +15,10 @@ class TestWAVHeaderDeletion:
             "album": "WAV Test Album"
         }
         
-        with TempFileWithMetadata(test_metadata, "wav") as test_file:
+        temp_file_manager = TempFileWithMetadata(test_metadata, "wav")
+        with temp_file_manager as test_file:
             # Check headers before deletion
-            before_headers = test_file.get_metadata_headers_present()
+            before_headers = temp_file_manager.get_metadata_headers_present()
             print(f"WAV headers before deletion: {before_headers}")
             
             # Delete all metadata
@@ -25,14 +26,15 @@ class TestWAVHeaderDeletion:
             assert result is True
             
             # Check headers after deletion
-            after_headers = test_file.get_metadata_headers_present()
+            after_headers = temp_file_manager.get_metadata_headers_present()
             print(f"WAV headers after deletion: {after_headers}")
 
     def test_header_detection_for_wav_format(self):        
         # Test WAV format
-        with TempFileWithMetadata({"title": "WAV Test"}, "wav") as wav_file:
+        temp_file_manager = TempFileWithMetadata({"title": "WAV Test"}, "wav")
+        with temp_file_manager as wav_file:
             # WAV might have both ID3v2 and RIFF INFO
-            headers = wav_file.get_metadata_headers_present()
+            headers = temp_file_manager.get_metadata_headers_present()
             print(f"WAV headers: {headers}")
             # Note: WAV files created with TempFileWithMetadata might not have headers initially
             # This is expected behavior - we'll test the deletion anyway
@@ -41,7 +43,7 @@ class TestWAVHeaderDeletion:
             result = delete_all_metadata(wav_file)
             assert result is True
             # After deletion, headers should still not be present
-            headers_after = wav_file.get_metadata_headers_present()
+            headers_after = temp_file_manager.get_metadata_headers_present()
             print(f"WAV headers after deletion: {headers_after}")
             # Verify no headers are present after deletion
             assert not headers_after['id3v2'] and not headers_after['riff'], "WAV should have no headers after deletion"

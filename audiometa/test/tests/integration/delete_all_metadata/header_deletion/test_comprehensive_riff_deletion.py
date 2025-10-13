@@ -18,9 +18,10 @@ class TestComprehensiveRiffDeletion:
             "comment": "WAV Test Comment"
         }
         
-        with TempFileWithMetadata(comprehensive_metadata, "wav") as test_file:
+        temp_file_manager = TempFileWithMetadata(comprehensive_metadata, "wav")
+        with temp_file_manager as test_file:
             # Check headers before deletion
-            before_headers = test_file.get_metadata_headers_present()
+            before_headers = temp_file_manager.get_metadata_headers_present()
             print(f"WAV headers before deletion: {before_headers}")
             # Note: RIFF headers might not be created by the library in all cases
             # We'll test deletion regardless of whether headers are present
@@ -30,7 +31,7 @@ class TestComprehensiveRiffDeletion:
             assert result is True
             
             # Check headers after deletion
-            after_headers = test_file.get_metadata_headers_present()
+            after_headers = temp_file_manager.get_metadata_headers_present()
             print(f"WAV headers after deletion: {after_headers}")
             # Verify no RIFF headers remain after deletion
             assert not after_headers['riff'], "RIFF should be removed"
