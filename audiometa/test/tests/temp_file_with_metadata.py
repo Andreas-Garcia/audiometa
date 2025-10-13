@@ -1,25 +1,36 @@
 """Temporary file with metadata utilities for testing.
 
 This module provides utilities for creating temporary test files with specific
-metadata configurations, with automatic cleanup support.
+metadata configurations, with automatic cleanup support and header detection.
 """
 
+import subprocess
 from pathlib import Path
+from typing import Dict, Any
 from ._internal_test_helpers import create_test_file_with_metadata
 
 
 class TempFileWithMetadata:
-    """Context manager for test files with automatic cleanup.
+    """Context manager for test files with automatic cleanup and header detection.
     
     This class provides a clean way to create temporary test files with
     specific metadata and ensures they are automatically cleaned up when
-    the context exits, even if an exception occurs.
+    the context exits, even if an exception occurs. It also provides
+    methods to detect and verify metadata headers in the test file.
     
     Example:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-                # Use test_file for testing
-                update_file_metadata(test_file, new_metadata)
-            # File is automatically cleaned up here
+            # Use test_file for testing
+            update_file_metadata(test_file, new_metadata)
+            
+            # Check if headers exist
+            if test_file.has_id3v2_header():
+                print("ID3v2 header present")
+            
+            # Get comprehensive header report
+            headers = test_file.get_metadata_headers_present()
+            print(f"Headers: {headers}")
+        # File is automatically cleaned up here
         """
     
     def __init__(self, metadata: dict, format_type: str):
@@ -52,5 +63,185 @@ class TempFileWithMetadata:
         """
         if self.test_file and self.test_file.exists():
             self.test_file.unlink()
+    
+    # Header Detection Methods
+    
+    def has_id3v2_header(self) -> bool:
+        """Check if file has ID3v2 header by reading the first 10 bytes.
+        
+        Returns:
+            True if ID3v2 header is present, False otherwise
+        """
+        if not self.test_file:
+            return False
+        try:
+            with open(self.test_file, 'rb') as f:
+                header = f.read(10)
+                return header[:3] == b'ID3'
+        except (IOError, OSError):
+            return False
+    
+    def has_id3v1_header(self) -> bool:
+        """Check if file has ID3v1 header by reading the last 128 bytes.
+        
+        Returns:
+            True if ID3v1 header is present, False otherwise
+        """
+        if not self.test_file:
+            return False
+        try:
+            with open(self.test_file, 'rb') as f:
+                f.seek(-128, 2)  # Seek to last 128 bytes
+                header = f.read(128)
+                return header[:3] == b'TAG'
+        except (IOError, OSError):
+            return False
+    
+    def has_vorbis_comments(self) -> bool:
+        """Check if file has Vorbis comments using metaflac.
+        
+        Returns:
+            True if Vorbis comments are present, False otherwise
+        """
+        if not self.test_file:
+            return False
+        try:
+            result = subprocess.run(
+                ['metaflac', '--list', str(self.test_file)],
+                capture_output=True, text=True, check=True
+            )
+            return 'VORBIS_COMMENT' in result.stdout
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return False
+    
+    def has_riff_info_chunk(self) -> bool:
+        """Check if file has RIFF INFO chunk by reading file structure.
+        
+        Returns:
+            True if RIFF INFO chunk is present, False otherwise
+        """
+        if not self.test_file:
+            return False
+        try:
+            with open(self.test_file, 'rb') as f:
+                # Read RIFF header
+                riff_header = f.read(12)
+                if riff_header[:4] != b'RIFF':
+                    return False
+                
+                # Look for INFO chunk
+                chunk_size = int.from_bytes(riff_header[4:8], 'little')
+                data = f.read(chunk_size)
+                
+                # Search for INFO chunk
+                pos = 0
+                while pos < len(data) - 8:
+                    chunk_id = data[pos:pos+4]
+                    chunk_size = int.from_bytes(data[pos+4:pos+8], 'little')
+                    
+                    if chunk_id == b'INFO':
+                        return True
+                    
+                    # Move to next chunk (chunk size + padding)
+                    pos += 8 + chunk_size
+                    if chunk_size % 2 == 1:  # Odd size needs padding
+                        pos += 1
+                
+                return False
+        except (IOError, OSError, ValueError):
+            return False
+    
+    def get_metadata_headers_present(self) -> Dict[str, bool]:
+        """Get a comprehensive report of all metadata headers present in the file.
+        
+        Returns:
+            Dictionary with format names as keys and boolean presence as values
+        """
+        if not self.test_file:
+            return {}
+        return {
+            'id3v2': self.has_id3v2_header(),
+            'id3v1': self.has_id3v1_header(),
+            'vorbis': self.has_vorbis_comments(),
+            'riff': self.has_riff_info_chunk()
+        }
+    
+    def verify_headers_removed(self, expected_removed: list[str] = None) -> Dict[str, bool]:
+        """Verify that specified metadata headers have been removed.
+        
+        Args:
+            expected_removed: List of format names that should be removed.
+                             If None, checks all formats.
+        
+        Returns:
+            Dictionary with format names as keys and removal status as values
+        """
+        if not self.test_file:
+            return {}
+        if expected_removed is None:
+            expected_removed = ['id3v2', 'id3v1', 'vorbis', 'riff']
+        
+        headers_present = self.get_metadata_headers_present()
+        
+        return {
+            format_name: not headers_present.get(format_name, False)
+            for format_name in expected_removed
+        }
+    
+    def check_metadata_with_external_tools(self) -> Dict[str, Any]:
+        """Check metadata using external tools for comprehensive verification.
+        
+        Returns:
+            Dictionary with tool results
+        """
+        if not self.test_file:
+            return {}
+        results = {}
+        
+        # Check with mid3v2
+        try:
+            result = subprocess.run(
+                ['mid3v2', '-l', str(self.test_file)],
+                capture_output=True, text=True, check=True
+            )
+            results['mid3v2'] = {
+                'success': True,
+                'output': result.stdout,
+                'has_id3v2': 'ID3v2 tag' in result.stdout and 'No ID3v2 tag found' not in result.stdout,
+                'has_id3v1': 'ID3v1 tag' in result.stdout and 'No ID3v1 tag found' not in result.stdout
+            }
+        except (subprocess.CalledProcessError, FileNotFoundError) as e:
+            results['mid3v2'] = {'success': False, 'error': str(e)}
+        
+        # Check with mutagen-inspect
+        try:
+            result = subprocess.run(
+                ['mutagen-inspect', str(self.test_file)],
+                capture_output=True, text=True, check=True
+            )
+            results['mutagen_inspect'] = {
+                'success': True,
+                'output': result.stdout,
+                'has_metadata': 'No tags' not in result.stdout
+            }
+        except (subprocess.CalledProcessError, FileNotFoundError) as e:
+            results['mutagen_inspect'] = {'success': False, 'error': str(e)}
+        
+        # Check with metaflac (for FLAC files)
+        if self.test_file.suffix.lower() == '.flac':
+            try:
+                result = subprocess.run(
+                    ['metaflac', '--list', str(self.test_file)],
+                    capture_output=True, text=True, check=True
+                )
+                results['metaflac'] = {
+                    'success': True,
+                    'output': result.stdout,
+                    'has_vorbis': 'VORBIS_COMMENT' in result.stdout
+                }
+            except (subprocess.CalledProcessError, FileNotFoundError) as e:
+                results['metaflac'] = {'success': False, 'error': str(e)}
+        
+        return results
 
 
