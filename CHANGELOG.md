@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initial migration release (UNSTABLE)
+- Initial migration release (UNSTABLE) by [Andreas Garcia](https://github.com/Andreas-Garcia)
 - First step in migration from legacy audio metadata project
 - Support for ID3v1, ID3v2, Vorbis, and RIFF formats
 - Comprehensive metadata field support (50+ fields)

@@ -2,6 +2,8 @@
 
 A comprehensive Python library for reading and writing audio metadata across multiple formats including MP3, FLAC and WAV.
 
+**Author**: [Andreas Garcia](https://github.com/Andreas-Garcia)
+
 ## Table of Contents
 
 - [Features](#features)
