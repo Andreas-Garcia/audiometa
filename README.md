@@ -32,6 +32,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
 - **Read/Write Operations**: Full read and write support for most formats
 - **Rating Support**: Normalized rating handling across different formats
 - **Technical Information**: Access to bitrate, duration, sample rate, channels, and more
+- **Complete File Analysis**: Get full metadata including headers and technical details even when no metadata is present
 - **Error Handling**: Robust error handling with specific exception types
 - **Type Hints**: Full type annotation support for better IDE integration
 - **Cross-platform**: Works on Windows, macOS, and Linux (requires ffprobe and flac tools for full functionality)
@@ -360,6 +361,205 @@ from audiometa import get_specific_metadata, UnifiedMetadataKey
 title = get_specific_metadata("song.mp3", UnifiedMetadataKey.TITLE)
 rating = get_specific_metadata("song.mp3", UnifiedMetadataKey.RATING)
 ```
+
+#### `get_full_metadata(file_path, include_headers=True, include_technical=True)`
+
+Gets comprehensive metadata including all available information from a file, including headers and technical details even when no metadata is present.
+
+This function provides the most complete view of an audio file by combining:
+
+- All metadata from all supported formats (ID3v1, ID3v2, Vorbis, RIFF)
+- Technical information (duration, bitrate, sample rate, channels, file size)
+- Format-specific headers and structure information
+- Raw metadata details from each format
+
+```python
+from audiometa import get_full_metadata
+
+# Get complete metadata including headers and technical info
+full_metadata = get_full_metadata("song.mp3")
+
+# Access unified metadata (same as get_merged_unified_metadata)
+print(f"Title: {full_metadata['unified_metadata']['title']}")
+print(f"Artists: {full_metadata['unified_metadata']['artists_names']}")
+
+# Access technical information
+print(f"Duration: {full_metadata['technical_info']['duration_seconds']} seconds")
+print(f"Bitrate: {full_metadata['technical_info']['bitrate_kbps']} kbps")
+print(f"Sample Rate: {full_metadata['technical_info']['sample_rate_hz']} Hz")
+print(f"Channels: {full_metadata['technical_info']['channels']}")
+print(f"File Size: {full_metadata['technical_info']['file_size_bytes']} bytes")
+
+# Access format-specific metadata
+print(f"ID3v2 Title: {full_metadata['format_metadata']['id3v2']['title']}")
+print(f"Vorbis Title: {full_metadata['format_metadata']['vorbis']['title']}")
+
+# Access header information
+print(f"ID3v2 Version: {full_metadata['headers']['id3v2']['version']}")
+print(f"ID3v2 Header Size: {full_metadata['headers']['id3v2']['header_size_bytes']}")
+print(f"Has ID3v1 Header: {full_metadata['headers']['id3v1']['present']}")
+print(f"RIFF Chunk Info: {full_metadata['headers']['riff']['chunk_info']}")
+
+# Access raw metadata details
+print(f"Raw ID3v2 Frames: {full_metadata['raw_metadata']['id3v2']['frames']}")
+print(f"Raw Vorbis Comments: {full_metadata['raw_metadata']['vorbis']['comments']}")
+```
+
+**Parameters:**
+
+- `file_path`: Path to the audio file or AudioFile object
+- `include_headers`: Whether to include format-specific header information (default: True)
+- `include_technical`: Whether to include technical audio information (default: True)
+
+**Returns:**
+A comprehensive dictionary containing:
+
+```python
+{
+    'unified_metadata': {
+        # Same as get_merged_unified_metadata() result
+        'title': 'Song Title',
+        'artists_names': ['Artist 1', 'Artist 2'],
+        'album_name': 'Album Name',
+        # ... all other metadata fields
+    },
+    'technical_info': {
+        'duration_seconds': 180.5,
+        'bitrate_kbps': 320,
+        'sample_rate_hz': 44100,
+        'channels': 2,
+        'file_size_bytes': 7234567,
+        'file_extension': '.mp3',
+        'format_name': 'MP3',
+        'is_flac_md5_valid': None,  # Only for FLAC files
+    },
+    'format_metadata': {
+        'id3v1': {
+            # ID3v1 specific metadata (if present)
+            'title': 'Song Title',
+            'artist': 'Artist Name',
+            # ... other ID3v1 fields
+        },
+        'id3v2': {
+            # ID3v2 specific metadata (if present)
+            'title': 'Song Title',
+            'artists_names': ['Artist 1', 'Artist 2'],
+            # ... other ID3v2 fields
+        },
+        'vorbis': {
+            # Vorbis specific metadata (if present)
+            'title': 'Song Title',
+            'artists_names': ['Artist 1', 'Artist 2'],
+            # ... other Vorbis fields
+        },
+        'riff': {
+            # RIFF specific metadata (if present)
+            'title': 'Song Title',
+            'artist': 'Artist Name',
+            # ... other RIFF fields
+        }
+    },
+    'headers': {
+        'id3v1': {
+            'present': True,
+            'position': 'end_of_file',
+            'size_bytes': 128,
+            'version': '1.1',
+            'has_track_number': True
+        },
+        'id3v2': {
+            'present': True,
+            'version': '2.3.0',
+            'header_size_bytes': 2048,
+            'flags': {...},
+            'extended_header': {...}
+        },
+        'vorbis': {
+            'present': True,
+            'vendor_string': 'reference libFLAC 1.3.2',
+            'comment_count': 15,
+            'block_size': 4096
+        },
+        'riff': {
+            'present': True,
+            'chunk_info': {
+                'riff_chunk_size': 7234000,
+                'info_chunk_size': 1024,
+                'audio_format': 'PCM',
+                'subchunk_size': 7232000
+            }
+        }
+    },
+    'raw_metadata': {
+        'id3v1': {
+            'raw_data': b'...',  # Raw 128-byte ID3v1 tag
+            'parsed_fields': {...}
+        },
+        'id3v2': {
+            'frames': {...},  # Raw ID3v2 frames
+            'raw_header': b'...'
+        },
+        'vorbis': {
+            'comments': {...},  # Raw Vorbis comment blocks
+            'vendor_string': '...'
+        },
+        'riff': {
+            'info_chunk': {...},  # Raw RIFF INFO chunk data
+            'chunk_structure': {...}
+        }
+    },
+    'format_priorities': {
+        'file_extension': '.mp3',
+        'reading_order': ['id3v2', 'id3v1'],
+        'writing_format': 'id3v2'
+    }
+}
+```
+
+**Use Cases:**
+
+- **Complete file analysis**: Get everything about an audio file in one call
+- **Debugging metadata issues**: Inspect raw headers and format-specific data
+- **Format migration**: Understand what metadata exists in each format before converting
+- **File validation**: Check header integrity and format compliance
+- **Metadata forensics**: Analyze metadata structure and detect anomalies
+- **Batch processing**: Get comprehensive information for multiple files efficiently
+
+**Examples:**
+
+```python
+# Basic usage - get everything
+full_info = get_full_metadata("song.mp3")
+
+# Get only metadata without technical details
+metadata_only = get_full_metadata("song.mp3", include_technical=False)
+
+# Get only technical info without headers
+tech_only = get_full_metadata("song.mp3", include_headers=False)
+
+# Check if file has specific format headers
+if full_info['headers']['id3v2']['present']:
+    print("File has ID3v2 tags")
+    print(f"ID3v2 version: {full_info['headers']['id3v2']['version']}")
+
+# Compare metadata across formats
+id3v2_title = full_info['format_metadata']['id3v2'].get('title')
+vorbis_title = full_info['format_metadata']['vorbis'].get('title')
+if id3v2_title != vorbis_title:
+    print("Title differs between ID3v2 and Vorbis")
+
+# Analyze file structure
+print(f"File size: {full_info['technical_info']['file_size_bytes']} bytes")
+print(f"Metadata overhead: {full_info['headers']['id3v2']['header_size_bytes']} bytes")
+print(f"Audio data ratio: {(full_info['technical_info']['file_size_bytes'] - full_info['headers']['id3v2']['header_size_bytes']) / full_info['technical_info']['file_size_bytes'] * 100:.1f}%")
+```
+
+**Performance Notes:**
+
+- This function is more comprehensive but slightly slower than individual metadata functions
+- All metadata is read in a single pass for efficiency
+- Technical information is cached to avoid repeated file system calls
+- Use `include_headers=False` or `include_technical=False` to improve performance if you don't need all information
 
 ### Writing Metadata
 
