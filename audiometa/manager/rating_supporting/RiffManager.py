@@ -395,6 +395,68 @@ class RiffManager(RatingSupportingMetadataManager):
         self.audio_file.seek(0)
         self.audio_file.write(final_file_data)
 
+    def delete_metadata(self) -> bool:
+        """Delete all RIFF metadata from the audio file.
+        
+        This removes all RIFF INFO chunks from the file while preserving the audio data.
+        Uses custom RIFF chunk manipulation since mutagen doesn't support RIFF writing.
+        
+        Returns:
+            bool: True if metadata was successfully deleted, False otherwise
+        """
+        try:
+            # Read the entire file into a mutable bytearray
+            self.audio_file.seek(0)
+            file_data = bytearray(self.audio_file.read())
+            
+            # Check if we should preserve ID3v2 tags
+            should_preserve_id3v2 = self._should_preserve_id3v2_tags()
+            
+            if should_preserve_id3v2:
+                # For files with ID3v2 tags, work with the RIFF portion only
+                if file_data.startswith(b'ID3'):
+                    # Find RIFF header after ID3v2 tags
+                    riff_start = self._find_riff_header_after_id3v2(file_data)
+                    if riff_start == -1:
+                        return False  # No RIFF header found
+                    riff_data = file_data[riff_start:]
+                else:
+                    riff_data = file_data
+            else:
+                # For files without ID3v2 tags, work with the entire file
+                riff_data = file_data
+            
+            # Find and remove LIST INFO chunk
+            info_chunk_start = self._find_info_chunk_in_file_data(riff_data)
+            if info_chunk_start == -1:
+                return True  # No INFO chunk found, consider deletion successful
+            
+            # Get the size of the INFO chunk
+            info_chunk_size = int.from_bytes(bytes(riff_data[info_chunk_start+4:info_chunk_start+8]), 'little')
+            
+            # Remove the INFO chunk
+            riff_data[info_chunk_start:info_chunk_start + info_chunk_size + 8] = b''
+            
+            # Update RIFF chunk size
+            total_size = len(riff_data) - 8  # Exclude RIFF and size fields
+            riff_data[4:8] = total_size.to_bytes(4, 'little')
+            
+            # If we preserved ID3v2 tags, reconstruct the full file
+            if should_preserve_id3v2 and file_data.startswith(b'ID3'):
+                id3v2_size = self._get_id3v2_size(file_data)
+                final_file_data = bytearray(file_data[:id3v2_size])  # Keep ID3v2 tags
+                final_file_data.extend(riff_data)  # Add updated RIFF data
+            else:
+                final_file_data = riff_data
+            
+            # Write updated file
+            self.audio_file.seek(0)
+            self.audio_file.write(final_file_data)
+            
+            return True
+        except Exception:
+            return False
+
     def _find_info_chunk_in_file_data(self, file_data: bytearray) -> int:
         pos = 12  # Start after RIFF header
         while pos < len(file_data) - 8:
@@ -471,18 +533,31 @@ class RiffManager(RatingSupportingMetadataManager):
 
     def _should_preserve_id3v2_tags(self) -> bool:
         """
-        Determine if ID3v2 tags should be preserved based on the calling context.
+        Determine if ID3v2 tags should be preserved based on the calling context and file state.
         
         This method detects if the RIFF manager is being called in a PRESERVE strategy
         context by checking the call stack. In PRESERVE strategy, the high-level
         _handle_metadata_strategy function will restore ID3v2 metadata after RIFF
         writing, so we should not strip it.
         
-        We only preserve ID3v2 tags when:
-        1. We're in a PRESERVE strategy context
-        2. AND we're writing to RIFF format (not ID3v2 format)
+        We preserve ID3v2 tags when:
+        1. We're in a PRESERVE strategy context AND we're writing to RIFF format
+        2. We're in a SYNC strategy context AND we're writing to RIFF format
+        3. ID3v2 tags exist in the file (for coexistence support)
         """
         import inspect
+        
+        # First, check if ID3v2 tags exist in the file
+        # This allows coexistence even when not in a strategy context
+        try:
+            with open(self.audio_file.get_file_path_or_object(), 'rb') as f:
+                first_bytes = f.read(10)
+                if first_bytes.startswith(b'ID3'):
+                    # ID3v2 tags exist, preserve them for coexistence
+                    return True
+        except Exception:
+            # If we can't read the file, fall back to strategy detection
+            pass
         
         # Get the call stack
         frame = inspect.currentframe()

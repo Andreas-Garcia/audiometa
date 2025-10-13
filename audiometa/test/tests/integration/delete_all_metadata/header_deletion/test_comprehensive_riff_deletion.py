@@ -23,8 +23,6 @@ class TestComprehensiveRiffDeletion:
             # Check headers before deletion
             before_headers = temp_file_manager.get_metadata_headers_present()
             print(f"WAV headers before deletion: {before_headers}")
-            # Note: RIFF headers might not be created by the library in all cases
-            # We'll test deletion regardless of whether headers are present
             
             # Delete all metadata
             result = delete_all_metadata(test_file)
