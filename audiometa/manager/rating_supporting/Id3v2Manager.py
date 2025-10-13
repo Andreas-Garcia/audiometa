@@ -492,14 +492,24 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                     'chunk_structure': {}
                 }
             
-            # Get raw frames
+            # Get raw frames (exclude binary frames like APIC)
             frames = {}
+            binary_frame_types = {'APIC:', 'GEOB:', 'AENC:', 'RVA2:', 'RVRB:', 'EQU2:', 'PCNT:', 'POPM:', 'RBUF:', 'LINK:', 'POSS:', 'SYLT:', 'USLT:', 'SYTC:', 'ETCO:', 'MLLT:', 'SYLT:', 'OWNE:', 'COMR:', 'ENCR:', 'GRID:', 'PRIV:', 'SIGN:', 'SEEK:', 'ASPI:'}
+            
             for frame_id, frame in self.raw_mutagen_metadata.items():
-                frames[frame_id] = {
-                    'text': str(frame) if hasattr(frame, '__str__') else repr(frame),
-                    'size': getattr(frame, 'size', 0),
-                    'flags': getattr(frame, 'flags', 0)
-                }
+                # Skip binary frames to avoid including large image/audio data
+                if frame_id in binary_frame_types:
+                    frames[frame_id] = {
+                        'text': f'<Binary data: {getattr(frame, "size", 0)} bytes>',
+                        'size': getattr(frame, 'size', 0),
+                        'flags': getattr(frame, 'flags', 0)
+                    }
+                else:
+                    frames[frame_id] = {
+                        'text': str(frame) if hasattr(frame, '__str__') else repr(frame),
+                        'size': getattr(frame, 'size', 0),
+                        'flags': getattr(frame, 'flags', 0)
+                    }
             
             return {
                 'raw_data': None,  # ID3v2 data is complex, not storing raw bytes
