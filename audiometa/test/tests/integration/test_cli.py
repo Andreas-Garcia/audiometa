@@ -95,10 +95,15 @@ class TestCLI:
         assert result.returncode == 1
         assert "no metadata fields specified" in result.stderr.lower()
     
-    def test_cli_write_basic_metadata(self, sample_mp3_file):
+    def test_cli_write_basic_metadata(self, sample_mp3_file, tmp_path):
         """Test CLI write command with basic metadata."""
+        # Create a temporary copy to avoid modifying the original test file
+        test_file = tmp_path / "test_write.mp3"
+        import shutil
+        shutil.copy2(sample_mp3_file, test_file)
+        
         result = subprocess.run([sys.executable, "-m", "audiometa", "write", 
-                               str(sample_mp3_file), "--title", "CLI Test Title"], 
+                               str(test_file), "--title", "CLI Test Title"], 
                               capture_output=True, text=True)
         assert result.returncode == 0
         assert "Updated metadata" in result.stdout
@@ -144,10 +149,15 @@ class TestCLI:
             data = json.load(f)
         assert isinstance(data, dict)
     
-    def test_cli_delete_metadata(self, sample_mp3_file):
+    def test_cli_delete_metadata(self, sample_mp3_file, tmp_path):
         """Test CLI delete command."""
+        # Create a temporary copy to avoid modifying the original test file
+        test_file = tmp_path / "test_delete.mp3"
+        import shutil
+        shutil.copy2(sample_mp3_file, test_file)
+        
         result = subprocess.run([sys.executable, "-m", "audiometa", "delete", 
-                               str(sample_mp3_file)], 
+                               str(test_file)], 
                               capture_output=True, text=True)
         assert result.returncode == 0
         assert "Deleted all metadata" in result.stdout or "No metadata found" in result.stdout
