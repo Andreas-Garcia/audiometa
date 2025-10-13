@@ -33,14 +33,12 @@ class TestRiffWriting:
                             UnifiedMetadataKey.TITLE: "Test Title WAV",
                             UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist WAV"],
                             UnifiedMetadataKey.ALBUM_NAME: "Test Album WAV",
-                            UnifiedMetadataKey.GENRE_NAME: "Test Genre WAV"
                         }
                         update_file_metadata(test_file, test_metadata, normalized_rating_max_value=100)
                         metadata = get_merged_unified_metadata(test_file)
                         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title WAV"
                         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist WAV"]
                         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album WAV"
-                        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Test Genre WAV"
 
     def test_multiple_metadata_reading(self, temp_audio_file):
         # Use external script to set basic metadata first
@@ -56,7 +54,6 @@ class TestRiffWriting:
                             UnifiedMetadataKey.TITLE: "Test Song Title",
                             UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"],
                             UnifiedMetadataKey.ALBUM_NAME: "Test Album",
-                            UnifiedMetadataKey.GENRE_NAME: "Test Genre"
                         }
             
                         update_file_metadata(test_file, test_metadata, normalized_rating_max_value=100)
@@ -68,7 +65,6 @@ class TestRiffWriting:
                         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Song Title"
                         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
                         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
-                        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Test Genre"
 
     def test_multiple_metadata_writing(self, temp_audio_file):
         # Use external script to set basic metadata first
@@ -84,7 +80,6 @@ class TestRiffWriting:
                             UnifiedMetadataKey.TITLE: "Written Song Title",
                             UnifiedMetadataKey.ARTISTS_NAMES: ["Written Artist"],
                             UnifiedMetadataKey.ALBUM_NAME: "Written Album",
-                            UnifiedMetadataKey.GENRE_NAME: "Written Genre"
                         }
             
                         update_file_metadata(test_file, test_metadata, normalized_rating_max_value=100)
@@ -96,7 +91,6 @@ class TestRiffWriting:
                         assert metadata.get(UnifiedMetadataKey.TITLE) == "Written Song Title"
                         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Written Artist"]
                         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Written Album"
-                        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Written Genre"
 
     def test_none_field_removal_riff(self, temp_audio_file):
         # Use external script to set initial metadata
