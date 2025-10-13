@@ -7,6 +7,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
 - [Features](#features)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [Command Line Interface](#command-line-interface)
 - [Supported Formats](#supported-formats)
 - [Core API Reference](#core-api-reference)
   - [Reading Metadata](#reading-metadata)
@@ -319,6 +320,119 @@ audio_file = AudioFile("path/to/your/audio.flac")
 print(f"Duration: {audio_file.get_duration_in_sec()} seconds")
 print(f"Bitrate: {audio_file.get_bitrate()} kbps")
 print(f"File extension: {audio_file.file_extension}")
+```
+
+## Command Line Interface
+
+AudioMeta provides a powerful command-line interface for quick metadata operations without writing Python code.
+
+### Installation
+
+After installing the package, the `audiometa` command will be available:
+
+```bash
+pip install audiometa-python
+audiometa --help
+```
+
+### Basic Usage
+
+#### Reading Metadata
+
+```bash
+# Read full metadata from a file
+audiometa read song.mp3
+
+# Read unified metadata only (simplified output)
+audiometa unified song.mp3
+
+# Read multiple files
+audiometa read *.mp3
+
+# Process directory recursively
+audiometa read music/ --recursive
+
+# Output in different formats
+audiometa read song.mp3 --format table
+audiometa read song.mp3 --format yaml
+audiometa read song.mp3 --output metadata.json
+```
+
+#### Writing Metadata
+
+```bash
+# Write basic metadata
+audiometa write song.mp3 --title "New Title" --artist "Artist Name"
+
+# Write multiple fields
+audiometa write song.mp3 --title "Song Title" --artist "Artist" --album "Album" --year "2024" --rating 85
+
+# Update multiple files
+audiometa write *.mp3 --artist "New Artist"
+```
+
+#### Deleting Metadata
+
+```bash
+# Delete all metadata from a file
+audiometa delete song.mp3
+
+# Delete metadata from multiple files
+audiometa delete *.mp3
+```
+
+### Advanced Options
+
+#### Output Control
+
+```bash
+# Exclude technical information
+audiometa read song.mp3 --no-technical
+
+# Exclude header information
+audiometa read song.mp3 --no-headers
+
+# Save to file
+audiometa read song.mp3 --output metadata.json
+```
+
+#### Error Handling
+
+```bash
+# Continue processing other files on error
+audiometa read *.mp3 --continue-on-error
+```
+
+#### Batch Processing
+
+```bash
+# Process all audio files in a directory
+audiometa read music/ --recursive
+
+# Process specific file patterns
+audiometa read "**/*.mp3" --recursive
+```
+
+### Output Formats
+
+- **JSON** (default): Structured data for programmatic use
+- **YAML**: Human-readable structured format (requires PyYAML)
+- **Table**: Simple text table format
+
+### Examples
+
+```bash
+# Quick metadata check
+audiometa unified song.mp3 --format table
+
+# Batch metadata update
+audiometa write music/ --recursive --artist "Various Artists"
+
+# Export metadata for analysis
+audiometa read music/ --recursive --format json --output all_metadata.json
+
+# Clean up metadata
+audiometa delete music/ --recursive
 ```
 
 ## Core API Reference
