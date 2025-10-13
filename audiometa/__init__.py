@@ -638,6 +638,160 @@ def fix_md5_checking(file: FILE_TYPE) -> str:
     return file.get_file_with_corrected_md5(delete_original=True)
 
 
+def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_technical: bool = True) -> dict:
+    """
+    Get comprehensive metadata including all available information from a file, including headers and technical details even when no metadata is present.
+    
+    This function provides the most complete view of an audio file by combining:
+    - All metadata from all supported formats (ID3v1, ID3v2, Vorbis, RIFF)
+    - Technical information (duration, bitrate, sample rate, channels, file size)
+    - Format-specific headers and structure information
+    - Raw metadata details from each format
+    
+    Args:
+        file: Audio file path or AudioFile object
+        include_headers: Whether to include format-specific header information (default: True)
+        include_technical: Whether to include technical audio information (default: True)
+        
+    Returns:
+        Comprehensive dictionary containing all available metadata and technical information
+        
+    Raises:
+        FileTypeNotSupportedError: If the file format is not supported
+        FileNotFoundError: If the file does not exist
+        
+    Examples:
+        # Get complete metadata including headers and technical info
+        full_metadata = get_full_metadata("song.mp3")
+        
+        # Access unified metadata (same as get_merged_unified_metadata)
+        print(f"Title: {full_metadata['unified_metadata']['title']}")
+        
+        # Access technical information
+        print(f"Duration: {full_metadata['technical_info']['duration_seconds']} seconds")
+        print(f"Bitrate: {full_metadata['technical_info']['bitrate_kbps']} kbps")
+        
+        # Access format-specific metadata
+        print(f"ID3v2 Title: {full_metadata['format_metadata']['id3v2']['title']}")
+        
+        # Access header information
+        print(f"ID3v2 Version: {full_metadata['headers']['id3v2']['version']}")
+        print(f"Has ID3v1 Header: {full_metadata['headers']['id3v1']['present']}")
+    """
+    if not isinstance(file, AudioFile):
+        file = AudioFile(file)
+
+    # Get all available managers for this file type
+    all_managers = _get_metadata_managers(file=file, normalized_rating_max_value=None, id3v2_version=None)
+    
+    # Get file-specific format priorities
+    available_formats = MetadataFormat.get_priorities().get(file.file_extension, [])
+    
+    # Initialize result structure
+    result = {
+        'unified_metadata': {},
+        'technical_info': {},
+        'format_metadata': {},
+        'headers': {},
+        'raw_metadata': {},
+        'format_priorities': {
+            'file_extension': file.file_extension,
+            'reading_order': [fmt.value for fmt in available_formats],
+            'writing_format': available_formats[0].value if available_formats else None
+        }
+    }
+    
+    # Get unified metadata (same as get_merged_unified_metadata)
+    result['unified_metadata'] = get_merged_unified_metadata(file)
+    
+    # Get technical information
+    if include_technical:
+        try:
+            result['technical_info'] = {
+                'duration_seconds': file.get_duration_in_sec(),
+                'bitrate_kbps': file.get_bitrate(),
+                'sample_rate_hz': file.get_sample_rate(),
+                'channels': file.get_channels(),
+                'file_size_bytes': file.get_file_size(),
+                'file_extension': file.file_extension,
+                'format_name': file.get_format_name(),
+                'is_flac_md5_valid': file.is_flac_file_md5_valid() if file.file_extension == '.flac' else None
+            }
+        except Exception:
+            result['technical_info'] = {
+                'duration_seconds': 0,
+                'bitrate_kbps': 0,
+                'sample_rate_hz': 0,
+                'channels': 0,
+                'file_size_bytes': 0,
+                'file_extension': file.file_extension,
+                'format_name': file.get_format_name(),
+                'is_flac_md5_valid': None
+            }
+    
+    # Get format-specific metadata and headers
+    for format_type in available_formats:
+        format_key = format_type.value
+        manager = all_managers.get(format_type)
+        
+        if manager:
+            # Get format-specific metadata
+            try:
+                format_metadata = manager.get_app_metadata()
+                result['format_metadata'][format_key] = format_metadata
+            except Exception:
+                result['format_metadata'][format_key] = {}
+            
+            # Get header information
+            if include_headers:
+                try:
+                    header_info = manager.get_header_info()
+                    result['headers'][format_key] = header_info
+                except Exception:
+                    result['headers'][format_key] = {
+                        'present': False,
+                        'version': None,
+                        'size_bytes': 0,
+                        'position': None,
+                        'flags': {},
+                        'extended_header': {}
+                    }
+                
+                # Get raw metadata information
+                try:
+                    raw_info = manager.get_raw_metadata_info()
+                    result['raw_metadata'][format_key] = raw_info
+                except Exception:
+                    result['raw_metadata'][format_key] = {
+                        'raw_data': None,
+                        'parsed_fields': {},
+                        'frames': {},
+                        'comments': {},
+                        'chunk_structure': {}
+                    }
+        else:
+            # Format not available for this file type
+            result['format_metadata'][format_key] = {}
+            if include_headers:
+                result['headers'][format_key] = {
+                    'present': False,
+                    'version': None,
+                    'size_bytes': 0,
+                    'position': None,
+                    'flags': {},
+                    'extended_header': {}
+                }
+                result['raw_metadata'][format_key] = {
+                    'raw_data': None,
+                    'parsed_fields': {},
+                    'frames': {},
+                    'comments': {},
+                    'chunk_structure': {}
+                }
+    
+    return result
+
+
 def delete_potential_id3_metadata_with_header(file: FILE_TYPE) -> None:
     """
     Delete ID3 metadata headers from an audio file.
