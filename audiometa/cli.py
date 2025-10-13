@@ -67,7 +67,10 @@ def format_as_table(data: Dict[str, Any]) -> str:
 
 def read_metadata(args) -> None:
     """Read and display metadata from audio file(s)."""
-    files = expand_file_patterns(args.files, getattr(args, 'recursive', False))
+    files = expand_file_patterns(args.files, getattr(args, 'recursive', False), getattr(args, 'continue_on_error', False))
+    
+    if not files:
+        return  # No files found, but continue_on_error was set
     
     for file_path in files:
         try:
@@ -103,7 +106,7 @@ def read_metadata(args) -> None:
 
 def write_metadata(args) -> None:
     """Write metadata to audio file(s)."""
-    files = expand_file_patterns(args.files, getattr(args, 'recursive', False))
+    files = expand_file_patterns(args.files, getattr(args, 'recursive', False), getattr(args, 'continue_on_error', False))
     
     # Build metadata dictionary from command line arguments
     metadata = {}
@@ -144,7 +147,7 @@ def write_metadata(args) -> None:
 
 def delete_metadata(args) -> None:
     """Delete metadata from audio file(s)."""
-    files = expand_file_patterns(args.files, getattr(args, 'recursive', False))
+    files = expand_file_patterns(args.files, getattr(args, 'recursive', False), getattr(args, 'continue_on_error', False))
     
     for file_path in files:
         try:
@@ -164,7 +167,7 @@ def delete_metadata(args) -> None:
                 sys.exit(1)
 
 
-def expand_file_patterns(patterns: List[str], recursive: bool = False) -> List[Path]:
+def expand_file_patterns(patterns: List[str], recursive: bool = False, continue_on_error: bool = False) -> List[Path]:
     """Expand file patterns and globs into a list of Path objects."""
     files = []
     
@@ -188,8 +191,12 @@ def expand_file_patterns(patterns: List[str], recursive: bool = False) -> List[P
                     files.append(match_path)
     
     if not files:
-        print("Error: No valid audio files found", file=sys.stderr)
-        sys.exit(1)
+        if continue_on_error:
+            print("Warning: No valid audio files found", file=sys.stderr)
+            return []
+        else:
+            print("Error: No valid audio files found", file=sys.stderr)
+            sys.exit(1)
     
     return files
 

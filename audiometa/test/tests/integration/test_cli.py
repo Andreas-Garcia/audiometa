@@ -151,3 +151,34 @@ class TestCLI:
                               capture_output=True, text=True)
         assert result.returncode == 0
         assert "Deleted all metadata" in result.stdout or "No metadata found" in result.stdout
+    
+    def test_cli_with_spaces_in_filename(self, sample_mp3_file, tmp_path):
+        """Test CLI with file paths containing spaces and special characters."""
+        # Create a copy of the sample file with a name containing spaces and special characters
+        test_file = tmp_path / "Test Song - Artist (Remix).mp3"
+        import shutil
+        shutil.copy2(sample_mp3_file, test_file)
+        
+        # Test reading with single quotes (recommended approach)
+        result = subprocess.run([sys.executable, "-m", "audiometa", "read", 
+                               str(test_file), "--format", "json"], 
+                              capture_output=True, text=True)
+        assert result.returncode == 0
+        data = json.loads(result.stdout)
+        assert isinstance(data, dict)
+        assert "unified_metadata" in data
+        
+        # Test unified command with spaces in filename
+        result = subprocess.run([sys.executable, "-m", "audiometa", "unified", 
+                               str(test_file), "--format", "json"], 
+                              capture_output=True, text=True)
+        assert result.returncode == 0
+        data = json.loads(result.stdout)
+        assert isinstance(data, dict)
+        
+        # Test writing metadata to file with spaces
+        result = subprocess.run([sys.executable, "-m", "audiometa", "write", 
+                               str(test_file), "--title", "Test Title", "--artist", "Test Artist"], 
+                              capture_output=True, text=True)
+        assert result.returncode == 0
+        assert "Updated metadata" in result.stdout
