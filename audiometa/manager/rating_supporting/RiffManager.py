@@ -540,3 +540,98 @@ class RiffManager(RatingSupportingMetadataManager):
                (size_bytes[3] & 0x7F)
         
         return 10 + size  # Header (10 bytes) + data size
+
+    def get_header_info(self) -> dict:
+        try:
+            # Read file data to analyze RIFF structure
+            self.audio_file.seek(0)
+            file_data = self.audio_file.read()
+            
+            if len(file_data) < 12 or not file_data.startswith(b'RIFF') or file_data[8:12] != b'WAVE':
+                return {
+                    'present': False,
+                    'chunk_info': {}
+                }
+            
+            # Parse RIFF chunk info
+            riff_chunk_size = int.from_bytes(file_data[4:8], 'little')
+            info_chunk_size = 0
+            audio_format = 'Unknown'
+            subchunk_size = 0
+            
+            # Find INFO chunk
+            pos = 12
+            while pos < len(file_data) - 8:
+                chunk_id = file_data[pos:pos+4]
+                chunk_size = int.from_bytes(file_data[pos+4:pos+8], 'little')
+                
+                if chunk_id == b'LIST' and file_data[pos+8:pos+12] == b'INFO':
+                    info_chunk_size = chunk_size
+                    break
+                elif chunk_id == b'fmt ':
+                    # Parse format chunk
+                    if chunk_size >= 16:
+                        audio_format_code = int.from_bytes(file_data[pos+8:pos+10], 'little')
+                        if audio_format_code == 1:
+                            audio_format = 'PCM'
+                        elif audio_format_code == 3:
+                            audio_format = 'IEEE Float'
+                        else:
+                            audio_format = f'Code {audio_format_code}'
+                elif chunk_id == b'data':
+                    subchunk_size = chunk_size
+                    break
+                
+                pos += 8 + chunk_size
+                if chunk_size % 2 == 1:  # Word alignment
+                    pos += 1
+            
+            return {
+                'present': True,
+                'chunk_info': {
+                    'riff_chunk_size': riff_chunk_size,
+                    'info_chunk_size': info_chunk_size,
+                    'audio_format': audio_format,
+                    'subchunk_size': subchunk_size
+                }
+            }
+        except Exception:
+            return {
+                'present': False,
+                'chunk_info': {}
+            }
+
+    def get_raw_metadata_info(self) -> dict:
+        try:
+            if self.raw_clean_metadata is None:
+                self.raw_clean_metadata = self._get_cleaned_raw_metadata_from_file()
+            
+            if not self.raw_clean_metadata:
+                return {
+                    'raw_data': None,
+                    'parsed_fields': {},
+                    'frames': {},
+                    'comments': {},
+                    'chunk_structure': {}
+                }
+            
+            # Get parsed fields
+            parsed_fields = {}
+            for key, value in self.raw_clean_metadata.items():
+                parsed_fields[key] = value[0] if value else ''
+            
+            return {
+                'raw_data': None,  # RIFF data is complex binary structure
+                'parsed_fields': parsed_fields,
+                'frames': {},
+                'comments': {},
+                'chunk_structure': {}
+            }
+        except Exception:
+            return {
+                'raw_data': None,
+                'parsed_fields': {},
+                'frames': {},
+                'comments': {},
+                'chunk_structure': {}
+            }

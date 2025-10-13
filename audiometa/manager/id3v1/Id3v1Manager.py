@@ -104,3 +104,93 @@ class Id3v1Manager(MetadataManager):
                                            app_metadata_key: UnifiedMetadataKey,
                                            normalized_rating_max_value: int | None = None):
         raise MetadataNotSupportedError("ID3v1 tag modification is not supported")
+
+    def get_header_info(self) -> dict:
+        try:
+            if self.raw_mutagen_metadata is None:
+                self.raw_mutagen_metadata = self._extract_mutagen_metadata()
+            
+            if not self.raw_mutagen_metadata:
+                return {
+                    'present': False,
+                    'position': 'end_of_file',
+                    'size_bytes': 0,
+                    'version': None,
+                    'has_track_number': False
+                }
+            
+            # Check if ID3v1 tag is present
+            present = hasattr(self.raw_mutagen_metadata, 'tags') and self.raw_mutagen_metadata.tags is not None
+            
+            if not present:
+                return {
+                    'present': False,
+                    'position': 'end_of_file',
+                    'size_bytes': 0,
+                    'version': None,
+                    'has_track_number': False
+                }
+            
+            # Determine version (ID3v1 or ID3v1.1)
+            version = '1.0'
+            has_track_number = False
+            
+            if hasattr(self.raw_mutagen_metadata, 'tags'):
+                # Check if track number is present (ID3v1.1 feature)
+                comment = self.raw_mutagen_metadata.tags.get('COMMENT', [''])[0]
+                if len(comment) >= 2 and comment[-2] == '\x00' and comment[-1] != '\x00':
+                    version = '1.1'
+                    has_track_number = True
+            
+            return {
+                'present': True,
+                'position': 'end_of_file',
+                'size_bytes': 128,
+                'version': version,
+                'has_track_number': has_track_number
+            }
+        except Exception:
+            return {
+                'present': False,
+                'position': 'end_of_file',
+                'size_bytes': 0,
+                'version': None,
+                'has_track_number': False
+            }
+
+    def get_raw_metadata_info(self) -> dict:
+        """Get raw ID3v1 metadata information."""
+        try:
+            if self.raw_mutagen_metadata is None:
+                self.raw_mutagen_metadata = self._extract_mutagen_metadata()
+            
+            if not self.raw_mutagen_metadata or not hasattr(self.raw_mutagen_metadata, 'tags'):
+                return {
+                    'raw_data': None,
+                    'parsed_fields': {},
+                    'frames': {},
+                    'comments': {},
+                    'chunk_structure': {}
+                }
+            
+            # Get parsed fields
+            parsed_fields = {}
+            if self.raw_mutagen_metadata.tags:
+                for key, value in self.raw_mutagen_metadata.tags.items():
+                    parsed_fields[key] = value[0] if value else ''
+            
+            return {
+                'raw_data': None,  # ID3v1 is 128 bytes at end of file
+                'parsed_fields': parsed_fields,
+                'frames': {},
+                'comments': {},
+                'chunk_structure': {}
+            }
+        except Exception:
+            return {
+                'raw_data': None,
+                'parsed_fields': {},
+                'frames': {},
+                'comments': {},
+                'chunk_structure': {}
+            }

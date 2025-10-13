@@ -161,3 +161,71 @@ class VorbisManager(RatingSupportingMetadataManager):
                                                                  app_metadata_value=app_metadata_value)
         else:
             raise ConfigurationError('Metadata key not handled')
+
+    def get_header_info(self) -> dict:
+        try:
+            if self.raw_mutagen_metadata is None:
+                self.raw_mutagen_metadata = self._extract_mutagen_metadata()
+            
+            if not self.raw_mutagen_metadata:
+                return {
+                    'present': False,
+                    'vendor_string': None,
+                    'comment_count': 0,
+                    'block_size': 0
+                }
+            
+            # Get vendor string
+            vendor_string = getattr(self.raw_mutagen_metadata, 'vendor', 'Unknown')
+            
+            # Get comment count
+            comment_count = len(self.raw_mutagen_metadata) if hasattr(self.raw_mutagen_metadata, '__len__') else 0
+            
+            return {
+                'present': True,
+                'vendor_string': vendor_string,
+                'comment_count': comment_count,
+                'block_size': 4096  # Default Vorbis comment block size
+            }
+        except Exception:
+            return {
+                'present': False,
+                'vendor_string': None,
+                'comment_count': 0,
+                'block_size': 0
+            }
+
+    def get_raw_metadata_info(self) -> dict:
+        try:
+            if self.raw_mutagen_metadata is None:
+                self.raw_mutagen_metadata = self._extract_mutagen_metadata()
+            
+            if not self.raw_mutagen_metadata:
+                return {
+                    'raw_data': None,
+                    'parsed_fields': {},
+                    'frames': {},
+                    'comments': {},
+                    'chunk_structure': {}
+                }
+            
+            # Get comments
+            comments = {}
+            for key, value in self.raw_mutagen_metadata.items():
+                comments[key] = value if isinstance(value, list) else [value]
+            
+            return {
+                'raw_data': None,  # Vorbis comments are complex structures
+                'parsed_fields': {},
+                'frames': {},
+                'comments': comments,
+                'chunk_structure': {}
+            }
+        except Exception:
+            return {
+                'raw_data': None,
+                'parsed_fields': {},
+                'frames': {},
+                'comments': {},
+                'chunk_structure': {}
+            }

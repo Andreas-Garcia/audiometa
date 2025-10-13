@@ -301,3 +301,125 @@ class AudioFile:
                     os.unlink(temp_path)
                 except OSError:
                     pass  # Ignore cleanup errors
+
+    def get_sample_rate(self) -> int:
+        """
+        Get the sample rate of an audio file.
+        
+        Returns:
+            Sample rate in Hz
+            
+        Raises:
+            FileTypeNotSupportedError: If the file format is not supported
+            FileNotFoundError: If the file does not exist
+        """
+        if self.file_extension == '.mp3':
+            try:
+                audio = MP3(self.file_path)
+                return int(audio.info.sample_rate)
+            except Exception:
+                return 0
+        elif self.file_extension == '.wav':
+            try:
+                result = subprocess.run([
+                    'ffprobe',
+                    '-v', 'quiet',
+                    '-print_format', 'json',
+                    '-show_streams',
+                    '-select_streams', 'a:0',
+                    self.file_path
+                ], capture_output=True, text=True)
+                
+                if result.returncode != 0:
+                    return 0
+                
+                data = json.loads(result.stdout)
+                if not data.get('streams'):
+                    return 0
+                
+                stream = data['streams'][0]
+                return int(stream.get('sample_rate', 0))
+            except Exception:
+                return 0
+        elif self.file_extension == '.flac':
+            try:
+                audio_info = cast(StreamInfo, FLAC(self.file_path).info)
+                return int(audio_info.sample_rate)
+            except Exception:
+                return 0
+        else:
+            raise FileTypeNotSupportedError(f"Reading is not supported for file type: {self.file_extension}")
+
+    def get_channels(self) -> int:
+        """
+        Get the number of channels in an audio file.
+        
+        Returns:
+            Number of channels
+            
+        Raises:
+            FileTypeNotSupportedError: If the file format is not supported
+            FileNotFoundError: If the file does not exist
+        """
+        if self.file_extension == '.mp3':
+            try:
+                audio = MP3(self.file_path)
+                return int(audio.info.channels)
+            except Exception:
+                return 0
+        elif self.file_extension == '.wav':
+            try:
+                result = subprocess.run([
+                    'ffprobe',
+                    '-v', 'quiet',
+                    '-print_format', 'json',
+                    '-show_streams',
+                    '-select_streams', 'a:0',
+                    self.file_path
+                ], capture_output=True, text=True)
+                
+                if result.returncode != 0:
+                    return 0
+                
+                data = json.loads(result.stdout)
+                if not data.get('streams'):
+                    return 0
+                
+                stream = data['streams'][0]
+                return int(stream.get('channels', 0))
+            except Exception:
+                return 0
+        elif self.file_extension == '.flac':
+            try:
+                audio_info = cast(StreamInfo, FLAC(self.file_path).info)
+                return int(audio_info.channels)
+            except Exception:
+                return 0
+        else:
+            raise FileTypeNotSupportedError(f"Reading is not supported for file type: {self.file_extension}")
+
+    def get_file_size(self) -> int:
+        """
+        Get the file size in bytes.
+        
+        Returns:
+            File size in bytes
+        """
+        try:
+            return os.path.getsize(self.file_path)
+        except OSError:
+            return 0
+
+    def get_format_name(self) -> str:
+        """
+        Get the human-readable format name.
+        
+        Returns:
+            Format name (e.g., 'MP3', 'FLAC', 'WAV')
+        """
+        format_names = {
+            '.mp3': 'MP3',
+            '.flac': 'FLAC',
+            '.wav': 'WAV'
+        }
+        return format_names.get(self.file_extension, 'Unknown')

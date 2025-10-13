@@ -164,6 +164,37 @@ class MetadataManager:
             return values_list_str
         raise ValueError(f'Unsupported metadata type: {app_metadata_key_optional_type}')
 
+    def get_header_info(self) -> dict:
+        """
+        Get header information for this metadata format.
+        
+        Returns:
+            Dictionary containing header information
+        """
+        return {
+            'present': False,
+            'version': None,
+            'size_bytes': 0,
+            'position': None,
+            'flags': {},
+            'extended_header': {}
+        }
+
+    def get_raw_metadata_info(self) -> dict:
+        """
+        Get raw metadata information for this format.
+        
+        Returns:
+            Dictionary containing raw metadata details
+        """
+        return {
+            'raw_data': None,
+            'parsed_fields': {},
+            'frames': {},
+            'comments': {},
+            'chunk_structure': {}
+        }
+
     def update_file_metadata(self, app_metadata: AppMetadata):
         if not self.metadata_keys_direct_map_write:
             raise MetadataNotSupportedError('This format does not support metadata modification')

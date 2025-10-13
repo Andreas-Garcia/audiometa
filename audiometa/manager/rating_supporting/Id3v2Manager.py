@@ -419,3 +419,100 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             return True
         except Exception:
             return False
+
+    def get_header_info(self) -> dict:
+        try:
+            if self.raw_mutagen_metadata is None:
+                self.raw_mutagen_metadata = self._extract_mutagen_metadata()
+            
+            if not self.raw_mutagen_metadata:
+                return {
+                    'present': False,
+                    'version': None,
+                    'header_size_bytes': 0,
+                    'flags': {},
+                    'extended_header': {}
+                }
+            
+            # Get ID3v2 version
+            version = getattr(self.raw_mutagen_metadata, 'version', None)
+            version_str = f"{version[0]}.{version[1]}.{version[2]}" if version else None
+            
+            # Get header size
+            header_size = getattr(self.raw_mutagen_metadata, 'size', 0)
+            
+            # Get flags
+            flags = {}
+            if hasattr(self.raw_mutagen_metadata, 'flags'):
+                flags = {
+                    'unsync': bool(self.raw_mutagen_metadata.flags & 0x80),
+                    'extended_header': bool(self.raw_mutagen_metadata.flags & 0x40),
+                    'experimental': bool(self.raw_mutagen_metadata.flags & 0x20),
+                    'footer': bool(self.raw_mutagen_metadata.flags & 0x10)
+                }
+            
+            # Get extended header info
+            extended_header = {}
+            if hasattr(self.raw_mutagen_metadata, 'extended_header'):
+                ext_header = self.raw_mutagen_metadata.extended_header
+                if ext_header:
+                    extended_header = {
+                        'size': getattr(ext_header, 'size', 0),
+                        'flags': getattr(ext_header, 'flags', 0),
+                        'padding_size': getattr(ext_header, 'padding_size', 0)
+                    }
+            
+            return {
+                'present': True,
+                'version': version_str,
+                'header_size_bytes': header_size,
+                'flags': flags,
+                'extended_header': extended_header
+            }
+        except Exception:
+            return {
+                'present': False,
+                'version': None,
+                'header_size_bytes': 0,
+                'flags': {},
+                'extended_header': {}
+            }
+
+    def get_raw_metadata_info(self) -> dict:
+        try:
+            if self.raw_mutagen_metadata is None:
+                self.raw_mutagen_metadata = self._extract_mutagen_metadata()
+            
+            if not self.raw_mutagen_metadata:
+                return {
+                    'raw_data': None,
+                    'parsed_fields': {},
+                    'frames': {},
+                    'comments': {},
+                    'chunk_structure': {}
+                }
+            
+            # Get raw frames
+            frames = {}
+            for frame_id, frame in self.raw_mutagen_metadata.items():
+                frames[frame_id] = {
+                    'text': str(frame) if hasattr(frame, '__str__') else repr(frame),
+                    'size': getattr(frame, 'size', 0),
+                    'flags': getattr(frame, 'flags', 0)
+                }
+            
+            return {
+                'raw_data': None,  # ID3v2 data is complex, not storing raw bytes
+                'parsed_fields': {},
+                'frames': frames,
+                'comments': {},
+                'chunk_structure': {}
+            }
+        except Exception:
+            return {
+                'raw_data': None,
+                'parsed_fields': {},
+                'frames': {},
+                'comments': {},
+                'chunk_structure': {}
+            }
