@@ -72,18 +72,18 @@ class TestMP3HeaderDeletion:
         }, "mp3")
         with temp_file_manager as test_file:
             # Get file size with metadata
-            with_metadata_size = test_file.stat().st_size
+            with_metadata_size = test_file.path.stat().st_size
             print(f"File size with metadata: {with_metadata_size} bytes")
             
             # Verify headers exist
             assert temp_file_manager.has_id3v2_header(), "ID3v2 header should exist"
             
             # Delete all metadata
-            result = delete_all_metadata(test_file)
+            result = delete_all_metadata(test_file.path)
             assert result is True
             
             # Get file size after deletion
-            after_deletion_size = test_file.stat().st_size
+            after_deletion_size = test_file.path.stat().st_size
             print(f"File size after deletion: {after_deletion_size} bytes")
             
             # Verify file size decreased (metadata headers removed)
