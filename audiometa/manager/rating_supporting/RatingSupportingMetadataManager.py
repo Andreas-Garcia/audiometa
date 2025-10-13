@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
 from ...audio_file import AudioFile
-from ...exceptions import ConfigurationError, InvalidRatingValueError
+from ...exceptions import ConfigurationError, InvalidRatingValueError, MetadataNotSupportedError
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from ...utils.rating_profiles import RatingReadProfile, RatingWriteProfile
 from ...utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
@@ -74,19 +74,38 @@ class RatingSupportingMetadataManager(MetadataManager):
 
     def update_file_metadata(self, app_metadata: AppMetadata):
         if UnifiedMetadataKey.RATING in list(app_metadata.keys()):
-            value: int | None = app_metadata[UnifiedMetadataKey.RATING]  # type: ignore
-            if value is None:
-                del app_metadata[UnifiedMetadataKey.RATING]
-            else:
-                if self.normalized_rating_max_value is None:
-                    raise ConfigurationError(
-                        "If updating the rating, the max value of the normalized rating must be set.")
+            # Check if rating is supported by this format first
+            if (not self.metadata_keys_direct_map_write or 
+                UnifiedMetadataKey.RATING not in self.metadata_keys_direct_map_write):
+                # Get the format name for a more specific error message
+                format_name = self.__class__.__name__.replace('Manager', '').upper()
+                if format_name == 'RIFF':
+                    format_name = 'RIFF'
+                elif format_name == 'ID3V2':
+                    format_name = 'ID3v2'
+                elif format_name == 'VORBIS':
+                    format_name = 'Vorbis'
+                raise MetadataNotSupportedError(f"{UnifiedMetadataKey.RATING} metadata not supported by {format_name} format")
+            
+            # If rating is mapped to None, it means it's handled indirectly by the manager
+            # We should let the manager handle it in its own way
+            if self.metadata_keys_direct_map_write[UnifiedMetadataKey.RATING] is not None:
+                # Only process rating if it's handled directly by the base class
+                # (i.e., when using mutagen-based approach)
+                if self.update_using_mutagen_metadata:
+                    value: int | None = app_metadata[UnifiedMetadataKey.RATING]  # type: ignore
+                    if value is None:
+                        del app_metadata[UnifiedMetadataKey.RATING]
+                    else:
+                        if self.normalized_rating_max_value is None:
+                            raise ConfigurationError(
+                                "If updating the rating, the max value of the normalized rating must be set.")
 
-                try:
-                    normalized_rating = int(float(value))
-                    file_rating = self._convert_normalized_rating_to_file_rating(normalized_rating=normalized_rating)
-                    app_metadata[UnifiedMetadataKey.RATING] = file_rating
-                except (TypeError, ValueError):
-                    raise InvalidRatingValueError(f"Invalid rating value: {value}. Expected a numeric value.")
+                        try:
+                            normalized_rating = int(float(value))
+                            file_rating = self._convert_normalized_rating_to_file_rating(normalized_rating=normalized_rating)
+                            app_metadata[UnifiedMetadataKey.RATING] = file_rating
+                        except (TypeError, ValueError):
+                            raise InvalidRatingValueError(f"Invalid rating value: {value}. Expected a numeric value.")
 
         super().update_file_metadata(app_metadata)

@@ -433,6 +433,16 @@ class RiffManager(RatingSupportingMetadataManager):
 
         if app_key == UnifiedMetadataKey.GENRE_NAME:
             value = self._get_genre_code_from_name(str(value))
+        elif app_key == UnifiedMetadataKey.RATING:
+            # Convert normalized rating to file rating for RIFF format
+            if value is not None and self.normalized_rating_max_value is not None:
+                try:
+                    normalized_rating = int(float(value))
+                    file_rating = self._convert_normalized_rating_to_file_rating(normalized_rating=normalized_rating)
+                    value = file_rating
+                except (TypeError, ValueError):
+                    # If conversion fails, use the original value
+                    pass
 
         if value is None:
             return None
