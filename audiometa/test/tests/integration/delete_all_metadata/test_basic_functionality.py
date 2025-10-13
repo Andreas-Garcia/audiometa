@@ -25,7 +25,7 @@ class TestDeleteAllMetadataBasic:
         }
         with TempFileWithMetadata(test_metadata, "mp3") as test_file:
             # Create AudioFile object
-            audio_file = AudioFile(test_file)
+            audio_file = AudioFile(test_file.path)
             
             # Delete all metadata using AudioFile object
             result = delete_all_metadata(audio_file)
@@ -50,7 +50,7 @@ class TestDeleteAllMetadataBasic:
         }
         with TempFileWithMetadata(test_metadata, "mp3") as test_file:
             # Delete metadata with specific ID3v2 version
-            result = delete_all_metadata(test_file, id3v2_version=(2, 3, 0))
+            result = delete_all_metadata(test_file.path, id3v2_version=(2, 3, 0))
             assert result is True
 
     def test_delete_all_metadata_return_value_success(self, sample_mp3_file: Path, temp_audio_file: Path):
@@ -63,7 +63,7 @@ class TestDeleteAllMetadataBasic:
             "artist": "Test Artist"
         }
         with TempFileWithMetadata(test_metadata, "mp3") as test_file:
-            result = delete_all_metadata(test_file)
+            result = delete_all_metadata(test_file.path)
             assert result is True
             assert isinstance(result, bool)
 
@@ -79,10 +79,10 @@ class TestDeleteAllMetadataBasic:
         }
         with TempFileWithMetadata(test_metadata, "mp3") as test_file:
             # Get file size with metadata
-            with_metadata_size = test_file.stat().st_size
+            with_metadata_size = test_file.path.stat().st_size
             
             # Verify metadata exists before deletion
-            before_metadata = get_merged_unified_metadata(test_file)
+            before_metadata = get_merged_unified_metadata(test_file.path)
             assert before_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
             assert before_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
             assert before_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
@@ -95,11 +95,11 @@ class TestDeleteAllMetadataBasic:
             assert before_headers['id3v2'], "ID3v2 should be present before deletion"
             
             # Delete all metadata
-            result = delete_all_metadata(test_file)
+            result = delete_all_metadata(test_file.path)
             assert result is True
             
             # Verify file size decreased (metadata headers removed)
-            after_deletion_size = test_file.stat().st_size
+            after_deletion_size = test_file.path.stat().st_size
             assert after_deletion_size < with_metadata_size, "File size should decrease when headers are removed"
             
             # Verify ID3v2 header is completely removed using TempFileWithMetadata methods
@@ -110,7 +110,7 @@ class TestDeleteAllMetadataBasic:
             assert removal_status['id3v2'], "ID3v2 should be confirmed as removed"
             
             # Verify all metadata is gone (headers removed)
-            after_metadata = get_merged_unified_metadata(test_file)
+            after_metadata = get_merged_unified_metadata(test_file.path)
             assert after_metadata.get(UnifiedMetadataKey.TITLE) is None
             assert after_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) is None
             assert after_metadata.get(UnifiedMetadataKey.ALBUM_NAME) is None
@@ -128,14 +128,14 @@ class TestDeleteAllMetadataBasic:
         }
         with TempFileWithMetadata(test_metadata, "mp3") as test_file:
             # Get file size with metadata
-            with_metadata_size = test_file.stat().st_size
+            with_metadata_size = test_file.path.stat().st_size
             
             # Delete all metadata
-            result = delete_all_metadata(test_file)
+            result = delete_all_metadata(test_file.path)
             assert result is True
             
             # Verify file size decreased (metadata headers removed)
-            after_deletion_size = test_file.stat().st_size
+            after_deletion_size = test_file.path.stat().st_size
             assert after_deletion_size < with_metadata_size
             
             # Verify the file is still valid (not corrupted)
@@ -154,7 +154,7 @@ class TestDeleteAllMetadataBasic:
             assert headers_before['id3v2'], "MP3 should have ID3v2 header"
             
             # Delete metadata
-            result = delete_all_metadata(test_file)
+            result = delete_all_metadata(test_file.path)
             assert result is True
             
             # Check all headers after deletion
@@ -180,23 +180,23 @@ class TestDeleteAllMetadataBasic:
         """Test header detection methods for different audio formats."""
         
         # Test MP3 format
-        with TempFileWithMetadata({"title": "MP3 Test"}, "mp3") as mp3_file:
-            assert mp3_file.has_id3v2_header(), "MP3 should have ID3v2 header"
-            assert not mp3_file.has_vorbis_comments(), "MP3 should not have Vorbis comments"
-            assert not mp3_file.has_riff_info_chunk(), "MP3 should not have RIFF INFO chunk"
+        with TempFileWithMetadata({"title": "MP3 Test"}, "mp3") as mp3_manager:
+            assert mp3_manager.has_id3v2_header(), "MP3 should have ID3v2 header"
+            assert not mp3_manager.has_vorbis_comments(), "MP3 should not have Vorbis comments"
+            assert not mp3_manager.has_riff_info_chunk(), "MP3 should not have RIFF INFO chunk"
         
         # Test FLAC format
-        with TempFileWithMetadata({"title": "FLAC Test"}, "flac") as flac_file:
+        with TempFileWithMetadata({"title": "FLAC Test"}, "flac") as flac_manager:
             # FLAC might have both ID3v2 and Vorbis comments
-            headers = flac_file.get_metadata_headers_present()
+            headers = flac_manager.get_metadata_headers_present()
             print(f"FLAC headers: {headers}")
             # At least one should be present
             assert headers['id3v2'] or headers['vorbis'], "FLAC should have some metadata headers"
         
         # Test WAV format
-        with TempFileWithMetadata({"title": "WAV Test"}, "wav") as wav_file:
+        with TempFileWithMetadata({"title": "WAV Test"}, "wav") as wav_manager:
             # WAV might have both ID3v2 and RIFF INFO
-            headers = wav_file.get_metadata_headers_present()
+            headers = wav_manager.get_metadata_headers_present()
             print(f"WAV headers: {headers}")
             # At least one should be present
             assert headers['id3v2'] or headers['riff'], "WAV should have some metadata headers"

@@ -50,7 +50,7 @@ class TestMetadataWriting:
             # Use external script to set metadata instead of app's update function
             with TempFileWithMetadata(test_metadata, format_type) as test_file:
                 # Now test that our reading logic works correctly
-                updated_metadata = get_merged_unified_metadata(test_file)
+                updated_metadata = get_merged_unified_metadata(test_file.path)
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == test_metadata["title"]
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == [test_metadata["artist"]]
             assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == test_metadata["album"]
@@ -65,7 +65,7 @@ class TestMetadataWriting:
         }
         with TempFileWithMetadata(test_metadata, "mp3") as test_file:
             # Test that AudioFile object works with reading functions
-            audio_file = AudioFile(test_file)
+            audio_file = AudioFile(test_file.path)
             updated_metadata = get_merged_unified_metadata(audio_file)
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title with AudioFile"
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist with AudioFile"]
@@ -89,14 +89,14 @@ class TestMetadataWriting:
                                 # It should write the supported fields and log a warning about BPM
                                 with warnings.catch_warnings(record=True) as w:
                                     warnings.simplefilter("always")
-                                    update_file_metadata(test_file, unsupported_metadata)
+                                    update_file_metadata(test_file.path, unsupported_metadata)
                 
                                     # Check that a warning was issued about the unsupported field
                                     assert len(w) > 0
                                     assert any("BPM" in str(warning.message) for warning in w)
             
                                 # Verify that the supported field was written
-                                updated_metadata = get_merged_unified_metadata(test_file)
+                                updated_metadata = get_merged_unified_metadata(test_file.path)
                                 assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
 
     def test_update_file_metadata_unsupported_field_preserve_strategy(self):
@@ -115,7 +115,7 @@ class TestMetadataWriting:
         
         # This should raise MetadataNotSupportedError for unsupported fields with PRESERVE strategy
         with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
-            update_file_metadata(test_file, unsupported_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
+            update_file_metadata(test_file.path, unsupported_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
 
     def test_update_file_metadata_forced_format_fails_fast(self):
         # Use external script to set basic metadata
@@ -133,7 +133,7 @@ class TestMetadataWriting:
         
         # This should raise MetadataNotSupportedError because format is forced
         with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
-            update_file_metadata(test_file, unsupported_metadata, 
+            update_file_metadata(test_file.path, unsupported_metadata, 
                                metadata_format=MetadataFormat.RIFF)
 
     def test_update_file_metadata_forced_format_writes_only_to_specified_format(self):
@@ -150,15 +150,15 @@ class TestMetadataWriting:
         }
         
         # This should write only to RIFF format, leaving ID3v2 unchanged
-        update_file_metadata(test_file, new_metadata, 
+        update_file_metadata(test_file.path, new_metadata, 
                            metadata_format=MetadataFormat.RIFF)  # Only specify format
         
         # Verify RIFF has new metadata
-        riff_metadata = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
+        riff_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
         assert riff_metadata.get(UnifiedMetadataKey.TITLE) == "New RIFF Title"
         
         # Verify ID3v2 still has original metadata (forced format doesn't affect other formats)
-        id3v2_metadata = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+        id3v2_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
         assert id3v2_metadata.get(UnifiedMetadataKey.TITLE) == "Original ID3v2 Title"
 
     def test_update_file_metadata_parameter_conflict_error(self):
@@ -175,7 +175,7 @@ class TestMetadataWriting:
         }
         
         with pytest.raises(MetadataWritingConflictParametersError, match="Cannot specify both metadata_strategy and metadata_format"):
-            update_file_metadata(test_file, metadata,
+            update_file_metadata(test_file.path, metadata,
                                metadata_format=MetadataFormat.RIFF,
                                metadata_strategy=MetadataWritingStrategy.SYNC)
 
@@ -226,7 +226,7 @@ class TestMetadataWriting:
             # Use external script to set metadata instead of app's update function
             with TempFileWithMetadata(test_metadata, format_type) as test_file:
                 # Now test that our reading logic works correctly
-                updated_metadata = get_merged_unified_metadata(test_file)
+                updated_metadata = get_merged_unified_metadata(test_file.path)
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == test_metadata["title"]
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == [test_metadata["artist"]]
             assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == test_metadata["album"]
@@ -255,14 +255,14 @@ class TestMetadataWriting:
                                 # It should write the supported fields and log a warning about BPM
                                 with warnings.catch_warnings(record=True) as w:
                                     warnings.simplefilter("always")
-                                    update_file_metadata(test_file, unsupported_metadata)
+                                    update_file_metadata(test_file.path, unsupported_metadata)
                 
                                     # Check that a warning was issued about the unsupported field
                                     assert len(w) > 0
                                     assert any("BPM" in str(warning.message) for warning in w)
             
                                 # Verify that the supported fields were written
-                                updated_metadata = get_merged_unified_metadata(test_file)
+                                updated_metadata = get_merged_unified_metadata(test_file.path)
                                 assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "WAV Test Title"
                                 assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["WAV Test Artist"]
                                 assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "WAV Test Album"
@@ -277,7 +277,7 @@ class TestMetadataWriting:
         
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
                                 # Get original metadata
-                                original_metadata = get_merged_unified_metadata(test_file)
+                                original_metadata = get_merged_unified_metadata(test_file.path)
                                 original_album = original_metadata.get(UnifiedMetadataKey.ALBUM_NAME)
             
                                 # Update only title using app's function (this is what we're testing)
@@ -285,8 +285,8 @@ class TestMetadataWriting:
                                     UnifiedMetadataKey.TITLE: "Partial Update Title"
                                 }
             
-                                update_file_metadata(test_file, test_metadata)
-                                updated_metadata = get_merged_unified_metadata(test_file)
+                                update_file_metadata(test_file.path, test_metadata)
+                                updated_metadata = get_merged_unified_metadata(test_file.path)
             
                                 # Title should be updated
                                 assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Partial Update Title"

@@ -20,8 +20,8 @@ class TempFileWithMetadata:
     
     Example:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            # Use test_file for testing
-            update_file_metadata(test_file, new_metadata)
+            # Use test_file.path for file operations
+            update_file_metadata(test_file.path, new_metadata)
             
             # Check if headers exist
             if test_file.has_id3v2_header():
@@ -44,14 +44,25 @@ class TempFileWithMetadata:
         self.format_type = format_type
         self.test_file = None
     
-    def __enter__(self) -> Path:
-        """Create the test file and return its path.
+    @property
+    def path(self) -> Path:
+        """Get the path to the test file.
         
         Returns:
-            Path to the created test file with metadata
+            Path to the test file
+        """
+        if not self.test_file:
+            raise RuntimeError("Test file not created yet. Use within context manager.")
+        return self.test_file
+    
+    def __enter__(self):
+        """Create the test file and return the manager instance.
+        
+        Returns:
+            The TempFileWithMetadata instance for method access
         """
         self.test_file = create_test_file_with_metadata(self.metadata, self.format_type)
-        return self.test_file
+        return self
     
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Clean up the test file when exiting the context.
@@ -129,11 +140,11 @@ class TempFileWithMetadata:
                 if riff_header[:4] != b'RIFF':
                     return False
                 
-                # Look for INFO chunk
+                # Look for INFO chunk or LIST chunk with INFO data
                 chunk_size = int.from_bytes(riff_header[4:8], 'little')
                 data = f.read(chunk_size)
                 
-                # Search for INFO chunk
+                # Search for INFO chunk or LIST chunk with INFO
                 pos = 0
                 while pos < len(data) - 8:
                     chunk_id = data[pos:pos+4]
@@ -141,6 +152,11 @@ class TempFileWithMetadata:
                     
                     if chunk_id == b'INFO':
                         return True
+                    elif chunk_id == b'LIST' and pos + 8 < len(data):
+                        # Check if this LIST chunk contains INFO data
+                        list_type = data[pos+8:pos+12]
+                        if list_type == b'INFO':
+                            return True
                     
                     # Move to next chunk (chunk size + padding)
                     pos += 8 + chunk_size

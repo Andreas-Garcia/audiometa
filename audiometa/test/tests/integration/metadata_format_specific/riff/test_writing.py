@@ -34,8 +34,8 @@ class TestRiffWriting:
                             UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist WAV"],
                             UnifiedMetadataKey.ALBUM_NAME: "Test Album WAV",
                         }
-                        update_file_metadata(test_file, test_metadata, normalized_rating_max_value=100)
-                        metadata = get_merged_unified_metadata(test_file)
+                        update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
+                        metadata = get_merged_unified_metadata(test_file.path)
                         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title WAV"
                         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist WAV"]
                         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album WAV"
@@ -56,10 +56,10 @@ class TestRiffWriting:
                             UnifiedMetadataKey.ALBUM_NAME: "Test Album",
                         }
             
-                        update_file_metadata(test_file, test_metadata, normalized_rating_max_value=100)
+                        update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
             
                         # Verify all fields
-                        metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=10)
+                        metadata = get_merged_unified_metadata(test_file.path, normalized_rating_max_value=10)
             
                         # Basic metadata assertions
                         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Song Title"
@@ -82,10 +82,10 @@ class TestRiffWriting:
                             UnifiedMetadataKey.ALBUM_NAME: "Written Album",
                         }
             
-                        update_file_metadata(test_file, test_metadata, normalized_rating_max_value=100)
+                        update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
             
                         # Verify all fields were written
-                        metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=10)
+                        metadata = get_merged_unified_metadata(test_file.path, normalized_rating_max_value=10)
             
                         # Basic metadata assertions
                         assert metadata.get(UnifiedMetadataKey.TITLE) == "Written Song Title"
@@ -107,10 +107,10 @@ class TestRiffWriting:
                             UnifiedMetadataKey.ARTISTS_NAMES: ["Test WAV Artist"],
                             UnifiedMetadataKey.ALBUM_NAME: "Test WAV Album"
                         }
-                        update_file_metadata(test_file, initial_metadata)
+                        update_file_metadata(test_file.path, initial_metadata)
             
                         # Verify metadata was written
-                        metadata = get_merged_unified_metadata(test_file)
+                        metadata = get_merged_unified_metadata(test_file.path)
                         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test WAV Title"
                         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test WAV Artist"]
                         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test WAV Album"
@@ -121,10 +121,10 @@ class TestRiffWriting:
                             UnifiedMetadataKey.ARTISTS_NAMES: ["Test WAV Artist"],  # Keep this field
                             UnifiedMetadataKey.ALBUM_NAME: "Test WAV Album"  # Keep this field
                         }
-                        update_file_metadata(test_file, none_metadata)
+                        update_file_metadata(test_file.path, none_metadata)
             
                         # Verify fields were removed (return None because they don't exist)
-                        updated_metadata = get_merged_unified_metadata(test_file)
+                        updated_metadata = get_merged_unified_metadata(test_file.path)
                         assert updated_metadata.get(UnifiedMetadataKey.TITLE) is None
             
                         # Verify other fields are still present
@@ -132,7 +132,7 @@ class TestRiffWriting:
                         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test WAV Album"
             
                         # Verify at RIFF level that fields were actually removed
-                        riff_metadata = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
+                        riff_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
                         assert riff_metadata.get(UnifiedMetadataKey.TITLE) is None
 
     def test_none_vs_empty_string_behavior_riff(self, temp_audio_file):
@@ -144,16 +144,16 @@ class TestRiffWriting:
         
         with TempFileWithMetadata(initial_metadata, "wav") as test_file:
                         # Set a field to empty string - should remove field (same as None)
-                        update_file_metadata(test_file, {UnifiedMetadataKey.TITLE: ""})
-                        title = get_specific_metadata(test_file, UnifiedMetadataKey.TITLE)
+                        update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: ""})
+                        title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
                         assert title is None  # Empty string removes field in RIFF
             
                         # Set the same field to None - should remove field
-                        update_file_metadata(test_file, {UnifiedMetadataKey.TITLE: None})
-                        title = get_specific_metadata(test_file, UnifiedMetadataKey.TITLE)
+                        update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: None})
+                        title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
                         assert title is None  # None removes field
             
                         # Set it back to empty string - should remove field again
-                        update_file_metadata(test_file, {UnifiedMetadataKey.TITLE: ""})
-                        title = get_specific_metadata(test_file, UnifiedMetadataKey.TITLE)
+                        update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: ""})
+                        title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
                         assert title is None  # Empty string removes field in RIFF

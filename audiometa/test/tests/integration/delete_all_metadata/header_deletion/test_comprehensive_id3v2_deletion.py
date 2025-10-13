@@ -23,7 +23,7 @@ class TestComprehensiveID3v2Deletion:
                 assert before_headers['id3v2'], f"ID3v2.{version[1]} should be present before deletion"
                 
                 # Delete all metadata
-                result = delete_all_metadata(test_file.test_file)
+                result = delete_all_metadata(test_file.path)
                 assert result is True
                 
                 # Verify ID3v2 header is completely removed
@@ -44,6 +44,17 @@ class TempFileWithId3v2Version:
     def __init__(self, id3v2_version):
         self.id3v2_version = id3v2_version
         self.test_file = None
+    
+    @property
+    def path(self) -> Path:
+        """Get the path to the test file.
+        
+        Returns:
+            Path to the test file
+        """
+        if not self.test_file:
+            raise RuntimeError("Test file not created yet. Use within context manager.")
+        return self.test_file
     
     def __enter__(self) -> Path:
         """Create the test file with specific ID3v2 version and return its path."""
@@ -115,7 +126,7 @@ class TestMixedFormatComprehensiveHeaderDeletion:
         with TempFileWithMetadata(comprehensive_metadata, "mp3") as test_file:
             # Create a helper object to check headers
             header_checker = TempFileWithId3v2Version((2, 3, 0))
-            header_checker.test_file = test_file
+            header_checker.test_file = test_file.path
             
             # Verify comprehensive headers before deletion
             before_headers = header_checker.get_metadata_headers_present()
@@ -125,7 +136,7 @@ class TestMixedFormatComprehensiveHeaderDeletion:
             assert before_headers['id3v2'], "Should have ID3v2 header"
             
             # Delete all metadata
-            result = delete_all_metadata(test_file)
+            result = delete_all_metadata(test_file.path)
             assert result is True
             
             # Verify comprehensive headers after deletion
