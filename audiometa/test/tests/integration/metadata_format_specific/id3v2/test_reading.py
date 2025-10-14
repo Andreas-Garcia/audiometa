@@ -7,11 +7,14 @@ from audiometa import (
     get_merged_unified_metadata,
     get_single_format_app_metadata,
     get_specific_metadata,
-    AudioFile
+    AudioFile,
+    update_file_metadata
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError
+from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.tests.test_script_helpers import ScriptHelper
 
 
 @pytest.mark.integration
@@ -89,3 +92,41 @@ class TestId3v2Reading:
         
         with pytest.raises(FileTypeNotSupportedError):
             get_single_format_app_metadata(str(temp_audio_file), MetadataFormat.ID3V2)
+
+    def test_wav_with_id3v2_and_id3v1_metadata(self):
+        # Create a WAV file with both ID3v2 and ID3v1 metadata
+        with TempFileWithMetadata({}, "wav") as test_file:
+            script_helper = ScriptHelper()
+            
+            # First, add ID3v2 metadata using the script helper
+            script_helper.set_id3v2_max_metadata(test_file.path)
+            
+            # Then add ID3v1 metadata using the library
+            id3v1_metadata = {
+                UnifiedMetadataKey.TITLE: "ID3v1 Title",
+                UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v1 Artist"],
+                UnifiedMetadataKey.ALBUM_NAME: "ID3v1 Album"
+            }
+            update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
+            
+            # Test that we can read both ID3v2 and ID3v1 metadata
+            id3v2_metadata_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+            id3v1_metadata_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+            
+            # Verify ID3v2 metadata is present
+            assert id3v2_metadata_result is not None
+            assert UnifiedMetadataKey.TITLE in id3v2_metadata_result
+            # ID3v2 title should be the long one from the script
+            assert len(id3v2_metadata_result[UnifiedMetadataKey.TITLE]) > 30
+            
+            # Verify ID3v1 metadata is present
+            assert id3v1_metadata_result is not None
+            assert UnifiedMetadataKey.TITLE in id3v1_metadata_result
+            assert id3v1_metadata_result[UnifiedMetadataKey.TITLE] == "ID3v1 Title"
+            
+            # Test merged metadata (should prioritize ID3v2 over ID3v1)
+            merged_metadata = get_merged_unified_metadata(test_file.path)
+            assert merged_metadata is not None
+            assert UnifiedMetadataKey.TITLE in merged_metadata
+            # Should prefer ID3v2 title since it's more comprehensive
+            assert len(merged_metadata[UnifiedMetadataKey.TITLE]) > 30
