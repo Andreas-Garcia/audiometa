@@ -36,3 +36,14 @@ class TestBpmWriting:
         update_file_metadata(temp_flac_file, test_metadata, metadata_format=MetadataFormat.VORBIS)
         bpm = get_specific_metadata(temp_flac_file, UnifiedMetadataKey.BPM)
         assert bpm == test_bpm
+
+    def test_id3v1(self, metadata_none_mp3, temp_audio_file):
+        from audiometa.exceptions import MetadataNotSupportedError
+        
+        shutil.copy2(metadata_none_mp3, temp_audio_file)
+        test_bpm = 128
+        test_metadata = {UnifiedMetadataKey.BPM: test_bpm}
+        
+        # ID3v1 format raises exception for unsupported metadata when format is forced
+        with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.BPM metadata not supported by this format"):
+            update_file_metadata(temp_audio_file, test_metadata, metadata_format=MetadataFormat.ID3V1)

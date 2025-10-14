@@ -154,6 +154,11 @@ class Id3v1Manager(MetadataManager):
 
     def _update_not_using_mutagen_metadata(self, app_metadata: AppMetadata):
         """Update ID3v1 metadata using direct file manipulation."""
+        # Validate that all fields are supported by ID3v1
+        for app_metadata_key in app_metadata.keys():
+            if app_metadata_key not in self.metadata_keys_direct_map_write:
+                raise MetadataNotSupportedError(f'{app_metadata_key} metadata not supported by this format')
+        
         # Read the entire file
         self.audio_file.seek(0)
         file_data = bytearray(self.audio_file.read())

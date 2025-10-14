@@ -326,7 +326,7 @@ class TestMetadataStrategies:
         merged = get_merged_unified_metadata(test_file)
         assert merged.get(UnifiedMetadataKey.TITLE) == "Synced Title"
 
-    def test_id3v1_modification_raises_error(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_id3v1_modification_success(self, sample_mp3_file: Path, temp_audio_file: Path):
         # Create test file with ID3v1 metadata using external script
         test_file = temp_audio_file.with_suffix('.mp3')
         shutil.copy2(sample_mp3_file, test_file)
@@ -343,15 +343,17 @@ class TestMetadataStrategies:
         ], check=True)
         
         # Verify ID3v1 metadata was written
-        id3v1_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+        id3v1_result = get_single_format_app_metadata(str(test_file), MetadataFormat.ID3V1)
         assert id3v1_result.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
         
-        # Attempt to modify ID3v1 metadata directly should raise error
-        from audiometa.exceptions import MetadataNotSupportedError
-        with pytest.raises(MetadataNotSupportedError):
-            update_file_metadata(test_file.path, {
-                UnifiedMetadataKey.TITLE: "New Title"
-            }, metadata_format=MetadataFormat.ID3V1)
+        # Modify ID3v1 metadata directly should succeed
+        update_file_metadata(str(test_file), {
+            UnifiedMetadataKey.TITLE: "New Title"
+        }, metadata_format=MetadataFormat.ID3V1)
+        
+        # Verify the modification was successful
+        updated_id3v1_result = get_single_format_app_metadata(str(test_file), MetadataFormat.ID3V1)
+        assert updated_id3v1_result.get(UnifiedMetadataKey.TITLE) == "New Title"
 
     def test_sync_strategy_wav_with_id3v1_field_truncation(self, sample_wav_file: Path, temp_audio_file: Path):
         # Create WAV file with ID3v1 metadata using external script
