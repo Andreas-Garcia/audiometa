@@ -27,7 +27,6 @@ class TestConflictingMetadata:
 
     def test_id3v1_vs_id3v2_precedence_mp3(self, metadata_id3v1_and_id3v2_mp3):
         # This test uses a pre-existing file with both ID3v1 and ID3v2 metadata
-        # since ID3v1 is read-only and cannot be written programmatically
         
         # Merged metadata should prefer ID3v2
         merged_metadata = get_merged_unified_metadata(metadata_id3v1_and_id3v2_mp3)
@@ -116,8 +115,15 @@ class TestConflictingMetadata:
         }
         
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
-            # Since ID3v1 is read-only, we can only write ID3v2 metadata
-            # This test focuses on ID3v2 vs other writable formats
+            # Add both ID3v1 and ID3v2 metadata for testing
+            id3v1_metadata = {
+                "title": "ID3v1 Title",
+                "artist": "ID3v1 Artist",
+                "album": "ID3v1 Album",
+                "year": "2023",
+                "genre": "Rock"
+            }
+            update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v2 Title",
                 UnifiedMetadataKey.ALBUM_NAME: "ID3v2 Album"
@@ -140,7 +146,16 @@ class TestConflictingMetadata:
         }
         
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
-            # Since ID3v1 is read-only, we can only test writable formats
+            # Add ID3v1 metadata first
+            id3v1_metadata = {
+                "title": "ID3v1 Title",
+                "artist": "ID3v1 Artist",
+                "album": "ID3v1 Album",
+                "year": "2023",
+                "genre": "Rock"
+            }
+            update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
+            
             # Test ID3v2 rating precedence
             id3v2_metadata = {UnifiedMetadataKey.RATING: 5}
             
@@ -159,8 +174,15 @@ class TestConflictingMetadata:
         }
         
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
-            # Since ID3v1 is read-only, we can only write ID3v2 metadata
-            # This test focuses on ID3v2 metadata with AudioFile object
+            # Add both ID3v1 and ID3v2 metadata for testing
+            id3v1_metadata = {
+                "title": "ID3v1 Title",
+                "artist": "ID3v1 Artist",
+                "album": "ID3v1 Album",
+                "year": "2023",
+                "genre": "Rock"
+            }
+            update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
             id3v2_metadata = {UnifiedMetadataKey.TITLE: "ID3v2 Title"}
             
             update_file_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)

@@ -11,7 +11,7 @@ class TestMP3MixedFormatsDeletion:
     """Test deletion of all metadata from MP3 files with multiple metadata formats."""
 
     def test_delete_all_metadata_mp3_with_id3v1_and_id3v2(self):
-        """Test that delete_all_metadata removes ID3v2 metadata from MP3 files (ID3v1 is read-only)."""
+        """Test that delete_all_metadata removes both ID3v1 and ID3v2 metadata from MP3 files."""
         # Create MP3 file with ID3v1 metadata first
         id3v1_metadata = {
             "title": "ID3v1 Title",
@@ -34,18 +34,18 @@ class TestMP3MixedFormatsDeletion:
             # Verify both formats have metadata before deletion
             before_headers = test_file.get_metadata_headers_present()
             print(f"MP3 headers before deletion: {before_headers}")
-            # ID3v1 may or may not be present depending on TempFileWithMetadata implementation
+            assert before_headers['id3v1'], "ID3v1 metadata should be present"
             assert before_headers['id3v2'], "ID3v2 metadata should be present"
             
             # Delete all metadata
             result = delete_all_metadata(test_file)
             assert result is True
             
-            # Verify ID3v2 was deleted (ID3v1 is read-only and cannot be removed)
+            # Verify both ID3v1 and ID3v2 were deleted
             after_headers = test_file.get_metadata_headers_present()
             print(f"MP3 headers after deletion: {after_headers}")
             assert not after_headers['id3v2'], "ID3v2 metadata should be removed"
-            # Note: ID3v1 is read-only and may still be present
+            assert not after_headers['id3v1'], "ID3v1 metadata should be removed"
 
     def test_delete_all_metadata_mp3_with_id3v2_first_then_id3v1(self):
         """Test deletion when ID3v2 is added first, then ID3v1."""
@@ -58,24 +58,31 @@ class TestMP3MixedFormatsDeletion:
             }
             update_file_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
             
-            # Note: ID3v1 is read-only, so we can't add it programmatically
-            # We'll test with the existing ID3v1 metadata from TempFileWithMetadata
+            # Add ID3v1 metadata programmatically
+            id3v1_metadata = {
+                "title": "ID3v1 Title",
+                "artist": "ID3v1 Artist",
+                "album": "ID3v1 Album",
+                "year": "2023",
+                "genre": "Rock"
+            }
+            update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
             
             # Verify both formats have metadata before deletion
             before_headers = test_file.get_metadata_headers_present()
             print(f"MP3 headers before deletion (ID3v2 first): {before_headers}")
-            # ID3v1 may or may not be present depending on TempFileWithMetadata implementation
+            assert before_headers['id3v1'], "ID3v1 metadata should be present"
             assert before_headers['id3v2'], "ID3v2 metadata should be present"
             
             # Delete all metadata
             result = delete_all_metadata(test_file)
             assert result is True
             
-            # Verify ID3v2 was deleted (ID3v1 is read-only and cannot be removed)
+            # Verify both ID3v1 and ID3v2 were deleted
             after_headers = test_file.get_metadata_headers_present()
             print(f"MP3 headers after deletion (ID3v2 first): {after_headers}")
             assert not after_headers['id3v2'], "ID3v2 metadata should be removed"
-            # Note: ID3v1 is read-only and may still be present
+            assert not after_headers['id3v1'], "ID3v1 metadata should be removed"
 
     def test_delete_all_metadata_mp3_with_all_formats(self):
         """Test deletion when MP3 has ID3v1, ID3v2, and potentially other formats."""
@@ -101,15 +108,15 @@ class TestMP3MixedFormatsDeletion:
             # Verify multiple formats have metadata before deletion
             before_headers = test_file.get_metadata_headers_present()
             print(f"MP3 comprehensive headers before deletion: {before_headers}")
-            # ID3v1 may or may not be present depending on TempFileWithMetadata implementation
+            assert before_headers['id3v1'], "ID3v1 metadata should be present"
             assert before_headers['id3v2'], "ID3v2 metadata should be present"
             
             # Delete all metadata
             result = delete_all_metadata(test_file)
             assert result is True
             
-            # Verify ID3v2 was deleted (ID3v1 is read-only and cannot be removed)
+            # Verify both ID3v1 and ID3v2 were deleted
             after_headers = test_file.get_metadata_headers_present()
             print(f"MP3 comprehensive headers after deletion: {after_headers}")
             assert not after_headers['id3v2'], "ID3v2 metadata should be removed"
-            # Note: ID3v1 is read-only and may still be present
+            assert not after_headers['id3v1'], "ID3v1 metadata should be removed"

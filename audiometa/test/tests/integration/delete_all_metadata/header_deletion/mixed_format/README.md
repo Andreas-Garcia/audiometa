@@ -25,10 +25,9 @@ This directory contains comprehensive tests for deletion of metadata from audio 
 
 ### MP3 Files (ID3v1 + ID3v2)
 
-- ✅ ID3v2 metadata is fully removable
-- ⚠️ ID3v1 metadata is read-only and cannot be removed (by design)
-- ✅ `delete_all_metadata` removes ID3v2 while preserving ID3v1
-- ✅ Tests handle the read-only nature of ID3v1 appropriately
+- ✅ Both ID3v1 and ID3v2 metadata are fully removable
+- ✅ `delete_all_metadata` removes both ID3v1 and ID3v2 metadata
+- ✅ Tests handle both formats appropriately
 
 ### FLAC Files (Vorbis + ID3v2)
 
@@ -41,16 +40,16 @@ This directory contains comprehensive tests for deletion of metadata from audio 
 
 1. **Coexistence**: Multiple metadata formats can exist in the same file
 2. **Deletion Order**: Tests both possible orders of metadata addition
-3. **Format Limitations**: Respects read-only formats (ID3v1)
+3. **Format Support**: All metadata formats are fully supported for reading and writing
 4. **Real Files**: Uses actual sample files with mixed formats
 5. **Comprehensive Coverage**: Tests all supported audio formats and metadata combinations
 
 ## Important Notes
 
-- **ID3v1 is read-only**: Cannot be written or deleted programmatically
+- **ID3v1 Support**: Full read/write support for ID3v1 metadata
 - **Field Mapping**: Different formats use different field names (e.g., `artist` vs `artists_names`)
 - **Format Priority**: Each file type has a native format that takes precedence
-- **Deletion Behavior**: `delete_all_metadata` removes all writable formats, skips read-only ones
+- **Deletion Behavior**: `delete_all_metadata` removes all metadata formats
 
 ## Running Tests
 
