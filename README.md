@@ -1123,8 +1123,8 @@ You can control metadata writing behavior using the `metadata_strategy` paramete
 **Available Strategies:**
 
 1. **`SYNC` (Default)**: Write to native format and synchronize other metadata formats that are already present. Handles unsupported fields gracefully with warnings.
-2. **`PRESERVE`**: Write to native format only, preserve existing metadata in other formats
-3. **`CLEANUP`**: Write to native format and remove all non-native metadata formats
+2. **`PRESERVE`**: Write to native format only, preserve existing metadata in other formats. Handles unsupported fields gracefully with warnings.
+3. **`CLEANUP`**: Write to native format and remove all non-native metadata formats. Handles unsupported fields gracefully with warnings.
 
 #### Forced Format Behavior
 
@@ -1229,21 +1229,20 @@ update_file_metadata("song.wav", {"title": "New Title"},
 
 ### Unsupported Metadata Handling
 
-The library handles unsupported metadata differently depending on the context:
+The library handles unsupported metadata consistently across all strategies:
 
 - **Forced format** (when `metadata_format` is specified): Always fails fast by raising `MetadataNotSupportedError` for any unsupported field
-- **SYNC strategy (default)**: Handles unsupported fields gracefully by logging warnings and continuing with supported fields
+- **All strategies (SYNC, PRESERVE, CLEANUP)**: Handle unsupported fields gracefully by logging warnings and continuing with supported fields
 - **SYNC strategy with `fail_on_unsupported_field=True`**: Fails fast if any field is not supported by NO format
-- **Other strategies (PRESERVE, CLEANUP)**: Follow a "fail fast, fail clearly" approach by raising `MetadataNotSupportedError` when any field is not supported
 
 #### Format-Specific Limitations
 
-| Format         | Forced Format     | SYNC Strategy (Default)                                     | Other Strategies (PRESERVE, CLEANUP)                        |
-| -------------- | ----------------- | ----------------------------------------------------------- | ----------------------------------------------------------- |
-| **RIFF (WAV)** | Always fails fast | Logs warnings for unsupported fields, writes supported ones | Any unsupported metadata raises `MetadataNotSupportedError` |
-| **ID3v1**      | Always fails fast | Logs warnings for unsupported fields, writes supported ones | Any unsupported metadata raises `MetadataNotSupportedError` |
-| **ID3v2**      | Always fails fast | All fields supported                                        | All fields supported                                        |
-| **Vorbis**     | Always fails fast | All fields supported                                        | All fields supported                                        |
+| Format         | Forced Format     | All Strategies (SYNC, PRESERVE, CLEANUP)                    |
+| -------------- | ----------------- | ----------------------------------------------------------- |
+| **RIFF (WAV)** | Always fails fast | Logs warnings for unsupported fields, writes supported ones |
+| **ID3v1**      | Always fails fast | Logs warnings for unsupported fields, writes supported ones |
+| **ID3v2**      | Always fails fast | All fields supported                                        |
+| **Vorbis**     | Always fails fast | All fields supported                                        |
 
 #### Example: Handling Unsupported Metadata
 
@@ -1251,10 +1250,19 @@ The library handles unsupported metadata differently depending on the context:
 from audiometa import update_file_metadata
 from audiometa.exceptions import MetadataNotSupportedError
 from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 
-# SYNC strategy (default) - handles unsupported fields gracefully
+# All strategies - handle unsupported fields gracefully with warnings
 update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120})
 # Result: Writes title and rating to RIFF, logs warning about BPM, continues
+
+update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
+                    metadata_strategy=MetadataWritingStrategy.PRESERVE)
+# Result: Writes title and rating to RIFF, logs warning about BPM, preserves other formats
+
+update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
+                    metadata_strategy=MetadataWritingStrategy.CLEANUP)
+# Result: Writes title and rating to RIFF, logs warning about BPM, removes other formats
 
 # Forced format - always fails fast for unsupported fields
 try:

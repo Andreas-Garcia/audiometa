@@ -392,8 +392,21 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
                 # Some managers might not support deletion or might fail
                 pass
         
-        # Then write to target format
+        # Check for unsupported fields by target format and filter them out with warnings
         target_manager = all_managers[target_format_actual]
+        unsupported_fields = []
+        for field in app_metadata.keys():
+            if hasattr(target_manager, 'metadata_keys_direct_map_write') and target_manager.metadata_keys_direct_map_write:
+                if field not in target_manager.metadata_keys_direct_map_write:
+                    unsupported_fields.append(field)
+        
+        if unsupported_fields:
+            warnings.warn(f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}")
+            # Create filtered metadata without unsupported fields
+            filtered_metadata = {k: v for k, v in app_metadata.items() if k not in unsupported_fields}
+            app_metadata = filtered_metadata
+        
+        # Then write to target format
         target_manager.update_file_metadata(app_metadata)
         
     elif strategy == MetadataWritingStrategy.SYNC:
@@ -451,8 +464,21 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
             except Exception:
                 pass
         
-        # Write to target format
+        # Check for unsupported fields by target format and filter them out with warnings
         target_manager = all_managers[target_format_actual]
+        unsupported_fields = []
+        for field in app_metadata.keys():
+            if hasattr(target_manager, 'metadata_keys_direct_map_write') and target_manager.metadata_keys_direct_map_write:
+                if field not in target_manager.metadata_keys_direct_map_write:
+                    unsupported_fields.append(field)
+        
+        if unsupported_fields:
+            warnings.warn(f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}")
+            # Create filtered metadata without unsupported fields
+            filtered_metadata = {k: v for k, v in app_metadata.items() if k not in unsupported_fields}
+            app_metadata = filtered_metadata
+        
+        # Write to target format
         target_manager.update_file_metadata(app_metadata)
         
         # Restore preserved metadata from other formats
@@ -460,9 +486,6 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
             try:
                 manager = other_managers[fmt]
                 manager.update_file_metadata(metadata)
-            except MetadataNotSupportedError:
-                # Re-raise unsupported metadata errors - they should not be silently ignored
-                raise
             except Exception:
                 # Some managers might not support writing or might fail for other reasons
                 pass

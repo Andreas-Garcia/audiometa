@@ -106,16 +106,54 @@ class TestMetadataWriting:
             "artist": "Test Artist"
         }
         with TempFileWithMetadata(test_metadata, "wav") as test_file:
-            # Test that PRESERVE strategy still fails fast for unsupported fields
+            # Test that PRESERVE strategy handles unsupported fields gracefully with warnings
             # WAV files don't support BPM in RIFF format
             unsupported_metadata = {
-            UnifiedMetadataKey.TITLE: "Test Title",
-            UnifiedMetadataKey.BPM: 120  # This should raise MetadataNotSupportedError for WAV files
+                UnifiedMetadataKey.TITLE: "Test Title",
+                UnifiedMetadataKey.BPM: 120  # This should be skipped with a warning
+            }
+            
+            # This should NOT raise MetadataNotSupportedError with PRESERVE strategy
+            # It should write the supported fields and log a warning about BPM
+            with warnings.catch_warnings(record=True) as w:
+                warnings.simplefilter("always")
+                update_file_metadata(test_file.path, unsupported_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
+                
+                # Check that a warning was issued about the unsupported field
+                assert len(w) > 0
+                assert any("BPM" in str(warning.message) for warning in w)
+            
+            # Verify that the supported fields were written
+            updated_metadata = get_merged_unified_metadata(test_file.path)
+            assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
+
+    def test_update_file_metadata_unsupported_field_cleanup_strategy(self):
+        # Use external script to set basic metadata
+        test_metadata = {
+            "title": "Test Title",
+            "artist": "Test Artist"
         }
-        
-        # This should raise MetadataNotSupportedError for unsupported fields with PRESERVE strategy
-        with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
-            update_file_metadata(test_file.path, unsupported_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
+        with TempFileWithMetadata(test_metadata, "wav") as test_file:
+            # Test that CLEANUP strategy handles unsupported fields gracefully with warnings
+            # WAV files don't support BPM in RIFF format
+            unsupported_metadata = {
+                UnifiedMetadataKey.TITLE: "Test Title",
+                UnifiedMetadataKey.BPM: 120  # This should be skipped with a warning
+            }
+            
+            # This should NOT raise MetadataNotSupportedError with CLEANUP strategy
+            # It should write the supported fields and log a warning about BPM
+            with warnings.catch_warnings(record=True) as w:
+                warnings.simplefilter("always")
+                update_file_metadata(test_file.path, unsupported_metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
+                
+                # Check that a warning was issued about the unsupported field
+                assert len(w) > 0
+                assert any("BPM" in str(warning.message) for warning in w)
+            
+            # Verify that the supported fields were written
+            updated_metadata = get_merged_unified_metadata(test_file.path)
+            assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
 
     def test_update_file_metadata_forced_format_fails_fast(self):
         # Use external script to set basic metadata
@@ -127,39 +165,55 @@ class TestMetadataWriting:
             # Test that forced format always fails fast on unsupported fields
             # WAV files don't support BPM in RIFF format
             unsupported_metadata = {
-            UnifiedMetadataKey.TITLE: "Test Title",
-            UnifiedMetadataKey.BPM: 120  # This should raise MetadataNotSupportedError
-        }
-        
-        # This should raise MetadataNotSupportedError because format is forced
-        with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
-            update_file_metadata(test_file.path, unsupported_metadata, 
-                               metadata_format=MetadataFormat.RIFF)
+                UnifiedMetadataKey.TITLE: "Test Title",
+                UnifiedMetadataKey.BPM: 120  # This should raise MetadataNotSupportedError
+            }
+            
+            # This should raise MetadataNotSupportedError because format is forced
+            with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
+                update_file_metadata(test_file.path, unsupported_metadata, 
+                                   metadata_format=MetadataFormat.RIFF)
 
     def test_update_file_metadata_forced_format_writes_only_to_specified_format(self):
-        # Use external script to set ID3v2 metadata
-        test_metadata = {
-            "title": "Original ID3v2 Title",
-            "artist": "Original ID3v2 Artist"
+        # Create WAV file with initial RIFF metadata
+        initial_metadata = {
+            "title": "Original RIFF Title",
+            "artist": "Original RIFF Artist"
         }
-        with TempFileWithMetadata(test_metadata, "mp3") as test_file:
-            # Force RIFF format on MP3 file (should write only to RIFF, leave ID3v2 untouched)
+        with TempFileWithMetadata(initial_metadata, "wav") as test_file:
+            # Add ID3v2 metadata using the library directly
+            id3v2_metadata = {
+                UnifiedMetadataKey.TITLE: "Original ID3v2 Title",
+                UnifiedMetadataKey.ARTISTS_NAMES: ["Original ID3v2 Artist"]
+            }
+            update_file_metadata(test_file.path, id3v2_metadata, 
+                               metadata_format=MetadataFormat.ID3V2)
+            
+            # Verify both formats have their respective metadata
+            riff_before = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
+            id3v2_before = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+            assert riff_before.get(UnifiedMetadataKey.TITLE) == "Original RIFF Title"
+            assert id3v2_before.get(UnifiedMetadataKey.TITLE) == "Original ID3v2 Title"
+            
+            # Force ID3v2 format (should write only to ID3v2, leave RIFF untouched)
             new_metadata = {
-            UnifiedMetadataKey.TITLE: "New RIFF Title",
-            UnifiedMetadataKey.ARTISTS_NAMES: ["New RIFF Artist"]
-        }
-        
-        # This should write only to RIFF format, leaving ID3v2 unchanged
-        update_file_metadata(test_file.path, new_metadata, 
-                           metadata_format=MetadataFormat.RIFF)  # Only specify format
-        
-        # Verify RIFF has new metadata
-        riff_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
-        assert riff_metadata.get(UnifiedMetadataKey.TITLE) == "New RIFF Title"
-        
-        # Verify ID3v2 still has original metadata (forced format doesn't affect other formats)
-        id3v2_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
-        assert id3v2_metadata.get(UnifiedMetadataKey.TITLE) == "Original ID3v2 Title"
+                UnifiedMetadataKey.TITLE: "New ID3v2 Title",
+                UnifiedMetadataKey.ARTISTS_NAMES: ["New ID3v2 Artist"]
+            }
+            
+            # This should write only to ID3v2 format, leaving RIFF unchanged
+            update_file_metadata(test_file.path, new_metadata, 
+                               metadata_format=MetadataFormat.ID3V2)
+            
+            # Verify ID3v2 has new metadata
+            id3v2_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+            assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "New ID3v2 Title"
+            assert id3v2_after.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["New ID3v2 Artist"]
+            
+            # Verify RIFF still has original metadata (forced format doesn't affect other formats)
+            riff_after = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
+            assert riff_after.get(UnifiedMetadataKey.TITLE) == "Original RIFF Title"
+            assert riff_after.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original RIFF Artist"]
 
     def test_update_file_metadata_parameter_conflict_error(self):
         # Use external script to set basic metadata
@@ -170,14 +224,14 @@ class TestMetadataWriting:
         with TempFileWithMetadata(test_metadata, "wav") as test_file:
             # Test that specifying both parameters raises ValueError
             metadata = {
-            UnifiedMetadataKey.TITLE: "Test Title",
-            UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"]
-        }
-        
-        with pytest.raises(MetadataWritingConflictParametersError, match="Cannot specify both metadata_strategy and metadata_format"):
-            update_file_metadata(test_file.path, metadata,
-                               metadata_format=MetadataFormat.RIFF,
-                               metadata_strategy=MetadataWritingStrategy.SYNC)
+                UnifiedMetadataKey.TITLE: "Test Title",
+                UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"]
+            }
+            
+            with pytest.raises(MetadataWritingConflictParametersError, match="Cannot specify both metadata_strategy and metadata_format"):
+                update_file_metadata(test_file.path, metadata,
+                                   metadata_format=MetadataFormat.RIFF,
+                                   metadata_strategy=MetadataWritingStrategy.SYNC)
 
     # Note: delete_all_metadata tests have been moved to test_delete_all_metadata.py
 
