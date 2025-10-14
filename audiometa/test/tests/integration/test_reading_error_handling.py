@@ -41,11 +41,11 @@ class TestReadingErrorHandling:
         result = get_specific_metadata(sample_mp3_file, invalid_key)
         assert result is None
 
-    def test_invalid_format_returns_empty_dict(self, sample_mp3_file: Path):
-        # Try to get Vorbis metadata from MP3 file (should work but return empty)
-        vorbis_metadata = get_single_format_app_metadata(sample_mp3_file, MetadataFormat.VORBIS)
-        assert isinstance(vorbis_metadata, dict)
+    def test_invalid_format_raises_error(self, sample_mp3_file: Path):
+        # Try to get Vorbis metadata from MP3 file (should raise error)
+        with pytest.raises(FileTypeNotSupportedError):
+            get_single_format_app_metadata(sample_mp3_file, MetadataFormat.VORBIS)
         
-        # Try to get RIFF metadata from MP3 file (should work but return empty)
-        riff_metadata = get_single_format_app_metadata(sample_mp3_file, MetadataFormat.RIFF)
-        assert isinstance(riff_metadata, dict)
+        # Try to get RIFF metadata from MP3 file (should raise error)
+        with pytest.raises(FileTypeNotSupportedError):
+            get_single_format_app_metadata(sample_mp3_file, MetadataFormat.RIFF)
