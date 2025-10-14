@@ -149,9 +149,57 @@ The script helper strategy uses external command-line tools to set up test metad
    - `set-id3v2-max-metadata.sh` - Uses `mid3v2` to set ID3v2 metadata
    - `set-vorbis-max-metadata.sh` - Uses `metaflac` to set Vorbis metadata
    - `set-riff-max-metadata.sh` - Uses `bwfmetaedit` to set RIFF metadata
-   - `set-id3v1-max-metadata.sh` - Uses `mid3v2` to set ID3v1 metadata
+   - `set-id3v1-max-metadata.sh` - Uses `id3v2 --id3v1-only` to set ID3v1 metadata
    - `remove-id3.py` - Removes ID3 metadata
    - `remove-riff.py` - Removes RIFF metadata
+
+**⚠️ Important: ID3v1 Metadata Creation Limitations**
+
+**`mid3v2` cannot write ID3v1 metadata** - it can only delete it. For ID3v1 metadata creation, you must use:
+
+- `id3v2 --id3v1-only` (external tool)
+- Our library's `update_file_metadata()` with `MetadataFormat.ID3V1`
+
+**For tests requiring ID3v1 metadata:**
+
+- Use `TempFileWithMetadata(metadata, "id3v1")` (recommended - clean and simple)
+- Use `ScriptHelper.set_id3v1_max_metadata()` (alternative - uses external script)
+- Use `update_file_metadata()` with `MetadataFormat.ID3V1` (alternative)
+- **Do NOT use `TempFileWithMetadata` with "mp3" for ID3v1** - it uses `mid3v2` which cannot write ID3v1
+
+**Example - Correct way to create ID3v1 metadata in tests:**
+
+```python
+# ✅ CORRECT: Use TempFileWithMetadata with "id3v1" format type
+with TempFileWithMetadata({
+    "title": "Test Title",
+    "artist": "Test Artist",
+    "album": "Test Album",
+    "year": "2023",
+    "genre": "Rock"
+}, "id3v1") as test_file:
+    # Now test your functionality...
+
+# ✅ ALTERNATIVE: Use ScriptHelper with external script
+from audiometa.test.tests.test_script_helpers import ScriptHelper
+
+with TempFileWithMetadata({}, "mp3") as test_file:
+    script_helper = ScriptHelper()
+    script_helper.set_id3v1_max_metadata(test_file.path)
+
+# ✅ ALTERNATIVE: Use library's update_file_metadata
+with TempFileWithMetadata({}, "mp3") as test_file:
+    id3v1_metadata = {
+        UnifiedMetadataKey.TITLE: "Test Title",
+        UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"],
+        UnifiedMetadataKey.ALBUM_NAME: "Test Album"
+    }
+    update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
+
+# ❌ WRONG: This won't create ID3v1 metadata
+with TempFileWithMetadata({"title": "Test"}, "mp3") as test_file:
+    # This creates ID3v2 metadata, not ID3v1!
+```
 
 2. **ScriptHelper Class**: Provides a Python interface to these external scripts:
 
@@ -165,6 +213,8 @@ The script helper strategy uses external command-line tools to set up test metad
 
 3. **Test File Management**: Safe ways to create temporary test files:
    - `TempFileWithMetadata` - **RECOMMENDED**: Context manager for automatic cleanup
+   - **Supported format types**: `'mp3'`, `'id3v1'`, `'flac'`, `'wav'`
+   - **For ID3v1 metadata**: Use `TempFileWithMetadata(metadata, "id3v1")`
 
 **Benefits:**
 

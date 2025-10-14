@@ -25,7 +25,7 @@ def create_test_file_with_metadata(
     
     Args:
         metadata: Dictionary of metadata to set
-        format_type: Audio format ('mp3', 'flac', 'wav')
+        format_type: Audio format ('mp3', 'id3v1', 'flac', 'wav')
         
     Returns:
         Path to the created file with metadata
@@ -34,7 +34,9 @@ def create_test_file_with_metadata(
     Use TempFileWithMetadata instead for proper cleanup.
     """
     # Create temporary file with correct extension
-    with tempfile.NamedTemporaryFile(suffix=f'.{format_type.lower()}', delete=False) as tmp_file:
+    # For id3v1, use .mp3 extension since it's still an MP3 file
+    actual_extension = 'mp3' if format_type.lower() == 'id3v1' else format_type.lower()
+    with tempfile.NamedTemporaryFile(suffix=f'.{actual_extension}', delete=False) as tmp_file:
         target_file = Path(tmp_file.name)
     
     # Create minimal audio file based on format
@@ -44,6 +46,9 @@ def create_test_file_with_metadata(
     if format_type.lower() == 'mp3':
         # Use mid3v2 for MP3 files
         _set_mp3_metadata_with_mid3v2(target_file, metadata)
+    elif format_type.lower() == 'id3v1':
+        # Use id3v2 --id3v1-only for ID3v1 metadata
+        _set_mp3_metadata_with_id3v1(target_file, metadata)
     elif format_type.lower() == 'flac':
         # Use metaflac for FLAC files
         _set_flac_metadata_with_metaflac(target_file, metadata)
@@ -81,6 +86,33 @@ def _set_mp3_metadata_with_mid3v2(file_path: Path, metadata: dict) -> None:
         subprocess.run(cmd, check=True, capture_output=True)
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"mid3v2 failed: {e.stderr}") from e
+
+
+def _set_mp3_metadata_with_id3v1(file_path: Path, metadata: dict) -> None:
+    """Set MP3 metadata using id3v2 tool with --id3v1-only flag."""
+    cmd = ["id3v2", "--id3v1-only"]
+    
+    # Map common metadata keys to id3v2 arguments
+    key_mapping = {
+        'title': '--song',
+        'artist': '--artist', 
+        'album': '--album',
+        'year': '--year',
+        'genre': '--genre',
+        'comment': '--comment',
+        'track': '--track'
+    }
+    
+    for key, value in metadata.items():
+        if key.lower() in key_mapping:
+            cmd.extend([key_mapping[key.lower()], str(value)])
+    
+    cmd.append(str(file_path))
+    
+    try:
+        subprocess.run(cmd, check=True, capture_output=True)
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"id3v2 failed: {e.stderr}") from e
 
 
 def _set_flac_metadata_with_metaflac(file_path: Path, metadata: dict) -> None:
@@ -147,7 +179,7 @@ def _create_minimal_audio_file(file_path: Path, format_type: str) -> None:
     # Use existing sample files as templates
     test_files_dir = Path(__file__).parent.parent / "data" / "audio_files"
     
-    if format_type.lower() == 'mp3':
+    if format_type.lower() in ['mp3', 'id3v1']:
         template_file = test_files_dir / "metadata=none.mp3"
     elif format_type.lower() == 'flac':
         template_file = test_files_dir / "metadata=none.flac"
@@ -159,10 +191,14 @@ def _create_minimal_audio_file(file_path: Path, format_type: str) -> None:
     if not template_file.exists():
         # Fallback: create a minimal file using ffmpeg if available
         try:
-            _create_minimal_audio_with_ffmpeg(file_path, format_type)
+            # For id3v1, use mp3 format for ffmpeg
+            actual_format = 'mp3' if format_type.lower() == 'id3v1' else format_type.lower()
+            _create_minimal_audio_with_ffmpeg(file_path, actual_format)
         except (subprocess.CalledProcessError, FileNotFoundError):
             # Last resort: copy from any available sample file
-            sample_files = list(test_files_dir.glob(f"*.{format_type.lower()}"))
+            # For id3v1, look for mp3 files
+            search_format = 'mp3' if format_type.lower() == 'id3v1' else format_type.lower()
+            sample_files = list(test_files_dir.glob(f"*.{search_format}"))
             if sample_files:
                 shutil.copy2(sample_files[0], file_path)
             else:

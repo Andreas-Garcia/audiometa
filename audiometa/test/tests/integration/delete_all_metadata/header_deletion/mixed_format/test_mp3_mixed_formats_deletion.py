@@ -12,7 +12,7 @@ class TestMP3MixedFormatsDeletion:
 
     def test_delete_all_metadata_mp3_with_id3v1_and_id3v2(self):
         """Test that delete_all_metadata removes both ID3v1 and ID3v2 metadata from MP3 files."""
-        # Create MP3 file with ID3v1 metadata first
+        # Create MP3 file with ID3v1 metadata using the new format type
         id3v1_metadata = {
             "title": "ID3v1 Title",
             "artist": "ID3v1 Artist",
@@ -21,7 +21,7 @@ class TestMP3MixedFormatsDeletion:
             "genre": "Rock"
         }
         
-        with TempFileWithMetadata(id3v1_metadata, "mp3") as test_file:
+        with TempFileWithMetadata(id3v1_metadata, "id3v1") as test_file:
             # Add ID3v2 metadata to the same file
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v2 Title",
@@ -60,11 +60,11 @@ class TestMP3MixedFormatsDeletion:
             
             # Add ID3v1 metadata programmatically
             id3v1_metadata = {
-                "title": "ID3v1 Title",
-                "artist": "ID3v1 Artist",
-                "album": "ID3v1 Album",
-                "year": "2023",
-                "genre": "Rock"
+                UnifiedMetadataKey.TITLE: "ID3v1 Title",
+                UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v1 Artist"],
+                UnifiedMetadataKey.ALBUM_NAME: "ID3v1 Album",
+                UnifiedMetadataKey.RELEASE_DATE: "2023",
+                UnifiedMetadataKey.GENRE_NAME: "Rock"
             }
             update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
             
@@ -86,8 +86,8 @@ class TestMP3MixedFormatsDeletion:
 
     def test_delete_all_metadata_mp3_with_all_formats(self):
         """Test deletion when MP3 has ID3v1, ID3v2, and potentially other formats."""
-        # Create MP3 file with comprehensive metadata
-        comprehensive_metadata = {
+        # Create MP3 file with ID3v1 metadata using the new format type
+        id3v1_metadata = {
             "title": "Comprehensive MP3 Title",
             "artist": "Comprehensive MP3 Artist",
             "album": "Comprehensive MP3 Album",
@@ -96,7 +96,7 @@ class TestMP3MixedFormatsDeletion:
             "comment": "Comprehensive MP3 Comment"
         }
         
-        with TempFileWithMetadata(comprehensive_metadata, "mp3") as test_file:
+        with TempFileWithMetadata(id3v1_metadata, "id3v1") as test_file:
             # Add additional ID3v2 metadata
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "Additional ID3v2 Title",

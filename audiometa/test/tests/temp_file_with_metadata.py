@@ -38,7 +38,7 @@ class TempFileWithMetadata:
         
         Args:
             metadata: Dictionary of metadata to set on the test file
-            format_type: Audio format ('mp3', 'flac', 'wav')
+            format_type: Audio format ('mp3', 'id3v1', 'flac', 'wav')
         """
         self.metadata = metadata
         self.format_type = format_type
