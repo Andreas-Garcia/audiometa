@@ -133,6 +133,12 @@ class Id3v1Manager(MetadataManager):
         if not hasattr(raw_mutagen_metadata, 'tags') or raw_mutagen_metadata.tags is None:
             raw_mutagen_metadata.tags = {}
         
+        # If value is None, remove the field (delete from tags)
+        if app_metadata_value is None:
+            if raw_metadata_key in raw_mutagen_metadata.tags:
+                del raw_mutagen_metadata.tags[raw_metadata_key]
+            return
+        
         # Convert and truncate the value according to ID3v1 constraints
         if raw_metadata_key == Id3v1RawMetadataKey.TITLE:
             value = self._truncate_string(str(app_metadata_value), 30)
@@ -187,30 +193,35 @@ class Id3v1Manager(MetadataManager):
         tag_data[0:3] = b'TAG'
         
         # Title (bytes 3-32, 30 chars max)
-        title = str(app_metadata.get(UnifiedMetadataKey.TITLE, ''))
-        title_bytes = self._truncate_string(title, 30).encode('latin-1', errors='ignore')
-        tag_data[3:3+len(title_bytes)] = title_bytes
+        title = app_metadata.get(UnifiedMetadataKey.TITLE)
+        if title is not None:
+            title_bytes = self._truncate_string(str(title), 30).encode('latin-1', errors='ignore')
+            tag_data[3:3+len(title_bytes)] = title_bytes
         
         # Artist (bytes 33-62, 30 chars max)
-        artists = app_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES, [])
-        artist_str = ", ".join(artists) if isinstance(artists, list) else str(artists)
-        artist_bytes = self._truncate_string(artist_str, 30).encode('latin-1', errors='ignore')
-        tag_data[33:33+len(artist_bytes)] = artist_bytes
+        artists = app_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+        if artists is not None:
+            artist_str = ", ".join(artists) if isinstance(artists, list) else str(artists)
+            artist_bytes = self._truncate_string(artist_str, 30).encode('latin-1', errors='ignore')
+            tag_data[33:33+len(artist_bytes)] = artist_bytes
         
         # Album (bytes 63-92, 30 chars max)
-        album = str(app_metadata.get(UnifiedMetadataKey.ALBUM_NAME, ''))
-        album_bytes = self._truncate_string(album, 30).encode('latin-1', errors='ignore')
-        tag_data[63:63+len(album_bytes)] = album_bytes
+        album = app_metadata.get(UnifiedMetadataKey.ALBUM_NAME)
+        if album is not None:
+            album_bytes = self._truncate_string(str(album), 30).encode('latin-1', errors='ignore')
+            tag_data[63:63+len(album_bytes)] = album_bytes
         
         # Year (bytes 93-96, 4 chars max)
-        year = str(app_metadata.get(UnifiedMetadataKey.RELEASE_DATE, ''))
-        year_bytes = self._truncate_string(year, 4).encode('latin-1', errors='ignore')
-        tag_data[93:93+len(year_bytes)] = year_bytes
+        year = app_metadata.get(UnifiedMetadataKey.RELEASE_DATE)
+        if year is not None:
+            year_bytes = self._truncate_string(str(year), 4).encode('latin-1', errors='ignore')
+            tag_data[93:93+len(year_bytes)] = year_bytes
         
         # Comment and track number (bytes 97-126, 28 chars for comment + 2 for track)
-        comment = str(app_metadata.get(UnifiedMetadataKey.COMMENT, ''))
-        comment_bytes = self._truncate_string(comment, 28).encode('latin-1', errors='ignore')
-        tag_data[97:97+len(comment_bytes)] = comment_bytes
+        comment = app_metadata.get(UnifiedMetadataKey.COMMENT)
+        if comment is not None:
+            comment_bytes = self._truncate_string(str(comment), 28).encode('latin-1', errors='ignore')
+            tag_data[97:97+len(comment_bytes)] = comment_bytes
         
         # Track number (bytes 125-126 for ID3v1.1)
         track_number = app_metadata.get(UnifiedMetadataKey.TRACK_NUMBER)
