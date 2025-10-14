@@ -165,7 +165,11 @@ The script helper strategy uses external command-line tools to set up test metad
 - Use `TempFileWithMetadata(metadata, "id3v1")` (recommended - clean and simple)
 - Use `ScriptHelper.set_id3v1_max_metadata()` (alternative - uses external script)
 - Use `update_file_metadata()` with `MetadataFormat.ID3V1` (alternative)
-- **Do NOT use `TempFileWithMetadata` with "mp3" for ID3v1** - it uses `mid3v2` which cannot write ID3v1
+
+**Important:** Use the correct format type:
+
+- `TempFileWithMetadata(metadata, "mp3")` → creates **ID3v2** metadata (uses `mid3v2`)
+- `TempFileWithMetadata(metadata, "id3v1")` → creates **ID3v1** metadata (uses `id3v2 --id3v1-only`)
 
 **Example - Correct way to create ID3v1 metadata in tests:**
 
@@ -196,9 +200,9 @@ with TempFileWithMetadata({}, "mp3") as test_file:
     }
     update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
 
-# ❌ WRONG: This won't create ID3v1 metadata
+# ❌ WRONG: This creates ID3v2 metadata, not ID3v1
 with TempFileWithMetadata({"title": "Test"}, "mp3") as test_file:
-    # This creates ID3v2 metadata, not ID3v1!
+    # Uses mid3v2 tool which only writes ID3v2 tags
 ```
 
 2. **ScriptHelper Class**: Provides a Python interface to these external scripts:
