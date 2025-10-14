@@ -6,30 +6,32 @@ This directory contains comprehensive tests for deletion of metadata from audio 
 
 ### Format-Specific Tests
 
-- **`test_wav_mixed_formats_deletion.py`** - Tests for WAV files with both ID3v2 and RIFF metadata
-- **`test_mp3_mixed_formats_deletion.py`** - Tests for MP3 files with both ID3v1 and ID3v2 metadata  
+- **`test_wav_mixed_formats_deletion.py`** - Tests for WAV files with both ID3v2 and RIFF metadata (includes both programmatic and sample file tests)
+- **`test_mp3_mixed_formats_deletion.py`** - Tests for MP3 files with both ID3v1 and ID3v2 metadata
 - **`test_flac_mixed_formats_deletion.py`** - Tests for FLAC files with both Vorbis and ID3v2 metadata
 
 ### Comprehensive Tests
 
 - **`test_comprehensive_mixed_formats_deletion.py`** - Cross-format tests covering all scenarios
-- **`test_wav_sample_file_deletion.py`** - Tests using real sample files with mixed formats
 
 ## Test Scenarios
 
 ### WAV Files (ID3v2 + RIFF)
+
 - ✅ Both formats can coexist in the same file
 - ✅ `delete_all_metadata` removes both ID3v2 and RIFF metadata
 - ✅ Works regardless of which format is added first
-- ✅ Uses real sample files for validation
+- ✅ Uses both programmatic creation and real sample files for validation
 
 ### MP3 Files (ID3v1 + ID3v2)
+
 - ✅ ID3v2 metadata is fully removable
 - ⚠️ ID3v1 metadata is read-only and cannot be removed (by design)
 - ✅ `delete_all_metadata` removes ID3v2 while preserving ID3v1
 - ✅ Tests handle the read-only nature of ID3v1 appropriately
 
 ### FLAC Files (Vorbis + ID3v2)
+
 - ✅ Both formats can coexist in the same file
 - ✅ `delete_all_metadata` removes both Vorbis and ID3v2 metadata
 - ✅ Works regardless of which format is added first
