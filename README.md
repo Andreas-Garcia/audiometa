@@ -48,19 +48,19 @@ A comprehensive Python library for reading and writing audio metadata across mul
 
 | Format | Read | Write | Rating Support | File Types     | Notes                                                      |
 | ------ | ---- | ----- | -------------- | -------------- | ---------------------------------------------------------- |
-| ID3v1  | ✅   | ❌    | ❌             | MP3, FLAC, WAV | Read-only, limited to 30 chars per field                   |
+| ID3v1  | ✅   | ✅    | ✅             | MP3, FLAC, WAV | Limited to 30 chars per field, Latin-1 encoding            |
 | ID3v2  | ✅   | ✅    | ✅             | MP3, WAV, FLAC | Full feature support, most versatile                       |
 | Vorbis | ✅   | ✅    | ✅             | FLAC           | Native format for FLAC files                               |
 | RIFF   | ✅   | ✅    | ✅\*           | WAV            | Native format for WAV files, \*via non-standard IRTD chunk |
 
 ### Format Capabilities
 
-**ID3v1 (Read-only)**
+**ID3v1 (Legacy Format)**
 
 - **Primary Support**: MP3 files (native format)
 - **Extended Support**: FLAC and WAV files with ID3v1 tags
 - **Limitations**: 30-character field limits, no album artist support
-- **Operations**: Read-only (writing not supported due to fixed 128-byte structure)
+- **Operations**: Full read/write support with direct file manipulation
 
 **ID3v2 (Full Support)**
 
@@ -728,7 +728,7 @@ delete_all_metadata("song.flac", tag_format=MetadataFormat.VORBIS)
 - **Removes headers entirely**: This is a destructive operation that removes metadata container structures
 - **Significantly reduces file size**: Removes all metadata overhead
 - **Returns**: `True` if at least one format was successfully deleted, `False` if all deletions fail
-- **ID3v1**: Cannot be deleted (read-only format) - skipped silently when deleting all formats
+- **ID3v1**: Can be deleted and written using direct file manipulation
 
 **When to Use `delete_all_metadata` vs Setting to `None`:**
 
@@ -1026,18 +1026,18 @@ When the same metadata tag exists in multiple formats within the same file, the 
 
 1. **Vorbis** (highest precedence)
 2. **ID3v2**
-3. **ID3v1** (lowest precedence, read-only)
+3. **ID3v1** (lowest precedence, legacy format)
 
 #### MP3 Files
 
 1. **ID3v2** (highest precedence)
-2. **ID3v1** (lowest precedence, read-only)
+2. **ID3v1** (lowest precedence, legacy format)
 
 #### WAV Files
 
 1. **RIFF** (highest precedence)
 2. **ID3v2**
-3. **ID3v1** (lowest precedence, read-only)
+3. **ID3v1** (lowest precedence, legacy format)
 
 **Examples**:
 
@@ -1102,7 +1102,7 @@ metadata = get_merged_unified_metadata("song.mp3", id3v2_version=(2, 4, 0))
 
 - **Note**: RIFF is the native format for WAV files
 
-**Note**: ID3v1 is read-only and cannot be written programmatically. The library will read from existing ID3v1 tags but will not attempt to write to them.
+**Note**: ID3v1 is a legacy format with limitations (30-character field limits, Latin-1 encoding). The library supports both reading and writing ID3v1 tags using direct file manipulation.
 
 ### Metadata Writing Strategy
 
@@ -1145,23 +1145,6 @@ update_file_metadata("song.mp3", metadata,
                     metadata_strategy=MetadataWritingStrategy.CLEANUP)  # Raises MetadataWritingConflictParametersError
 ```
 
-#### ID3v1 Exceptions
-
-**ID3v1 metadata cannot be modified or deleted** due to its read-only nature:
-
-- **Read-only format**: ID3v1 is treated as read-only due to its fixed 128-byte structure
-- **Strategy limitations**: All strategies (PRESERVE, CLEANUP, SYNC) cannot preserve ID3v1 metadata
-- **Error handling**: Attempting to modify ID3v1 metadata will raise `MetadataNotSupportedError`
-- **Overwrite behavior**: When ID3v2 metadata is written, it overwrites the ID3v1 tag
-
-**Important**: ID3v1 metadata cannot be preserved when writing ID3v2 metadata because:
-
-1. ID3v1 is read-only and cannot be written back
-2. Writing ID3v2 metadata overwrites the ID3v1 tag at the end of the file
-3. The PRESERVE strategy cannot restore ID3v1 metadata after writing ID3v2
-
-This means that if a file contains both ID3v1 and ID3v2 tags, writing new metadata will result in the ID3v1 tag being overwritten with the new values.
-
 #### Usage Examples
 
 **Default Behavior (SYNC strategy)**
@@ -1169,13 +1152,14 @@ This means that if a file contains both ID3v1 and ID3v2 tags, writing new metada
 ```python
 from audiometa import update_file_metadata
 
-# WAV file with existing ID3v2 tags
-update_file_metadata("song.wav", {"title": "New Title"})
+# WAV file with existing ID3v1 tags (30-char limit)
+update_file_metadata("song.wav", {"title": "This is a Very Long Title That Exceeds ID3v1 Limits"})
 
 # Result:
-# - RIFF tags: Updated with new metadata (native format)
-# - ID3v2 tags: Synchronized with new metadata
-# - When reading: ID3v2 title is returned (higher precedence)
+# - RIFF tags: Updated with full title (native format)
+# - ID3v1 tags: Synchronized with truncated title (30 chars max)
+# - When reading: RIFF title is returned (higher precedence)
+# Note: ID3v1 title becomes "This is a Very Long Title Th" (truncated)
 ```
 
 **CLEANUP Strategy - Remove Non-Native Formats**
@@ -1202,9 +1186,11 @@ update_file_metadata("song.wav", {"title": "New Title"},
                     metadata_strategy=MetadataWritingStrategy.SYNC)
 
 # Result:
-# - ID3v2 tags: Synchronized with new metadata
-# - RIFF tags: Synchronized with new metadata
-# - When reading: ID3v2 title is returned (higher precedence)
+# - RIFF tags: Synchronized with new metadata (native format)
+# - ID3v2 tags: Synchronized with new metadata (if present)
+# - ID3v1 tags: Synchronized with new metadata (if present)
+# - When reading: RIFF title is returned (highest precedence)
+# Note: SYNC preserves and updates ALL existing metadata formats
 ```
 
 **Format-Specific Writing**
@@ -1282,12 +1268,12 @@ except MetadataNotSupportedError as e:
 
 The library handles `None` and empty string values differently across audio formats:
 
-| Format            | Setting to `None`        | Setting to `""` (empty string)   | Read Back Result |
-| ----------------- | ------------------------ | -------------------------------- | ---------------- |
-| **ID3v2 (MP3)**   | Removes field completely | Removes field completely         | `None` / `None`  |
-| **Vorbis (FLAC)** | Removes field completely | Creates field with empty content | `None` / `""`    |
-| **RIFF (WAV)**    | Removes field completely | Removes field completely         | `None` / `None`  |
-| **ID3v1 (MP3)**   | ❌ **Not supported**     | ❌ **Not supported**             | Read-only format |
+| Format            | Setting to `None`        | Setting to `""` (empty string)   | Read Back Result               |
+| ----------------- | ------------------------ | -------------------------------- | ------------------------------ |
+| **ID3v2 (MP3)**   | Removes field completely | Removes field completely         | `None` / `None`                |
+| **Vorbis (FLAC)** | Removes field completely | Creates field with empty content | `None` / `""`                  |
+| **RIFF (WAV)**    | Removes field completely | Removes field completely         | `None` / `None`                |
+| **ID3v1 (MP3)**   | ✅ **Supported**         | ✅ **Supported**                 | Legacy format with limitations |
 
 #### Example
 
