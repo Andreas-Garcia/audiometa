@@ -294,3 +294,29 @@ class TestGetFullMetadata:
                     assert 'comment_count' in header_info
                 elif format_name == 'riff':
                     assert 'chunk_info' in header_info
+
+    def test_header_detection_for_different_formats(self):
+        """Test header detection methods for different audio formats."""
+        from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
+        
+        # Test MP3 format
+        with TempFileWithMetadata({"title": "MP3 Test"}, "mp3") as mp3_manager:
+            assert mp3_manager.has_id3v2_header(), "MP3 should have ID3v2 header"
+            assert not mp3_manager.has_vorbis_comments(), "MP3 should not have Vorbis comments"
+            assert not mp3_manager.has_riff_info_chunk(), "MP3 should not have RIFF INFO chunk"
+        
+        # Test FLAC format
+        with TempFileWithMetadata({"title": "FLAC Test"}, "flac") as flac_manager:
+            # FLAC might have both ID3v2 and Vorbis comments
+            headers = flac_manager.get_metadata_headers_present()
+            print(f"FLAC headers: {headers}")
+            # At least one should be present
+            assert headers['id3v2'] or headers['vorbis'], "FLAC should have some metadata headers"
+        
+        # Test WAV format
+        with TempFileWithMetadata({"title": "WAV Test"}, "wav") as wav_manager:
+            # WAV might have both ID3v2 and RIFF INFO
+            headers = wav_manager.get_metadata_headers_present()
+            print(f"WAV headers: {headers}")
+            # At least one should be present
+            assert headers['id3v2'] or headers['riff'], "WAV should have some metadata headers"
