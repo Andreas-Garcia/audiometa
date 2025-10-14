@@ -62,6 +62,9 @@ class Id3v1Manager(MetadataManager):
             UnifiedMetadataKey.TITLE: Id3v1RawMetadataKey.TITLE,
             UnifiedMetadataKey.ARTISTS_NAMES: Id3v1RawMetadataKey.ARTISTS_NAMES_STR,
             UnifiedMetadataKey.ALBUM_NAME: Id3v1RawMetadataKey.ALBUM_NAME,
+            UnifiedMetadataKey.RELEASE_DATE: Id3v1RawMetadataKey.YEAR,
+            UnifiedMetadataKey.TRACK_NUMBER: Id3v1RawMetadataKey.TRACK_NUMBER,
+            UnifiedMetadataKey.COMMENT: Id3v1RawMetadataKey.COMMENT,
             UnifiedMetadataKey.GENRE_NAME: None,
         }
         metadata_keys_direct_map_write: dict = {

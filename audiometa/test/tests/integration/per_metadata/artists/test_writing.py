@@ -33,3 +33,11 @@ class TestArtistsWriting:
         update_file_metadata(temp_flac_file, test_metadata, metadata_format=MetadataFormat.VORBIS)
         metadata = get_merged_unified_metadata(temp_flac_file)
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == test_artists
+
+    def test_id3v1(self, metadata_none_mp3, temp_audio_file):
+        shutil.copy2(metadata_none_mp3, temp_audio_file)
+        test_artists = ["ID3v1 Artist"]
+        test_metadata = {UnifiedMetadataKey.ARTISTS_NAMES: test_artists}
+        update_file_metadata(temp_audio_file, test_metadata, metadata_format=MetadataFormat.ID3V1)
+        metadata = get_merged_unified_metadata(temp_audio_file)
+        assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == test_artists

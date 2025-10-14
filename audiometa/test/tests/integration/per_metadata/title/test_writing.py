@@ -42,3 +42,15 @@ class TestTitleWriting:
             # Now test that our reading logic works correctly
             title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
             assert title == test_title
+
+    def test_id3v1(self, metadata_none_mp3, temp_audio_file):
+        import shutil
+        from audiometa import update_file_metadata
+        from audiometa.utils.MetadataFormat import MetadataFormat
+        
+        shutil.copy2(metadata_none_mp3, temp_audio_file)
+        test_title = "Test Title ID3v1"
+        test_metadata = {UnifiedMetadataKey.TITLE: test_title}
+        update_file_metadata(temp_audio_file, test_metadata, metadata_format=MetadataFormat.ID3V1)
+        title = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE)
+        assert title == test_title
