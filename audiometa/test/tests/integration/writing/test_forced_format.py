@@ -146,7 +146,7 @@ class TestForcedFormat:
                 update_file_metadata(test_file.path, metadata, 
                                    metadata_format=MetadataFormat.VORBIS)
 
-    def test_forced_format_id3v1_read_only_limitation(self):
+    def test_forced_format_id3v1_writing_support(self):
         # Create MP3 file with basic metadata
         initial_metadata = {
             "title": "Test Title",
@@ -154,13 +154,19 @@ class TestForcedFormat:
         }
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             metadata = {
-                UnifiedMetadataKey.TITLE: "New Title"
+                UnifiedMetadataKey.TITLE: "New ID3v1 Title",
+                UnifiedMetadataKey.ARTISTS_NAMES: ["New ID3v1 Artist"]
             }
             
-            # ID3v1 is read-only, so this should fail
-            with pytest.raises(MetadataNotSupportedError):
-                update_file_metadata(test_file.path, metadata, 
-                                   metadata_format=MetadataFormat.ID3V1)
+            # ID3v1 now supports writing
+            update_file_metadata(test_file.path, metadata, 
+                               metadata_format=MetadataFormat.ID3V1)
+            
+            # Verify the metadata was written
+            from audiometa import get_single_format_app_metadata
+            result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+            assert result.get(UnifiedMetadataKey.TITLE) == "New ID3v1 Title"
+            assert result.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["New ID3v1 Artist"]
 
     def test_forced_format_multiple_formats_present(self):
         # Create WAV file with both RIFF and ID3v2 metadata

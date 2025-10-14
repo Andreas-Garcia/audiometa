@@ -83,7 +83,6 @@ class TestComprehensiveMixedFormatsDeletion:
             # Note: ID3v1 is read-only and may still be present
 
     def test_delete_all_metadata_flac_with_vorbis_and_id3v2(self):
-        """Test that delete_all_metadata removes both Vorbis and ID3v2 metadata from FLAC files."""
         # Create FLAC file with Vorbis metadata first
         vorbis_metadata = {
             "title": "Vorbis Title",

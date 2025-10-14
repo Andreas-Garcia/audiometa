@@ -179,30 +179,33 @@ class TestDefaultWritingFormat:
                     # Clean up temp file
                     temp_path.unlink(missing_ok=True)
 
-    def test_id3v1_read_only_limitation(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_id3v1_writing_support(self, sample_mp3_file: Path, temp_audio_file: Path):
         # Copy sample file to temp location
         shutil.copy2(sample_mp3_file, temp_audio_file)
         
-        # Try to write to ID3v1 format (should not work as it's read-only)
-        # This test verifies that the library correctly uses ID3v2 as default
-        # instead of attempting to write to ID3v1
-        
+        # Test writing directly to ID3v1 format
         test_metadata = {
-            UnifiedMetadataKey.TITLE: "ID3v1 Test Title"
+            UnifiedMetadataKey.TITLE: "ID3v1 Test Title",
+            UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v1 Test Artist"]
         }
         
-        # Update metadata - should write to ID3v2 (default) not ID3v1
-        update_file_metadata(temp_audio_file, test_metadata)
+        # Write directly to ID3v1 format
+        update_file_metadata(temp_audio_file, test_metadata, metadata_format=MetadataFormat.ID3V1)
         
-        # Verify ID3v2 was written (not ID3v1)
-        id3v2_metadata = get_single_format_app_metadata(temp_audio_file, MetadataFormat.ID3V2)
-        assert id3v2_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v1 Test Title"
-        
-        # ID3v1 should remain unchanged (read-only)
+        # Verify ID3v1 was written
         id3v1_metadata = get_single_format_app_metadata(temp_audio_file, MetadataFormat.ID3V1)
-        # ID3v1 should not have our new title since it's read-only
-        # It might be empty or contain old data, but not our new title
-        assert id3v1_metadata.get(UnifiedMetadataKey.TITLE) != "ID3v1 Test Title"
+        assert id3v1_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v1 Test Title"
+        assert id3v1_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["ID3v1 Test Artist"]
+        
+        # Test default behavior still uses ID3v2 as primary format
+        test_metadata2 = {
+            UnifiedMetadataKey.TITLE: "ID3v2 Test Title"
+        }
+        update_file_metadata(temp_audio_file, test_metadata2)
+        
+        # Verify ID3v2 was written (default behavior)
+        id3v2_metadata = get_single_format_app_metadata(temp_audio_file, MetadataFormat.ID3V2)
+        assert id3v2_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2 Test Title"
 
     @pytest.mark.parametrize("audio_format,expected_default", [
         ('.mp3', MetadataFormat.ID3V2),

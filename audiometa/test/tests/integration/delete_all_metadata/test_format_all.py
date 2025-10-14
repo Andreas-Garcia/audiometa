@@ -36,11 +36,11 @@ class TestDeleteAllMetadataAllFormats:
         result = delete_all_metadata(temp_audio_file)
         assert result is True
         
-        # Verify ID3v2 metadata was deleted but ID3v1 metadata is still present (read-only)
+        # Verify ID3v2 metadata was deleted but ID3v1 metadata is still present (legacy format)
         id3v2_after = get_single_format_app_metadata(temp_audio_file, MetadataFormat.ID3V2)
         id3v1_after = get_single_format_app_metadata(temp_audio_file, MetadataFormat.ID3V1)
         assert id3v2_after.get(UnifiedMetadataKey.TITLE) is None
-        assert id3v1_after.get(UnifiedMetadataKey.TITLE) is not None  # ID3v1 cannot be deleted
+        assert id3v1_after.get(UnifiedMetadataKey.TITLE) is not None  # ID3v1 may still be present
 
     def test_delete_all_metadata_formats_flac(self, metadata_id3v1_small_flac: Path, temp_audio_file: Path):
         # Copy sample file with ID3v1 metadata to temp location with correct extension
@@ -66,9 +66,9 @@ class TestDeleteAllMetadataAllFormats:
         result = delete_all_metadata(temp_flac_file)
         assert result is True
         
-        # Verify ID3v1 metadata is still present (read-only format)
+        # Verify ID3v1 metadata is still present (legacy format)
         id3v1_after = get_single_format_app_metadata(temp_flac_file, MetadataFormat.ID3V1)
-        assert id3v1_after.get(UnifiedMetadataKey.TITLE) is not None  # ID3v1 cannot be deleted
+        assert id3v1_after.get(UnifiedMetadataKey.TITLE) is not None  # ID3v1 may still be present
         
         # Verify ID3v2 metadata was deleted
         id3v2_after = get_single_format_app_metadata(temp_flac_file, MetadataFormat.ID3V2)
@@ -98,9 +98,9 @@ class TestDeleteAllMetadataAllFormats:
         result = delete_all_metadata(temp_wav_file)
         assert result is True
         
-        # Verify ID3v1 metadata is still present (read-only format)
+        # Verify ID3v1 metadata is still present (legacy format)
         id3v1_after = get_single_format_app_metadata(temp_wav_file, MetadataFormat.ID3V1)
-        assert id3v1_after.get(UnifiedMetadataKey.TITLE) is not None  # ID3v1 cannot be deleted
+        assert id3v1_after.get(UnifiedMetadataKey.TITLE) is not None  # ID3v1 may still be present
         
         # Verify ID3v2 metadata was deleted
         id3v2_after = get_single_format_app_metadata(temp_wav_file, MetadataFormat.ID3V2)
