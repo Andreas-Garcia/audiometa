@@ -505,7 +505,7 @@ def delete_all_metadata(file, tag_format: MetadataFormat | None = None, id3v2_ve
         
         When no tag_format is specified, the function attempts to delete metadata from
         ALL supported formats for the file type. Some formats may not support deletion
-        (e.g., ID3v1 is read-only) and will be skipped silently.
+        and will be skipped silently.
         
         Use cases:
         - Complete privacy cleanup (remove all metadata)

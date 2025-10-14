@@ -5,7 +5,7 @@ from mutagen._file import FileType as MutagenMetadata
 from ...audio_file import AudioFile
 from ...exceptions import FileCorruptedError, MetadataNotSupportedError
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from ...utils.types import AppMetadataValue, RawMetadataDict
+from ...utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
 from ..MetadataManager import MetadataManager
 from .Id3v1RawMetadata import Id3v1RawMetadata
 from .Id3v1RawMetadataKey import Id3v1RawMetadataKey
@@ -28,9 +28,7 @@ class Id3v1Manager(MetadataManager):
         - Multiple genres
         - Multiple artists
         ...
-    - Read-only (modification not supported). ID3v1 tags have a fixed size of 128 bytes. Each field within the tag has a 
-    specific length (e.g., 30 bytes for title, artist, and album). This fixed size makes it challenging to modify the 
-    tags without potentially corrupting the file or losing data. Therefore, this manager only supports reading metadata.
+    - Supports both reading and writing metadata using direct file manipulation.
 
     Format Structure:
     - Bytes 0-2: "TAG" identifier
@@ -66,7 +64,21 @@ class Id3v1Manager(MetadataManager):
             UnifiedMetadataKey.ALBUM_NAME: Id3v1RawMetadataKey.ALBUM_NAME,
             UnifiedMetadataKey.GENRE_NAME: None,
         }
-        super().__init__(audio_file=audio_file, metadata_keys_direct_map_read=metadata_keys_direct_map_read,)
+        metadata_keys_direct_map_write: dict = {
+            UnifiedMetadataKey.TITLE: Id3v1RawMetadataKey.TITLE,
+            UnifiedMetadataKey.ARTISTS_NAMES: Id3v1RawMetadataKey.ARTISTS_NAMES_STR,
+            UnifiedMetadataKey.ALBUM_NAME: Id3v1RawMetadataKey.ALBUM_NAME,
+            UnifiedMetadataKey.RELEASE_DATE: Id3v1RawMetadataKey.YEAR,
+            UnifiedMetadataKey.TRACK_NUMBER: Id3v1RawMetadataKey.TRACK_NUMBER,
+            UnifiedMetadataKey.COMMENT: Id3v1RawMetadataKey.COMMENT,
+            UnifiedMetadataKey.GENRE_NAME: None,  # Handled indirectly
+        }
+        super().__init__(
+            audio_file=audio_file, 
+            metadata_keys_direct_map_read=metadata_keys_direct_map_read,
+            metadata_keys_direct_map_write=metadata_keys_direct_map_write,
+            update_using_mutagen_metadata=False  # Use direct file manipulation for ID3v1
+        )
 
     def _extract_mutagen_metadata(self) -> Id3v1RawMetadata:
         try:
@@ -100,10 +112,173 @@ class Id3v1Manager(MetadataManager):
                 raw_clean_metadata=raw_clean_metadata, raw_metadata_ket=Id3v1RawMetadataKey.GENRE_CODE_OR_NAME)
         raise MetadataNotSupportedError(f'{app_metadata_key} metadata is not undirectly handled')
 
-    def _update_undirectly_mapped_metadata(self, app_metadata_value: AppMetadataValue,
-                                           app_metadata_key: UnifiedMetadataKey,
-                                           normalized_rating_max_value: int | None = None):
-        raise MetadataNotSupportedError("ID3v1 tag modification is not supported")
+    def _update_undirectly_mapped_metadata(self, raw_mutagen_metadata: MutagenMetadata,
+                                           app_metadata_value: AppMetadataValue,
+                                           app_metadata_key: UnifiedMetadataKey):
+        if app_metadata_key == UnifiedMetadataKey.GENRE_NAME:
+            # Convert genre name to genre code
+            genre_code = self._convert_genre_name_to_code(app_metadata_value)
+            if genre_code is not None:
+                raw_mutagen_metadata.tags[Id3v1RawMetadataKey.GENRE_CODE_OR_NAME] = [str(genre_code)]
+        else:
+            raise MetadataNotSupportedError(f'{app_metadata_key} metadata is not undirectly handled')
+
+    def _update_formatted_value_in_raw_mutagen_metadata(self, raw_mutagen_metadata: MutagenMetadata,
+                                                        raw_metadata_key: RawMetadataKey,
+                                                        app_metadata_value: AppMetadataValue):
+        # Ensure tags exist
+        if not hasattr(raw_mutagen_metadata, 'tags') or raw_mutagen_metadata.tags is None:
+            raw_mutagen_metadata.tags = {}
+        
+        # Convert and truncate the value according to ID3v1 constraints
+        if raw_metadata_key == Id3v1RawMetadataKey.TITLE:
+            value = self._truncate_string(str(app_metadata_value), 30)
+        elif raw_metadata_key == Id3v1RawMetadataKey.ARTISTS_NAMES_STR:
+            # Convert list to string and truncate
+            artists_str = ", ".join(app_metadata_value) if isinstance(app_metadata_value, list) else str(app_metadata_value)
+            value = self._truncate_string(artists_str, 30)
+        elif raw_metadata_key == Id3v1RawMetadataKey.ALBUM_NAME:
+            value = self._truncate_string(str(app_metadata_value), 30)
+        elif raw_metadata_key == Id3v1RawMetadataKey.YEAR:
+            value = self._truncate_string(str(app_metadata_value), 4)
+        elif raw_metadata_key == Id3v1RawMetadataKey.TRACK_NUMBER:
+            # Convert to int and validate range
+            track_num = int(app_metadata_value) if app_metadata_value is not None else 0
+            value = str(max(0, min(255, track_num)))
+        elif raw_metadata_key == Id3v1RawMetadataKey.COMMENT:
+            value = self._truncate_string(str(app_metadata_value), 28)  # 28 for ID3v1.1 with track number
+        else:
+            value = str(app_metadata_value)
+        
+        raw_mutagen_metadata.tags[raw_metadata_key] = [value]
+
+    def _update_not_using_mutagen_metadata(self, app_metadata: AppMetadata):
+        """Update ID3v1 metadata using direct file manipulation."""
+        # Read the entire file
+        self.audio_file.seek(0)
+        file_data = bytearray(self.audio_file.read())
+        
+        # Create ID3v1 tag data
+        tag_data = self._create_id3v1_tag_data(app_metadata)
+        
+        # Find and remove existing ID3v1 tag if present
+        self._remove_existing_id3v1_tag(file_data)
+        
+        # Append new ID3v1 tag
+        file_data.extend(tag_data)
+        
+        # Write back to file
+        self.audio_file.write(file_data)
+
+    def _create_id3v1_tag_data(self, app_metadata: AppMetadata) -> bytes:
+        """Create 128-byte ID3v1 tag data from app metadata."""
+        # Initialize with null bytes
+        tag_data = bytearray(128)
+        
+        # TAG identifier (bytes 0-2)
+        tag_data[0:3] = b'TAG'
+        
+        # Title (bytes 3-32, 30 chars max)
+        title = str(app_metadata.get(UnifiedMetadataKey.TITLE, ''))
+        title_bytes = self._truncate_string(title, 30).encode('latin-1', errors='ignore')
+        tag_data[3:3+len(title_bytes)] = title_bytes
+        
+        # Artist (bytes 33-62, 30 chars max)
+        artists = app_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES, [])
+        artist_str = ", ".join(artists) if isinstance(artists, list) else str(artists)
+        artist_bytes = self._truncate_string(artist_str, 30).encode('latin-1', errors='ignore')
+        tag_data[33:33+len(artist_bytes)] = artist_bytes
+        
+        # Album (bytes 63-92, 30 chars max)
+        album = str(app_metadata.get(UnifiedMetadataKey.ALBUM_NAME, ''))
+        album_bytes = self._truncate_string(album, 30).encode('latin-1', errors='ignore')
+        tag_data[63:63+len(album_bytes)] = album_bytes
+        
+        # Year (bytes 93-96, 4 chars max)
+        year = str(app_metadata.get(UnifiedMetadataKey.RELEASE_DATE, ''))
+        year_bytes = self._truncate_string(year, 4).encode('latin-1', errors='ignore')
+        tag_data[93:93+len(year_bytes)] = year_bytes
+        
+        # Comment and track number (bytes 97-126, 28 chars for comment + 2 for track)
+        comment = str(app_metadata.get(UnifiedMetadataKey.COMMENT, ''))
+        comment_bytes = self._truncate_string(comment, 28).encode('latin-1', errors='ignore')
+        tag_data[97:97+len(comment_bytes)] = comment_bytes
+        
+        # Track number (bytes 125-126 for ID3v1.1)
+        track_number = app_metadata.get(UnifiedMetadataKey.TRACK_NUMBER)
+        if track_number is not None:
+            track_num = max(0, min(255, int(track_number)))
+            if track_num > 0:
+                tag_data[125] = 0  # Null byte to indicate track number presence
+                tag_data[126] = track_num
+        
+        # Genre (byte 127)
+        genre_name = app_metadata.get(UnifiedMetadataKey.GENRE_NAME)
+        if genre_name:
+            genre_code = self._convert_genre_name_to_code(genre_name)
+            if genre_code is not None:
+                tag_data[127] = genre_code
+            else:
+                tag_data[127] = 255  # Unknown genre
+        
+        return bytes(tag_data)
+
+    def _remove_existing_id3v1_tag(self, file_data: bytearray) -> bool:
+        """Remove existing ID3v1 tag from file data if present.
+        
+        Returns:
+            bool: True if a tag was removed, False otherwise
+        """
+        if len(file_data) >= 128:
+            # Check if last 128 bytes contain ID3v1 tag
+            last_128 = file_data[-128:]
+            if last_128[:3] == b'TAG':
+                # Remove the last 128 bytes
+                del file_data[-128:]
+                return True
+        return False
+
+    def _truncate_string(self, text: str, max_length: int) -> str:
+        """Truncate string to maximum length, handling encoding properly."""
+        if len(text) <= max_length:
+            return text
+        return text[:max_length]
+
+    def _convert_genre_name_to_code(self, genre_name: str) -> int | None:
+        """Convert genre name to ID3v1 genre code."""
+        from ..MetadataManager import ID3V1_GENRE_CODE_MAP
+        
+        # First try exact match
+        for code, name in ID3V1_GENRE_CODE_MAP.items():
+            if name and name.lower() == genre_name.lower():
+                return code
+        
+        # Try partial match
+        for code, name in ID3V1_GENRE_CODE_MAP.items():
+            if name and genre_name.lower() in name.lower():
+                return code
+        
+        return None
+
+    def delete_metadata(self) -> bool:
+        """Delete ID3v1 metadata from the audio file.
+        
+        Returns:
+            bool: True if metadata was successfully deleted, False otherwise
+        """
+        try:
+            # Read the entire file
+            self.audio_file.seek(0)
+            file_data = bytearray(self.audio_file.read())
+            
+            # Remove existing ID3v1 tag if present
+            if self._remove_existing_id3v1_tag(file_data):
+                # Write back to file
+                self.audio_file.write(file_data)
+                return True
+            return False
+        except Exception:
+            return False
 
     def get_header_info(self) -> dict:
         try:
