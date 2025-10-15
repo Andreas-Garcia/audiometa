@@ -1322,11 +1322,11 @@ print(f"Final title: {final_metadata.get('title')}")  # Still "Original Title" -
 
 The library handles `None` and empty string values differently across audio formats:
 
-| Format            | Setting to `None`        | Setting to `""` (empty string)   | Read Back Result        |
-| ----------------- | ------------------------ | -------------------------------- | ----------------------- |
-| **ID3v2 (MP3)**   | Removes field completely | Removes field completely         | `None` / `None`         |
-| **Vorbis (FLAC)** | Removes field completely | Creates field with empty content | `None` / `""`           |
-| **RIFF (WAV)**    | Removes field completely | Removes field completely         | `None` / `None`         |
+| Format            | Setting to `None`        | Setting to `""` (empty string)   | Read Back Result               |
+| ----------------- | ------------------------ | -------------------------------- | ------------------------------ |
+| **ID3v2 (MP3)**   | Removes field completely | Removes field completely         | `None` / `None`                |
+| **Vorbis (FLAC)** | Removes field completely | Creates field with empty content | `None` / `""`                  |
+| **RIFF (WAV)**    | Removes field completely | Removes field completely         | `None` / `None`                |
 | **ID3v1 (MP3)**   | ✅ **Supported**         | ✅ **Supported**                 | Legacy format with limitations |
 
 #### Example
