@@ -123,7 +123,6 @@ class TestSyncStrategy:
         assert id3v1_result.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
         
         # Now write ID3v2 metadata with SYNC strategy
-        # Note: ID3v1 can now be preserved with writing support
         id3v2_metadata = {
             UnifiedMetadataKey.TITLE: "Synced Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["Synced Artist"],

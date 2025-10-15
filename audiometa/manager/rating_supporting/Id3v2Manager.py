@@ -124,7 +124,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             * Limited to 30 chars for text fields
             * Single byte for track number (v1.1 only)
             * Genre limited to predefined codes (0-147)
-            * Legacy format, read-only support
+            * Legacy format
 
         - ID3v2:
             * v2.2:

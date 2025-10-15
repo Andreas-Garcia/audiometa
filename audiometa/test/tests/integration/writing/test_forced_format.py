@@ -158,7 +158,6 @@ class TestForcedFormat:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["New ID3v1 Artist"]
             }
             
-            # ID3v1 now supports writing
             update_file_metadata(test_file.path, metadata, 
                                metadata_format=MetadataFormat.ID3V1)
             

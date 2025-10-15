@@ -55,7 +55,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
 
 ### Format Capabilities
 
-**ID3v1**
+**ID3v1 (Legacy Format)**
 
 - **Primary Support**: MP3 files (native format)
 - **Extended Support**: FLAC and WAV files with ID3v1 tags
@@ -1026,18 +1026,18 @@ When the same metadata tag exists in multiple formats within the same file, the 
 
 1. **Vorbis** (highest precedence)
 2. **ID3v2**
-3. **ID3v1** (lowest precedence)
+3. **ID3v1** (lowest precedence, legacy format)
 
 #### MP3 Files
 
 1. **ID3v2** (highest precedence)
-2. **ID3v1** (lowest precedence)
+2. **ID3v1** (lowest precedence, legacy format)
 
 #### WAV Files
 
 1. **RIFF** (highest precedence)
 2. **ID3v2**
-3. **ID3v1** (lowest precedence)
+3. **ID3v1** (lowest precedence, legacy format)
 
 **Examples**:
 
@@ -1101,7 +1101,7 @@ metadata = get_merged_unified_metadata("song.mp3", id3v2_version=(2, 4, 0))
 
 - **Note**: RIFF is the native format for WAV files
 
-**Note**: ID3v1 has limitations (30-character field limits, Latin-1 encoding). The library supports both reading and writing ID3v1 tags using direct file manipulation.
+**Note**: ID3v1 is a legacy format with limitations (30-character field limits, Latin-1 encoding). The library supports both reading and writing ID3v1 tags using direct file manipulation.
 
 ### Metadata Writing Strategy
 
@@ -1210,7 +1210,7 @@ update_file_metadata("song.wav", {"title": "New Title"},
 
 **PRESERVE (Default)**
 
-- **Maximum Compatibility**: Older players can still read older formats
+- **Maximum Compatibility**: Older players can still read legacy formats
 - **Non-Destructive**: Never loses existing metadata
 - **Safe**: Default behavior that won't break existing workflows
 
@@ -1327,7 +1327,7 @@ The library handles `None` and empty string values differently across audio form
 | **ID3v2 (MP3)**   | Removes field completely | Removes field completely         | `None` / `None`         |
 | **Vorbis (FLAC)** | Removes field completely | Creates field with empty content | `None` / `""`           |
 | **RIFF (WAV)**    | Removes field completely | Removes field completely         | `None` / `None`         |
-| **ID3v1 (MP3)**   | ✅ **Supported**         | ✅ **Supported**                 | Format with limitations |
+| **ID3v1 (MP3)**   | ✅ **Supported**         | ✅ **Supported**                 | Legacy format with limitations |
 
 #### Example
 
