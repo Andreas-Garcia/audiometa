@@ -55,7 +55,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
 
 ### Format Capabilities
 
-**ID3v1 (Legacy Format)**
+**ID3v1**
 
 - **Primary Support**: MP3 files (native format)
 - **Extended Support**: FLAC and WAV files with ID3v1 tags
@@ -1026,18 +1026,18 @@ When the same metadata tag exists in multiple formats within the same file, the 
 
 1. **Vorbis** (highest precedence)
 2. **ID3v2**
-3. **ID3v1** (lowest precedence, legacy format)
+3. **ID3v1** (lowest precedence)
 
 #### MP3 Files
 
 1. **ID3v2** (highest precedence)
-2. **ID3v1** (lowest precedence, legacy format)
+2. **ID3v1** (lowest precedence)
 
 #### WAV Files
 
 1. **RIFF** (highest precedence)
 2. **ID3v2**
-3. **ID3v1** (lowest precedence, legacy format)
+3. **ID3v1** (lowest precedence)
 
 **Examples**:
 
@@ -1053,7 +1053,6 @@ When writing metadata, the library uses these default metadata formats per audio
 
 **Default Writing Format**: ID3v2 (v2.3)
 
-- **Note**: ID3v1 cannot be written to
 - **Version Selection**: You can choose between ID3v2.3 (maximum compatibility) and ID3v2.4 (modern features) using the `id3v2_version` parameter
 
 **ID3v2 Version Selection**
@@ -1102,7 +1101,7 @@ metadata = get_merged_unified_metadata("song.mp3", id3v2_version=(2, 4, 0))
 
 - **Note**: RIFF is the native format for WAV files
 
-**Note**: ID3v1 is a legacy format with limitations (30-character field limits, Latin-1 encoding). The library supports both reading and writing ID3v1 tags using direct file manipulation.
+**Note**: ID3v1 has limitations (30-character field limits, Latin-1 encoding). The library supports both reading and writing ID3v1 tags using direct file manipulation.
 
 ### Metadata Writing Strategy
 
@@ -1211,7 +1210,7 @@ update_file_metadata("song.wav", {"title": "New Title"},
 
 **PRESERVE (Default)**
 
-- **Maximum Compatibility**: Older players can still read legacy formats
+- **Maximum Compatibility**: Older players can still read older formats
 - **Non-Destructive**: Never loses existing metadata
 - **Safe**: Default behavior that won't break existing workflows
 
@@ -1231,18 +1230,34 @@ update_file_metadata("song.wav", {"title": "New Title"},
 
 The library handles unsupported metadata consistently across all strategies:
 
-- **Forced format** (when `metadata_format` is specified): Always fails fast by raising `MetadataNotSupportedError` for any unsupported field
+- **Forced format** (when `metadata_format` is specified): Always fails fast by raising `MetadataNotSupportedError` for any unsupported field. **No writing is performed** - the file remains completely unchanged.
 - **All strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=False` (default)**: Handle unsupported fields gracefully by logging warnings and continuing with supported fields
-- **All strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=True`**: Fails fast if any field is not supported by the target format
+- **All strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=True`**: Fails fast if any field is not supported by the target format. **No writing is performed** - the file remains completely unchanged (atomic operation).
 
 #### Format-Specific Limitations
 
-| Format         | Forced Format     | All Strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=False` | All Strategies with `fail_on_unsupported_field=True` |
-| -------------- | ----------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| **RIFF (WAV)** | Always fails fast | Logs warnings for unsupported fields, writes supported ones                     | Fails fast for unsupported fields                    |
-| **ID3v1**      | Always fails fast | Logs warnings for unsupported fields, writes supported ones                     | Fails fast for unsupported fields                    |
-| **ID3v2**      | Always fails fast | All fields supported                                                            | All fields supported                                 |
-| **Vorbis**     | Always fails fast | All fields supported                                                            | All fields supported                                 |
+| Format         | Forced Format                     | All Strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=False` | All Strategies with `fail_on_unsupported_field=True` |
+| -------------- | --------------------------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| **RIFF (WAV)** | Always fails fast, **no writing** | Logs warnings for unsupported fields, writes supported ones                     | Fails fast for unsupported fields, **no writing**    |
+| **ID3v1**      | Always fails fast, **no writing** | Logs warnings for unsupported fields, writes supported ones                     | Fails fast for unsupported fields, **no writing**    |
+| **ID3v2**      | Always fails fast, **no writing** | All fields supported                                                            | All fields supported                                 |
+| **Vorbis**     | Always fails fast, **no writing** | All fields supported                                                            | All fields supported                                 |
+
+#### Atomic Write Operations
+
+When `fail_on_unsupported_field=True` is used, the library ensures **atomic write operations**:
+
+- **All-or-nothing behavior**: Either all metadata is written successfully, or nothing is written at all
+- **File integrity**: If any field is unsupported, the file remains completely unchanged
+- **No partial updates**: Prevents inconsistent metadata states where only some fields are updated
+- **Error safety**: Ensures that failed operations don't leave files in a partially modified state
+
+This atomic behavior is crucial for:
+
+- **Data integrity**: Prevents corruption from partial writes
+- **Consistency**: Ensures metadata is always in a valid state
+- **Reliability**: Makes operations predictable and safe to retry
+- **Debugging**: Clear failure modes make issues easier to diagnose
 
 #### Example: Handling Unsupported Metadata
 
@@ -1264,24 +1279,55 @@ update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
                     metadata_strategy=MetadataWritingStrategy.CLEANUP)
 # Result: Writes title and rating to RIFF, logs warning about BPM, removes other formats
 
-# Forced format - always fails fast for unsupported fields
+# Forced format - always fails fast for unsupported fields, no writing performed
 try:
     update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
                         metadata_format=MetadataFormat.RIFF)
 except MetadataNotSupportedError as e:
     print(f"BPM not supported in RIFF format: {e}")
+    # File remains completely unchanged - no metadata was written
+
+# Strategies with fail_on_unsupported_field=True - atomic operation, no writing on failure
+try:
+    update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
+                        metadata_strategy=MetadataWritingStrategy.SYNC,
+                        fail_on_unsupported_field=True)
+except MetadataNotSupportedError as e:
+    print(f"BPM not supported: {e}")
+    # File remains completely unchanged - no metadata was written (atomic operation)
+
+# Practical example: Demonstrating atomic behavior
+from audiometa import get_merged_unified_metadata
+
+# File with existing metadata
+original_metadata = get_merged_unified_metadata("song.wav")
+print(f"Original title: {original_metadata.get('title')}")  # e.g., "Original Title"
+
+# Attempt to write metadata with unsupported field
+try:
+    update_file_metadata("song.wav", {
+        "title": "New Title",      # This would be supported
+        "rating": 85,              # This would be supported
+        "bpm": 120                 # This is NOT supported by RIFF format
+    }, fail_on_unsupported_field=True)
+except MetadataNotSupportedError:
+    pass
+
+# Verify file is unchanged (atomic behavior)
+final_metadata = get_merged_unified_metadata("song.wav")
+print(f"Final title: {final_metadata.get('title')}")  # Still "Original Title" - no changes made
 ```
 
 ### None vs Empty String Handling
 
 The library handles `None` and empty string values differently across audio formats:
 
-| Format            | Setting to `None`        | Setting to `""` (empty string)   | Read Back Result               |
-| ----------------- | ------------------------ | -------------------------------- | ------------------------------ |
-| **ID3v2 (MP3)**   | Removes field completely | Removes field completely         | `None` / `None`                |
-| **Vorbis (FLAC)** | Removes field completely | Creates field with empty content | `None` / `""`                  |
-| **RIFF (WAV)**    | Removes field completely | Removes field completely         | `None` / `None`                |
-| **ID3v1 (MP3)**   | ✅ **Supported**         | ✅ **Supported**                 | Legacy format with limitations |
+| Format            | Setting to `None`        | Setting to `""` (empty string)   | Read Back Result        |
+| ----------------- | ------------------------ | -------------------------------- | ----------------------- |
+| **ID3v2 (MP3)**   | Removes field completely | Removes field completely         | `None` / `None`         |
+| **Vorbis (FLAC)** | Removes field completely | Creates field with empty content | `None` / `""`           |
+| **RIFF (WAV)**    | Removes field completely | Removes field completely         | `None` / `None`         |
+| **ID3v1 (MP3)**   | ✅ **Supported**         | ✅ **Supported**                 | Format with limitations |
 
 #### Example
 
