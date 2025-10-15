@@ -283,8 +283,8 @@ def update_file_metadata(
             Ignored when metadata_format is specified.
         metadata_format: Specific format to write to. If None, uses the file's native format.
             When specified, strategy is ignored and metadata is written only to this format.
-        fail_on_unsupported_field: If True, fails when any metadata field is not supported by NO format.
-            Only applies to SYNC strategy. Defaults to False (graceful handling with warnings).
+        fail_on_unsupported_field: If True, fails when any metadata field is not supported by the target format.
+            Applies to all strategies (SYNC, PRESERVE, CLEANUP). Defaults to False (graceful handling with warnings).
         
     Returns:
         None
@@ -305,8 +305,9 @@ def update_file_metadata(
         When metadata_format is specified, metadata is written only to that format and unsupported
         fields will raise MetadataNotSupportedError.
         
-        When metadata_strategy is used (default SYNC), unsupported metadata fields are handled
-        gracefully with warnings, while other strategies raise MetadataNotSupportedError.
+        When metadata_strategy is used, unsupported metadata fields are handled based on the
+        fail_on_unsupported_field parameter: True raises MetadataNotSupportedError, False (default)
+        handles gracefully with warnings.
         
     Examples:
         # Basic metadata update
@@ -392,7 +393,7 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
                 # Some managers might not support deletion or might fail
                 pass
         
-        # Check for unsupported fields by target format and filter them out with warnings
+        # Check for unsupported fields by target format
         target_manager = all_managers[target_format_actual]
         unsupported_fields = []
         for field in app_metadata.keys():
@@ -401,10 +402,13 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
                     unsupported_fields.append(field)
         
         if unsupported_fields:
-            warnings.warn(f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}")
-            # Create filtered metadata without unsupported fields
-            filtered_metadata = {k: v for k, v in app_metadata.items() if k not in unsupported_fields}
-            app_metadata = filtered_metadata
+            if fail_on_unsupported_field:
+                raise MetadataNotSupportedError(f"Fields not supported by {target_format_actual.value} format: {unsupported_fields}")
+            else:
+                warnings.warn(f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}")
+                # Create filtered metadata without unsupported fields
+                filtered_metadata = {k: v for k, v in app_metadata.items() if k not in unsupported_fields}
+                app_metadata = filtered_metadata
         
         # Then write to target format
         target_manager.update_file_metadata(app_metadata)
@@ -464,7 +468,7 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
             except Exception:
                 pass
         
-        # Check for unsupported fields by target format and filter them out with warnings
+        # Check for unsupported fields by target format
         target_manager = all_managers[target_format_actual]
         unsupported_fields = []
         for field in app_metadata.keys():
@@ -473,10 +477,13 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
                     unsupported_fields.append(field)
         
         if unsupported_fields:
-            warnings.warn(f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}")
-            # Create filtered metadata without unsupported fields
-            filtered_metadata = {k: v for k, v in app_metadata.items() if k not in unsupported_fields}
-            app_metadata = filtered_metadata
+            if fail_on_unsupported_field:
+                raise MetadataNotSupportedError(f"Fields not supported by {target_format_actual.value} format: {unsupported_fields}")
+            else:
+                warnings.warn(f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}")
+                # Create filtered metadata without unsupported fields
+                filtered_metadata = {k: v for k, v in app_metadata.items() if k not in unsupported_fields}
+                app_metadata = filtered_metadata
         
         # Write to target format
         target_manager.update_file_metadata(app_metadata)

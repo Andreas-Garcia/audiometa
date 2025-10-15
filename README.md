@@ -1232,17 +1232,17 @@ update_file_metadata("song.wav", {"title": "New Title"},
 The library handles unsupported metadata consistently across all strategies:
 
 - **Forced format** (when `metadata_format` is specified): Always fails fast by raising `MetadataNotSupportedError` for any unsupported field
-- **All strategies (SYNC, PRESERVE, CLEANUP)**: Handle unsupported fields gracefully by logging warnings and continuing with supported fields
-- **SYNC strategy with `fail_on_unsupported_field=True`**: Fails fast if any field is not supported by NO format
+- **All strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=False` (default)**: Handle unsupported fields gracefully by logging warnings and continuing with supported fields
+- **All strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=True`**: Fails fast if any field is not supported by the target format
 
 #### Format-Specific Limitations
 
-| Format         | Forced Format     | All Strategies (SYNC, PRESERVE, CLEANUP)                    |
-| -------------- | ----------------- | ----------------------------------------------------------- |
-| **RIFF (WAV)** | Always fails fast | Logs warnings for unsupported fields, writes supported ones |
-| **ID3v1**      | Always fails fast | Logs warnings for unsupported fields, writes supported ones |
-| **ID3v2**      | Always fails fast | All fields supported                                        |
-| **Vorbis**     | Always fails fast | All fields supported                                        |
+| Format         | Forced Format     | All Strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=False` | All Strategies with `fail_on_unsupported_field=True` |
+| -------------- | ----------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| **RIFF (WAV)** | Always fails fast | Logs warnings for unsupported fields, writes supported ones                     | Fails fast for unsupported fields                    |
+| **ID3v1**      | Always fails fast | Logs warnings for unsupported fields, writes supported ones                     | Fails fast for unsupported fields                    |
+| **ID3v2**      | Always fails fast | All fields supported                                                            | All fields supported                                 |
+| **Vorbis**     | Always fails fast | All fields supported                                                            | All fields supported                                 |
 
 #### Example: Handling Unsupported Metadata
 
