@@ -867,17 +867,23 @@ AudioMeta implements a sophisticated rating profile system to handle the complex
 
 #### The Rating Profile Problem
 
-Different audio players use different numeric values to represent the same star ratings:
+**The Problem**: Different audio players use completely different numeric values for the same star ratings. For example, a 3-star rating can be stored as:
 
-| Stars | kid3/Lollypop | Windows Media Player | MusicBee    | Winamp      | Traktor     | iTunes        |
-| ----- | ------------- | -------------------- | ----------- | ----------- | ----------- | ------------- |
-| 1     | 1 (ID3v2)     | 1 (ID3v2)            | 1 (ID3v2)   | 1 (ID3v2)   | 51 (ID3v2)  | Not supported |
-| 2     | 64 (ID3v2)    | 64 (ID3v2)           | 64 (ID3v2)  | 64 (ID3v2)  | 102 (ID3v2) | Not supported |
-| 3     | 128 (ID3v2)   | 128 (ID3v2)          | 128 (ID3v2) | 128 (ID3v2) | 153 (ID3v2) | Not supported |
-| 4     | 196 (ID3v2)   | 196 (ID3v2)          | 196 (ID3v2) | 196 (ID3v2) | 204 (ID3v2) | Not supported |
-| 5     | 255 (ID3v2)   | 255 (ID3v2)          | 255 (ID3v2) | 255 (ID3v2) | 255 (ID3v2) | Not supported |
+- `128` (Windows Media Player, MusicBee, Winamp)
+- `60` (FLAC players, Vorbis)
+- `153` (Traktor)
 
-**Key Insight**: The same 3-star rating can be stored as `128`, `60`, or `153` depending on the software that created it!
+**The Solution**: AudioMeta automatically detects and converts between these different rating systems, so you always get consistent 0-10 scale values regardless of which software created the file.
+
+> 📋 **Complete Compatibility Table**: See [`rating_profiles.py`](audiometa/utils/rating_profiles.py) for the detailed reference table showing all player compatibility and exact numeric values.
+
+**Key Points:**
+
+- **0/None ratings**: `0` can mean either "no rating" (Traktor) or "0 stars" (MusicBee) - AudioMeta distinguishes between them and handles "no rating" cases
+- **Half-star support**: Limited support - mainly MusicBee and some ID3v2 implementations
+- **Traktor limitation**: Only supports whole stars (1, 2, 3, 4, 5)
+- **Format compatibility**: Different formats use different rating systems
+- **Automatic handling**: AudioMeta manages all the complexity for you
 
 #### Rating Profile Types
 
@@ -886,20 +892,20 @@ AudioMeta recognizes three main rating profiles:
 **Profile A: 255 Non-Proportional (Most Common)**
 
 - Used by: ID3v2 (MP3), RIFF (WAV), most standard players
-- Values: `[0, 13, 1, 54, 64, 118, 128, 186, 196, 242, 255]`
 - Examples: Windows Media Player, MusicBee, Winamp, kid3
+- **Half-star support**: ✅ Full support (0.5, 1.5, 2.5, 3.5, 4.5 stars)
 
 **Profile B: 100 Proportional (FLAC Standard)**
 
 - Used by: Vorbis (FLAC), some WAV ID3v2 implementations
-- Values: `[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]`
 - Examples: FLAC files, some modern players
+- **Half-star support**: ✅ Full support (0.5, 1.5, 2.5, 3.5, 4.5 stars)
 
 **Profile C: 255 Proportional (Traktor)**
 
 - Used by: Traktor software (Native Instruments)
-- Values: `[None, None, 51, None, 102, None, 153, None, 204, None, 255]`
 - Examples: Traktor Pro, Traktor DJ
+- **Half-star support**: ❌ No support (only whole stars: 1, 2, 3, 4, 5)
 
 #### How AudioMeta Handles Rating Profiles
 
@@ -916,6 +922,8 @@ rating = metadata.get('rating')  # Always returns 0-10 scale regardless of sourc
 # - File rated 3 stars in Windows Media Player (128) → rating = 6.0
 # - File rated 3 stars in FLAC player (60) → rating = 6.0
 # - File rated 3 stars in Traktor (153) → rating = 6.0
+# - File rated 3.5 stars in MusicBee (186) → rating = 7.0
+# - File rated 2.5 stars in FLAC (50) → rating = 5.0
 ```
 
 **Writing with Profile Compatibility**
@@ -927,7 +935,33 @@ from audiometa import update_file_metadata
 update_file_metadata("song.mp3", {"rating": 6})   # Uses Profile A (128)
 update_file_metadata("song.flac", {"rating": 6})  # Uses Profile B (60)
 update_file_metadata("song.wav", {"rating": 6})   # Uses Profile A (128)
+
+# Half-star ratings are also supported:
+update_file_metadata("song.mp3", {"rating": 7})   # 3.5 stars → Profile A (186)
+update_file_metadata("song.flac", {"rating": 5})  # 2.5 stars → Profile B (50)
 ```
+
+#### Half-Star Rating Support
+
+AudioMeta fully supports half-star ratings (0.5, 1.5, 2.5, 3.5, 4.5 stars) across most formats:
+
+```python
+# Reading half-star ratings
+metadata = get_merged_unified_metadata("half_star_rated.mp3")
+rating = metadata.get('rating')  # Could be 1.0, 3.0, 5.0, 7.0, 9.0 for half-stars
+
+# Writing half-star ratings
+update_file_metadata("song.mp3", {"rating": 7})   # 3.5 stars
+update_file_metadata("song.flac", {"rating": 5})  # 2.5 stars
+update_file_metadata("song.wav", {"rating": 9})   # 4.5 stars
+```
+
+**Format Support for Half-Stars:**
+
+- ✅ **ID3v2 (MP3)**: Full half-star support
+- ✅ **Vorbis (FLAC)**: Full half-star support
+- ✅ **RIFF (WAV)**: Full half-star support
+- ❌ **Traktor**: Only whole stars (1, 2, 3, 4, 5)
 
 #### Cross-Player Compatibility
 

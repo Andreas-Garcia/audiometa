@@ -5,6 +5,9 @@ from enum import Enum
 """
 Rating Compatibility Table Across Different Audio Players
 
+⚠️  AUTHORITATIVE SOURCE: This is the single source of truth for rating compatibility.
+The README references this table for the complete details.
+
 The following table shows how different audio players handle ratings across various audio formats.
 Values represent the actual numbers written to files for each star rating (0-5 stars).
 
