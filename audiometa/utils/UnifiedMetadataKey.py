@@ -49,7 +49,19 @@ class UnifiedMetadataKey(str, Enum):
     PART_OF_SET = 'part_of_set'
 
     def may_contain_separated_values(self) -> bool:
-        result = self in (UnifiedMetadataKey.ARTISTS_NAMES, UnifiedMetadataKey.ALBUM_ARTISTS_NAMES)
+        # Fields that can contain multiple values (lists) - only semantically meaningful ones
+        multi_value_fields = {
+            UnifiedMetadataKey.ARTISTS_NAMES,
+            UnifiedMetadataKey.ALBUM_ARTISTS_NAMES,
+            # Only fields that semantically make sense to have multiple values
+            UnifiedMetadataKey.GENRE_NAME,  # Multiple genres make sense
+            UnifiedMetadataKey.COMPOSER,    # Multiple composers make sense
+            UnifiedMetadataKey.MUSICIANS,   # Multiple musicians make sense
+            UnifiedMetadataKey.CONDUCTOR,   # Multiple conductors make sense
+            UnifiedMetadataKey.ARRANGER,    # Multiple arrangers make sense
+        }
+        
+        result = self in multi_value_fields
         if result and self.get_optional_type() != list[str]:
             raise ValueError(f'Optional type for {self} is not list')
         return result
@@ -60,13 +72,13 @@ class UnifiedMetadataKey(str, Enum):
             UnifiedMetadataKey.ARTISTS_NAMES: list[str],
             UnifiedMetadataKey.ALBUM_NAME: str,
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: list[str],
-            UnifiedMetadataKey.GENRE_NAME: str,
+            UnifiedMetadataKey.GENRE_NAME: list[str],
             UnifiedMetadataKey.RATING: int,
             UnifiedMetadataKey.LANGUAGE: str,
             UnifiedMetadataKey.RELEASE_DATE: str,
             UnifiedMetadataKey.TRACK_NUMBER: int,
             UnifiedMetadataKey.BPM: int,
-            UnifiedMetadataKey.COMPOSER: str,
+            UnifiedMetadataKey.COMPOSER: list[str],
             UnifiedMetadataKey.PUBLISHER: str,
             UnifiedMetadataKey.COPYRIGHT: str,
             UnifiedMetadataKey.LYRICS: str,
@@ -78,7 +90,7 @@ class UnifiedMetadataKey(str, Enum):
             UnifiedMetadataKey.KEY: str,
             UnifiedMetadataKey.ORIGINAL_DATE: str,
             UnifiedMetadataKey.REMIXER: str,
-            UnifiedMetadataKey.CONDUCTOR: str,
+            UnifiedMetadataKey.CONDUCTOR: list[str],
             UnifiedMetadataKey.COVER_ART: bytes,
             UnifiedMetadataKey.COMPILATION: bool,
             UnifiedMetadataKey.MEDIA_TYPE: str,
@@ -88,7 +100,7 @@ class UnifiedMetadataKey(str, Enum):
             UnifiedMetadataKey.ENCODER_SETTINGS: str,
             UnifiedMetadataKey.REPLAYGAIN: str,
             UnifiedMetadataKey.MUSICBRAINZ_ID: str,
-            UnifiedMetadataKey.ARRANGER: str,
+            UnifiedMetadataKey.ARRANGER: list[str],
             UnifiedMetadataKey.VERSION: str,
             UnifiedMetadataKey.PERFORMANCE: str,
             UnifiedMetadataKey.ARCHIVAL_LOCATION: str,
@@ -98,7 +110,7 @@ class UnifiedMetadataKey(str, Enum):
             UnifiedMetadataKey.SET_SUBTITLE: str,
             UnifiedMetadataKey.INITIAL_KEY: str,
             UnifiedMetadataKey.INVOLVED_PEOPLE: str,
-            UnifiedMetadataKey.MUSICIANS: str,
+            UnifiedMetadataKey.MUSICIANS: list[str],
             UnifiedMetadataKey.PART_OF_SET: str,
         }
         type = APP_METADATA_KEYS_OPTIONAL_TYPES_MAP.get(self)
