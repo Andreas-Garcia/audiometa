@@ -9,7 +9,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from ...utils.rating_profiles import RatingWriteProfile
 from ...utils.types import AppMetadataValue, RawMetadataKey
 from .RatingSupportingMetadataManager import RatingSupportingMetadataManager
-from ..MetadataManager import METADATA_ARTISTS_SEPARATORS
+from ..MetadataManager import METADATA_MULTI_VALUE_SEPARATORS
 
 
 class MultiEntriesManager(RatingSupportingMetadataManager):
@@ -78,7 +78,7 @@ class MultiEntriesManager(RatingSupportingMetadataManager):
             return []
             
         # Try each separator in order of priority
-        for separator in METADATA_ARTISTS_SEPARATORS:
+        for separator in METADATA_MULTI_VALUE_SEPARATORS:
             if separator in first_value:
                 # Split by this separator and clean up
                 parsed_values = [val.strip() for val in first_value.split(separator)]

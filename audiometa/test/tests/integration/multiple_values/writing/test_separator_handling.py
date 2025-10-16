@@ -7,7 +7,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 class TestSeparatorHandling:
     def test_write_multiple_values_with_all_separator_types(self, temp_audio_file: Path):
         # Test all separator types that are recognized by the library
-        # Based on METADATA_ARTISTS_SEPARATORS = ("//", "\\\\", ";", "\\", "/", ",")
+        # Based on METADATA_MULTI_VALUE_SEPARATORS = ("//", "\\\\", ";", "\\", "/", ",")
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: [
                 "Artist; with; semicolons",

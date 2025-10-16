@@ -12,8 +12,8 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from ..utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
 
 
-# Separators in order of priority
-METADATA_ARTISTS_SEPARATORS = ("//", "\\\\", ";", "\\", "/", ",")
+# Separators in order of priority for multi-value metadata fields
+METADATA_MULTI_VALUE_SEPARATORS = ("//", "\\\\", ";", "\\", "/", ",")
 
 
 T = TypeVar('T', str, int)
@@ -156,7 +156,7 @@ class MetadataManager:
                 for str_with_potential_separated_values in values_list_str:
                     # Try each separator in order
                     current_values = [str_with_potential_separated_values]
-                    for separator in METADATA_ARTISTS_SEPARATORS:
+                    for separator in METADATA_MULTI_VALUE_SEPARATORS:
                         new_values = []
                         for val in current_values:
                             new_values.extend(val.split(separator))

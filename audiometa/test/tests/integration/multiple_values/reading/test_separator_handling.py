@@ -173,7 +173,7 @@ class TestSeparatorHandling:
         # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Test that separators are processed in the correct priority order
-            # Based on METADATA_ARTISTS_SEPARATORS = ("//", "\\\\", ";", "\\", "/", ",")
+            # Based on METADATA_MULTI_VALUE_SEPARATORS = ("//", "\\\\", ";", "\\", "/", ",")
             try:
                 subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
                               check=True, capture_output=True)
