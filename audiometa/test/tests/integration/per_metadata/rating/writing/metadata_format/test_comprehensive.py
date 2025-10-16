@@ -9,7 +9,7 @@ from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
 @pytest.mark.integration
 class TestComprehensiveRatingWriting:
     
-    def test_write_read_with_different_max_values(self, temp_audio_file):
+    def test_write_read_with_different_max_values(self):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
@@ -26,7 +26,7 @@ class TestComprehensiveRatingWriting:
             assert rating_255 is not None
             assert rating_255 > 0
 
-    def test_cross_metadata_format_rating_consistency(self, temp_audio_file):
+    def test_cross_metadata_format_rating_consistency(self):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         test_rating = 75
         
@@ -54,7 +54,7 @@ class TestComprehensiveRatingWriting:
             assert rating is not None
             assert rating > 0
 
-    def test_metadata_format_specific_rating_profiles(self, temp_audio_file):
+    def test_metadata_format_specific_rating_profiles(self):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         
         # Test ID3v2 with base 255 non-proportional values
@@ -76,3 +76,22 @@ class TestComprehensiveRatingWriting:
                 rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
                 assert rating is not None
                 assert rating == value
+
+    def test_rating_removal_consistency_across_formats(self):
+        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
+        
+        # Test rating removal behavior across all formats
+        for format_type, file_ext in [(MetadataFormat.ID3V2, "mp3"), (MetadataFormat.RIFF, "wav"), (MetadataFormat.VORBIS, "flac")]:
+            with TempFileWithMetadata(basic_metadata, file_ext) as test_file:
+                # First write a rating
+                test_metadata = {UnifiedMetadataKey.RATING: 80}
+                update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=format_type)
+                rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+                assert rating == 80
+                
+                # Then remove it with None
+                test_metadata = {UnifiedMetadataKey.RATING: None}
+                update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=format_type)
+                rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+                # Rating removal behavior may vary - check if it's None or 0
+                assert rating is None or rating == 0

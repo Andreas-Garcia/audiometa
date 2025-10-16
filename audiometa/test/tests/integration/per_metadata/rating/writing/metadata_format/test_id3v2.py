@@ -75,6 +75,61 @@ class TestId3v2RatingWriting:
             assert rating is not None
             assert rating == 100
 
+    def test_write_0_5_star(self, temp_audio_file):
+        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
+        
+        with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
+            test_metadata = {UnifiedMetadataKey.RATING: 10}
+            update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
+            metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            rating = metadata.get(UnifiedMetadataKey.RATING)
+            assert rating is not None
+            assert rating == 10
+
+    def test_write_1_5_star(self, temp_audio_file):
+        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
+        
+        with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
+            test_metadata = {UnifiedMetadataKey.RATING: 30}
+            update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
+            metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            rating = metadata.get(UnifiedMetadataKey.RATING)
+            assert rating is not None
+            assert rating == 30
+
+    def test_write_2_5_star(self, temp_audio_file):
+        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
+        
+        with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
+            test_metadata = {UnifiedMetadataKey.RATING: 50}
+            update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
+            metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            rating = metadata.get(UnifiedMetadataKey.RATING)
+            assert rating is not None
+            assert rating == 50
+
+    def test_write_3_5_star(self, temp_audio_file):
+        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
+        
+        with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
+            test_metadata = {UnifiedMetadataKey.RATING: 70}
+            update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
+            metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            rating = metadata.get(UnifiedMetadataKey.RATING)
+            assert rating is not None
+            assert rating == 70
+
+    def test_write_4_5_star(self, temp_audio_file):
+        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
+        
+        with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
+            test_metadata = {UnifiedMetadataKey.RATING: 90}
+            update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
+            metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            rating = metadata.get(UnifiedMetadataKey.RATING)
+            assert rating is not None
+            assert rating == 90
+
     def test_write_base_255_non_proportional_values(self, temp_audio_file):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         
