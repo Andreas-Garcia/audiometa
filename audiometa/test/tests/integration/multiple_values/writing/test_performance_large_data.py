@@ -1,16 +1,13 @@
-import pytest
+
 from pathlib import Path
-import tempfile
-import shutil
 import time
 
 from audiometa import update_file_metadata, get_merged_unified_metadata
-from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 class TestPerformanceLargeData:
-    def test_write_large_number_of_artists(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_large_number_of_artists(self, temp_audio_file: Path):
         # Write a large number of artists
         large_artist_list = [f"Artist {i:04d}" for i in range(100)]
         
@@ -34,7 +31,7 @@ class TestPerformanceLargeData:
         assert write_time < 5.0, f"Write took too long: {write_time:.2f}s"
         assert read_time < 2.0, f"Read took too long: {read_time:.2f}s"
 
-    def test_write_large_strings(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_large_strings(self, temp_audio_file: Path):
         # Write metadata with very large strings
         large_string = "A" * 10000  # 10KB string
         metadata = {
@@ -64,7 +61,7 @@ class TestPerformanceLargeData:
         assert write_time < 3.0, f"Write took too long: {write_time:.2f}s"
         assert read_time < 1.0, f"Read took too long: {read_time:.2f}s"
 
-    def test_write_multiple_large_lists(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_multiple_large_lists(self, temp_audio_file: Path):
         # Write multiple fields with large lists
         large_artist_list = [f"Artist {i:04d}" for i in range(50)]
         large_composer_list = [f"Composer {i:04d}" for i in range(50)]
@@ -100,7 +97,7 @@ class TestPerformanceLargeData:
         assert write_time < 5.0, f"Write took too long: {write_time:.2f}s"
         assert read_time < 2.0, f"Read took too long: {read_time:.2f}s"
 
-    def test_write_unicode_large_data(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_unicode_large_data(self, temp_audio_file: Path):
         # Write large amounts of Unicode data
         unicode_artists = [f"艺术家 {i:04d} 🎵" for i in range(100)]
         
@@ -126,10 +123,14 @@ class TestPerformanceLargeData:
         assert write_time < 5.0, f"Write took too long: {write_time:.2f}s"
         assert read_time < 2.0, f"Read took too long: {read_time:.2f}s"
 
-    def test_write_memory_efficiency(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_memory_efficiency(self, temp_audio_file: Path):
         # Test memory efficiency with large data
-        import psutil
-        import os
+        try:
+            import psutil  # type: ignore[import-untyped]
+            import os
+        except ImportError:
+            import pytest
+            pytest.skip("psutil not available for memory testing")
         
         process = psutil.Process(os.getpid())
         initial_memory = process.memory_info().rss
@@ -149,7 +150,7 @@ class TestPerformanceLargeData:
         # Memory increase should be reasonable (less than 50MB)
         assert memory_increase < 50 * 1024 * 1024, f"Memory usage increased too much: {memory_increase / 1024 / 1024:.2f}MB"
 
-    def test_write_concurrent_access(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_concurrent_access(self, temp_audio_file: Path):
         # Test writing to the same file multiple times quickly
         for i in range(10):
             metadata = {
@@ -166,7 +167,7 @@ class TestPerformanceLargeData:
         assert "Artist 0009" in artists
         assert "Artist 0010" in artists
 
-    def test_write_large_metadata_dict(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_large_metadata_dict(self, temp_audio_file: Path):
         # Write a large metadata dictionary with many fields
         large_metadata = {}
         
