@@ -94,9 +94,7 @@ class RatingSupportingMetadataManager(MetadataManager):
                 # (i.e., when using mutagen-based approach)
                 if self.update_using_mutagen_metadata:
                     value: int | None = app_metadata[UnifiedMetadataKey.RATING]  # type: ignore
-                    if value is None:
-                        del app_metadata[UnifiedMetadataKey.RATING]
-                    else:
+                    if value is not None:
                         if self.normalized_rating_max_value is None:
                             raise ConfigurationError(
                                 "If updating the rating, the max value of the normalized rating must be set.")
@@ -107,5 +105,6 @@ class RatingSupportingMetadataManager(MetadataManager):
                             app_metadata[UnifiedMetadataKey.RATING] = file_rating
                         except (TypeError, ValueError):
                             raise InvalidRatingValueError(f"Invalid rating value: {value}. Expected a numeric value.")
+                    # If value is None, let the individual managers handle the removal
 
         super().update_file_metadata(app_metadata)
