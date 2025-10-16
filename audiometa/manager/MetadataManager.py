@@ -151,7 +151,7 @@ class MetadataManager:
             if not value:
                 return None
             values_list_str = cast(list[str], value)
-            if app_metadata_key.may_contain_separated_values():
+            if app_metadata_key.can_semantically_have_multiple_values():
                 values_list_str_with_separated_values_processed: list[str] = []
                 for str_with_potential_separated_values in values_list_str:
                     # Try each separator in order

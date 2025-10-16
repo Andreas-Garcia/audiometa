@@ -48,7 +48,7 @@ class UnifiedMetadataKey(str, Enum):
     MUSICIANS = 'musicians'
     PART_OF_SET = 'part_of_set'
 
-    def may_contain_separated_values(self) -> bool:
+    def can_semantically_have_multiple_values(self) -> bool:
         # Fields that can contain multiple values (lists) - only semantically meaningful ones
         multi_value_fields = {
             UnifiedMetadataKey.ARTISTS_NAMES,
