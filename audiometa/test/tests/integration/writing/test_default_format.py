@@ -23,15 +23,13 @@ from audiometa import (
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
 
 
 @pytest.mark.integration
 class TestDefaultWritingFormat:
 
-    def test_mp3_default_writes_to_id3v2(self, sample_mp3_file: Path, temp_audio_file: Path):
-        # Copy sample file to temp location
-        shutil.copy2(sample_mp3_file, temp_audio_file)
-        
+    def test_mp3_default_writes_to_id3v2(self):
         # Prepare test metadata
         test_metadata = {
             UnifiedMetadataKey.TITLE: "MP3 Test Title",
@@ -40,20 +38,21 @@ class TestDefaultWritingFormat:
             UnifiedMetadataKey.BPM: 120
         }
         
-        # Update metadata using default format (should be ID3v2)
-        update_file_metadata(temp_audio_file, test_metadata)
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            # Update metadata using default format (should be ID3v2)
+            update_file_metadata(test_file.path, test_metadata)
+            
+            # Verify metadata was written to ID3v2 format
+            id3v2_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+            assert id3v2_metadata.get(UnifiedMetadataKey.TITLE) == "MP3 Test Title"
+            assert id3v2_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["MP3 Test Artist"]
+            assert id3v2_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "MP3 Test Album"
+            assert id3v2_metadata.get(UnifiedMetadataKey.BPM) == 120
         
-        # Verify metadata was written to ID3v2 format
-        id3v2_metadata = get_single_format_app_metadata(temp_audio_file, MetadataFormat.ID3V2)
-        assert id3v2_metadata.get(UnifiedMetadataKey.TITLE) == "MP3 Test Title"
-        assert id3v2_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["MP3 Test Artist"]
-        assert id3v2_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "MP3 Test Album"
-        assert id3v2_metadata.get(UnifiedMetadataKey.BPM) == 120
-        
-        # Verify that merged metadata (which follows priority order) returns ID3v2 data
-        merged_metadata = get_merged_unified_metadata(temp_audio_file)
-        assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "MP3 Test Title"
-        assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["MP3 Test Artist"]
+            # Verify that merged metadata (which follows priority order) returns ID3v2 data
+            merged_metadata = get_merged_unified_metadata(test_file.path)
+            assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "MP3 Test Title"
+            assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["MP3 Test Artist"]
 
     def test_mp3_default_writes_to_id3v2_3_version(self, sample_mp3_file: Path, temp_audio_file: Path):
         from mutagen.id3 import ID3
