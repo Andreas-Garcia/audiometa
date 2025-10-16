@@ -5,7 +5,6 @@ These tests verify the basic functionality of the entire system
 for real users, including file I/O and complete metadata editing workflows.
 """
 import pytest
-import shutil
 from pathlib import Path
 
 from audiometa import (
@@ -59,7 +58,7 @@ class TestCoreWorkflows:
             assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Rock"
             assert metadata.get(UnifiedMetadataKey.COMMENT) == "Test comment"
     
-    def test_batch_metadata_processing(self, sample_mp3_file, sample_flac_file, sample_wav_file, temp_audio_file):
+    def test_batch_metadata_processing(self, sample_mp3_file, sample_flac_file, sample_wav_file):
         # E2E test for batch operations
         results = []
         
@@ -71,10 +70,6 @@ class TestCoreWorkflows:
         
         for file_path, format_type in sample_files:
             try:
-                # Copy to temp location to avoid modifying versioned files
-                temp_file = temp_audio_file.with_suffix(file_path.suffix)
-                shutil.copy2(file_path, temp_file)
-                
                 # Set initial metadata using external script
                 initial_metadata = {
                     "title": "Batch Test Title",
