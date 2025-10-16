@@ -9,7 +9,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 class TestMultipleEntriesId3v2:
-    def test_write_multiple_artists(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_write_multiple_artists(self, temp_audio_file: Path):
         # Write multiple artists using update_file_metadata
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two", "Artist Three"]
@@ -27,7 +27,7 @@ class TestMultipleEntriesId3v2:
         assert "Artist Two" in artists
         assert "Artist Three" in artists
 
-    def test_write_multiple_artists_id3v2_specific(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_write_multiple_artists_id3v2_specific(self, temp_audio_file: Path):
         # Write multiple artists to ID3v2 format specifically
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Primary Artist", "Secondary Artist", "Featured Artist"]
@@ -45,7 +45,7 @@ class TestMultipleEntriesId3v2:
         assert "Secondary Artist" in artists
         assert "Featured Artist" in artists
 
-    def test_write_multiple_album_artists(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_write_multiple_album_artists(self, temp_audio_file: Path):
         # Write multiple album artists
         metadata = {
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: ["Album Artist One", "Album Artist Two"]
@@ -61,7 +61,7 @@ class TestMultipleEntriesId3v2:
         assert "Album Artist One" in album_artists
         assert "Album Artist Two" in album_artists
 
-    def test_write_multiple_composers(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_write_multiple_composers(self, temp_audio_file: Path):
         # Write multiple composers
         metadata = {
             UnifiedMetadataKey.COMPOSER: ["Composer A", "Composer B", "Composer C"]
@@ -78,7 +78,7 @@ class TestMultipleEntriesId3v2:
         assert "Composer B" in composers
         assert "Composer C" in composers
 
-    def test_write_multiple_involved_people(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_write_multiple_involved_people(self, temp_audio_file: Path):
         # Write multiple involved people
         metadata = {
             UnifiedMetadataKey.INVOLVED_PEOPLE: ["Producer: John Doe", "Engineer: Jane Smith", "Mixer: Bob Johnson"]
@@ -95,7 +95,7 @@ class TestMultipleEntriesId3v2:
         assert "Engineer: Jane Smith" in involved_people
         assert "Mixer: Bob Johnson" in involved_people
 
-    def test_write_multiple_musicians(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_write_multiple_musicians(self, temp_audio_file: Path):
         # Write multiple musicians
         metadata = {
             UnifiedMetadataKey.MUSICIANS: ["Guitar: Alice", "Bass: Bob", "Drums: Charlie", "Vocals: Diana"]
@@ -113,7 +113,7 @@ class TestMultipleEntriesId3v2:
         assert "Drums: Charlie" in musicians
         assert "Vocals: Diana" in musicians
 
-    def test_write_multiple_keywords(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_write_multiple_keywords(self, temp_audio_file: Path):
         # Write multiple keywords
         metadata = {
             UnifiedMetadataKey.KEYWORDS: ["rock", "alternative", "indie", "2023"]
@@ -131,7 +131,7 @@ class TestMultipleEntriesId3v2:
         assert "indie" in keywords
         assert "2023" in keywords
 
-    def test_write_mixed_single_and_multiple_values(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_write_mixed_single_and_multiple_values(self, temp_audio_file: Path):
         # Write a mix of single and multiple values
         metadata = {
             UnifiedMetadataKey.TITLE: "Single Title",  # Single value
@@ -162,7 +162,7 @@ class TestMultipleEntriesId3v2:
         assert "Composer 2" in composers
         assert "Composer 3" in composers
 
-    def test_write_empty_list_removes_field(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_write_empty_list_removes_field(self, temp_audio_file: Path):
         # First write some metadata
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"]
@@ -183,7 +183,7 @@ class TestMultipleEntriesId3v2:
         unified_metadata = get_merged_unified_metadata(temp_audio_file)
         assert unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) is None
 
-    def test_write_none_removes_field(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_write_none_removes_field(self, temp_audio_file: Path):
         # First write some metadata
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"]

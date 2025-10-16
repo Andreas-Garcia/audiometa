@@ -9,7 +9,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 class TestMultipleEntriesId3v1:
-    def test_write_single_artist_id3v1_limitation(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_write_single_artist_id3v1_limitation(self, temp_audio_file: Path):
         # ID3v1 has limited support for multiple values
         # It typically only supports single values for most fields
         metadata = {
@@ -25,7 +25,7 @@ class TestMultipleEntriesId3v1:
         # ID3v1 should return a single value, not a list
         assert artists == "Single Artist"
 
-    def test_write_single_artist_id3v1_specific(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_write_single_artist_id3v1_specific(self, temp_audio_file: Path):
         # Write single artist to ID3v1 format specifically
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Primary Artist"]
@@ -40,7 +40,7 @@ class TestMultipleEntriesId3v1:
         # ID3v1 should return a single value
         assert artists == "Primary Artist"
 
-    def test_write_single_album_artist(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_write_single_album_artist(self, temp_audio_file: Path):
         # Write single album artist
         metadata = {
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: ["Album Artist"]
