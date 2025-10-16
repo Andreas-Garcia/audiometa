@@ -141,6 +141,33 @@ Use `chore(test):` for:
 - Use descriptive class names that don't need docstrings
 - Focus on testing behavior, not implementation details
 
+### Test File Management
+
+- Use `TempFileWithMetadata` for creating temporary test files instead of `shutil.copy2`
+- Always use context managers for temporary files
+- Access file path via `test_file.path` property
+
+#### ✅ Good test file usage:
+
+```python
+def test_wav_sync_multiple_values(self, sample_wav_file: Path, temp_audio_file: Path):
+    with TempFileWithMetadata({"title": "Initial Title"}, "wav") as test_file:
+        # Set up metadata
+        update_file_metadata(test_file.path, metadata)
+
+        # Verify results
+        result = get_merged_unified_metadata(test_file.path)
+        assert result.get(UnifiedMetadataKey.TITLE) == "Expected Title"
+```
+
+#### ❌ Avoid using shutil for test files:
+
+```python
+def test_wav_sync_multiple_values(self, sample_wav_file: Path, temp_audio_file: Path):
+    test_file = temp_audio_file.with_suffix('.wav')
+    shutil.copy2(sample_wav_file, test_file)  # Don't do this
+```
+
 ## File Organization
 
 ### Module Structure
