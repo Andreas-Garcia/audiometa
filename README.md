@@ -19,7 +19,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
 - [Advanced Features](#advanced-features)
   - [Format-Specific Operations](#format-specific-operations)
   - [Writing Strategies](#writing-strategies)
-  - [Multiple Artists Handling](#multiple-artists-and-album-artists-handling)
+  - [Multi-Value Fields Support](#multi-value-fields-support)
   - [Rating Profiles](#rating-profiles)
   - [Error Handling](#error-handling)
 - [Metadata Field Reference](#metadata-field-reference)
@@ -836,29 +836,163 @@ update_file_metadata("song.wav", {"title": "New Title"},
                     metadata_strategy=MetadataWritingStrategy.PRESERVE)
 ```
 
-### Multiple Artists and Album Artists Handling
+### Multiple Values Support
 
-The library supports multiple artists and album artists across all audio formats.
+The library handles multiple values in two distinct ways, depending on the metadata format's capabilities:
+
+#### 1. Semantic Multiple Values Support
+
+Some fields can logically contain multiple values, which the library handles through:
+
+- **Multiple entries** (when the format supports it)
+- **Separator-based parsing** (when reading single entries with separators)
+
+The following fields support semantic multiple values:
+
+| Field                     | ID3v2 (MP3) | Vorbis (FLAC) | RIFF (WAV) | ID3v1 |
+| ------------------------- | ----------- | ------------- | ---------- | ----- |
+| **`ARTISTS_NAMES`**       | ✅          | ✅            | ✅\*       | ✅\*  |
+| **`ALBUM_ARTISTS_NAMES`** | ✅          | ✅            | ✅\*       | ✅\*  |
+| **`GENRE_NAME`**          | ✅          | ✅            | ✅\*       | ✅\*  |
+| **`COMPOSER`**            | ✅          | ✅            | ✅\*       | ✅\*  |
+| **`MUSICIANS`**           | ✅          | ✅            | ✅\*       | ✅\*  |
+| **`CONDUCTOR`**           | ✅          | ✅            | ✅\*       | ✅\*  |
+| **`ARRANGER`**            | ✅          | ✅            | ✅\*       | ✅\*  |
+
+**Legend:**
+
+- ✅ = Multiple entries supported
+- ✅\* = Separator-based parsing only (single entry with separators)
+
+**Notes:**
+
+- **ID3v2**: Full support via multiple entries
+- **Vorbis**: Multiple entries for all fields (technically supports any field name)
+- **RIFF**: Separator-based parsing only (single entry per tag)
+- **ID3v1**: Separator-based parsing only (legacy format limitations)
+
+#### 2. Format-Only Multiple Entries Support
+
+Some metadata formats can store multiple separate entries for the same tag, but only return one value when reading:
+
+| Format            | Multiple Entries per Tag | Reading Strategy           |
+| ----------------- | ------------------------ | -------------------------- |
+| **ID3v2**         | ✅ Yes                   | Returns all values as list |
+| **Vorbis (FLAC)** | ✅ Yes                   | Returns all values as list |
+| **RIFF (WAV)**    | ❌ No                    | Single entry per tag only  |
+| **ID3v1**         | ❌ No                    | Legacy format limitation   |
+
+**Reading Strategy for Single-Value Fields:**
+
+For fields that semantically cannot have multiple values (like `TITLE`, `ALBUM_NAME`, `COMMENT`, etc.), when multiple entries exist in the underlying format, **the library always returns the first value only**.
+
+#### Separator-Based Parsing
+
+When a format doesn't support multiple entries but a field can semantically have multiple values, the library uses separator-based parsing. It automatically splits single entries on these separators (in order of precedence):
+
+1. `//` (double slash)
+2. `\\` (double backslash)
+3. `;` (semicolon)
+4. `\` (backslash)
+5. `/` (forward slash)
+6. `,` (comma)
+
+**Example:**
+
+```python
+# A single Vorbis tag: "Artist One;Artist Two;Artist Three"
+# Gets parsed as: ["Artist One", "Artist Two", "Artist Three"]
+```
+
+#### Usage Examples
 
 ```python
 from audiometa import update_file_metadata, get_merged_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
-# Set multiple artists and album artists
-artists = ["Artist One", "Artist Two", "Artist Three"]
-album_artists = ["Album Artist One", "Album Artist Two"]
+# Set multiple values for various fields
 metadata = {
-    UnifiedMetadataKey.ARTISTS_NAMES: artists,
-    UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: album_artists
+    UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two", "Artist Three"],
+    UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: ["Album Artist One", "Album Artist Two"],
+    UnifiedMetadataKey.GENRE_NAME: ["Rock", "Alternative", "Indie"],
+    UnifiedMetadataKey.COMPOSER: ["Composer A", "Composer B"],
+    UnifiedMetadataKey.MUSICIANS: ["Guitarist", "Drummer", "Bassist"]
 }
 
 # Update file (library handles format-specific implementation)
 update_file_metadata("song.mp3", metadata)
 
-# Read back (returns lists of artists and album artists)
+# Read back (returns lists for multi-value fields)
 result = get_merged_unified_metadata("song.mp3")
 print(result[UnifiedMetadataKey.ARTISTS_NAMES])
 # Output: ['Artist One', 'Artist Two', 'Artist Three']
+
+print(result[UnifiedMetadataKey.GENRE_NAME])
+# Output: ['Rock', 'Alternative', 'Indie']
+```
+
+#### Format Support Summary
+
+- **✅ MP3 (ID3v2)**: Full support via multiple entries for all fields
+- **✅ FLAC (Vorbis)**: Multiple entries for all fields
+- **✅ WAV (RIFF)**: Separator-based parsing for all multi-value fields
+- **✅ ID3v1**: Separator-based parsing for all multi-value fields (legacy format)
+
+### Single-Value Fields Behavior
+
+For fields that semantically cannot have multiple values (like `TITLE`, `ALBUM_NAME`, `COMMENT`, etc.), the library ensures consistent single-value behavior:
+
+#### How Single-Value Fields Handle Multiple Values
+
+When the underlying audio format contains multiple values for a single-value field, **the library always returns the first value only**.
+
+**Examples:**
+
+- If a file has multiple titles: `["Main Title", "Alternative Title"]` → Returns: `"Main Title"`
+- If a file has multiple album names: `["Album Name", "Extended Album Name"]` → Returns: `"Album Name"`
+
+#### Field Classification
+
+The library automatically classifies fields as single-value or multi-value:
+
+**Single-Value Fields** (return strings):
+
+- `TITLE`
+- `ALBUM_NAME`
+- `COMMENT`
+- `YEAR`
+- `TRACK_NUMBER`
+- And most other metadata fields
+
+**Multi-Value Fields** (return lists):
+
+- `ARTISTS_NAMES`
+- `ALBUM_ARTISTS_NAMES`
+- `GENRE_NAME`
+- `COMPOSER`
+- `MUSICIANS`
+- `CONDUCTOR`
+- `ARRANGER`
+
+#### Why This Behavior?
+
+1. **Semantic Consistency**: Fields like "title" conceptually represent a single value
+2. **User Expectations**: Applications expect single values for these fields
+3. **Format Compatibility**: Some formats (like ID3v1) only support single values
+4. **Predictable API**: Ensures consistent return types regardless of underlying format
+
+#### Example Usage
+
+```python
+from audiometa import get_merged_unified_metadata
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+
+# Even if the file has multiple titles, you get only the first one
+metadata = get_merged_unified_metadata("song.mp3")
+title = metadata.get(UnifiedMetadataKey.TITLE)  # Returns: "Main Title" (string)
+
+# Multi-value fields return lists
+artists = metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)  # Returns: ["Artist 1", "Artist 2"] (list)
 ```
 
 ### Rating Profiles
@@ -1095,7 +1229,7 @@ The library supports a comprehensive set of metadata fields across different aud
 | Track Number      | 0-255#         | 0-255#         | Unlimited#   | Unlimited#    | Format limit         |
 | Disc Number       | Not supported  | 0-255#         | Unlimited#   | Not supported | Format limit         |
 | Operations        | R              | R/W            | R/W          | R/W           | ✓                    |
-| Multiple Values   | ❌             | ✅ (v2.4)      | ✅           | ❌            | ✅ mp3, flac, ❌ wav |
+| Multiple Entries  | ❌             | ✅ (v2.4)      | ✅           | ❌            | ✅ mp3, flac, ❌ wav |
 | per Tag           |                |                |              |               |                      |
 | supported         | (W using v2.4) | (W using v2.4) |              |               |                      |
 | Technical Info    |                |                |              |               |                      |
