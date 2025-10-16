@@ -367,11 +367,14 @@ class Id3v1Manager(MetadataManager):
                     'chunk_structure': {}
                 }
             
-            # Get parsed fields
+            # Get parsed fields using unified metadata keys
             parsed_fields = {}
             if self.raw_mutagen_metadata.tags:
-                for key, value in self.raw_mutagen_metadata.tags.items():
-                    parsed_fields[key] = value[0] if value else ''
+                # Map raw mutagen keys to unified metadata keys
+                for unified_key, raw_key in self.metadata_keys_direct_map_read.items():
+                    if raw_key and raw_key in self.raw_mutagen_metadata.tags:
+                        value = self.raw_mutagen_metadata.tags[raw_key]
+                        parsed_fields[unified_key] = value[0] if value else ''
             
             return {
                 'raw_data': None,  # ID3v1 is 128 bytes at end of file
