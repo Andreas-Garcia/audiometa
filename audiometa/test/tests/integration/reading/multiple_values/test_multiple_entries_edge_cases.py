@@ -1,25 +1,13 @@
-"""Edge case tests for reading multiple entries for the same tag."""
-
 import pytest
 from pathlib import Path
-import tempfile
 import subprocess
-import os
 
-from audiometa import (
-    get_merged_unified_metadata,
-    get_single_format_app_metadata,
-    get_full_metadata
-)
-from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa import get_merged_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 class TestMultipleEntriesEdgeCases:
-    """Test edge cases for reading multiple entries for the same tag."""
-
     def test_no_multiple_entries_returns_single_value(self, sample_flac_file: Path):
-        """Test that single values are returned as lists when multiple entries are expected."""
         # Set single artist
         try:
             subprocess.run(["metaflac", "--remove-tag=ARTIST", str(sample_flac_file)], 
@@ -43,7 +31,6 @@ class TestMultipleEntriesEdgeCases:
         assert "Single Artist" in artists
 
     def test_empty_metadata_returns_none(self, sample_flac_file: Path):
-        """Test that missing metadata returns None."""
         # Remove all metadata
         try:
             subprocess.run(["metaflac", "--remove-all-tags", str(sample_flac_file)], 
@@ -60,7 +47,6 @@ class TestMultipleEntriesEdgeCases:
         assert artists is None
 
     def test_mixed_empty_and_valid_entries(self, sample_flac_file: Path):
-        """Test handling of mixed empty and valid entries."""
         # Set artists with empty values mixed in
         try:
             subprocess.run(["metaflac", "--remove-tag=ARTIST", str(sample_flac_file)], 
@@ -93,7 +79,6 @@ class TestMultipleEntriesEdgeCases:
         assert "" not in artists
 
     def test_whitespace_only_entries(self, sample_flac_file: Path):
-        """Test handling of whitespace-only entries."""
         # Set artists with whitespace-only values
         try:
             subprocess.run(["metaflac", "--remove-tag=ARTIST", str(sample_flac_file)], 
@@ -128,7 +113,6 @@ class TestMultipleEntriesEdgeCases:
             assert artist.strip() != ""
 
     def test_very_long_single_entry(self, sample_flac_file: Path):
-        """Test handling of very long single entries."""
         # Create very long artist name
         long_artist = "A" * 10000  # 10,000 character artist name
         
@@ -156,7 +140,6 @@ class TestMultipleEntriesEdgeCases:
         assert artists[0] == long_artist
 
     def test_special_characters_in_entries(self, sample_flac_file: Path):
-        """Test handling of special characters in multiple entries."""
         # Set artists with special characters
         try:
             subprocess.run(["metaflac", "--remove-tag=ARTIST", str(sample_flac_file)], 
@@ -188,7 +171,6 @@ class TestMultipleEntriesEdgeCases:
         assert "Artist + Collaborator" in artists
 
     def test_numeric_entries(self, sample_flac_file: Path):
-        """Test handling of numeric entries in multiple values."""
         # Set artists with numeric values
         try:
             subprocess.run(["metaflac", "--remove-tag=ARTIST", str(sample_flac_file)], 
@@ -218,7 +200,6 @@ class TestMultipleEntriesEdgeCases:
         assert "123" in artists
 
     def test_case_sensitivity_preservation(self, sample_flac_file: Path):
-        """Test that case sensitivity is preserved in multiple entries."""
         # Set artists with different cases
         try:
             subprocess.run(["metaflac", "--remove-tag=ARTIST", str(sample_flac_file)], 
@@ -250,7 +231,6 @@ class TestMultipleEntriesEdgeCases:
         assert "ArTiSt FoUr" in artists
 
     def test_duplicate_entries_preservation(self, sample_flac_file: Path):
-        """Test that duplicate entries are preserved in multiple values."""
         # Set duplicate artists
         try:
             subprocess.run(["metaflac", "--remove-tag=ARTIST", str(sample_flac_file)], 
@@ -282,7 +262,6 @@ class TestMultipleEntriesEdgeCases:
         assert artists.count("Artist Three") == 1
 
     def test_order_preservation(self, sample_flac_file: Path):
-        """Test that order of entries is preserved in multiple values."""
         # Set artists in specific order
         try:
             subprocess.run(["metaflac", "--remove-tag=ARTIST", str(sample_flac_file)], 
@@ -314,7 +293,6 @@ class TestMultipleEntriesEdgeCases:
         assert artists[3] == "Fourth Artist"
 
     def test_mixed_metadata_types(self, sample_flac_file: Path):
-        """Test handling of mixed metadata types in the same file."""
         # Set different types of metadata with multiple values
         try:
             subprocess.run(["metaflac", "--remove-all-tags", str(sample_flac_file)], 
@@ -369,7 +347,6 @@ class TestMultipleEntriesEdgeCases:
         assert title == "Single Title"
 
     def test_corrupted_multiple_entries(self, sample_flac_file: Path):
-        """Test handling of corrupted multiple entries."""
         # This test is more of a smoke test since we can't easily create
         # corrupted Vorbis comments without breaking the file
         
@@ -385,7 +362,6 @@ class TestMultipleEntriesEdgeCases:
             assert isinstance(artists, list)
 
     def test_performance_with_many_entries(self, sample_flac_file: Path):
-        """Test performance with many multiple entries."""
         # Set many artists
         try:
             subprocess.run(["metaflac", "--remove-tag=ARTIST", str(sample_flac_file)], 

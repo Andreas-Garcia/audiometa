@@ -1,5 +1,3 @@
-"""Tests for reading multiple entries for the same tag in Vorbis format."""
-
 import pytest
 from pathlib import Path
 import tempfile
@@ -16,12 +14,9 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 class TestMultipleEntriesVorbis:
-    """Test reading multiple entries for the same tag in Vorbis format."""
-
     def test_multiple_artists_reading(self, sample_flac_file: Path):
-        """Test reading multiple artists from Vorbis comments."""
         # Set multiple artists using the existing script
-        script_path = Path(__file__).parent.parent.parent.parent.parent.parent / "audiometa" / "test" / "data" / "scripts" / "set-artists-One-Two-Three-vorbis.sh"
+        script_path = Path(__file__).parent.parent.parent.parent.parent.parent.parent / "audiometa" / "test" / "data" / "scripts" / "set-artists-One-Two-Three-vorbis.sh"
         
         # Make script executable and run it
         os.chmod(script_path, 0o755)
@@ -43,9 +38,8 @@ class TestMultipleEntriesVorbis:
         assert "Three" in artists
 
     def test_multiple_artists_vorbis_specific(self, sample_flac_file: Path):
-        """Test reading multiple artists from Vorbis format specifically."""
         # Set multiple artists
-        script_path = Path(__file__).parent.parent.parent.parent.parent.parent / "audiometa" / "test" / "data" / "scripts" / "set-artists-One-Two-Three-vorbis.sh"
+        script_path = Path(__file__).parent.parent.parent.parent.parent.parent.parent / "audiometa" / "test" / "data" / "scripts" / "set-artists-One-Two-Three-vorbis.sh"
         os.chmod(script_path, 0o755)
         result = subprocess.run([str(script_path), str(sample_flac_file)], 
                               capture_output=True, text=True)
@@ -65,9 +59,8 @@ class TestMultipleEntriesVorbis:
         assert "Three" in artists
 
     def test_multiple_artists_full_metadata(self, sample_flac_file: Path):
-        """Test reading multiple artists from full metadata."""
         # Set multiple artists
-        script_path = Path(__file__).parent.parent.parent.parent.parent.parent / "audiometa" / "test" / "data" / "scripts" / "set-artists-One-Two-Three-vorbis.sh"
+        script_path = Path(__file__).parent.parent.parent.parent.parent.parent.parent / "audiometa" / "test" / "data" / "scripts" / "set-artists-One-Two-Three-vorbis.sh"
         os.chmod(script_path, 0o755)
         result = subprocess.run([str(script_path), str(sample_flac_file)], 
                               capture_output=True, text=True)
@@ -95,7 +88,6 @@ class TestMultipleEntriesVorbis:
         assert "Three" in vorbis_artists
 
     def test_multiple_genres_reading(self, sample_flac_file: Path):
-        """Test reading multiple genres from Vorbis comments."""
         # Set multiple genres using metaflac
         try:
             # Remove existing genre tags
@@ -126,7 +118,6 @@ class TestMultipleEntriesVorbis:
         assert "Indie" in genres
 
     def test_multiple_composers_reading(self, sample_flac_file: Path):
-        """Test reading multiple composers from Vorbis comments."""
         # Set multiple composers using metaflac
         try:
             # Remove existing composer tags
@@ -157,7 +148,6 @@ class TestMultipleEntriesVorbis:
         assert "Composer Three" in composers
 
     def test_multiple_album_artists_reading(self, sample_flac_file: Path):
-        """Test reading multiple album artists from Vorbis comments."""
         # Set multiple album artists using metaflac
         try:
             # Remove existing album artist tags
@@ -186,7 +176,6 @@ class TestMultipleEntriesVorbis:
         assert "Album Artist Two" in album_artists
 
     def test_multiple_performers_reading(self, sample_flac_file: Path):
-        """Test reading multiple performers from Vorbis comments."""
         # Set multiple performers using metaflac
         try:
             # Remove existing performer tags
@@ -217,7 +206,6 @@ class TestMultipleEntriesVorbis:
         assert "Performer Three" in performers
 
     def test_multiple_comments_reading(self, sample_flac_file: Path):
-        """Test reading multiple comments from Vorbis comments."""
         # Set multiple comments using metaflac
         try:
             # Remove existing comment tags
@@ -245,7 +233,6 @@ class TestMultipleEntriesVorbis:
         assert comments == "First comment"  # Should return the first value
 
     def test_empty_values_in_multiple_entries(self, sample_flac_file: Path):
-        """Test handling of empty values in multiple entries."""
         # Set multiple artists with some empty values
         try:
             # Remove existing artist tags
@@ -276,7 +263,6 @@ class TestMultipleEntriesVorbis:
         assert "" not in artists
 
     def test_large_number_of_entries(self, sample_flac_file: Path):
-        """Test handling of large number of entries for the same tag."""
         # Set many artists using metaflac
         try:
             # Remove existing artist tags
@@ -307,7 +293,6 @@ class TestMultipleEntriesVorbis:
             assert f"Artist {i+1}" in artists
 
     def test_mixed_case_tags(self, sample_flac_file: Path):
-        """Test handling of mixed case tags in Vorbis comments."""
         # Set artists with different case variations
         try:
             # Remove existing artist tags
@@ -338,7 +323,6 @@ class TestMultipleEntriesVorbis:
         assert "Artist Three" in artists
 
     def test_unicode_entries(self, sample_flac_file: Path):
-        """Test handling of unicode entries in multiple values."""
         # Set artists with unicode characters
         try:
             # Remove existing artist tags
@@ -369,7 +353,6 @@ class TestMultipleEntriesVorbis:
         assert "アーティスト三" in artists
 
     def test_very_long_entries(self, sample_flac_file: Path):
-        """Test handling of very long entries in multiple values."""
         # Create very long artist names
         long_artist1 = "A" * 1000  # 1000 character artist name
         long_artist2 = "B" * 500   # 500 character artist name
@@ -403,7 +386,6 @@ class TestMultipleEntriesVorbis:
         assert long_artist2 in artists
 
     def test_duplicate_entries_handling(self, sample_flac_file: Path):
-        """Test handling of duplicate entries in Vorbis comments."""
         # Set duplicate artists
         try:
             # Remove existing artist tags

@@ -1,5 +1,3 @@
-"""Tests for reading multiple entries for the same tag in ID3v2 format."""
-
 import pytest
 from pathlib import Path
 import tempfile
@@ -16,10 +14,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 class TestMultipleEntriesId3v2:
-    """Test reading multiple entries for the same tag in ID3v2 format."""
-
     def test_multiple_artists_id3v2_reading(self, sample_mp3_file: Path):
-        """Test reading multiple artists from ID3v2 tags."""
         # Set multiple artists using mid3v2
         try:
             # Remove existing artist tags
@@ -50,7 +45,6 @@ class TestMultipleEntriesId3v2:
         assert "Artist Three" in artists
 
     def test_multiple_artists_id3v2_specific(self, sample_mp3_file: Path):
-        """Test reading multiple artists from ID3v2 format specifically."""
         # Set multiple artists
         try:
             subprocess.run(["mid3v2", "--delete", "TPE1", str(sample_mp3_file)], 
@@ -76,7 +70,6 @@ class TestMultipleEntriesId3v2:
         assert "Artist Two" in artists
 
     def test_multiple_album_artists_id3v2(self, sample_mp3_file: Path):
-        """Test reading multiple album artists from ID3v2 tags."""
         # Set multiple album artists using mid3v2
         try:
             # Remove existing album artist tags
@@ -105,7 +98,6 @@ class TestMultipleEntriesId3v2:
         assert "Album Artist Two" in album_artists
 
     def test_multiple_composers_id3v2(self, sample_mp3_file: Path):
-        """Test reading multiple composers from ID3v2 tags."""
         # Set multiple composers using mid3v2
         try:
             # Remove existing composer tags
@@ -134,7 +126,6 @@ class TestMultipleEntriesId3v2:
         assert "Composer Two" in composers
 
     def test_multiple_genres_id3v2(self, sample_mp3_file: Path):
-        """Test reading multiple genres from ID3v2 tags."""
         # Set multiple genres using mid3v2
         try:
             # Remove existing genre tags
@@ -163,7 +154,6 @@ class TestMultipleEntriesId3v2:
         assert "Alternative" in genres
 
     def test_id3v2_vs_id3v1_precedence(self, sample_mp3_file: Path):
-        """Test that ID3v2 multiple values take precedence over ID3v1 single values."""
         # Set single artist in ID3v1
         try:
             subprocess.run(["mid3v2", "--delete", "TPE1", str(sample_mp3_file)], 
@@ -201,7 +191,6 @@ class TestMultipleEntriesId3v2:
         assert "ID3v1 Artist" not in artists
 
     def test_id3v2_empty_values_handling(self, sample_mp3_file: Path):
-        """Test handling of empty values in ID3v2 multiple entries."""
         # Set artists with empty values
         try:
             subprocess.run(["mid3v2", "--delete", "TPE1", str(sample_mp3_file)], 
@@ -229,7 +218,6 @@ class TestMultipleEntriesId3v2:
         assert "Another Valid Artist" in artists
 
     def test_id3v2_unicode_entries(self, sample_mp3_file: Path):
-        """Test handling of unicode entries in ID3v2 multiple values."""
         # Set artists with unicode characters
         try:
             subprocess.run(["mid3v2", "--delete", "TPE1", str(sample_mp3_file)], 
@@ -259,7 +247,6 @@ class TestMultipleEntriesId3v2:
         assert "アーティスト三" in artists
 
     def test_id3v2_large_number_of_entries(self, sample_mp3_file: Path):
-        """Test handling of large number of entries in ID3v2."""
         # Set many artists using mid3v2
         try:
             subprocess.run(["mid3v2", "--delete", "TPE1", str(sample_mp3_file)], 
