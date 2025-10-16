@@ -36,25 +36,3 @@ class TestSpecialCharacters:
             assert "Artist vs. Other" in artists
             assert "Artist + Collaborator" in artists
 
-    def test_separator_in_artist_name(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist & Co.;Artist vs. Other;Artist + Collaborator",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set special character artists")
-            
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-            
-            assert isinstance(artists, list)
-            assert len(artists) == 3
-            assert "Artist & Co." in artists
-            assert "Artist vs. Other" in artists
-            assert "Artist + Collaborator" in artists
