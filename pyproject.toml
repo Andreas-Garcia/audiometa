@@ -44,6 +44,9 @@ dev = [
     "mypy>=1.0.0",
     "flake8>=5.0.0",
 ]
+yaml = [
+    "PyYAML>=6.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/your-username/audiometa-python"

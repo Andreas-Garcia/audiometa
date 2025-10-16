@@ -24,7 +24,7 @@ def format_output(data: Any, output_format: str) -> str:
         return json.dumps(data, indent=2)
     elif output_format == "yaml":
         try:
-            import yaml
+            import yaml  # type: ignore[import-untyped]
             return yaml.dump(data, default_flow_style=False)
         except ImportError:
             print("Warning: PyYAML not installed, falling back to JSON", file=sys.stderr)
