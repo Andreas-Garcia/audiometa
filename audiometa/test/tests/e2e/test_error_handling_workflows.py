@@ -21,7 +21,7 @@ from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
 @pytest.mark.e2e
 class TestErrorHandlingWorkflows:
 
-    def test_error_recovery_workflow(self, sample_mp3_file, temp_audio_file):
+    def test_error_recovery_workflow(self):
         # E2E test for error scenarios
         # Use external script to set initial metadata
         initial_metadata = {

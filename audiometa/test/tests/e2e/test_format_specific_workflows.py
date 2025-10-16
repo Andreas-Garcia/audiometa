@@ -21,7 +21,7 @@ from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
 @pytest.mark.e2e
 class TestFormatSpecificWorkflows:
 
-    def test_complete_metadata_workflow_mp3(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_complete_metadata_workflow_mp3(self):
         # Use external script to set initial metadata
         initial_metadata = {
             "title": "Initial MP3 Title",
@@ -68,7 +68,7 @@ class TestFormatSpecificWorkflows:
             # After deletion, metadata should be empty or minimal
             assert UnifiedMetadataKey.TITLE not in deleted_metadata or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "Integration Test Title"
 
-    def test_complete_metadata_workflow_flac(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_complete_metadata_workflow_flac(self):
         # Use external script to set initial metadata
         initial_metadata = {
             "title": "Initial FLAC Title",
@@ -106,7 +106,7 @@ class TestFormatSpecificWorkflows:
             assert bitrate > 0
             assert duration > 0
 
-    def test_complete_metadata_workflow_wav(self, sample_wav_file: Path, temp_audio_file: Path):
+    def test_complete_metadata_workflow_wav(self):
         # Use external script to set initial metadata
         initial_metadata = {
             "title": "Initial WAV Title",

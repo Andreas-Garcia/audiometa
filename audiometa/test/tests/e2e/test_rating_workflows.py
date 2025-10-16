@@ -19,7 +19,7 @@ from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
 @pytest.mark.e2e
 class TestRatingWorkflows:
 
-    def test_metadata_with_different_rating_normalizations(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_metadata_with_different_rating_normalizations(self):
         # Use external script to set initial metadata
         initial_metadata = {
             "title": "Initial Rating Test",
