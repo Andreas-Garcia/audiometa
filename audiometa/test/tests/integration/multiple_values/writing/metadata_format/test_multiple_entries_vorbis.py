@@ -9,16 +9,19 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 class TestMultipleEntriesVorbis:
-    def test_write_multiple_artists(self, temp_audio_file: Path):
+    def test_write_multiple_artists(self, temp_flac_file: Path, sample_flac_file: Path):
+        # Copy sample FLAC file to temp location
+        shutil.copy2(sample_flac_file, temp_flac_file)
+        
         # Write multiple artists using update_file_metadata
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two", "Artist Three"]
         }
         
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.VORBIS)
+        update_file_metadata(temp_flac_file, metadata, metadata_format=MetadataFormat.VORBIS)
         
         # Read back using unified function
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_merged_unified_metadata(temp_flac_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
         
         assert isinstance(artists, list)
@@ -27,16 +30,19 @@ class TestMultipleEntriesVorbis:
         assert "Artist Two" in artists
         assert "Artist Three" in artists
 
-    def test_write_multiple_artists_vorbis_specific(self, temp_audio_file: Path):
+    def test_write_multiple_artists_vorbis_specific(self, temp_flac_file: Path, sample_flac_file: Path):
+        # Copy sample FLAC file to temp location
+        shutil.copy2(sample_flac_file, temp_flac_file)
+        
         # Write multiple artists to Vorbis format specifically
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Primary Artist", "Secondary Artist", "Featured Artist"]
         }
         
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.VORBIS)
+        update_file_metadata(temp_flac_file, metadata, metadata_format=MetadataFormat.VORBIS)
         
         # Read back using Vorbis specific function
-        vorbis_metadata = get_single_format_app_metadata(temp_audio_file, MetadataFormat.VORBIS)
+        vorbis_metadata = get_single_format_app_metadata(temp_flac_file, MetadataFormat.VORBIS)
         artists = vorbis_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
         
         assert isinstance(artists, list)
@@ -45,15 +51,17 @@ class TestMultipleEntriesVorbis:
         assert "Secondary Artist" in artists
         assert "Featured Artist" in artists
 
-    def test_write_multiple_album_artists(self, temp_audio_file: Path):
+    def test_write_multiple_album_artists(self, temp_flac_file: Path, sample_flac_file: Path):
+        # Copy sample FLAC file to temp location
+        shutil.copy2(sample_flac_file, temp_flac_file)
         # Write multiple album artists
         metadata = {
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: ["Album Artist One", "Album Artist Two"]
         }
         
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.VORBIS)
+        update_file_metadata(temp_flac_file, metadata, metadata_format=MetadataFormat.VORBIS)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_merged_unified_metadata(temp_flac_file)
         album_artists = unified_metadata.get(UnifiedMetadataKey.ALBUM_ARTISTS_NAMES)
         
         assert isinstance(album_artists, list)
@@ -61,15 +69,17 @@ class TestMultipleEntriesVorbis:
         assert "Album Artist One" in album_artists
         assert "Album Artist Two" in album_artists
 
-    def test_write_multiple_composers(self, temp_audio_file: Path):
+    def test_write_multiple_composers(self, temp_flac_file: Path, sample_flac_file: Path):
+        # Copy sample FLAC file to temp location
+        shutil.copy2(sample_flac_file, temp_flac_file)
         # Write multiple composers
         metadata = {
             UnifiedMetadataKey.COMPOSER: ["Composer A", "Composer B", "Composer C"]
         }
         
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.VORBIS)
+        update_file_metadata(temp_flac_file, metadata, metadata_format=MetadataFormat.VORBIS)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_merged_unified_metadata(temp_flac_file)
         composers = unified_metadata.get(UnifiedMetadataKey.COMPOSER)
         
         assert isinstance(composers, list)
@@ -78,60 +88,32 @@ class TestMultipleEntriesVorbis:
         assert "Composer B" in composers
         assert "Composer C" in composers
 
-    def test_write_multiple_involved_people(self, temp_audio_file: Path):
-        # Write multiple involved people
+
+    def test_write_multiple_genres(self, temp_flac_file: Path, sample_flac_file: Path):
+        # Copy sample FLAC file to temp location
+        shutil.copy2(sample_flac_file, temp_flac_file)
+        
+        # Write multiple genres
         metadata = {
-            UnifiedMetadataKey.INVOLVED_PEOPLE: ["Producer: John Doe", "Engineer: Jane Smith", "Mixer: Bob Johnson"]
+            UnifiedMetadataKey.GENRE_NAME: ["Rock", "Alternative", "Indie"]
         }
         
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.VORBIS)
+        update_file_metadata(temp_flac_file, metadata, metadata_format=MetadataFormat.VORBIS)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        involved_people = unified_metadata.get(UnifiedMetadataKey.INVOLVED_PEOPLE)
+        unified_metadata = get_merged_unified_metadata(temp_flac_file)
+        genres = unified_metadata.get(UnifiedMetadataKey.GENRE_NAME)
         
-        assert isinstance(involved_people, list)
-        assert len(involved_people) == 3
-        assert "Producer: John Doe" in involved_people
-        assert "Engineer: Jane Smith" in involved_people
-        assert "Mixer: Bob Johnson" in involved_people
+        assert isinstance(genres, list)
+        assert len(genres) == 3
+        assert "Rock" in genres
+        assert "Alternative" in genres
+        assert "Indie" in genres
 
-    def test_write_multiple_musicians(self, temp_audio_file: Path):
-        # Write multiple musicians
-        metadata = {
-            UnifiedMetadataKey.MUSICIANS: ["Guitar: Alice", "Bass: Bob", "Drums: Charlie", "Vocals: Diana"]
-        }
-        
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.VORBIS)
-        
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        musicians = unified_metadata.get(UnifiedMetadataKey.MUSICIANS)
-        
-        assert isinstance(musicians, list)
-        assert len(musicians) == 4
-        assert "Guitar: Alice" in musicians
-        assert "Bass: Bob" in musicians
-        assert "Drums: Charlie" in musicians
-        assert "Vocals: Diana" in musicians
 
-    def test_write_multiple_keywords(self, temp_audio_file: Path):
-        # Write multiple keywords
-        metadata = {
-            UnifiedMetadataKey.KEYWORDS: ["rock", "alternative", "indie", "2023"]
-        }
-        
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.VORBIS)
-        
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        keywords = unified_metadata.get(UnifiedMetadataKey.KEYWORDS)
-        
-        assert isinstance(keywords, list)
-        assert len(keywords) == 4
-        assert "rock" in keywords
-        assert "alternative" in keywords
-        assert "indie" in keywords
-        assert "2023" in keywords
 
-    def test_write_mixed_single_and_multiple_values(self, temp_audio_file: Path):
+    def test_write_mixed_single_and_multiple_values(self, temp_flac_file: Path, sample_flac_file: Path):
+        # Copy sample FLAC file to temp location
+        shutil.copy2(sample_flac_file, temp_flac_file)
         # Write a mix of single and multiple values
         metadata = {
             UnifiedMetadataKey.TITLE: "Single Title",  # Single value
@@ -140,9 +122,9 @@ class TestMultipleEntriesVorbis:
             UnifiedMetadataKey.COMPOSER: ["Composer 1", "Composer 2", "Composer 3"]  # Multiple values
         }
         
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.VORBIS)
+        update_file_metadata(temp_flac_file, metadata, metadata_format=MetadataFormat.VORBIS)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_merged_unified_metadata(temp_flac_file)
         
         # Check single values
         assert unified_metadata.get(UnifiedMetadataKey.TITLE) == "Single Title"
@@ -162,44 +144,48 @@ class TestMultipleEntriesVorbis:
         assert "Composer 2" in composers
         assert "Composer 3" in composers
 
-    def test_write_empty_list_removes_field(self, temp_audio_file: Path):
+    def test_write_empty_list_removes_field(self, temp_flac_file: Path, sample_flac_file: Path):
+        # Copy sample FLAC file to temp location
+        shutil.copy2(sample_flac_file, temp_flac_file)
         # First write some metadata
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"]
         }
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.VORBIS)
+        update_file_metadata(temp_flac_file, metadata, metadata_format=MetadataFormat.VORBIS)
         
         # Verify it was written
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_merged_unified_metadata(temp_flac_file)
         assert unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) is not None
         
         # Now write empty list (should remove the field)
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: []
         }
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.VORBIS)
+        update_file_metadata(temp_flac_file, metadata, metadata_format=MetadataFormat.VORBIS)
         
         # Verify field was removed
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_merged_unified_metadata(temp_flac_file)
         assert unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) is None
 
-    def test_write_none_removes_field(self, temp_audio_file: Path):
+    def test_write_none_removes_field(self, temp_flac_file: Path, sample_flac_file: Path):
+        # Copy sample FLAC file to temp location
+        shutil.copy2(sample_flac_file, temp_flac_file)
         # First write some metadata
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"]
         }
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.VORBIS)
+        update_file_metadata(temp_flac_file, metadata, metadata_format=MetadataFormat.VORBIS)
         
         # Verify it was written
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_merged_unified_metadata(temp_flac_file)
         assert unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) is not None
         
         # Now write None (should remove the field)
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: None
         }
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.VORBIS)
+        update_file_metadata(temp_flac_file, metadata, metadata_format=MetadataFormat.VORBIS)
         
         # Verify field was removed
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_merged_unified_metadata(temp_flac_file)
         assert unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) is None

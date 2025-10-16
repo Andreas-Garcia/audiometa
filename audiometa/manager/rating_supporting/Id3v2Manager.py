@@ -11,10 +11,10 @@ from ...audio_file import AudioFile
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from ...utils.rating_profiles import RatingWriteProfile
 from ...utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
-from .RatingSupportingMetadataManager import RatingSupportingMetadataManager
+from .MultiEntriesManager import MultiEntriesManager
 
 
-class Id3v2Manager(RatingSupportingMetadataManager):
+class Id3v2Manager(MultiEntriesManager):
     """ID3v2 metadata manager for audio files.
 
     ID3v2 Version Compatibility Table:

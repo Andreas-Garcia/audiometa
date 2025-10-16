@@ -9,13 +9,13 @@ from ...exceptions import ConfigurationError, FileCorruptedError, InvalidChunkDe
 from ...utils.rating_profiles import RatingWriteProfile
 from ...utils.types import AppMetadataValue, RawMetadataDict, RawMetadataKey
 from ..MetadataManager import UnifiedMetadataKey
-from .RatingSupportingMetadataManager import RatingSupportingMetadataManager
+from .MultiEntriesManager import MultiEntriesManager
 
 
 T = TypeVar('T', str, int)
 
 
-class VorbisManager(RatingSupportingMetadataManager):
+class VorbisManager(MultiEntriesManager):
     """
     Manages Vorbis comments for audio files.
 
