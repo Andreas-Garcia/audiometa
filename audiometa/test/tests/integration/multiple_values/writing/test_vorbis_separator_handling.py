@@ -44,21 +44,21 @@ class TestVorbisMultipleEntriesWriting:
             ], capture_output=True, text=True, check=True)
             
             # Should see separate ARTIST entries
-            artist_lines = [line for line in result.stdout.split('\n') if 'ARTIST=' in line]
+            artist_lines = [line for line in result.stdout.split('\n') if 'artist=' in line]
             assert len(artist_lines) == 3
-            assert "ARTIST=New Artist 1" in result.stdout
-            assert "ARTIST=New Artist 2" in result.stdout
-            assert "ARTIST=New Artist 3" in result.stdout
+            assert "artist=New Artist 1" in result.stdout
+            assert "artist=New Artist 2" in result.stdout
+            assert "artist=New Artist 3" in result.stdout
             
             # Should see separate COMPOSER entries
-            composer_lines = [line for line in result.stdout.split('\n') if 'COMPOSER=' in line]
+            composer_lines = [line for line in result.stdout.split('\n') if 'composer=' in line]
             assert len(composer_lines) == 2
-            assert "COMPOSER=New Composer X" in result.stdout
-            assert "COMPOSER=New Composer Y" in result.stdout
+            assert "composer=New Composer X" in result.stdout
+            assert "composer=New Composer Y" in result.stdout
             
             # Should see separate GENRE entries
-            genre_lines = [line for line in result.stdout.split('\n') if 'GENRE=' in line]
+            genre_lines = [line for line in result.stdout.split('\n') if 'genre=' in line]
             assert len(genre_lines) == 3
-            assert "GENRE=Jazz" in result.stdout
-            assert "GENRE=Fusion" in result.stdout
-            assert "GENRE=Experimental" in result.stdout
+            assert "genre=Jazz" in result.stdout
+            assert "genre=Fusion" in result.stdout
+            assert "genre=Experimental" in result.stdout
