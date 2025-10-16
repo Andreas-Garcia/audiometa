@@ -50,14 +50,14 @@ class TestTitleDeleting:
         update_file_metadata(temp_audio_file, {
             UnifiedMetadataKey.TITLE: "Test Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"],
-            UnifiedMetadataKey.ALBUM: "Test Album"
+            UnifiedMetadataKey.ALBUM_NAME: "Test Album"
         })
         
         update_file_metadata(temp_audio_file, {UnifiedMetadataKey.TITLE: None})
         
         assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE) is None
         assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
-        assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ALBUM) == "Test Album"
+        assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
 
     def test_delete_title_already_none(self, metadata_none_mp3, temp_audio_file):
         shutil.copy2(metadata_none_mp3, temp_audio_file)

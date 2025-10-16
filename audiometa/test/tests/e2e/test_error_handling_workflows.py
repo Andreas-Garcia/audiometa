@@ -76,7 +76,7 @@ class TestErrorHandlingWorkflows:
             assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Deletion Error Test"
             
             # 2. Test deletion on file that doesn't exist
-            non_existent_file = test_file.parent / "non_existent.mp3"
+            non_existent_file = test_file.path.parent / "non_existent.mp3"
             with pytest.raises(Exception):  # FileNotFoundError
                 delete_all_metadata(str(non_existent_file))
             

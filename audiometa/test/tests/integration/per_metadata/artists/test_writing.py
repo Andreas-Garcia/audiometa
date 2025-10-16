@@ -1,11 +1,11 @@
 
 
 import pytest
-import shutil
 
 from audiometa import get_merged_unified_metadata, update_file_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
 
 
 @pytest.mark.integration

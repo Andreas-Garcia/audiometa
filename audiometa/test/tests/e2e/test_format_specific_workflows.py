@@ -5,7 +5,6 @@ These tests verify that the system works correctly with different audio formats
 (MP3, FLAC, WAV) and their specific capabilities and limitations.
 """
 import pytest
-from pathlib import Path
 
 from audiometa import (
     get_merged_unified_metadata,

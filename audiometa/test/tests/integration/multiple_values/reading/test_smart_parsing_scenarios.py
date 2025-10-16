@@ -1,5 +1,3 @@
-import pytest
-from pathlib import Path
 
 from audiometa import get_merged_unified_metadata, update_file_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey

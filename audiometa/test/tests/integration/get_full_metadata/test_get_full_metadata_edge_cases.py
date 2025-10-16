@@ -155,7 +155,6 @@ class TestGetFullMetadataEdgeCases:
 
     def test_get_full_metadata_concurrent_access(self, sample_mp3_file: Path):
         import threading
-        import time
         
         results = []
         errors = []

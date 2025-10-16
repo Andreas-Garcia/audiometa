@@ -5,14 +5,13 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from audiometa import (
     get_full_metadata,
     get_merged_unified_metadata,
     update_file_metadata,
     delete_all_metadata,
-    AudioFile,
     UnifiedMetadataKey,
 )
 from audiometa.exceptions import FileTypeNotSupportedError

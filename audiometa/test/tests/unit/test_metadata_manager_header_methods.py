@@ -1,6 +1,5 @@
 """Unit tests for metadata manager header information methods."""
 
-import pytest
 from pathlib import Path
 
 from audiometa import AudioFile

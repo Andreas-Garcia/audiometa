@@ -5,7 +5,6 @@ These tests verify that the system correctly handles different rating scales
 and normalization values across different audio formats.
 """
 import pytest
-from pathlib import Path
 
 from audiometa import (
     get_merged_unified_metadata,

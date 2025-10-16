@@ -5,7 +5,6 @@ instead of the app's update functions, preventing circular dependencies.
 """
 
 import pytest
-from pathlib import Path
 
 from audiometa import (
     update_file_metadata,

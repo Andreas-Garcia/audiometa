@@ -5,14 +5,11 @@ using the metadata_format parameter in update_file_metadata.
 """
 
 import pytest
-import warnings
-from pathlib import Path
 
 from audiometa import (
     update_file_metadata,
     get_single_format_app_metadata,
     get_merged_unified_metadata,
-    delete_all_metadata
 )
 from audiometa.exceptions import (
     MetadataNotSupportedError,

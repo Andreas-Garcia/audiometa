@@ -1,12 +1,7 @@
 """Tests for binary data filtering in get_full_metadata function output."""
 
-import pytest
-from pathlib import Path
 from audiometa import get_full_metadata
 from audiometa.manager.rating_supporting.Id3v2Manager import Id3v2Manager
-from audiometa.manager.rating_supporting.VorbisManager import VorbisManager
-from audiometa.manager.rating_supporting.RiffManager import RiffManager
-from audiometa.manager.id3v1.Id3v1Manager import Id3v1Manager
 
 
 class TestGetFullMetadataBinaryDataFiltering:
@@ -21,7 +16,6 @@ class TestGetFullMetadataBinaryDataFiltering:
         # Check that all frames have reasonable text content
         for frame_id, frame_data in id3v2_frames.items():
             text = frame_data.get('text', '')
-            size = frame_data.get('size', 0)
             
             # Text should not contain binary data patterns
             assert not any(ord(c) < 32 and c not in '\t\n\r' for c in text), \
@@ -148,8 +142,6 @@ class TestGetFullMetadataBinaryDataFiltering:
         
         for frame_id, frame_data in frames.items():
             if frame_id in binary_frame_types:
-                size = frame_data.get('size', 0)
-                flags = frame_data.get('flags', 0)
                 
                 # Size and flags should still be present
                 assert isinstance(size, int), f"Binary frame {frame_id} size should be int"
@@ -171,8 +163,6 @@ class TestGetFullMetadataBinaryDataFiltering:
         for frame_id, frame_data in frames.items():
             if any(frame_id.startswith(prefix) for prefix in text_frame_types):
                 text = frame_data.get('text', '')
-                size = frame_data.get('size', 0)
-                flags = frame_data.get('flags', 0)
                 
                 # Text frames should have actual content, not placeholder
                 assert not text.startswith('<Binary data:'), \

@@ -1,8 +1,6 @@
-import pytest
 from pathlib import Path
 
-from audiometa import update_file_metadata, get_merged_unified_metadata, get_single_format_app_metadata
-from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa import update_file_metadata, get_merged_unified_metadata
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
@@ -100,7 +98,6 @@ class TestMultipleValuesIntegrationStrategies:
             # Verify initial metadata was written
             unified_metadata = get_merged_unified_metadata(test_file.path)
             initial_artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-            initial_composers = unified_metadata.get(UnifiedMetadataKey.COMPOSER)
             
             assert isinstance(initial_artists, list)
             assert len(initial_artists) == 2

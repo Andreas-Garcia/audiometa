@@ -1,4 +1,3 @@
-import pytest
 
 from audiometa.utils.rating_profiles import RatingReadProfile, RatingWriteProfile
 

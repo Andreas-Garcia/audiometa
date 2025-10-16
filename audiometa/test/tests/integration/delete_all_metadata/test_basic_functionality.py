@@ -4,20 +4,15 @@ import shutil
 
 from audiometa import (
     delete_all_metadata,
-    get_merged_unified_metadata,
     AudioFile
 )
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
 
 
 @pytest.mark.integration
 class TestDeleteAllMetadataBasic:
     
-    def test_delete_all_metadata_with_audio_file_object(self, sample_mp3_file: Path, temp_audio_file: Path):
-        # Copy sample file to temp location
-        shutil.copy2(sample_mp3_file, temp_audio_file)
-        
+    def test_delete_all_metadata_with_audio_file_object(self):
         # First add some metadata using external script
         test_metadata = {
             "title": "Test Title",
@@ -39,10 +34,7 @@ class TestDeleteAllMetadataBasic:
         result = delete_all_metadata(temp_audio_file)
         assert result is True
 
-    def test_delete_all_metadata_id3v2_version_specific(self, sample_mp3_file: Path, temp_audio_file: Path):
-        # Copy sample file to temp location
-        shutil.copy2(sample_mp3_file, temp_audio_file)
-        
+    def test_delete_all_metadata_id3v2_version_specific(self):
         # First add some metadata using external script
         test_metadata = {
             "title": "Test Title",
@@ -53,10 +45,7 @@ class TestDeleteAllMetadataBasic:
             result = delete_all_metadata(test_file.path, id3v2_version=(2, 3, 0))
             assert result is True
 
-    def test_delete_all_metadata_return_value_success(self, sample_mp3_file: Path, temp_audio_file: Path):
-        # Copy sample file to temp location
-        shutil.copy2(sample_mp3_file, temp_audio_file)
-        
+    def test_delete_all_metadata_return_value_success(self):
         # First add some metadata using external script
         test_metadata = {
             "title": "Test Title",
@@ -68,7 +57,7 @@ class TestDeleteAllMetadataBasic:
             assert isinstance(result, bool)
 
 
-    def test_delete_all_metadata_preserves_audio_data(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_delete_all_metadata_preserves_audio_data(self):
         # First add some metadata using external script
         test_metadata = {
             "title": "Test Title",

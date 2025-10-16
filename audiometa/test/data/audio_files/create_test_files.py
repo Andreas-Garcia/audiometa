@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 """Script to create test audio files for testing."""
 
-import os
 import subprocess
-import tempfile
 from pathlib import Path
 
 

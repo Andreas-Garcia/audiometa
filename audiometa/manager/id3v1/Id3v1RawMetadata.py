@@ -7,7 +7,6 @@ from typing import Any
 
 from mutagen._file import FileType
 
-from ...exceptions import MetadataNotSupportedError
 from .Id3v1RawMetadataKey import Id3v1RawMetadataKey
 
 
@@ -74,7 +73,7 @@ class Id3v1RawMetadata(FileType):
                 # Regular ID3v1 format: no track number
                 tag.track_number = None
                 tag.comment = comment.strip(b'\0').decode('latin1', 'replace')
-        except Exception as e:
+        except Exception:
             pass
 
         # Convert to dictionary format similar to other metadata formats

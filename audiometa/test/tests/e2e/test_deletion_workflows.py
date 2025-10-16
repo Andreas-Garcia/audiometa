@@ -11,7 +11,6 @@ from audiometa import (
     get_merged_unified_metadata,
     update_file_metadata,
     delete_all_metadata,
-    get_specific_metadata
 )
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -154,7 +153,7 @@ class TestDeletionWorkflows:
             # 4. Delete remaining metadata
             remaining_deletion = {
                 UnifiedMetadataKey.ALBUM_NAME: None,
-                UnifiedMetadataKey.YEAR: None,
+                UnifiedMetadataKey.RELEASE_DATE: None,
                 UnifiedMetadataKey.GENRE_NAME: None
             }
             update_file_metadata(test_file.path, remaining_deletion)
@@ -162,7 +161,7 @@ class TestDeletionWorkflows:
             # 5. Verify all metadata is now deleted
             final_metadata = get_merged_unified_metadata(test_file)
             assert final_metadata.get(UnifiedMetadataKey.ALBUM_NAME) is None
-            assert final_metadata.get(UnifiedMetadataKey.YEAR) is None
+            assert final_metadata.get(UnifiedMetadataKey.RELEASE_DATE) is None
             assert final_metadata.get(UnifiedMetadataKey.GENRE_NAME) is None
 
     def test_cross_format_deletion_consistency(self, sample_mp3_file, sample_flac_file, sample_wav_file):

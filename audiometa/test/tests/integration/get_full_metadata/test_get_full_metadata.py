@@ -4,7 +4,6 @@ import pytest
 from pathlib import Path
 
 from audiometa import get_full_metadata, AudioFile
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 class TestGetFullMetadata: 

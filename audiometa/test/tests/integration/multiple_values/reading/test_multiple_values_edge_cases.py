@@ -1,5 +1,4 @@
 import pytest
-from pathlib import Path
 import subprocess
 
 from audiometa import get_merged_unified_metadata

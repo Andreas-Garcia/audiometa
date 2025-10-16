@@ -1,6 +1,5 @@
 import json
 
-import pytest
 
 from audiometa.cli import format_output, format_as_table
 

@@ -1,4 +1,3 @@
-import pytest
 from pathlib import Path
 
 from audiometa import get_full_metadata

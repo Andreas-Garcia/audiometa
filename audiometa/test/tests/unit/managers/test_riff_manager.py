@@ -6,7 +6,7 @@ from pathlib import Path
 from audiometa import AudioFile
 from audiometa.manager.rating_supporting.RiffManager import RiffManager
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.exceptions import FileTypeNotSupportedError, MetadataNotSupportedError
+from audiometa.exceptions import FileTypeNotSupportedError
 
 
 @pytest.mark.unit

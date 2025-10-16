@@ -7,7 +7,7 @@ from mutagen.id3 import ID3
 from ...audio_file import AudioFile
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from ...utils.rating_profiles import RatingWriteProfile
-from ...utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
+from ...utils.types import AppMetadataValue, RawMetadataKey
 from .RatingSupportingMetadataManager import RatingSupportingMetadataManager
 from ..MetadataManager import METADATA_ARTISTS_SEPARATORS
 

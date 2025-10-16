@@ -66,7 +66,6 @@ import os
 from mutagen.flac import FLAC
 from mutagen.id3 import ID3
 from mutagen.wave import WAVE
-from mutagen.mp3 import MP3
 
 
 def remove_id3_tags(filename):
