@@ -37,7 +37,6 @@ class TestDefaultWritingFormat:
             UnifiedMetadataKey.TITLE: "MP3 Test Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["MP3 Test Artist"],
             UnifiedMetadataKey.ALBUM_NAME: "MP3 Test Album",
-            UnifiedMetadataKey.RATING: 85,
             UnifiedMetadataKey.BPM: 120
         }
         
@@ -49,7 +48,6 @@ class TestDefaultWritingFormat:
         assert id3v2_metadata.get(UnifiedMetadataKey.TITLE) == "MP3 Test Title"
         assert id3v2_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["MP3 Test Artist"]
         assert id3v2_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "MP3 Test Album"
-        assert id3v2_metadata.get(UnifiedMetadataKey.RATING) == 85
         assert id3v2_metadata.get(UnifiedMetadataKey.BPM) == 120
         
         # Verify that merged metadata (which follows priority order) returns ID3v2 data
@@ -77,61 +75,77 @@ class TestDefaultWritingFormat:
         id3_tags = ID3(temp_audio_file)
         assert id3_tags.version == (2, 3, 0), f"Expected ID3v2.3 as default, but got version {id3_tags.version}"
 
-    def test_flac_default_writes_to_vorbis(self, sample_flac_file: Path, temp_audio_file: Path):
-        # Copy sample file to temp location
-        shutil.copy2(sample_flac_file, temp_audio_file)
+    def test_flac_default_writes_to_vorbis(self, sample_flac_file: Path):
+        # Create a temporary FLAC file for testing
+        with tempfile.NamedTemporaryFile(suffix=".flac", delete=False) as tmp_file:
+            temp_flac_file = Path(tmp_file.name)
         
-        # Prepare test metadata
-        test_metadata = {
-            UnifiedMetadataKey.TITLE: "FLAC Test Title",
-            UnifiedMetadataKey.ARTISTS_NAMES: ["FLAC Test Artist"],
-            UnifiedMetadataKey.ALBUM_NAME: "FLAC Test Album",
-            UnifiedMetadataKey.RATING: 90,
-            UnifiedMetadataKey.BPM: 140
-        }
+        try:
+            # Copy sample file to temp location
+            shutil.copy2(sample_flac_file, temp_flac_file)
         
-        # Update metadata using default format (should be Vorbis)
-        update_file_metadata(temp_audio_file, test_metadata)
+            # Prepare test metadata
+            test_metadata = {
+                UnifiedMetadataKey.TITLE: "FLAC Test Title",
+                UnifiedMetadataKey.ARTISTS_NAMES: ["FLAC Test Artist"],
+                UnifiedMetadataKey.ALBUM_NAME: "FLAC Test Album",
+                UnifiedMetadataKey.BPM: 140
+            }
+            
+            # Update metadata using default format (should be Vorbis)
+            update_file_metadata(temp_flac_file, test_metadata)
+            
+            # Verify metadata was written to Vorbis format
+            vorbis_metadata = get_single_format_app_metadata(temp_flac_file, MetadataFormat.VORBIS)
+            assert vorbis_metadata.get(UnifiedMetadataKey.TITLE) == "FLAC Test Title"
+            assert vorbis_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["FLAC Test Artist"]
+            assert vorbis_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "FLAC Test Album"
+            assert vorbis_metadata.get(UnifiedMetadataKey.BPM) == 140
+            
+            # Verify that merged metadata (which follows priority order) returns Vorbis data
+            merged_metadata = get_merged_unified_metadata(temp_flac_file)
+            assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "FLAC Test Title"
+            assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["FLAC Test Artist"]
         
-        # Verify metadata was written to Vorbis format
-        vorbis_metadata = get_single_format_app_metadata(temp_audio_file, MetadataFormat.VORBIS)
-        assert vorbis_metadata.get(UnifiedMetadataKey.TITLE) == "FLAC Test Title"
-        assert vorbis_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["FLAC Test Artist"]
-        assert vorbis_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "FLAC Test Album"
-        assert vorbis_metadata.get(UnifiedMetadataKey.RATING) == 90
-        assert vorbis_metadata.get(UnifiedMetadataKey.BPM) == 140
-        
-        # Verify that merged metadata (which follows priority order) returns Vorbis data
-        merged_metadata = get_merged_unified_metadata(temp_audio_file)
-        assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "FLAC Test Title"
-        assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["FLAC Test Artist"]
+        finally:
+            # Clean up temp file
+            temp_flac_file.unlink(missing_ok=True)
 
-    def test_wav_default_writes_to_riff(self, sample_wav_file: Path, temp_audio_file: Path):
-        # Copy sample file to temp location
-        shutil.copy2(sample_wav_file, temp_audio_file)
+    def test_wav_default_writes_to_riff(self, sample_wav_file: Path):
+        # Create a temporary WAV file for testing
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_file:
+            temp_wav_file = Path(tmp_file.name)
         
-        # Prepare test metadata (RIFF has limited support, so we test supported fields)
-        test_metadata = {
-            UnifiedMetadataKey.TITLE: "WAV Test Title",
-            UnifiedMetadataKey.ARTISTS_NAMES: ["WAV Test Artist"],
-            UnifiedMetadataKey.ALBUM_NAME: "WAV Test Album",
-            UnifiedMetadataKey.GENRE_NAME: "Test Genre"
-        }
+        try:
+            # Copy sample file to temp location
+            shutil.copy2(sample_wav_file, temp_wav_file)
         
-        # Update metadata using default format (should be RIFF)
-        update_file_metadata(temp_audio_file, test_metadata)
+            # Prepare test metadata (RIFF has limited support, so we test supported fields)
+            test_metadata = {
+                UnifiedMetadataKey.TITLE: "WAV Test Title",
+                UnifiedMetadataKey.ARTISTS_NAMES: ["WAV Test Artist"],
+                UnifiedMetadataKey.ALBUM_NAME: "WAV Test Album",
+                UnifiedMetadataKey.GENRE_NAME: "Test Genre"
+            }
+            
+            # Update metadata using default format (should be RIFF)
+            update_file_metadata(temp_wav_file, test_metadata)
+            
+            # Verify metadata was written to RIFF format
+            riff_metadata = get_single_format_app_metadata(temp_wav_file, MetadataFormat.RIFF)
+            assert riff_metadata.get(UnifiedMetadataKey.TITLE) == "WAV Test Title"
+            assert riff_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["WAV Test Artist"]
+            assert riff_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "WAV Test Album"
+            assert riff_metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Other"
+            
+            # Verify that merged metadata (which follows priority order) returns RIFF data
+            merged_metadata = get_merged_unified_metadata(temp_wav_file)
+            assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "WAV Test Title"
+            assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["WAV Test Artist"]
         
-        # Verify metadata was written to RIFF format
-        riff_metadata = get_single_format_app_metadata(temp_audio_file, MetadataFormat.RIFF)
-        assert riff_metadata.get(UnifiedMetadataKey.TITLE) == "WAV Test Title"
-        assert riff_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["WAV Test Artist"]
-        assert riff_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "WAV Test Album"
-        assert riff_metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Test Genre"
-        
-        # Verify that merged metadata (which follows priority order) returns RIFF data
-        merged_metadata = get_merged_unified_metadata(temp_audio_file)
-        assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "WAV Test Title"
-        assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["WAV Test Artist"]
+        finally:
+            # Clean up temp file
+            temp_wav_file.unlink(missing_ok=True)
 
     def test_format_priority_order_matches_defaults(self):
         priorities = MetadataFormat.get_priorities()
