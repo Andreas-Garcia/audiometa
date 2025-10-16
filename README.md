@@ -836,16 +836,11 @@ update_file_metadata("song.wav", {"title": "New Title"},
                     metadata_strategy=MetadataWritingStrategy.PRESERVE)
 ```
 
-### Multiple Values Support
+### Multiple Values
 
-The library handles multiple values in two distinct ways, depending on the metadata format's capabilities:
+The library intelligently handles multiple values across different metadata formats, automatically choosing the best approach for each situation.
 
-#### 1. Semantic Multiple Values Support
-
-Some fields can logically contain multiple values, which the library handles through:
-
-- **Multiple entries** (when the format supports it)
-- **Separator-based parsing** (when reading single entries with separators)
+#### Supported Multi-Value Fields
 
 The following fields support semantic multiple values:
 
@@ -861,68 +856,24 @@ The following fields support semantic multiple values:
 
 **Legend:**
 
-- ✅ = Multiple entries supported
-- ✅\* = Separator-based parsing only (single entry with separators)
+- ✅ = Multiple entries supported (best practice)
+- ✅\* = Separator-based parsing only (legacy limitation)
 
-**Notes:**
+#### Reading Multiple Values
 
-- **ID3v2**: Full support via multiple entries
-- **Vorbis**: Multiple entries for all fields (technically supports any field name)
-- **RIFF**: Separator-based parsing only (single entry per tag)
-- **ID3v1**: Separator-based parsing only (legacy format limitations)
+The library uses **smart separator parsing** that adapts to the format and data structure:
 
-#### 2. Format-Only Multiple Entries Support
+**Logic:**
 
-Some metadata formats can store multiple separate entries for the same tag, but only return one value when reading:
-
-| Format            | Multiple Entries per Tag | Reading Strategy           |
-| ----------------- | ------------------------ | -------------------------- |
-| **ID3v2**         | ✅ Yes                   | Returns all values as list |
-| **Vorbis (FLAC)** | ✅ Yes                   | Returns all values as list |
-| **RIFF (WAV)**    | ❌ No                    | Single entry per tag only  |
-| **ID3v1**         | ❌ No                    | Legacy format limitation   |
-
-**Reading Strategy for Single-Value Fields:**
-
-For fields that semantically cannot have multiple values (like `TITLE`, `ALBUM_NAME`, `COMMENT`, etc.), when multiple entries exist in the underlying format, **the library always returns the first value only**.
-
-#### Separator-Based Parsing
-
-When a format doesn't support multiple entries but a field can semantically have multiple values, the library uses separator-based parsing. It automatically splits single entries on these separators (in order of precedence):
-
-1. `//` (double slash)
-2. `\\` (double backslash)
-3. `;` (semicolon)
-4. `\` (backslash)
-5. `/` (forward slash)
-6. `,` (comma)
-
-**Example:**
+- **Modern formats (ID3v2, Vorbis) + Multiple entries**: No separator parsing (trusts separate entries)
+- **Modern formats (ID3v2, Vorbis) + Single entry**: Applies separator parsing (legacy data)
+- **Legacy formats (RIFF, ID3v1)**: Always applies separator parsing (only option)
 
 ```python
-# A single Vorbis tag: "Artist One;Artist Two;Artist Three"
-# Gets parsed as: ["Artist One", "Artist Two", "Artist Three"]
-```
-
-#### Usage Examples
-
-```python
-from audiometa import update_file_metadata, get_merged_unified_metadata
+from audiometa import get_merged_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
-# Set multiple values for various fields
-metadata = {
-    UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two", "Artist Three"],
-    UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: ["Album Artist One", "Album Artist Two"],
-    UnifiedMetadataKey.GENRE_NAME: ["Rock", "Alternative", "Indie"],
-    UnifiedMetadataKey.COMPOSER: ["Composer A", "Composer B"],
-    UnifiedMetadataKey.MUSICIANS: ["Guitarist", "Drummer", "Bassist"]
-}
-
-# Update file (library handles format-specific implementation)
-update_file_metadata("song.mp3", metadata)
-
-# Read back (returns lists for multi-value fields)
+# Read multiple values
 result = get_merged_unified_metadata("song.mp3")
 print(result[UnifiedMetadataKey.ARTISTS_NAMES])
 # Output: ['Artist One', 'Artist Two', 'Artist Three']
@@ -931,12 +882,174 @@ print(result[UnifiedMetadataKey.GENRE_NAME])
 # Output: ['Rock', 'Alternative', 'Indie']
 ```
 
-#### Format Support Summary
+**Separator Priority (when parsing is applied):**
 
-- **✅ MP3 (ID3v2)**: Full support via multiple entries for all fields
-- **✅ FLAC (Vorbis)**: Multiple entries for all fields
-- **✅ WAV (RIFF)**: Separator-based parsing for all multi-value fields
-- **✅ ID3v1**: Separator-based parsing for all multi-value fields (legacy format)
+1. `//` (double slash)
+2. `\\` (double backslash)
+3. `;` (semicolon)
+4. `\` (backslash)
+5. `/` (forward slash)
+6. `,` (comma)
+
+**Examples of Smart Parsing:**
+
+```python
+# Scenario 1: Modern file with separate entries
+# Raw data: ["Artist One", "Artist; with; semicolons", "Artist Three"]
+# Result: ["Artist One", "Artist; with; semicolons", "Artist Three"]
+# ✅ Separators preserved in individual entries
+
+# Scenario 2: Legacy data in modern format
+# Raw data: ["Artist One;Artist Two;Artist Three"]
+# Result: ["Artist One", "Artist Two", "Artist Three"]
+# ✅ Single entry gets parsed
+
+# Scenario 3: Legacy format (RIFF/ID3v1)
+# Raw data: ["Artist One;Artist Two"]
+# Result: ["Artist One", "Artist Two"]
+# ✅ Always applies separator parsing
+```
+
+#### Writing Multiple Values
+
+**Strategy Overview:**
+
+The library uses a **smart writing strategy** that adapts to format capabilities and data characteristics:
+
+1. **Modern formats (ID3v2, Vorbis)**: Uses multiple separate entries (best practice)
+2. **Legacy formats (RIFF, ID3v1)**: Uses smart separator-based concatenation
+3. **Smart separator selection**: Chooses the best separator that won't conflict with actual values
+
+**Basic Usage:**
+
+```python
+from audiometa import update_file_metadata
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+
+# Write multiple values - library automatically uses best approach
+metadata = {
+    UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two", "Artist Three"],
+    UnifiedMetadataKey.COMPOSER: ["Composer A", "Composer B"],
+    UnifiedMetadataKey.GENRE_NAME: ["Rock", "Alternative", "Indie"]
+}
+
+# For MP3/FLAC: Creates separate entries (best practice)
+# For WAV/ID3v1: Uses smart separator-based (only option)
+update_file_metadata("song.mp3", metadata)
+```
+
+**Format-Specific Writing:**
+
+```python
+from audiometa.utils.MetadataFormat import MetadataFormat
+
+# Force specific format for optimal results
+update_file_metadata("song.mp3", metadata, metadata_format=MetadataFormat.ID3V2)
+update_file_metadata("song.flac", metadata, metadata_format=MetadataFormat.VORBIS)
+update_file_metadata("song.wav", metadata, metadata_format=MetadataFormat.RIFF)
+```
+
+**Smart Separator Selection (Legacy Formats):**
+
+When writing to legacy formats that require concatenated values, the library uses **intelligent separator selection**:
+
+**Separator Priority (when concatenation is needed):**
+
+1. `//` (double slash) - highest priority
+2. `\\` (double backslash)
+3. `;` (semicolon)
+4. `\` (backslash)
+5. `/` (forward slash)
+6. `,` (comma) - lowest priority
+
+**Selection Logic:**
+
+- Scans values for each separator in priority order
+- Uses the first separator that doesn't appear in any of the values
+- Ensures no false splitting when reading back the data
+
+**Examples of Smart Separator Selection:**
+
+```python
+# Example 1: Clean values - uses highest priority separator
+values = ["Artist One", "Artist Two", "Artist Three"]
+# Result: "Artist One//Artist Two//Artist Three" (uses //)
+
+# Example 2: Values contain // - uses next priority separator
+values = ["Artist//One", "Artist Two", "Artist Three"]
+# Result: "Artist//One\\Artist Two\\Artist Three" (uses \\)
+
+# Example 3: Values contain // and \\ - uses semicolon
+values = ["Artist//One", "Artist\\Two", "Artist Three"]
+# Result: "Artist//One;Artist\\Two;Artist Three" (uses ;)
+
+# Example 4: All common separators present - uses comma
+values = ["Artist//One", "Artist\\Two", "Artist;Three", "Artist/Four"]
+# Result: "Artist//One,Artist\\Two,Artist;Three,Artist/Four" (uses ,)
+```
+
+**Handling Separator Characters in Modern Formats:**
+
+```python
+# Values with separators are preserved correctly as separate entries
+metadata = {
+    UnifiedMetadataKey.ARTISTS_NAMES: [
+        "Artist; with; semicolons",      # Preserved as single value
+        "Another, Artist, with, commas", # Preserved as single value
+        "Artist | with | pipes"          # Preserved as single value
+    ]
+}
+
+update_file_metadata("song.mp3", metadata)
+# Result: Each value remains intact as separate entries
+# No incorrect splitting when reading back
+```
+
+**Mixed Format Scenarios:**
+
+```python
+# Writing to a file that already has concatenated values
+# Library detects existing format and handles appropriately
+
+# If file has: "Artist One;Artist Two" (concatenated)
+# And you write: ["Artist Three", "Artist Four"]
+# Result depends on format:
+# - Modern format: ["Artist One", "Artist Two", "Artist Three", "Artist Four"] (separate entries)
+# - Legacy format: "Artist One;Artist Two;Artist Three;Artist Four" (concatenated)
+```
+
+**Removing Multiple Values:**
+
+```python
+# Remove field entirely
+update_file_metadata("song.mp3", {
+    UnifiedMetadataKey.ARTISTS_NAMES: None
+})
+
+# Remove field with empty list
+update_file_metadata("song.mp3", {
+    UnifiedMetadataKey.ARTISTS_NAMES: []
+})
+```
+
+#### Why This Approach Works
+
+**Reading Strategy:**
+
+1. **Respects format capabilities**: Uses separate entries when possible
+2. **Handles mixed scenarios**: Processes both modern and legacy data correctly
+3. **Preserves intentional separators**: Values containing separators stay intact
+4. **Backward compatible**: Works with legacy single-entry data
+5. **No false positives**: Won't incorrectly split values that contain separators intentionally
+
+**Writing Strategy:**
+
+1. **Format-appropriate approach**: Uses multiple entries for modern formats, smart concatenation for legacy
+2. **Intelligent separator selection**: Chooses separators that won't conflict with actual values
+3. **Consistent with reading**: Uses the same separator priority order for round-trip compatibility
+4. **Handles edge cases**: Gracefully manages values containing all common separators
+5. **Preserves data integrity**: Ensures values can be accurately read back without corruption
+6. **Automatic**: No configuration needed - the library chooses the best approach
 
 ### Single-Value Fields Behavior
 
