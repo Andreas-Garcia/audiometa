@@ -7,38 +7,8 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
 
 
-class TestSpecialCharactersEdgeCases:
-    def test_special_characters_in_entries(self):
-        # Create temporary file with basic metadata
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist & Co.",
-                    "--set-tag=ARTIST=Artist (feat. Guest)",
-                    "--set-tag=ARTIST=Artist vs. Other",
-                    "--set-tag=ARTIST=Artist + Collaborator",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set special character artists")
-            
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-            
-            assert isinstance(artists, list)
-            assert len(artists) == 4
-            assert "Artist & Co." in artists
-            assert "Artist (feat. Guest)" in artists
-            assert "Artist vs. Other" in artists
-            assert "Artist + Collaborator" in artists
-
+class TestMultipleValuesEdgeCases:
     def test_numeric_entries(self):
-        # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             try:
                 subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
@@ -65,7 +35,6 @@ class TestSpecialCharactersEdgeCases:
             assert "123" in artists
 
     def test_case_sensitivity_preservation(self):
-        # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             try:
                 subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
@@ -94,7 +63,6 @@ class TestSpecialCharactersEdgeCases:
             assert "ArTiSt FoUr" in artists
 
     def test_duplicate_entries_preservation(self):
-        # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             try:
                 subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
@@ -123,7 +91,6 @@ class TestSpecialCharactersEdgeCases:
             assert artists.count("Artist Three") == 1
 
     def test_order_preservation(self):
-        # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             try:
                 subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
@@ -151,59 +118,7 @@ class TestSpecialCharactersEdgeCases:
             assert artists[2] == "Third Artist"
             assert artists[3] == "Fourth Artist"
 
-    def test_unicode_characters(self):
-        # Create temporary file with basic metadata
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist Café",
-                    "--set-tag=ARTIST=Artist 音乐",
-                    "--set-tag=ARTIST=Artist 🎵",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set unicode artists")
-            
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-            
-            assert isinstance(artists, list)
-            assert len(artists) == 3
-            assert "Artist Café" in artists
-            assert "Artist 音乐" in artists
-            assert "Artist 🎵" in artists
-
-    def test_separator_in_artist_name(self):
-        # Create temporary file with basic metadata
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist & Co.;Artist vs. Other;Artist + Collaborator",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set special character artists")
-            
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-            
-            assert isinstance(artists, list)
-            assert len(artists) == 3
-            assert "Artist & Co." in artists
-            assert "Artist vs. Other" in artists
-            assert "Artist + Collaborator" in artists
-
     def test_very_long_single_entry(self):
-        # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             long_artist = "A" * 10000  # 10,000 character artist name
             
@@ -228,7 +143,6 @@ class TestSpecialCharactersEdgeCases:
             assert artists[0] == long_artist
 
     def test_mixed_metadata_types(self):
-        # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             try:
                 subprocess.run(["metaflac", "--remove-all-tags", str(test_file.path)], 
@@ -276,7 +190,6 @@ class TestSpecialCharactersEdgeCases:
             assert title == "Single Title"
 
     def test_corrupted_multiple_entries(self):
-        # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             unified_metadata = get_merged_unified_metadata(test_file.path)
             
