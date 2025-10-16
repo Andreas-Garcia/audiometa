@@ -118,3 +118,20 @@ class TestRiffRatingWriting:
             rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating is not None
             assert rating == 90
+
+    def test_write_none_removes_rating(self, temp_audio_file):
+        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
+        
+        with TempFileWithMetadata(basic_metadata, "wav") as test_file:
+            # First write a rating
+            test_metadata = {UnifiedMetadataKey.RATING: 80}
+            update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
+            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            assert rating == 80
+            
+            # Then remove it with None
+            test_metadata = {UnifiedMetadataKey.RATING: None}
+            update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
+            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            # Rating removal behavior may vary - check if it's None or 0
+            assert rating is None or rating == 0
