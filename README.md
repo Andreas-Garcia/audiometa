@@ -894,17 +894,17 @@ print(result[UnifiedMetadataKey.GENRE_NAME])
 **Examples of Smart Parsing:**
 
 ```python
-# Scenario 1: Modern file with separate entries
+# Scenario 1: Vorbis (FLAC) with separate entries
 # Raw data: ["Artist One", "Artist; with; semicolons", "Artist Three"]
 # Result: ["Artist One", "Artist; with; semicolons", "Artist Three"]
-# ✅ Separators preserved in individual entries
+# ✅ Separators preserved in individual entries (Vorbis supports multiple frames)
 
-# Scenario 2: Legacy data in modern format
+# Scenario 2: ID3v2/RIFF/ID3v1 with single entry containing separators
 # Raw data: ["Artist One;Artist Two;Artist Three"]
 # Result: ["Artist One", "Artist Two", "Artist Three"]
-# ✅ Single entry gets parsed
+# ✅ Single entry gets parsed (these formats use single frame with separators)
 
-# Scenario 3: Legacy format (RIFF/ID3v1)
+# Scenario 3: Legacy format (RIFF/ID3v1) - always parses
 # Raw data: ["Artist One;Artist Two"]
 # Result: ["Artist One", "Artist Two"]
 # ✅ Always applies separator parsing
@@ -933,8 +933,8 @@ metadata = {
     UnifiedMetadataKey.GENRE_NAME: ["Rock", "Alternative", "Indie"]
 }
 
-# For MP3/FLAC: Creates separate entries (best practice)
-# For WAV/ID3v1: Uses smart separator-based (only option)
+# For FLAC: Creates separate entries (Vorbis supports multiple frames)
+# For MP3/WAV/ID3v1: Uses smart separator-based (single frame with separators)
 update_file_metadata("song.mp3", metadata)
 ```
 
@@ -948,6 +948,15 @@ update_file_metadata("song.mp3", metadata, metadata_format=MetadataFormat.ID3V2)
 update_file_metadata("song.flac", metadata, metadata_format=MetadataFormat.VORBIS)
 update_file_metadata("song.wav", metadata, metadata_format=MetadataFormat.RIFF)
 ```
+
+**Format Limitations:**
+
+- **Vorbis (FLAC)**: Supports true multiple entries (separate frames) ✅
+- **ID3v2 (MP3)**: Uses single frame with separators (e.g., "Artist One;Artist Two") ⚠️
+- **RIFF (WAV)**: Uses single frame with separators ⚠️
+- **ID3v1**: Uses single frame with separators ⚠️
+
+> **Note**: ID3v2, RIFF, and ID3v1 formats do not support multiple separate frames for the same metadata field. Multiple values are stored as a single frame with separator characters.
 
 **Smart Separator Selection (Legacy Formats):**
 
@@ -1014,8 +1023,8 @@ update_file_metadata("song.mp3", metadata)
 # If file has: "Artist One;Artist Two" (concatenated)
 # And you write: ["Artist Three", "Artist Four"]
 # Result depends on format:
-# - Modern format: ["Artist One", "Artist Two", "Artist Three", "Artist Four"] (separate entries)
-# - Legacy format: "Artist One;Artist Two;Artist Three;Artist Four" (concatenated)
+# - Vorbis (FLAC): ["Artist One", "Artist Two", "Artist Three", "Artist Four"] (separate entries)
+# - ID3v2/RIFF/ID3v1: "Artist One;Artist Two;Artist Three;Artist Four" (concatenated)
 ```
 
 **Removing Multiple Values:**
