@@ -9,7 +9,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 class TestSeparatorHandling:
-    def test_write_artists_with_semicolon_separators(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_artists_with_semicolon_separators(self, temp_audio_file: Path):
         # Write artists that contain semicolon separators
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist; with; semicolons", "Another; Artist; with; semicolons"]
@@ -24,7 +24,7 @@ class TestSeparatorHandling:
         assert "Artist; with; semicolons" in artists
         assert "Another; Artist; with; semicolons" in artists
 
-    def test_write_artists_with_comma_separators(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_artists_with_comma_separators(self, temp_audio_file: Path):
         # Write artists that contain comma separators
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist, with, commas", "Another, Artist, with, commas"]
@@ -39,7 +39,7 @@ class TestSeparatorHandling:
         assert "Artist, with, commas" in artists
         assert "Another, Artist, with, commas" in artists
 
-    def test_write_artists_with_pipe_separators(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_artists_with_pipe_separators(self, temp_audio_file: Path):
         # Write artists that contain pipe separators
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist | with | pipes", "Another | Artist | with | pipes"]
@@ -54,7 +54,7 @@ class TestSeparatorHandling:
         assert "Artist | with | pipes" in artists
         assert "Another | Artist | with | pipes" in artists
 
-    def test_write_artists_with_slash_separators(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_artists_with_slash_separators(self, temp_audio_file: Path):
         # Write artists that contain slash separators
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist / with / slashes", "Another / Artist / with / slashes"]
@@ -69,7 +69,7 @@ class TestSeparatorHandling:
         assert "Artist / with / slashes" in artists
         assert "Another / Artist / with / slashes" in artists
 
-    def test_write_artists_with_backslash_separators(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_artists_with_backslash_separators(self, temp_audio_file: Path):
         # Write artists that contain backslash separators
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist \\ with \\ backslashes", "Another \\ Artist \\ with \\ backslashes"]
@@ -84,7 +84,7 @@ class TestSeparatorHandling:
         assert "Artist \\ with \\ backslashes" in artists
         assert "Another \\ Artist \\ with \\ backslashes" in artists
 
-    def test_write_artists_with_mixed_separators(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_artists_with_mixed_separators(self, temp_audio_file: Path):
         # Write artists with mixed separator characters
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: [
@@ -102,7 +102,7 @@ class TestSeparatorHandling:
         assert "Artist; with, mixed | separators / and \\ slashes" in artists
         assert "Another; Artist, with | mixed / separators \\ and \\ more" in artists
 
-    def test_write_involved_people_with_separators(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_involved_people_with_separators(self, temp_audio_file: Path):
         # Write involved people with separator characters in their roles
         metadata = {
             UnifiedMetadataKey.INVOLVED_PEOPLE: [
@@ -122,7 +122,7 @@ class TestSeparatorHandling:
         assert "Engineer, Recording: Jane Smith" in involved_people
         assert "Mastering | Engineer: Bob Johnson" in involved_people
 
-    def test_write_musicians_with_separators(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_musicians_with_separators(self, temp_audio_file: Path):
         # Write musicians with separator characters in their descriptions
         metadata = {
             UnifiedMetadataKey.MUSICIANS: [
@@ -144,7 +144,7 @@ class TestSeparatorHandling:
         assert "Drums | Acoustic: Charlie" in musicians
         assert "Vocals / Backing: Diana" in musicians
 
-    def test_write_keywords_with_separators(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_keywords_with_separators(self, temp_audio_file: Path):
         # Write keywords with separator characters
         metadata = {
             UnifiedMetadataKey.KEYWORDS: [
@@ -166,7 +166,7 @@ class TestSeparatorHandling:
         assert "electronic | ambient" in keywords
         assert "jazz / fusion" in keywords
 
-    def test_write_composers_with_separators(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_composers_with_separators(self, temp_audio_file: Path):
         # Write composers with separator characters
         metadata = {
             UnifiedMetadataKey.COMPOSER: [
@@ -186,7 +186,7 @@ class TestSeparatorHandling:
         assert "Composer, Lyricist: Jane Smith" in composers
         assert "Composer | Producer: Bob Johnson" in composers
 
-    def test_write_album_artists_with_separators(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_album_artists_with_separators(self, temp_audio_file: Path):
         # Write album artists with separator characters
         metadata = {
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: [
@@ -206,7 +206,7 @@ class TestSeparatorHandling:
         assert "Various, Artists" in album_artists
         assert "Compilation | Artists" in album_artists
 
-    def test_write_mixed_fields_with_separators(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_mixed_fields_with_separators(self, temp_audio_file: Path):
         # Write multiple fields with separator characters
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist; with; semicolons", "Another, Artist, with, commas"],

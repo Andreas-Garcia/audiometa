@@ -1,15 +1,11 @@
-import pytest
 from pathlib import Path
-import tempfile
-import shutil
 
 from audiometa import update_file_metadata, get_merged_unified_metadata
-from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 class TestSpecialCharactersEdgeCases:
-    def test_write_unicode_characters(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_unicode_characters(self, temp_audio_file: Path):
         # Write metadata with Unicode characters
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["François", "José", "Müller", "北京"]
@@ -26,7 +22,7 @@ class TestSpecialCharactersEdgeCases:
         assert "Müller" in artists
         assert "北京" in artists
 
-    def test_write_special_punctuation(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_special_punctuation(self, temp_audio_file: Path):
         # Write metadata with special punctuation
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist & Co.", "Band (feat. Singer)", "Group - The Band"]
@@ -42,7 +38,7 @@ class TestSpecialCharactersEdgeCases:
         assert "Band (feat. Singer)" in artists
         assert "Group - The Band" in artists
 
-    def test_write_quotes_and_apostrophes(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_quotes_and_apostrophes(self, temp_audio_file: Path):
         # Write metadata with quotes and apostrophes
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist's Band", "The \"Quoted\" Band", "It's a Band"]
@@ -58,7 +54,7 @@ class TestSpecialCharactersEdgeCases:
         assert "The \"Quoted\" Band" in artists
         assert "It's a Band" in artists
 
-    def test_write_control_characters(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_control_characters(self, temp_audio_file: Path):
         # Write metadata with control characters
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist\twith\ttabs", "Band\nwith\nnewlines", "Group\rwith\rcarriage"]
@@ -74,7 +70,7 @@ class TestSpecialCharactersEdgeCases:
         assert "Band\nwith\nnewlines" in artists
         assert "Group\rwith\rcarriage" in artists
 
-    def test_write_very_long_strings(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_very_long_strings(self, temp_audio_file: Path):
         # Write metadata with very long strings
         long_string = "A" * 1000
         metadata = {
@@ -90,7 +86,7 @@ class TestSpecialCharactersEdgeCases:
         assert long_string in artists
         assert "Short Artist" in artists
 
-    def test_write_mixed_encodings(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_mixed_encodings(self, temp_audio_file: Path):
         # Write metadata with mixed character encodings
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["ASCII Artist", "Français", "Русский", "العربية", "中文"]
@@ -108,7 +104,7 @@ class TestSpecialCharactersEdgeCases:
         assert "العربية" in artists
         assert "中文" in artists
 
-    def test_write_special_separator_characters(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_special_separator_characters(self, temp_audio_file: Path):
         # Write metadata with characters that might be used as separators
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist; with; semicolons", "Band, with, commas", "Group|with|pipes"]
@@ -124,7 +120,7 @@ class TestSpecialCharactersEdgeCases:
         assert "Band, with, commas" in artists
         assert "Group|with|pipes" in artists
 
-    def test_write_html_xml_characters(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_html_xml_characters(self, temp_audio_file: Path):
         # Write metadata with HTML/XML-like characters
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist <tag>", "Band &amp; Co.", "Group &lt;test&gt;"]
@@ -140,7 +136,7 @@ class TestSpecialCharactersEdgeCases:
         assert "Band &amp; Co." in artists
         assert "Group &lt;test&gt;" in artists
 
-    def test_write_emoji_characters(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_emoji_characters(self, temp_audio_file: Path):
         # Write metadata with emoji characters
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist 🎵", "Band 🎸", "Group 🎤"]
@@ -156,7 +152,7 @@ class TestSpecialCharactersEdgeCases:
         assert "Band 🎸" in artists
         assert "Group 🎤" in artists
 
-    def test_write_null_bytes(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_null_bytes(self, temp_audio_file: Path):
         # Write metadata with null bytes (should be handled gracefully)
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist\x00with\x00nulls", "Normal Artist"]
@@ -171,7 +167,7 @@ class TestSpecialCharactersEdgeCases:
         assert "Normal Artist" in artists
         # The null bytes might be stripped or handled differently by the format
 
-    def test_write_mixed_special_characters(self, sample_flac_file: Path, temp_audio_file: Path):
+    def test_write_mixed_special_characters(self, temp_audio_file: Path):
         # Write metadata with a mix of special characters
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: [
