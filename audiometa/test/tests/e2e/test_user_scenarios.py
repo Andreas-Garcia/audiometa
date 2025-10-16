@@ -79,6 +79,79 @@ class TestUserScenarios:
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Updated Title"
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Updated Artist"]
     
+    def test_metadata_privacy_cleanup_workflow(self, sample_mp3_file):
+        # Simulate a user cleaning up metadata for privacy before sharing files
+        initial_metadata = {
+            "title": "Personal Music Track",
+            "artist": "Personal Artist",
+            "album": "Personal Album",
+            "comment": "Personal comment with sensitive info"
+        }
+        
+        with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
+            # 1. Verify initial metadata exists
+            initial_metadata_result = get_merged_unified_metadata(test_file)
+            assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Personal Music Track"
+            assert initial_metadata_result.get(UnifiedMetadataKey.COMMENT) == "Personal comment with sensitive info"
+            
+            # 2. User decides to clean up sensitive metadata
+            cleanup_metadata = {
+                UnifiedMetadataKey.COMMENT: None,  # Remove personal comment
+                UnifiedMetadataKey.ALBUM_NAME: "Generic Album"  # Replace personal album
+            }
+            update_file_metadata(test_file.path, cleanup_metadata)
+            
+            # 3. Verify sensitive data was removed
+            cleaned_metadata = get_merged_unified_metadata(test_file)
+            assert cleaned_metadata.get(UnifiedMetadataKey.COMMENT) is None
+            assert cleaned_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Generic Album"
+            assert cleaned_metadata.get(UnifiedMetadataKey.TITLE) == "Personal Music Track"  # Title remains
+            
+            # 4. User decides to remove all metadata for complete privacy
+            delete_result = delete_all_metadata(test_file)
+            assert delete_result is True
+            
+            # 5. Verify all metadata is removed
+            final_metadata = get_merged_unified_metadata(test_file)
+            assert final_metadata.get(UnifiedMetadataKey.TITLE) is None or final_metadata.get(UnifiedMetadataKey.TITLE) != "Personal Music Track"
+            assert final_metadata.get(UnifiedMetadataKey.COMMENT) is None
+
+    def test_metadata_correction_workflow(self, sample_mp3_file):
+        # Simulate a user correcting incorrect metadata
+        initial_metadata = {
+            "title": "Wrong Title",
+            "artist": "Wrong Artist",
+            "album": "Wrong Album"
+        }
+        
+        with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
+            # 1. Verify initial incorrect metadata
+            initial_metadata_result = get_merged_unified_metadata(test_file)
+            assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Wrong Title"
+            
+            # 2. User realizes the metadata is wrong and wants to start fresh
+            # Delete all metadata first
+            delete_result = delete_all_metadata(test_file)
+            assert delete_result is True
+            
+            # 3. Verify metadata was deleted
+            deleted_metadata = get_merged_unified_metadata(test_file)
+            assert deleted_metadata.get(UnifiedMetadataKey.TITLE) is None or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "Wrong Title"
+            
+            # 4. Add correct metadata
+            correct_metadata = {
+                UnifiedMetadataKey.TITLE: "Correct Title",
+                UnifiedMetadataKey.ARTISTS_NAMES: ["Correct Artist"],
+                UnifiedMetadataKey.ALBUM_NAME: "Correct Album"
+            }
+            update_file_metadata(test_file.path, correct_metadata)
+            
+            # 5. Verify correct metadata was added
+            final_metadata = get_merged_unified_metadata(test_file)
+            assert final_metadata.get(UnifiedMetadataKey.TITLE) == "Correct Title"
+            assert final_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Correct Artist"]
+            assert final_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Correct Album"
+    
     def test_cross_format_compatibility(self, sample_mp3_file, sample_flac_file, sample_wav_file, temp_audio_file):
         # Test that metadata works consistently across MP3, FLAC, etc.
         
