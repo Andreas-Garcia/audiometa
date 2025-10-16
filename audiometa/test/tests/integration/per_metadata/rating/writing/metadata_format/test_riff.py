@@ -9,7 +9,7 @@ from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
 @pytest.mark.integration
 class TestRiffRatingWriting:
     
-    def test_riff_write_0_star(self, temp_audio_file):
+    def test_write_0_star(self, temp_audio_file):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         
         with TempFileWithMetadata(basic_metadata, "wav") as test_file:
@@ -19,7 +19,7 @@ class TestRiffRatingWriting:
             assert rating is not None
             assert rating == 0
 
-    def test_riff_write_1_star(self, temp_audio_file):
+    def test_write_1_star(self, temp_audio_file):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         
         with TempFileWithMetadata(basic_metadata, "wav") as test_file:
@@ -29,7 +29,7 @@ class TestRiffRatingWriting:
             assert rating is not None
             assert rating == 20
 
-    def test_riff_write_2_star(self, temp_audio_file):
+    def test_write_2_star(self, temp_audio_file):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         
         with TempFileWithMetadata(basic_metadata, "wav") as test_file:
@@ -39,7 +39,7 @@ class TestRiffRatingWriting:
             assert rating is not None
             assert rating == 40
 
-    def test_riff_write_3_star(self, temp_audio_file):
+    def test_write_3_star(self, temp_audio_file):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         
         with TempFileWithMetadata(basic_metadata, "wav") as test_file:
@@ -49,7 +49,7 @@ class TestRiffRatingWriting:
             assert rating is not None
             assert rating == 60
 
-    def test_riff_write_4_star(self, temp_audio_file):
+    def test_write_4_star(self, temp_audio_file):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         
         with TempFileWithMetadata(basic_metadata, "wav") as test_file:
@@ -59,7 +59,7 @@ class TestRiffRatingWriting:
             assert rating is not None
             assert rating == 80
 
-    def test_riff_write_5_star(self, temp_audio_file):
+    def test_write_5_star(self, temp_audio_file):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         
         with TempFileWithMetadata(basic_metadata, "wav") as test_file:

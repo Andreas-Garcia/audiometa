@@ -9,7 +9,7 @@ from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
 @pytest.mark.integration
 class TestId3v2RatingWriting:
     
-    def test_id3v2_write_0_star(self, temp_audio_file):
+    def test_write_0_star(self, temp_audio_file):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
@@ -20,7 +20,7 @@ class TestId3v2RatingWriting:
             assert rating is not None
             assert rating == 0
 
-    def test_id3v2_write_1_star(self, temp_audio_file):
+    def test_write_1_star(self, temp_audio_file):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
@@ -31,7 +31,7 @@ class TestId3v2RatingWriting:
             assert rating is not None
             assert rating == 20
 
-    def test_id3v2_write_2_star(self, temp_audio_file):
+    def test_write_2_star(self, temp_audio_file):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
@@ -42,7 +42,7 @@ class TestId3v2RatingWriting:
             assert rating is not None
             assert rating == 40
 
-    def test_id3v2_write_3_star(self, temp_audio_file):
+    def test_write_3_star(self, temp_audio_file):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
@@ -53,7 +53,7 @@ class TestId3v2RatingWriting:
             assert rating is not None
             assert rating == 60
 
-    def test_id3v2_write_4_star(self, temp_audio_file):
+    def test_write_4_star(self, temp_audio_file):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
@@ -64,7 +64,7 @@ class TestId3v2RatingWriting:
             assert rating is not None
             assert rating == 80
 
-    def test_id3v2_write_5_star(self, temp_audio_file):
+    def test_write_5_star(self, temp_audio_file):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
@@ -75,7 +75,7 @@ class TestId3v2RatingWriting:
             assert rating is not None
             assert rating == 100
 
-    def test_id3v2_write_base_255_non_proportional_values(self, temp_audio_file):
+    def test_write_base_255_non_proportional_values(self, temp_audio_file):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         
         # Test values that correspond to BASE_255_NON_PROPORTIONAL profile
@@ -90,7 +90,7 @@ class TestId3v2RatingWriting:
                 # The value may be normalized/clamped, so just check it's in valid range
                 assert 0 <= rating <= 255
 
-    def test_id3v2_write_none_removes_rating(self, temp_audio_file):
+    def test_write_none_removes_rating(self, temp_audio_file):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
@@ -107,7 +107,7 @@ class TestId3v2RatingWriting:
             # Rating removal behavior may vary - check if it's None or 0
             assert rating is None or rating == 0
 
-    def test_id3v2_write_edge_values(self, temp_audio_file):
+    def test_write_edge_values(self, temp_audio_file):
         basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
         
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
@@ -122,3 +122,18 @@ class TestId3v2RatingWriting:
             update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
             rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating == 100
+
+    def test_write_fractional_values(self, temp_audio_file):
+        basic_metadata = {"title": "Test Title", "artist": "Test Artist"}
+        
+        with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
+            # Test fractional value (should be rounded or handled appropriately)
+            test_metadata = {UnifiedMetadataKey.RATING: 25.5}
+            update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
+            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            assert rating is not None
+            assert isinstance(rating, (int, float))
+            # The exact value may be rounded or normalized, so check it's in a reasonable range
+            assert 0 <= rating <= 100
+            # Should be close to the input value (within 10 points)
+            assert abs(rating - 25.5) <= 10
