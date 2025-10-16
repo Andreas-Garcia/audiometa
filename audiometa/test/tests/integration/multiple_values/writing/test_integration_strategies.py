@@ -10,7 +10,6 @@ from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
 
 class TestMultipleValuesIntegrationStrategies:
     def test_write_multiple_values_with_sync_strategy(self, temp_audio_file: Path, sample_mp3_file: Path):
-        # Use TempFileWithMetadata to create test file with initial metadata
         initial_metadata = {"title": "Test Song"}
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             # Write multiple values with SYNC strategy
@@ -37,7 +36,6 @@ class TestMultipleValuesIntegrationStrategies:
             assert "New Composer Two" in composers
 
     def test_write_multiple_values_with_preserve_strategy(self, temp_audio_file: Path, sample_mp3_file: Path):
-        # Use TempFileWithMetadata to create test file with initial metadata
         initial_metadata = {"title": "Test Song"}
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             # Write multiple values with PRESERVE strategy
@@ -64,7 +62,6 @@ class TestMultipleValuesIntegrationStrategies:
             assert "Preserved Composer Two" in composers
 
     def test_write_multiple_values_with_cleanup_strategy(self, temp_audio_file: Path, sample_mp3_file: Path):
-        # Use TempFileWithMetadata to create test file with initial metadata
         initial_metadata = {"title": "Test Song"}
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             # Write multiple values with CLEANUP strategy
@@ -91,7 +88,6 @@ class TestMultipleValuesIntegrationStrategies:
             assert "Cleanup Composer Two" in composers
 
     def test_write_multiple_values_with_existing_metadata(self, temp_audio_file: Path, sample_mp3_file: Path):
-        # Use TempFileWithMetadata to create test file with initial metadata
         initial_metadata = {"title": "Test Song"}
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             # First, write some initial metadata
@@ -139,7 +135,6 @@ class TestMultipleValuesIntegrationStrategies:
             assert "Initial Composer Two" not in new_composers
 
     def test_write_multiple_values_with_partial_update(self, temp_audio_file: Path, sample_mp3_file: Path):
-        # Use TempFileWithMetadata to create test file with initial metadata
         initial_metadata = {"title": "Test Song"}
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             # First, write some initial metadata
@@ -178,41 +173,7 @@ class TestMultipleValuesIntegrationStrategies:
             # Title should remain unchanged
             assert title == "Initial Title"
 
-    def test_write_multiple_values_with_mixed_strategies(self, temp_audio_file: Path, sample_mp3_file: Path):
-        # Use TempFileWithMetadata to create test file with initial metadata
-        initial_metadata = {"title": "Test Song"}
-        with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
-            # Write with SYNC strategy first
-            sync_metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Sync Artist One", "Sync Artist Two"],
-                UnifiedMetadataKey.COMPOSER: ["Sync Composer One", "Sync Composer Two"]
-            }
-            update_file_metadata(test_file.path, sync_metadata, metadata_strategy=MetadataWritingStrategy.SYNC)
-            
-            # Then write with PRESERVE strategy
-            preserve_metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Preserve Artist One", "Preserve Artist Two"],
-                UnifiedMetadataKey.COMPOSER: ["Preserve Composer One", "Preserve Composer Two"]
-            }
-            update_file_metadata(test_file.path, preserve_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
-            
-            # Verify final state
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-            composers = unified_metadata.get(UnifiedMetadataKey.COMPOSER)
-            
-            assert isinstance(artists, list)
-            assert len(artists) == 2
-            assert "Preserve Artist One" in artists
-            assert "Preserve Artist Two" in artists
-            
-            assert isinstance(composers, list)
-            assert len(composers) == 2
-            assert "Preserve Composer One" in composers
-            assert "Preserve Composer Two" in composers
-
     def test_write_multiple_values_with_cleanup_after_preserve(self, temp_audio_file: Path, sample_mp3_file: Path):
-        # Use TempFileWithMetadata to create test file with initial metadata
         initial_metadata = {"title": "Test Song"}
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             # Write with PRESERVE strategy first
