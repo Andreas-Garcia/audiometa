@@ -6,7 +6,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
 
 
-class TestId3v1MultipleValuesConcatenation:
+class TestMultipleEntriesId3v1:
     def test_id3v1_artists_concatenation(self, temp_audio_file: Path, sample_mp3_file: Path):
         initial_metadata = {"title": "Test Song"}
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
