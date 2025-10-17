@@ -131,146 +131,230 @@ The test suite uses a **hybrid approach** for test data management, combining pr
 - 📊 **Comprehensive**: Covers complex scenarios that would be difficult to generate
 - 🔄 **Stable**: Consistent across test runs
 
-### On-the-fly Generation (Script Helpers)
+### On-the-fly Generation (TempFileWithMetadata)
 
-**Dynamic test file creation** using external command-line tools:
+**Dynamic test file creation** using the unified `TempFileWithMetadata` class:
 
 - **Writing tests**: When testing the application's metadata writing functionality
 - **Dynamic scenarios**: Specific metadata combinations not available in pre-created files
 - **Clean state**: Fresh files for each test run
 - **Isolation**: Prevents test setup from depending on the code being tested
 
-**How Script Helpers Work:**
+**How TempFileWithMetadata Works:**
 
-The script helper strategy uses external command-line tools to set up test metadata:
+The `TempFileWithMetadata` class provides a unified interface for all test file operations:
 
-1. **External Scripts**: Located in `../data/scripts/`, these are shell scripts that use standard audio metadata tools:
+1. **Unified API**: Single class that handles all metadata operations and file management
+2. **External Tool Integration**: Uses external command-line tools internally for metadata setup
+3. **Context Manager**: Automatic file cleanup and resource management
+4. **Header Detection**: Built-in methods to verify metadata headers and formats
 
-   - `set-id3v2-max-metadata.sh` - Uses `mid3v2` to set ID3v2 metadata
-   - `set-vorbis-max-metadata.sh` - Uses `metaflac` to set Vorbis metadata
-   - `set-riff-max-metadata.sh` - Uses `bwfmetaedit` to set RIFF metadata
-   - `set-id3v1-max-metadata.sh` - Uses `id3v2 --id3v1-only` to set ID3v1 metadata
-   - `remove-id3.py` - Removes ID3 metadata
-   - `remove-riff.py` - Removes RIFF metadata
+**Supported Format Types:**
 
-**⚠️ Important: ID3v1 Metadata Creation Limitations**
+- `'mp3'` → creates **ID3v2** metadata (uses `mid3v2`)
+- `'id3v1'` → creates **ID3v1** metadata (uses `id3v2 --id3v1-only`)
+- `'flac'` → creates **Vorbis** metadata (uses `metaflac`)
+- `'wav'` → creates **RIFF** metadata (uses `bwfmetaedit`)
 
-**`mid3v2` cannot write ID3v1 metadata** - it can only delete it. For ID3v1 metadata creation, you must use:
-
-- `id3v2 --id3v1-only` (external tool)
-- Our library's `update_file_metadata()` with `MetadataFormat.ID3V1`
-
-**For tests requiring ID3v1 metadata:**
-
-- Use `TempFileWithMetadata(metadata, "id3v1")` (recommended - clean and simple)
-- Use `ScriptHelper.set_id3v1_max_metadata()` (alternative - uses external script)
-- Use `update_file_metadata()` with `MetadataFormat.ID3V1` (alternative)
-
-**Important:** Use the correct format type:
-
-- `TempFileWithMetadata(metadata, "mp3")` → creates **ID3v2** metadata (uses `mid3v2`)
-- `TempFileWithMetadata(metadata, "id3v1")` → creates **ID3v1** metadata (uses `id3v2 --id3v1-only`)
-
-**Example - Correct way to create ID3v1 metadata in tests:**
+**Basic Usage:**
 
 ```python
-# ✅ CORRECT: Use TempFileWithMetadata with "id3v1" format type
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+
+# Create test file with initial metadata
 with TempFileWithMetadata({
     "title": "Test Title",
     "artist": "Test Artist",
     "album": "Test Album",
     "year": "2023",
     "genre": "Rock"
-}, "id3v1") as test_file:
-    # Now test your functionality...
-
-# ✅ ALTERNATIVE: Use ScriptHelper with external script
-from audiometa.test.tests.test_script_helpers import ScriptHelper
-
-with TempFileWithMetadata({}, "mp3") as test_file:
-    script_helper = ScriptHelper()
-    script_helper.set_id3v1_max_metadata(test_file.path)
-
-# ✅ ALTERNATIVE: Use library's update_file_metadata
-with TempFileWithMetadata({}, "mp3") as test_file:
-    id3v1_metadata = {
-        UnifiedMetadataKey.TITLE: "Test Title",
-        UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"],
-        UnifiedMetadataKey.ALBUM_NAME: "Test Album"
-    }
-    update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
-
-# ❌ WRONG: This creates ID3v2 metadata, not ID3v1
-with TempFileWithMetadata({"title": "Test"}, "mp3") as test_file:
-    # Uses mid3v2 tool which only writes ID3v2 tags
+}, "mp3") as test_file:
+    # Use test_file.path for testing
+    metadata = get_merged_unified_metadata(test_file.path)
+    assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
 ```
 
-2. **ScriptHelper Class**: Provides a Python interface to these external scripts:
+**Advanced Operations:**
 
-   ```python
-   from audiometa.test.tests.test_script_helpers import ScriptHelper
+```python
+with TempFileWithMetadata({}, "mp3") as test_file:
+    # Set additional metadata using external tools
+    test_file.set_id3v1_genre("17")  # Set ID3v1 genre by code
+    test_file.set_id3v2_genre("Rock")  # Set ID3v2 genre by name
+    test_file.set_id3v2_multiple_genres(["Rock", "Alternative", "Indie"])
 
-   helper = ScriptHelper()
-   helper.set_id3v2_max_metadata(test_file)
-   helper.set_vorbis_max_metadata(test_file)
-   ```
+    # Set maximum metadata using external scripts
+    test_file.set_id3v1_max_metadata()
+    test_file.set_id3v2_max_metadata()
+    test_file.set_vorbis_max_metadata()
+    test_file.set_riff_max_metadata()
 
-3. **Test File Management**: Safe ways to create temporary test files:
-   - `TempFileWithMetadata` - **RECOMMENDED**: Context manager for automatic cleanup
-   - **Supported format types**: `'mp3'`, `'id3v1'`, `'flac'`, `'wav'`
-   - **For ID3v1 metadata**: Use `TempFileWithMetadata(metadata, "id3v1")`
+    # Verify headers and metadata
+    assert test_file.has_id3v2_header()
+    assert test_file.has_id3v1_header()
+    assert test_file.has_vorbis_comments()
+    assert test_file.has_riff_info_chunk()
+
+    # Get comprehensive header report
+    headers = test_file.get_metadata_headers_present()
+    # Returns: {'id3v2': True, 'id3v1': True, 'vorbis': False, 'riff': False}
+
+    # Verify metadata removal
+    test_file.remove_id3v2_metadata()
+    removed = test_file.verify_headers_removed(['id3v2'])
+    # Returns: {'id3v2': True} (successfully removed)
+
+    # Check metadata with external tools
+    tool_results = test_file.check_metadata_with_external_tools()
+    # Returns comprehensive verification results
+```
+
+**Available Methods:**
+
+**Metadata Setting:**
+
+- `set_id3v1_genre(genre_code)` - Set ID3v1 genre by numeric code
+- `set_id3v2_genre(genre)` - Set ID3v2 genre by name
+- `set_id3v2_multiple_genres(genres)` - Set multiple ID3v2 genres
+- `set_vorbis_artists_one_two_three()` - Set specific artist metadata
+- `set_riff_genre_text(genre_text)` - Set RIFF genre text
+
+**Maximum Metadata Setup:**
+
+- `set_id3v1_max_metadata()` - Set comprehensive ID3v1 metadata
+- `set_id3v2_max_metadata()` - Set comprehensive ID3v2 metadata
+- `set_vorbis_max_metadata()` - Set comprehensive Vorbis metadata
+- `set_riff_max_metadata()` - Set comprehensive RIFF metadata
+
+**Metadata Removal:**
+
+- `remove_id3v1_metadata()` - Remove ID3v1 metadata
+- `remove_id3v2_metadata()` - Remove ID3v2 metadata
+- `remove_riff_metadata()` - Remove RIFF metadata
+
+**Header Detection:**
+
+- `has_id3v2_header()` - Check for ID3v2 header
+- `has_id3v1_header()` - Check for ID3v1 header
+- `has_vorbis_comments()` - Check for Vorbis comments
+- `has_riff_info_chunk()` - Check for RIFF INFO chunk
+
+**Verification:**
+
+- `get_metadata_headers_present()` - Get comprehensive header report
+- `verify_headers_removed(expected_removed)` - Verify metadata removal
+- `check_metadata_with_external_tools()` - External tool verification
 
 **Benefits:**
 
-- 🔧 **Flexible**: Can create any metadata scenario on demand
+- 🔧 **Unified Interface**: Single class for all test file operations
 - 🧪 **Isolated**: Test setup doesn't depend on the code being tested
-- 🆕 **Fresh**: Clean state for each test
+- 🆕 **Fresh**: Clean state for each test with automatic cleanup
 - 🎛️ **Configurable**: Easy to modify test scenarios
 - **Reliability**: Uses proven external tools for metadata setup
 - **Maintainability**: Clear separation between test setup and test logic
+- **Comprehensive**: Built-in verification and header detection methods
 
-**⚠️ Important: Test File Management**
+### TempFileWithMetadata Method Reference
 
-**NEVER use `create_test_file_with_metadata()` directly in tests!** This function has been moved to `_internal_test_helpers.py` to prevent direct usage. It causes test pollution because files persist after tests complete.
+The `TempFileWithMetadata` class provides comprehensive methods for all test file operations:
 
-**✅ Correct usage:**
+#### File Creation and Management
+
+- `__init__(metadata, format_type)` - Initialize with metadata and format
+- `path` - Property to access the test file path
+- `__enter__()` / `__exit__()` - Context manager for automatic cleanup
+
+#### Metadata Setting Methods
+
+- `set_id3v1_genre(genre_code)` - Set ID3v1 genre by numeric code (0-147)
+- `set_id3v2_genre(genre)` - Set ID3v2 genre by name
+- `set_id3v2_multiple_genres(genres)` - Set multiple ID3v2 genres as list
+- `set_vorbis_artists_one_two_three()` - Set specific artist metadata pattern
+- `set_riff_genre_text(genre_text)` - Set RIFF genre as text
+
+#### Maximum Metadata Setup
+
+- `set_id3v1_max_metadata()` - Set comprehensive ID3v1 metadata using external script
+- `set_id3v2_max_metadata()` - Set comprehensive ID3v2 metadata using external script
+- `set_vorbis_max_metadata()` - Set comprehensive Vorbis metadata using external script
+- `set_riff_max_metadata()` - Set comprehensive RIFF metadata using external script
+
+#### Metadata Removal
+
+- `remove_id3v1_metadata()` - Remove ID3v1 metadata using external script
+- `remove_id3v2_metadata()` - Remove ID3v2 metadata using external script
+- `remove_riff_metadata()` - Remove RIFF metadata using external script
+
+#### Header Detection
+
+- `has_id3v2_header()` - Check if file has ID3v2 header (returns bool)
+- `has_id3v1_header()` - Check if file has ID3v1 header (returns bool)
+- `has_vorbis_comments()` - Check if file has Vorbis comments (returns bool)
+- `has_riff_info_chunk()` - Check if file has RIFF INFO chunk (returns bool)
+
+#### Verification and Analysis
+
+- `get_metadata_headers_present()` - Get comprehensive header report (returns dict)
+- `verify_headers_removed(expected_removed)` - Verify metadata removal (returns dict)
+- `check_metadata_with_external_tools()` - External tool verification (returns dict)
+
+#### Usage Patterns
+
+**Basic Test Setup:**
 
 ```python
-def test_something():
-    with TempFileWithMetadata(metadata, "mp3") as test_file:
-        # ... test code ...
-    # File automatically cleaned up!
+with TempFileWithMetadata({"title": "Test"}, "mp3") as test_file:
+    # test_file.path contains the file path
+    # Automatic cleanup when exiting context
 ```
 
-**❌ Wrong usage:**
+**Complex Metadata Testing:**
 
 ```python
-def test_something():
-    test_file = create_test_file_with_metadata(metadata, "mp3")
-    # ... test code ...
-    # File persists and causes test pollution!
+with TempFileWithMetadata({}, "mp3") as test_file:
+    # Set up complex metadata
+    test_file.set_id3v2_max_metadata()
+    test_file.set_id3v1_genre("17")  # Blues
+
+    # Verify setup
+    assert test_file.has_id3v2_header()
+    assert test_file.has_id3v1_header()
+
+    # Test your functionality
+    result = your_function(test_file.path)
 ```
 
-### Script Helper Approach
-
-The test suite uses a **streamlined script helper approach**:
+**Header Verification:**
 
 ```python
-with TempFileWithMetadata(
-    basic_metadata,     # Metadata to set
-    "mp3"               # Format type
-) as test_file:
-    # Use test_file for testing
-    # File is automatically cleaned up
+with TempFileWithMetadata({}, "mp3") as test_file:
+    test_file.set_id3v2_max_metadata()
+
+    # Check what headers are present
+    headers = test_file.get_metadata_headers_present()
+    # Returns: {'id3v2': True, 'id3v1': False, 'vorbis': False, 'riff': False}
+
+    # Verify specific headers
+    assert test_file.has_id3v2_header()
+    assert not test_file.has_id3v1_header()
 ```
 
-**Benefits of the streamlined approach:**
+**Metadata Removal Testing:**
 
-- **Cleaner API**: No need for source file parameters
-- **Simpler tests**: Fewer fixture dependencies
-- **Better encapsulation**: Helper handles file creation internally
-- **Consistent starting state**: Always starts with clean files
-- **Easier maintenance**: Less complex test setup
+```python
+with TempFileWithMetadata({}, "mp3") as test_file:
+    test_file.set_id3v2_max_metadata()
+    assert test_file.has_id3v2_header()
+
+    # Remove metadata
+    test_file.remove_id3v2_metadata()
+
+    # Verify removal
+    removed = test_file.verify_headers_removed(['id3v2'])
+    # Returns: {'id3v2': True} (successfully removed)
+    assert removed['id3v2']
+```
 
 ### Temporary Files (Fixtures)
 
@@ -282,14 +366,14 @@ with TempFileWithMetadata(
 
 ### When to Use Each Approach
 
-| Scenario                      | Approach          | Reason                                                                        |
-| ----------------------------- | ----------------- | ----------------------------------------------------------------------------- |
-| Reading existing metadata     | Pre-created files | Fast, reliable, comprehensive coverage                                        |
-| Testing writing functionality | Script helpers    | Set up test data with external tools, then test app's writing by reading back |
-| Edge case testing             | Pre-created files | Complex scenarios already prepared                                            |
-| Dynamic test scenarios        | Script helpers    | Flexible, on-demand creation                                                  |
-| Basic functionality           | Temporary files   | Simple, clean, fast                                                           |
-| Regression testing            | Pre-created files | Known problematic files                                                       |
+| Scenario                      | Approach             | Reason                                                                        |
+| ----------------------------- | -------------------- | ----------------------------------------------------------------------------- |
+| Reading existing metadata     | Pre-created files    | Fast, reliable, comprehensive coverage                                        |
+| Testing writing functionality | TempFileWithMetadata | Set up test data with external tools, then test app's writing by reading back |
+| Edge case testing             | Pre-created files    | Complex scenarios already prepared                                            |
+| Dynamic test scenarios        | TempFileWithMetadata | Flexible, on-demand creation                                                  |
+| Basic functionality           | Temporary files      | Simple, clean, fast                                                           |
+| Regression testing            | Pre-created files    | Known problematic files                                                       |
 
 ### Examples for Each Scenario
 
@@ -304,18 +388,18 @@ def test_read_metadata_from_pre_created_file(sample_mp3_file):
     assert metadata.artist == "Sample Artist"
 ```
 
-#### Testing writing functionality (Script helpers)
+#### Testing writing functionality (TempFileWithMetadata)
 
 ```python
-def test_write_metadata_using_script_helper():
+def test_write_metadata_using_temp_file():
     """Test writing metadata by setting up with external tools, then testing our app."""
-    # Use script helper to set up test data
+    # Use TempFileWithMetadata to set up test data
     with TempFileWithMetadata(
         {"title": "Original Title", "artist": "Original Artist"},
         "mp3"
     ) as test_file:
         # Now test our application's writing functionality
-        audio_file = AudioFile(test_file)
+        audio_file = AudioFile(test_file.path)
         audio_file.write_metadata({"title": "New Title"})
 
         # Verify by reading back
@@ -334,7 +418,7 @@ def test_corrupted_metadata_handling(corrupted_mp3_file):
         audio_file.read_metadata()
 ```
 
-#### Dynamic test scenarios (Script helpers)
+#### Dynamic test scenarios (TempFileWithMetadata)
 
 ```python
 def test_specific_metadata_combination():
@@ -348,7 +432,16 @@ def test_specific_metadata_combination():
         },
         "mp3"
     ) as test_file:
-        audio_file = AudioFile(test_file)
+        # Use additional methods to set more complex metadata
+        test_file.set_id3v2_multiple_genres(["Rock", "Alternative", "Indie"])
+        test_file.set_id3v1_genre("17")  # Blues genre code
+
+        # Verify headers are present
+        assert test_file.has_id3v2_header()
+        assert test_file.has_id3v1_header()
+
+        # Test our application
+        audio_file = AudioFile(test_file.path)
         metadata = audio_file.read_metadata()
         assert metadata.genre == "Custom Genre"
 ```
