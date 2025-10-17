@@ -156,7 +156,7 @@ class TestCoreWorkflows:
             
             # 2. Add more metadata
             additional_metadata = {
-                UnifiedMetadataKey.RATING: 88,
+                UnifiedMetadataKey.RATING: 80,
                 UnifiedMetadataKey.BPM: 128,
                 UnifiedMetadataKey.COMMENT: "Cleanup test comment"
             }
@@ -164,7 +164,7 @@ class TestCoreWorkflows:
             
             # 3. Verify all metadata exists
             full_metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
-            assert full_metadata.get(UnifiedMetadataKey.RATING) == 88
+            assert full_metadata.get(UnifiedMetadataKey.RATING) == 80
             assert full_metadata.get(UnifiedMetadataKey.BPM) == 128
             
             # 4. Complete cleanup - delete all metadata
