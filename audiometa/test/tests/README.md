@@ -33,24 +33,28 @@ Tests that verify how multiple components work together with real dependencies. 
 - **Speed**: Medium (seconds)
 - **Dependencies**: Real but limited scope
 - **Files**:
-  - `test_integration.py` - Component interaction tests
-  - `test_comprehensive_reading.py` - Metadata reading from real files
-  - `test_comprehensive_writing.py` - Metadata writing to real files
-  - `test_format_specific.py` - Format-specific scenarios
-  - `test_metadata_reading.py` - Metadata reading workflows
-  - `test_metadata_writing.py` - Metadata writing workflows
-  - `test_metadata_types.py` - Metadata type handling
   - `test_audio_file.py` - AudioFile class integration
-  - `basic_tags/` - Basic metadata field tests
-    - `test_album.py`, `test_artists.py`, `test_basic_metadata.py`
-    - `test_genre.py`, `test_rating.py`, `test_title.py`
-  - `additional_tags/` - Additional metadata field tests
-    - `test_additional_metadata.py`, `test_composer.py`, `test_copyright.py`
-    - `test_lyrics.py`, `test_publisher.py`
-  - `technical_tags/` - Technical metadata field tests
-    - `test_bpm.py`, `test_language.py`, `test_release_date.py`
-    - `test_technical_metadata.py`, `test_track_number.py`
-  - `test_advanced_metadata.py` - Advanced metadata fields (cover art, etc.)
+  - `test_api_consistency.py` - API consistency tests
+  - `test_reading_multiple_format_in_same_file.py` - Multiple format reading tests
+  - `per_metadata/` - Individual metadata field tests
+    - `album/`, `artists/`, `bpm/`, `comment/`, `composer/`
+    - `copyright/`, `genre/`, `language/`, `lyrics/`
+    - `publisher/`, `rating/`, `release_date/`, `title/`, `track_number/`
+    - Each with `reading/`, `writing/`, `deleting/` subdirectories
+  - `delete_all_metadata/` - Metadata deletion tests
+    - `test_audio_format_all.py`, `test_basic_functionality.py`
+    - `test_error_handling.py`, `test_format_specific.py`
+    - `header_deletion/` - Header-specific deletion tests
+  - `get_full_metadata/` - Full metadata retrieval tests
+    - `test_binary_data_filtering.py`, `test_get_full_metadata.py`
+    - `test_get_full_metadata_edge_cases.py`, `test_parsed_fields_keys.py`
+  - `metadata_format_specific/` - Format-specific metadata tests
+    - `id3v1/`, `id3v2/`, `riff/`, `vorbis/` - Each with reading/writing tests
+  - `multiple_values/` - Multiple values handling tests
+    - `reading/` - Multiple values reading tests
+    - `writing/` - Multiple values writing tests
+  - `reading/` - General reading tests
+  - `writing/` - General writing tests
 
 ### End-to-End Tests (`e2e/`)
 
@@ -61,7 +65,20 @@ Tests that verify complete user workflows from start to finish. These simulate r
 - **Dependencies**: Full system with all real dependencies
 - **Files**:
   - `test_complete_workflows.py` - Complete metadata editing workflows
+  - `test_core_workflows.py` - Core workflow tests
+  - `test_deletion_workflows.py` - Metadata deletion workflows
+  - `test_error_handling_workflows.py` - Error handling workflows
+  - `test_format_specific_workflows.py` - Format-specific workflows
+  - `test_rating_workflows.py` - Rating-specific workflows
   - `test_user_scenarios.py` - Real-world user scenarios
+  - `cli/` - CLI-specific end-to-end tests
+    - `test_cli_delete.py` - CLI deletion tests
+    - `test_cli_error_handling.py` - CLI error handling tests
+    - `test_cli_formatting.py` - CLI formatting tests
+    - `test_cli_help.py` - CLI help tests
+    - `test_cli_read.py` - CLI reading tests
+    - `test_cli_unified.py` - CLI unified tests
+    - `test_cli_write.py` - CLI writing tests
 
 ## Running Tests
 
@@ -116,7 +133,7 @@ The test suite uses a **hybrid approach** for test data management, combining pr
 
 ### Pre-created Test Files (`../data/audio_files/`)
 
-**176 pre-created audio files** covering specific scenarios and edge cases:
+**173 pre-created audio files** covering specific scenarios and edge cases:
 
 - **Edge cases**: Corrupted files, bad extensions, unusual filenames
 - **Metadata combinations**: Files with specific metadata formats and values
