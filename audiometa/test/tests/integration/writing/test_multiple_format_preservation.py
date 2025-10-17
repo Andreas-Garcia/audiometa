@@ -19,12 +19,10 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 @pytest.mark.integration
 class TestMultipleFormatPreservation:
-    """Test that PRESERVE strategy doesn't affect other formats."""
-
+    
     def test_id3v1_preserves_id3v2(self):
-        """Test that updating ID3v1 preserves ID3v2 metadata."""
         with TempFileWithMetadata({"title": "ID3v2 Title", "artist": "ID3v2 Artist"}, "mp3") as test_file:
-            # Set up ID3v2 metadata using external tool
+
             test_file.set_id3v2_title("ID3v2 Title")
             test_file.set_id3v2_artist("ID3v2 Artist")
             
@@ -34,7 +32,7 @@ class TestMultipleFormatPreservation:
             assert id3v2_before.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
             assert id3v1_before.get(UnifiedMetadataKey.TITLE) is None
             
-            # Update ID3v1 with PRESERVE strategy (no metadata_format specified)
+            # Update ID3v1 with PRESERVE strategy (specify ID3v1 format)
             id3v1_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v1 Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v1 Artist"]
@@ -42,7 +40,7 @@ class TestMultipleFormatPreservation:
             update_file_metadata(
                 test_file.path, 
                 id3v1_metadata, 
-                metadata_strategy=MetadataWritingStrategy.PRESERVE
+                metadata_format=MetadataFormat.ID3V1
             )
             
             # Verify ID3v1 was updated and ID3v2 was preserved
@@ -52,7 +50,6 @@ class TestMultipleFormatPreservation:
             assert id3v1_after.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
 
     def test_id3v2_preserves_id3v1(self):
-        """Test that updating ID3v2 preserves ID3v1 metadata."""
         with TempFileWithMetadata({"title": "ID3v1 Title", "artist": "ID3v1 Artist"}, "id3v1") as test_file:
             # Verify initial state
             id3v1_before = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
@@ -60,7 +57,6 @@ class TestMultipleFormatPreservation:
             assert id3v1_before.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
             assert id3v2_before.get(UnifiedMetadataKey.TITLE) is None
             
-            # Update ID3v2 with PRESERVE strategy (no metadata_format specified)
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v2 Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Artist"]
@@ -68,7 +64,7 @@ class TestMultipleFormatPreservation:
             update_file_metadata(
                 test_file.path, 
                 id3v2_metadata, 
-                metadata_strategy=MetadataWritingStrategy.PRESERVE
+                metadata_format=MetadataFormat.ID3V2
             )
             
             # Verify ID3v2 was updated and ID3v1 was preserved
@@ -78,9 +74,7 @@ class TestMultipleFormatPreservation:
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
 
     def test_riff_preserves_id3v1(self):
-        """Test that updating RIFF preserves ID3v1 metadata."""
-        with TempFileWithMetadata({"title": "ID3v1 Title", "artist": "ID3v1 Artist"}, "wav") as test_file:
-            # Set up ID3v1 metadata using external tool
+        with TempFileWithMetadata({}, "wav") as test_file:
             test_file.set_id3v1_title("ID3v1 Title")
             test_file.set_id3v1_artist("ID3v1 Artist")
             
@@ -90,7 +84,6 @@ class TestMultipleFormatPreservation:
             assert id3v1_before.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
             assert riff_before.get(UnifiedMetadataKey.TITLE) is None
             
-            # Update RIFF with PRESERVE strategy (no metadata_format specified)
             riff_metadata = {
                 UnifiedMetadataKey.TITLE: "RIFF Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Artist"]
@@ -98,7 +91,7 @@ class TestMultipleFormatPreservation:
             update_file_metadata(
                 test_file.path, 
                 riff_metadata, 
-                metadata_strategy=MetadataWritingStrategy.PRESERVE
+                metadata_format=MetadataFormat.RIFF
             )
             
             # Verify RIFF was updated and ID3v1 was preserved
@@ -108,7 +101,6 @@ class TestMultipleFormatPreservation:
             assert riff_after.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
 
     def test_id3v1_preserves_riff(self):
-        """Test that updating ID3v1 preserves RIFF metadata."""
         with TempFileWithMetadata({"title": "RIFF Title", "artist": "RIFF Artist"}, "wav") as test_file:
             # Verify initial state
             riff_before = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
@@ -116,7 +108,7 @@ class TestMultipleFormatPreservation:
             assert riff_before.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
             assert id3v1_before.get(UnifiedMetadataKey.TITLE) is None
             
-            # Update ID3v1 with PRESERVE strategy (no metadata_format specified)
+            # Update ID3v1 with PRESERVE strategy (specify ID3v1 format)
             id3v1_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v1 Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v1 Artist"]
@@ -124,7 +116,7 @@ class TestMultipleFormatPreservation:
             update_file_metadata(
                 test_file.path, 
                 id3v1_metadata, 
-                metadata_strategy=MetadataWritingStrategy.PRESERVE
+                metadata_format=MetadataFormat.ID3V1
             )
             
             # Verify ID3v1 was updated and RIFF was preserved
@@ -134,9 +126,7 @@ class TestMultipleFormatPreservation:
             assert id3v1_after.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
 
     def test_riff_preserves_id3v2(self):
-        """Test that updating RIFF preserves ID3v2 metadata."""
-        with TempFileWithMetadata({"title": "ID3v2 Title", "artist": "ID3v2 Artist"}, "wav") as test_file:
-            # Set up ID3v2 metadata using external tool
+        with TempFileWithMetadata({}, "wav") as test_file:
             test_file.set_id3v2_title("ID3v2 Title")
             test_file.set_id3v2_artist("ID3v2 Artist")
             
@@ -146,7 +136,7 @@ class TestMultipleFormatPreservation:
             assert id3v2_before.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
             assert riff_before.get(UnifiedMetadataKey.TITLE) is None
             
-            # Update RIFF with PRESERVE strategy (no metadata_format specified)
+            # Update RIFF with PRESERVE strategy (specify RIFF format)
             riff_metadata = {
                 UnifiedMetadataKey.TITLE: "RIFF Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Artist"]
@@ -154,7 +144,7 @@ class TestMultipleFormatPreservation:
             update_file_metadata(
                 test_file.path, 
                 riff_metadata, 
-                metadata_strategy=MetadataWritingStrategy.PRESERVE
+                metadata_format=MetadataFormat.RIFF
             )
             
             # Verify RIFF was updated and ID3v2 was preserved
@@ -164,7 +154,6 @@ class TestMultipleFormatPreservation:
             assert riff_after.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
 
     def test_id3v2_preserves_riff(self):
-        """Test that updating ID3v2 preserves RIFF metadata."""
         with TempFileWithMetadata({"title": "RIFF Title", "artist": "RIFF Artist"}, "wav") as test_file:
             # Verify initial state
             riff_before = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
@@ -172,7 +161,7 @@ class TestMultipleFormatPreservation:
             assert riff_before.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
             assert id3v2_before.get(UnifiedMetadataKey.TITLE) is None
             
-            # Update ID3v2 with PRESERVE strategy (no metadata_format specified)
+            # Update ID3v2 with PRESERVE strategy (specify ID3v2 format)
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v2 Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Artist"]
@@ -180,7 +169,7 @@ class TestMultipleFormatPreservation:
             update_file_metadata(
                 test_file.path, 
                 id3v2_metadata, 
-                metadata_strategy=MetadataWritingStrategy.PRESERVE
+                metadata_format=MetadataFormat.ID3V2
             )
             
             # Verify ID3v2 was updated and RIFF was preserved
@@ -190,9 +179,7 @@ class TestMultipleFormatPreservation:
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
 
     def test_vorbis_preserves_id3v2(self):
-        """Test that updating Vorbis preserves ID3v2 metadata."""
-        with TempFileWithMetadata({"title": "ID3v2 Title", "artist": "ID3v2 Artist"}, "flac") as test_file:
-            # Set up ID3v2 metadata using external tool
+        with TempFileWithMetadata({}, "flac") as test_file:
             test_file.set_id3v2_title("ID3v2 Title")
             test_file.set_id3v2_artist("ID3v2 Artist")
             
@@ -202,7 +189,7 @@ class TestMultipleFormatPreservation:
             assert id3v2_before.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
             assert vorbis_before.get(UnifiedMetadataKey.TITLE) is None
             
-            # Update Vorbis with PRESERVE strategy (no metadata_format specified)
+            # Update Vorbis with PRESERVE strategy (specify Vorbis format)
             vorbis_metadata = {
                 UnifiedMetadataKey.TITLE: "Vorbis Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Vorbis Artist"]
@@ -210,7 +197,7 @@ class TestMultipleFormatPreservation:
             update_file_metadata(
                 test_file.path, 
                 vorbis_metadata, 
-                metadata_strategy=MetadataWritingStrategy.PRESERVE
+                metadata_format=MetadataFormat.VORBIS
             )
             
             # Verify Vorbis was updated and ID3v2 was preserved
@@ -220,7 +207,6 @@ class TestMultipleFormatPreservation:
             assert vorbis_after.get(UnifiedMetadataKey.TITLE) == "Vorbis Title"
 
     def test_id3v2_preserves_vorbis(self):
-        """Test that updating ID3v2 preserves Vorbis metadata."""
         with TempFileWithMetadata({"title": "Vorbis Title", "artist": "Vorbis Artist"}, "flac") as test_file:
             # Verify initial state
             vorbis_before = get_single_format_app_metadata(test_file.path, MetadataFormat.VORBIS)
@@ -228,7 +214,7 @@ class TestMultipleFormatPreservation:
             assert vorbis_before.get(UnifiedMetadataKey.TITLE) == "Vorbis Title"
             assert id3v2_before.get(UnifiedMetadataKey.TITLE) is None
             
-            # Update ID3v2 with PRESERVE strategy (no metadata_format specified)
+            # Update ID3v2 with PRESERVE strategy (specify ID3v2 format)
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v2 Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Artist"]
@@ -236,7 +222,7 @@ class TestMultipleFormatPreservation:
             update_file_metadata(
                 test_file.path, 
                 id3v2_metadata, 
-                metadata_strategy=MetadataWritingStrategy.PRESERVE
+                metadata_format=MetadataFormat.ID3V2
             )
             
             # Verify ID3v2 was updated and Vorbis was preserved
@@ -246,9 +232,7 @@ class TestMultipleFormatPreservation:
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
 
     def test_multiple_fields_preservation(self):
-        """Test that multiple fields are preserved correctly."""
         with TempFileWithMetadata({"title": "Original Title", "artist": "Original Artist"}, "mp3") as test_file:
-            # Set up both ID3v1 and ID3v2 metadata
             test_file.set_id3v1_title("ID3v1 Title")
             test_file.set_id3v1_artist("ID3v1 Artist")
             test_file.set_id3v2_title("ID3v2 Title")
@@ -269,7 +253,7 @@ class TestMultipleFormatPreservation:
             update_file_metadata(
                 test_file.path, 
                 id3v2_metadata, 
-                metadata_strategy=MetadataWritingStrategy.PRESERVE
+                metadata_format=MetadataFormat.ID3V2
             )
             
             # Verify ID3v2 was updated and ID3v1 was preserved
@@ -283,7 +267,6 @@ class TestMultipleFormatPreservation:
 
     def test_preserve_strategy_with_none_values(self):
         with TempFileWithMetadata({"title": "Original Title", "artist": "Original Artist"}, "mp3") as test_file:
-            # Set up ID3v1 metadata
             test_file.set_id3v1_title("ID3v1 Title")
             test_file.set_id3v1_artist("ID3v1 Artist")
             
@@ -299,7 +282,7 @@ class TestMultipleFormatPreservation:
             update_file_metadata(
                 test_file.path, 
                 id3v2_metadata, 
-                metadata_strategy=MetadataWritingStrategy.PRESERVE
+                metadata_format=MetadataFormat.ID3V2
             )
             
             # Verify ID3v1 was preserved
