@@ -6,6 +6,7 @@ from pathlib import Path
 from audiometa import AudioFile
 from audiometa.manager.rating_supporting.VorbisManager import VorbisManager
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
 @pytest.mark.unit
@@ -26,27 +27,25 @@ class TestVorbisManager:
         metadata = manager.get_app_metadata()
         assert isinstance(metadata, dict)
 
-    def test_vorbis_manager_update_metadata(self, sample_flac_file: Path, temp_audio_file: Path):
-        import shutil
-        shutil.copy2(sample_flac_file, temp_audio_file)
-        
-        audio_file = AudioFile(temp_audio_file)
-        manager = VorbisManager(audio_file, normalized_rating_max_value=100)
-        
-        test_metadata = {
-            UnifiedMetadataKey.TITLE: "Vorbis Test Title",
-            UnifiedMetadataKey.ARTISTS_NAMES: ["Vorbis Test Artist"],
-            UnifiedMetadataKey.ALBUM_NAME: "Vorbis Test Album",
-            UnifiedMetadataKey.RATING: 60,
-            UnifiedMetadataKey.BPM: 140
-        }
-        
-        manager.update_file_metadata(test_metadata)
-        
-        # Verify metadata was updated
-        updated_metadata = manager.get_app_metadata()
-        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Vorbis Test Title"
-        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Vorbis Test Artist"]
-        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Vorbis Test Album"
-        assert updated_metadata.get(UnifiedMetadataKey.RATING) == 60
-        assert updated_metadata.get(UnifiedMetadataKey.BPM) == 140
+    def test_vorbis_manager_update_metadata(self):
+        with TempFileWithMetadata({}, "flac") as test_file:
+            audio_file = AudioFile(test_file.path)
+            manager = VorbisManager(audio_file, normalized_rating_max_value=100)
+            
+            test_metadata = {
+                UnifiedMetadataKey.TITLE: "Vorbis Test Title",
+                UnifiedMetadataKey.ARTISTS_NAMES: ["Vorbis Test Artist"],
+                UnifiedMetadataKey.ALBUM_NAME: "Vorbis Test Album",
+                UnifiedMetadataKey.RATING: 60,
+                UnifiedMetadataKey.BPM: 140
+            }
+            
+            manager.update_file_metadata(test_metadata)
+            
+            # Verify metadata was updated
+            updated_metadata = manager.get_app_metadata()
+            assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Vorbis Test Title"
+            assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Vorbis Test Artist"]
+            assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Vorbis Test Album"
+            assert updated_metadata.get(UnifiedMetadataKey.RATING) == 60
+            assert updated_metadata.get(UnifiedMetadataKey.BPM) == 140

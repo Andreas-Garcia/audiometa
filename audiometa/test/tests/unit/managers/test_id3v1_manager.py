@@ -41,40 +41,40 @@ class TestId3v1Manager:
         title = manager.get_app_specific_metadata(UnifiedMetadataKey.TITLE)
         assert title is None or isinstance(title, str)
 
-    def test_id3v1_manager_write_support(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_id3v1_manager_write_support(self):
         # Copy sample file to temp location for testing
         with TempFileWithMetadata({}, "mp3") as test_file:
             audio_file = AudioFile(test_file.path)
-        manager = Id3v1Manager(audio_file)
-        
-        test_metadata = {
-            UnifiedMetadataKey.TITLE: "ID3v1 Test Title",
-            UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v1 Test Artist"],
-            UnifiedMetadataKey.ALBUM_NAME: "ID3v1 Test Album"
-        }
-        
-        # ID3v1 manager should successfully update metadata
-        manager.update_file_metadata(test_metadata)
-        
-        # Verify the metadata was written correctly
-        updated_metadata = manager.get_app_metadata()
-        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v1 Test Title"
-        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["ID3v1 Test Artist"]
-        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v1 Test Album"
+            manager = Id3v1Manager(audio_file)
+            
+            test_metadata = {
+                UnifiedMetadataKey.TITLE: "ID3v1 Test Title",
+                UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v1 Test Artist"],
+                UnifiedMetadataKey.ALBUM_NAME: "ID3v1 Test Album"
+            }
+            
+            # ID3v1 manager should successfully update metadata
+            manager.update_file_metadata(test_metadata)
+            
+            # Verify the metadata was written correctly
+            updated_metadata = manager.get_app_metadata()
+            assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v1 Test Title"
+            assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["ID3v1 Test Artist"]
+            assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v1 Test Album"
 
-    def test_id3v1_manager_write_unsupported_fields_raises_error(self, sample_mp3_file: Path, temp_audio_file: Path):
+    def test_id3v1_manager_write_unsupported_fields_raises_error(self):
         # Copy sample file to temp location for testing
         with TempFileWithMetadata({}, "mp3") as test_file:
             audio_file = AudioFile(test_file.path)
-        manager = Id3v1Manager(audio_file)
-        
-        # Test unsupported fields that should raise MetadataNotSupportedError
-        unsupported_metadata = {
-            UnifiedMetadataKey.BPM: 120,  # BPM not supported by ID3v1
-            UnifiedMetadataKey.RATING: 85,  # Rating not supported by ID3v1
-            UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: ["Album Artist"],  # Album artist not supported by ID3v1
-        }
-        
-        # ID3v1 manager should raise error when trying to write unsupported fields
-        with pytest.raises(MetadataNotSupportedError):
-            manager.update_file_metadata(unsupported_metadata)
+            manager = Id3v1Manager(audio_file)
+            
+            # Test unsupported fields that should raise MetadataNotSupportedError
+            unsupported_metadata = {
+                UnifiedMetadataKey.BPM: 120,  # BPM not supported by ID3v1
+                UnifiedMetadataKey.RATING: 85,  # Rating not supported by ID3v1
+                UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: ["Album Artist"],  # Album artist not supported by ID3v1
+            }
+            
+            # ID3v1 manager should raise error when trying to write unsupported fields
+            with pytest.raises(MetadataNotSupportedError):
+                manager.update_file_metadata(unsupported_metadata)
