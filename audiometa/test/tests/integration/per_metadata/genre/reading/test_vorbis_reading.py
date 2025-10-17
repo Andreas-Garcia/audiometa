@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
 
-from audiometa import get_merged_unified_metadata, update_file_metadata
+from audiometa import get_merged_unified_metadata, get_specific_metadata, update_file_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
@@ -16,8 +16,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: "Rock"
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["Rock"]
 
@@ -27,8 +26,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: ["Rock", "Alternative", "Indie"]
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["Rock", "Alternative", "Indie"]
 
@@ -38,8 +36,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: "Rock; Alternative; Indie"
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["Rock", "Alternative", "Indie"]
 
@@ -49,8 +46,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: "Jazz, Fusion, Experimental"
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["Jazz", "Fusion", "Experimental"]
 
@@ -60,8 +56,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: "Electronic/Dance/Ambient"
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["Electronic", "Dance", "Ambient"]
 
@@ -71,8 +66,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: "Rock//Alternative//Indie"
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["Rock", "Alternative", "Indie"]
 
@@ -82,8 +76,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: "Rock\\Alternative\\Indie"
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["Rock", "Alternative", "Indie"]
 
@@ -93,8 +86,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: "Rock\\\\Alternative\\\\Indie"
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["Rock", "Alternative", "Indie"]
 
@@ -104,8 +96,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: "Rock; Alternative, Indie/Experimental"
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["Rock", "Alternative", "Indie", "Experimental"]
 
@@ -115,8 +106,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: " Rock ; Alternative ; Indie "
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["Rock", "Alternative", "Indie"]
 
@@ -126,8 +116,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: "Rock;;;Alternative"
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["Rock", "Alternative"]
 
@@ -137,8 +126,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: ""
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == [""]
 
@@ -148,8 +136,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: None
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres is None or genres == []
 
@@ -159,8 +146,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: "   "
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["   "]
 
@@ -170,8 +156,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: "Rock & Roll; R&B; Hip-Hop"
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["Rock & Roll", "R&B", "Hip-Hop"]
 
@@ -181,8 +166,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: "Música; 音楽; موسيقى"
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["Música", "音楽", "موسيقى"]
 
@@ -193,8 +177,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: long_genre
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == [long_genre]
 
@@ -223,8 +206,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: custom_genres
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == custom_genres
 
@@ -234,8 +216,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: "17; 20; 131"
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["17", "20", "131"]
 
@@ -245,15 +226,13 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: "Rock; Alternative; Indie"
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["Rock", "Alternative", "Indie"]
 
     def test_vorbis_genre_no_metadata(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres is None or genres == []
 
@@ -280,8 +259,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: "A"
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["A"]
 
@@ -291,8 +269,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: "12345"
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["12345"]
 
@@ -302,8 +279,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: ["Rock; with; semicolons", "Another, with, commas", "Rock/with/slashes"]
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["Rock; with; semicolons", "Another, with, commas", "Rock/with/slashes"]
 
@@ -313,8 +289,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: "Música Electrónica; 電子音楽; موسيقى إلكترونية"
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["Música Electrónica", "電子音楽", "موسيقى إلكترونية"]
 
@@ -324,8 +299,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: ["Rock", "ロック", "Roc", "Рок"]
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == ["Rock", "ロック", "Roc", "Рок"]
 
@@ -336,8 +310,7 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: many_genres
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres == many_genres
 
@@ -347,7 +320,6 @@ class TestVorbisGenreReading:
                 UnifiedMetadataKey.GENRE_NAME: []
             }, metadata_format=MetadataFormat.VORBIS)
             
-            metadata = get_merged_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
             assert genres is None or genres == []

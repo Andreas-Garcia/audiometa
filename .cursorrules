@@ -242,6 +242,34 @@ def test_riff_genre_reading(self):
 - **Integration tests**: Mix both approaches as appropriate
 - **Unit tests**: Use mocks and direct object instantiation
 
+### Individual Metadata Reading Tests
+
+#### Use get_specific_metadata for Single Metadata Field Tests
+
+When testing reading of a **single metadata field**, use `get_specific_metadata()` instead of `get_merged_unified_metadata()` for better performance and clarity.
+
+#### ❌ WRONG - Inefficient for single field:
+
+```python
+def test_title_reading(self, test_file):
+    metadata = get_merged_unified_metadata(test_file.path)
+    title = metadata.get(UnifiedMetadataKey.TITLE)
+    assert title == "Expected Title"
+```
+
+#### ✅ CORRECT - Use get_specific_metadata:
+
+```python
+def test_title_reading(self, test_file):
+    title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
+    assert title == "Expected Title"
+```
+
+#### When to Use Each Function
+
+- **`get_specific_metadata()`**: When testing a single metadata field
+- **`get_merged_unified_metadata()`**: When testing multiple metadata fields or full metadata workflows
+
 ## File Organization
 
 ### Module Structure

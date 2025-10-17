@@ -86,7 +86,7 @@ class Id3v1RawMetadata(FileType):
             self.tags[Id3v1RawMetadataKey.ALBUM_NAME] = [tag.album_name]
         if tag.year:
             self.tags[Id3v1RawMetadataKey.YEAR] = [tag.year]
-        if tag.genre_code:
+        if tag.genre_code is not None:
             self.tags[Id3v1RawMetadataKey.GENRE_CODE_OR_NAME] = [str(tag.genre_code)]
         if tag.track_number and tag.track_number != 0:
             self.tags[Id3v1RawMetadataKey.TRACK_NUMBER] = [str(tag.track_number)]

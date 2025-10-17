@@ -84,7 +84,7 @@ class MetadataManager:
         return raw_clean_metadata
 
     def _get_genre_name_from_raw_clean_metadata_id3v1(
-            self, raw_clean_metadata: RawMetadataDict, raw_metadata_ket: RawMetadataKey) -> str | None:
+            self, raw_clean_metadata: RawMetadataDict, raw_metadata_ket: RawMetadataKey) -> AppMetadataValue:
         """
         RIFF and ID3v1 files typically contain a genre code.
         that corresponds to the ID3v1 genre list. This method converts
@@ -97,9 +97,12 @@ class MetadataManager:
             raw_value = raw_value_list[0]
             try:
                 genre_code_or_name = int(cast(int, raw_value))
-                return ID3V1_GENRE_CODE_MAP.get(genre_code_or_name)
+                genre_name = ID3V1_GENRE_CODE_MAP.get(genre_code_or_name)
             except ValueError:
-                return cast(str, raw_value)
+                genre_name = cast(str, raw_value)
+            
+            # Return as list since GENRE_NAME is a multi-value field
+            return [genre_name] if genre_name else None
         return None
 
     def get_app_metadata(self) -> AppMetadata:

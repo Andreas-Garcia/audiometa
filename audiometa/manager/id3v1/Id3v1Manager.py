@@ -119,10 +119,15 @@ class Id3v1Manager(MetadataManager):
                                            app_metadata_value: AppMetadataValue,
                                            app_metadata_key: UnifiedMetadataKey):
         if app_metadata_key == UnifiedMetadataKey.GENRE_NAME:
-            # Convert genre name to genre code
-            genre_code = self._convert_genre_name_to_code(app_metadata_value)
-            if genre_code is not None:
-                raw_mutagen_metadata.tags[Id3v1RawMetadataKey.GENRE_CODE_OR_NAME] = [str(genre_code)]
+            # Handle both single string and list values gracefully
+            if isinstance(app_metadata_value, list):
+                app_metadata_value = app_metadata_value[0] if app_metadata_value else None
+            
+            if app_metadata_value:
+                # Convert genre name to genre code
+                genre_code = self._convert_genre_name_to_code(app_metadata_value)
+                if genre_code is not None:
+                    raw_mutagen_metadata.tags[Id3v1RawMetadataKey.GENRE_CODE_OR_NAME] = [str(genre_code)]
         else:
             raise MetadataNotSupportedError(f'{app_metadata_key} metadata is not undirectly handled')
 
@@ -234,11 +239,16 @@ class Id3v1Manager(MetadataManager):
         # Genre (byte 127)
         genre_name = app_metadata.get(UnifiedMetadataKey.GENRE_NAME)
         if genre_name:
-            genre_code = self._convert_genre_name_to_code(genre_name)
-            if genre_code is not None:
-                tag_data[127] = genre_code
-            else:
-                tag_data[127] = 255  # Unknown genre
+            # Handle both single string and list values gracefully
+            if isinstance(genre_name, list):
+                genre_name = genre_name[0] if genre_name else None
+            
+            if genre_name:
+                genre_code = self._convert_genre_name_to_code(genre_name)
+                if genre_code is not None:
+                    tag_data[127] = genre_code
+                else:
+                    tag_data[127] = 255  # Unknown genre
         
         return bytes(tag_data)
 
