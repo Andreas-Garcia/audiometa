@@ -440,7 +440,7 @@ class TempFileWithMetadata:
     
     def delete_riff_comment(self):
         """Delete RIFF comment using external bwfmetaedit tool."""
-        command = ["bwfmetaedit", "--delete-ICMT", str(self.test_file)]
+        command = ["bwfmetaedit", "--remove-chunks=INFO/ICMT", str(self.test_file)]
         return self._run_external_tool(command)
     
     def set_vorbis_comment(self, comment: str):
@@ -480,7 +480,7 @@ class TempFileWithMetadata:
     
     def delete_riff_title(self):
         """Delete RIFF title using external bwfmetaedit tool."""
-        command = ["bwfmetaedit", "--delete-INAM", str(self.test_file)]
+        command = ["bwfmetaedit", "--remove-chunks=INFO/INAM", str(self.test_file)]
         return self._run_external_tool(command)
     
     def set_vorbis_title(self, title: str):
@@ -520,7 +520,7 @@ class TempFileWithMetadata:
     
     def delete_riff_artist(self):
         """Delete RIFF artist using external bwfmetaedit tool."""
-        command = ["bwfmetaedit", "--delete-IART", str(self.test_file)]
+        command = ["bwfmetaedit", "--remove-chunks=INFO/IART", str(self.test_file)]
         return self._run_external_tool(command)
     
     def set_vorbis_artist(self, artist: str):
@@ -560,7 +560,7 @@ class TempFileWithMetadata:
     
     def delete_riff_album(self):
         """Delete RIFF album using external bwfmetaedit tool."""
-        command = ["bwfmetaedit", "--delete-IPRD", str(self.test_file)]
+        command = ["bwfmetaedit", "--remove-chunks=INFO/IPRD", str(self.test_file)]
         return self._run_external_tool(command)
     
     def set_vorbis_album(self, album: str):
@@ -600,7 +600,7 @@ class TempFileWithMetadata:
     
     def delete_riff_genre(self):
         """Delete RIFF genre using external bwfmetaedit tool."""
-        command = ["bwfmetaedit", "--delete-IGNR", str(self.test_file)]
+        command = ["bwfmetaedit", "--remove-chunks=INFO/IGNR", str(self.test_file)]
         return self._run_external_tool(command)
     
     def set_vorbis_genre(self, genre: str):
@@ -640,7 +640,7 @@ class TempFileWithMetadata:
     
     def delete_riff_lyrics(self):
         """Delete RIFF lyrics using external bwfmetaedit tool."""
-        command = ["bwfmetaedit", "--delete-ILYT", str(self.test_file)]
+        command = ["bwfmetaedit", "--remove-chunks=INFO/ILYT", str(self.test_file)]
         return self._run_external_tool(command)
     
     def set_vorbis_lyrics(self, lyrics: str):
@@ -670,7 +670,7 @@ class TempFileWithMetadata:
     
     def delete_riff_language(self):
         """Delete RIFF language using external bwfmetaedit tool."""
-        command = ["bwfmetaedit", "--delete-ILNG", str(self.test_file)]
+        command = ["bwfmetaedit", "--remove-chunks=INFO/ILNG", str(self.test_file)]
         return self._run_external_tool(command)
     
     def set_vorbis_language(self, language: str):

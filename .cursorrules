@@ -241,9 +241,66 @@ def test_id3v1_genre_reading(self):
 
 - **Reading tests**: Use `TempFileWithMetadata` methods for initial data setup
 - **Writing tests**: Use `TempFileWithMetadata` methods for initial data setup, then test `update_file_metadata()` functionality
-- **Deleting tests**: Use `TempFileWithMetadata` methods for initial data setup, then test deletion functionality
+- **Deleting tests**: Use `TempFileWithMetadata` methods for initial data setup, then test deletion using library API (`update_file_metadata()` with `None` values)
 - **Integration tests**: Use `TempFileWithMetadata` methods consistently
 - **Unit tests**: Use mocks and direct object instantiation
+
+#### Test Principle: Only Test the API Function Being Tested
+
+**The rule**: In any test, only use the API function that you're actually testing. Everything else should use helper methods.
+
+**✅ CORRECT - Deletion tests:**
+
+```python
+def test_delete_comment_riff(self):
+    with TempFileWithMetadata({}, "wav") as test_file:
+        # ✅ Use helper method for setup - not testing setup functionality
+        test_file.set_riff_comment("Test comment")
+        assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) == "Test comment"
+
+        # ✅ Test deletion using library API - this is what we're testing
+        update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.RIFF)
+        assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) is None
+```
+
+**✅ CORRECT - Reading tests:**
+
+```python
+def test_read_comment_riff(self):
+    with TempFileWithMetadata({}, "wav") as test_file:
+        # ✅ Use helper method for setup - not testing setup functionality
+        test_file.set_riff_comment("Test comment")
+
+        # ✅ Test reading using library API - this is what we're testing
+        comment = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT)
+        assert comment == "Test comment"
+```
+
+**✅ CORRECT - Writing tests:**
+
+```python
+def test_write_comment_riff(self):
+    with TempFileWithMetadata({}, "wav") as test_file:
+        # ✅ Test writing using library API - this is what we're testing
+        update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: "Test comment"}, metadata_format=MetadataFormat.RIFF)
+
+        # ✅ Use helper method for verification - not testing reading functionality
+        comment = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT)
+        assert comment == "Test comment"
+```
+
+**❌ WRONG - Don't mix API functions in tests:**
+
+```python
+def test_delete_comment_riff(self):
+    with TempFileWithMetadata({}, "wav") as test_file:
+        # ❌ Using library API for setup when testing deletion
+        update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: "Test comment"}, metadata_format=MetadataFormat.RIFF)
+
+        # ✅ This is correct - testing deletion
+        update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.RIFF)
+        assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) is None
+```
 
 ### Individual Metadata Reading Tests
 

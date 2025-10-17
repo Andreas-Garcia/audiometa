@@ -57,8 +57,8 @@ class TestLyricsDeleting:
             test_file.set_id3v2_title("Test Title")
             test_file.set_id3v2_artist("Test Artist")
         
-            # Delete only lyrics using helper method
-            test_file.delete_id3v2_lyrics()
+            # Delete only lyrics using library API
+            update_file_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None}, metadata_format=MetadataFormat.ID3V2)
         
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LYRICS) is None
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) == "Test Title"
@@ -67,13 +67,13 @@ class TestLyricsDeleting:
     def test_delete_lyrics_already_none(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             # Try to delete lyrics that don't exist
-            test_file.delete_id3v2_lyrics()
+            update_file_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None}, metadata_format=MetadataFormat.ID3V2)
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LYRICS) is None
 
     def test_delete_lyrics_empty_string(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             # Set empty lyrics using helper method
             test_file.set_id3v2_lyrics("")
-            # Delete the empty lyrics
-            test_file.delete_id3v2_lyrics()
+            # Delete the empty lyrics using library API
+            update_file_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None}, metadata_format=MetadataFormat.ID3V2)
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LYRICS) is None
