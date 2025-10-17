@@ -10,7 +10,7 @@ class TestId3v2_4Separators:
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             test_file.set_id3v2_4_single_artist("Artist One;Artist Two;Artist Three")
             
-            verification = test_file.verify_multiple_entries_in_raw_data("TPE1", expected_count=1)
+            verification = test_file.verify_id3v2_4_multiple_entries_in_raw_data("TPE1", expected_count=1)
             
             assert "TPE1=Artist One;Artist Two;Artist Three" in verification['raw_output']
             
