@@ -1578,42 +1578,42 @@ The library supports a comprehensive set of metadata fields across different aud
 | Release Date      | ✓ (4)          | ✓ (10)         | ✓ (10)       | ✓ (10)        | ✓                    |
 | Track Number      | ✓ (1#)         | ✓ (0-255#)     | ✓ (Unlim#)   | ✓ (Unlim#)    | ✓                    |
 | Rating            |                | ✓ (0-255#)     | ✓ (0-100#)   | ✓ (0-100#\*)  | ✓                    |
-| BPM               |                | ✓ (0-65535#)   | ✓ (0-65535#) |               | ✓                    |
+| BPM               |                | ✓ (0-65535#)   | ✓ (0-65535#) | ✓ (0-65535#)  | ✓                    |
 | Language          |                | ✓ (3)          | ✓ (3)        | ✓ (3)         | ✓                    |
 | Composer          |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                    |
-| Publisher         |                | ✓ (Format)     | ✓ (Format)   |               | ✓                    |
+| Publisher         |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                    |
 | Copyright         |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                    |
-| Lyrics            |                | ✓ (Format)     |              |               | ✓                    |
+| Lyrics            |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                    |
 | Comment           | ✓ (28)         | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                    |
 | Encoder           |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    |                      |
-| URL               |                | ✓ (Format)     | ✓ (Format)   |               |                      |
-| ISRC              |                | ✓ (12)         | ✓ (12)       |               |                      |
-| Mood              |                | ✓ (Format)     | ✓ (Format)   |               |                      |
-| Key               |                | ✓ (3)          | ✓ (3)        |               |                      |
-| Original Date     |                | ✓ (10)         | ✓ (10)       |               |                      |
-| Remixer           |                | ✓ (Format)     | ✓ (Format)   |               |                      |
+| URL               |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    |                      |
+| ISRC              |                | ✓ (12)         | ✓ (12)       | ✓ (12)        |                      |
+| Mood              |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    |                      |
+| Key               |                | ✓ (3)          | ✓ (3)        | ✓ (3)         |                      |
+| Original Date     |                | ✓ (10)         | ✓ (10)       | ✓ (10)        |                      |
+| Remixer           |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    |                      |
 | Conductor         |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    |                      |
-| Cover Art         |                | ✓ (10MB#)      | ✓ (10MB#)    |               |                      |
-| Compilation       |                | ✓ (1#)         | ✓ (1#)       |               |                      |
+| Cover Art         |                | ✓ (10MB#)      | ✓ (10MB#)    | ✓ (10MB#)     |                      |
+| Compilation       |                | ✓ (1#)         | ✓ (1#)       | ✓ (1#)        |                      |
 | Media Type        |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    |                      |
-| File Owner        |                | ✓ (Format)     | ✓ (Format)   |               |                      |
-| Recording Date    |                | ✓ (10)         | ✓ (10)       |               |                      |
-| File Size         |                | ✓ (16#)        |              |               |                      |
-| Encoder Settings  |                | ✓ (Format)     | ✓ (Format)   |               |                      |
-| ReplayGain        |                | ✓ (8#)         | ✓ (8#)       |               |                      |
-| MusicBrainz ID    |                | ✓ (36)         | ✓ (36)       |               |                      |
-| Arranger          |                | ✓ (Format)     | ✓ (Format)   |               |                      |
-| Version           |                | ✓ (Format)     | ✓ (Format)   |               |                      |
-| Performance       |                | ✓ (Format)     | ✓ (Format)   |               |                      |
+| File Owner        |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    |                      |
+| Recording Date    |                | ✓ (10)         | ✓ (10)       | ✓ (10)        |                      |
+| File Size         |                | ✓ (16#)        | ✓ (Format)   | ✓ (16#)       |                      |
+| Encoder Settings  |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    |                      |
+| ReplayGain        |                | ✓ (8#)         | ✓ (8#)       | ✓ (8#)        |                      |
+| MusicBrainz ID    |                | ✓ (36)         | ✓ (36)       | ✓ (36)        |                      |
+| Arranger          |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    |                      |
+| Version           |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    |                      |
+| Performance       |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    |                      |
 | Archival Location |                |                |              | ✓ (Format)    |                      |
 | Keywords          |                |                |              | ✓ (Format)    |                      |
 | Subject           |                |                |              | ✓ (Format)    |                      |
-| Original Artist   |                | ✓ (Format)     | ✓ (Format)   |               |                      |
-| Set Subtitle      |                | ✓ (Format)     | ✓ (Format)   |               |                      |
-| Initial Key       |                | ✓ (3)          | ✓ (3)        |               |                      |
-| Involved People   |                | ✓ (Format)     | ✓ (Format)   |               |                      |
-| Musicians         |                | ✓ (Format)     | ✓ (Format)   |               |                      |
-| Part of Set       |                | ✓ (Format)     | ✓ (Format)   |               |                      |
+| Original Artist   |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    |                      |
+| Set Subtitle      |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    |                      |
+| Initial Key       |                | ✓ (3)          | ✓ (3)        | ✓ (3)         |                      |
+| Involved People   |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    |                      |
+| Musicians         |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    |                      |
+| Part of Set       |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    |                      |
 
 ### Track Number Formats
 
