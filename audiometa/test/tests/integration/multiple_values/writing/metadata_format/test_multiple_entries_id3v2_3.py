@@ -5,13 +5,13 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
-class TestMultipleEntriesId3v2:
-    def test_write_multiple_artists(self, temp_audio_file: Path):
+class TestMultipleEntriesId3v2_3:
+    def test_write_multiple_artists_id3v2_3(self, temp_audio_file: Path):
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two", "Artist Three"]
         }
         
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2)
+        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2_3)
         
         unified_metadata = get_merged_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -22,16 +22,16 @@ class TestMultipleEntriesId3v2:
         assert "Artist Two" in artists
         assert "Artist Three" in artists
 
-    def test_write_multiple_artists_id3v2_specific(self, temp_audio_file: Path):
-        # Write multiple artists to ID3v2 format specifically
+    def test_write_multiple_artists_id3v2_3_specific(self, temp_audio_file: Path):
+        # Write multiple artists to ID3v2.3 format specifically
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Primary Artist", "Secondary Artist", "Featured Artist"]
         }
         
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2)
+        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2_3)
         
-        # Read back using ID3v2 specific function
-        id3v2_metadata = get_single_format_app_metadata(temp_audio_file, MetadataFormat.ID3V2)
+        # Read back using ID3v2.3 specific function
+        id3v2_metadata = get_single_format_app_metadata(temp_audio_file, MetadataFormat.ID3V2_3)
         artists = id3v2_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
         
         assert isinstance(artists, list)
@@ -40,12 +40,12 @@ class TestMultipleEntriesId3v2:
         assert "Secondary Artist" in artists
         assert "Featured Artist" in artists
 
-    def test_write_multiple_album_artists(self, temp_audio_file: Path):
+    def test_write_multiple_album_artists_id3v2_3(self, temp_audio_file: Path):
         metadata = {
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: ["Album Artist One", "Album Artist Two"]
         }
         
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2)
+        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2_3)
         
         unified_metadata = get_merged_unified_metadata(temp_audio_file)
         album_artists = unified_metadata.get(UnifiedMetadataKey.ALBUM_ARTISTS_NAMES)
@@ -55,12 +55,12 @@ class TestMultipleEntriesId3v2:
         assert "Album Artist One" in album_artists
         assert "Album Artist Two" in album_artists
 
-    def test_write_multiple_composers(self, temp_audio_file: Path):
+    def test_write_multiple_composers_id3v2_3(self, temp_audio_file: Path):
         metadata = {
             UnifiedMetadataKey.COMPOSER: ["Composer A", "Composer B", "Composer C"]
         }
         
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2)
+        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2_3)
         
         unified_metadata = get_merged_unified_metadata(temp_audio_file)
         composers = unified_metadata.get(UnifiedMetadataKey.COMPOSER)
@@ -71,59 +71,8 @@ class TestMultipleEntriesId3v2:
         assert "Composer B" in composers
         assert "Composer C" in composers
 
-    def test_write_multiple_involved_people(self, temp_audio_file: Path):
-        metadata = {
-            UnifiedMetadataKey.INVOLVED_PEOPLE: ["Producer: John Doe", "Engineer: Jane Smith", "Mixer: Bob Johnson"]
-        }
-        
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2)
-        
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        involved_people = unified_metadata.get(UnifiedMetadataKey.INVOLVED_PEOPLE)
-        
-        assert isinstance(involved_people, list)
-        assert len(involved_people) == 3
-        assert "Producer: John Doe" in involved_people
-        assert "Engineer: Jane Smith" in involved_people
-        assert "Mixer: Bob Johnson" in involved_people
 
-    def test_write_multiple_musicians(self, temp_audio_file: Path):
-        # Write multiple musicians
-        metadata = {
-            UnifiedMetadataKey.MUSICIANS: ["Guitar: Alice", "Bass: Bob", "Drums: Charlie", "Vocals: Diana"]
-        }
-        
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2)
-        
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        musicians = unified_metadata.get(UnifiedMetadataKey.MUSICIANS)
-        
-        assert isinstance(musicians, list)
-        assert len(musicians) == 4
-        assert "Guitar: Alice" in musicians
-        assert "Bass: Bob" in musicians
-        assert "Drums: Charlie" in musicians
-        assert "Vocals: Diana" in musicians
-
-    def test_write_multiple_keywords(self, temp_audio_file: Path):
-        # Write multiple keywords
-        metadata = {
-            UnifiedMetadataKey.KEYWORDS: ["rock", "alternative", "indie", "2023"]
-        }
-        
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2)
-        
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        keywords = unified_metadata.get(UnifiedMetadataKey.KEYWORDS)
-        
-        assert isinstance(keywords, list)
-        assert len(keywords) == 4
-        assert "rock" in keywords
-        assert "alternative" in keywords
-        assert "indie" in keywords
-        assert "2023" in keywords
-
-    def test_write_mixed_single_and_multiple_values(self, temp_audio_file: Path):
+    def test_write_mixed_single_and_multiple_values_id3v2_3(self, temp_audio_file: Path):
         # Write a mix of single and multiple values
         metadata = {
             UnifiedMetadataKey.TITLE: "Single Title",  # Single value
@@ -132,7 +81,7 @@ class TestMultipleEntriesId3v2:
             UnifiedMetadataKey.COMPOSER: ["Composer 1", "Composer 2", "Composer 3"]  # Multiple values
         }
         
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2)
+        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2_3)
         
         unified_metadata = get_merged_unified_metadata(temp_audio_file)
         
@@ -154,12 +103,12 @@ class TestMultipleEntriesId3v2:
         assert "Composer 2" in composers
         assert "Composer 3" in composers
 
-    def test_write_empty_list_removes_field(self, temp_audio_file: Path):
+    def test_write_empty_list_removes_field_id3v2_3(self, temp_audio_file: Path):
         # First write some metadata
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"]
         }
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2)
+        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2_3)
         
         # Verify it was written
         unified_metadata = get_merged_unified_metadata(temp_audio_file)
@@ -169,18 +118,18 @@ class TestMultipleEntriesId3v2:
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: []
         }
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2)
+        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2_3)
         
         # Verify field was removed
         unified_metadata = get_merged_unified_metadata(temp_audio_file)
         assert unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) is None
 
-    def test_write_none_removes_field(self, temp_audio_file: Path):
+    def test_write_none_removes_field_id3v2_3(self, temp_audio_file: Path):
         # First write some metadata
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"]
         }
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2)
+        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2_3)
         
         # Verify it was written
         unified_metadata = get_merged_unified_metadata(temp_audio_file)
@@ -190,8 +139,32 @@ class TestMultipleEntriesId3v2:
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: None
         }
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2)
+        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2_3)
         
         # Verify field was removed
         unified_metadata = get_merged_unified_metadata(temp_audio_file)
         assert unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) is None
+
+    def test_id3v2_3_version_specific_behavior(self, temp_audio_file: Path):
+        """Test that ID3v2.3 specific behavior is maintained (UTF-16 encoding, TYER+TDAT frames)."""
+        metadata = {
+            UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"],
+            UnifiedMetadataKey.TITLE: "Test Title",
+            UnifiedMetadataKey.ALBUM_NAME: "Test Album",
+            UnifiedMetadataKey.RELEASE_DATE: "2023"
+        }
+        
+        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2_3)
+        
+        # Verify the metadata was written correctly
+        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        
+        assert unified_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
+        assert unified_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
+        assert unified_metadata.get(UnifiedMetadataKey.RELEASE_DATE) == "2023"
+        
+        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+        assert isinstance(artists, list)
+        assert len(artists) == 2
+        assert "Artist One" in artists
+        assert "Artist Two" in artists

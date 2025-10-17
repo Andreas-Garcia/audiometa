@@ -1,4 +1,5 @@
 import pytest
+import subprocess
 
 from audiometa import get_merged_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -44,7 +45,7 @@ class TestSeparatorHandling:
         # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Set single artist tag with slash-separated values
-            # Set multiple artists using TempFileWithMetadata
+            try:
                 subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
                               check=True, capture_output=True)
                 subprocess.run([
@@ -71,7 +72,7 @@ class TestSeparatorHandling:
         # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Set single artist tag with backslash-separated values
-            # Set multiple artists using TempFileWithMetadata
+            try:
                 subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
                               check=True, capture_output=True)
                 subprocess.run([
@@ -98,7 +99,7 @@ class TestSeparatorHandling:
         # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Set single artist tag with double-slash-separated values
-            # Set multiple artists using TempFileWithMetadata
+            try:
                 subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
                               check=True, capture_output=True)
                 subprocess.run([
@@ -125,7 +126,7 @@ class TestSeparatorHandling:
         # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Set single artist tag with double-backslash-separated values
-            # Set multiple artists using TempFileWithMetadata
+            try:
                 subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
                               check=True, capture_output=True)
                 subprocess.run([
@@ -153,7 +154,7 @@ class TestSeparatorHandling:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Test that separators are processed in the correct priority order
             # Based on METADATA_MULTI_VALUE_SEPARATORS = ("//", "\\\\", ";", "\\", "/", ",")
-            # Set multiple artists using TempFileWithMetadata
+            try:
                 subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
                               check=True, capture_output=True)
                 # Use multiple separators - should split on highest priority first
@@ -182,7 +183,7 @@ class TestSeparatorHandling:
         # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Test separators with surrounding whitespace
-            # Set multiple artists using TempFileWithMetadata
+            try:
                 subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
                               check=True, capture_output=True)
                 subprocess.run([
@@ -213,7 +214,7 @@ class TestSeparatorHandling:
         # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Test separators that create empty values
-            # Set multiple artists using TempFileWithMetadata
+            try:
                 subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
                               check=True, capture_output=True)
                 subprocess.run([
@@ -240,7 +241,7 @@ class TestSeparatorHandling:
         # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Test that separators within artist names are preserved
-            # Set multiple artists using TempFileWithMetadata
+            try:
                 subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
                               check=True, capture_output=True)
                 subprocess.run([
@@ -267,7 +268,7 @@ class TestSeparatorHandling:
         # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Test single value without separators
-            # Set multiple artists using TempFileWithMetadata
+            try:
                 subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
                               check=True, capture_output=True)
                 subprocess.run([
@@ -292,7 +293,7 @@ class TestSeparatorHandling:
         # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Test separators with genres (another multi-value field)
-            # Set multiple artists using TempFileWithMetadata
+            try:
                 subprocess.run(["metaflac", "--remove-tag=GENRE", str(test_file.path)], 
                               check=True, capture_output=True)
                 subprocess.run([
@@ -319,7 +320,7 @@ class TestSeparatorHandling:
         # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Test separators with composers (another multi-value field)
-            # Set multiple artists using TempFileWithMetadata
+            try:
                 subprocess.run(["metaflac", "--remove-tag=COMPOSER", str(test_file.path)], 
                               check=True, capture_output=True)
                 subprocess.run([
@@ -346,7 +347,7 @@ class TestSeparatorHandling:
         # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Test complex scenario with multiple separators and edge cases
-            # Set multiple artists using TempFileWithMetadata
+            try:
                 subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
                               check=True, capture_output=True)
                 subprocess.run([
