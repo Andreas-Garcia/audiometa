@@ -5,7 +5,6 @@ synchronizes other metadata formats that are already present.
 """
 
 import pytest
-import shutil
 from pathlib import Path
 
 from audiometa import (
@@ -16,7 +15,7 @@ from audiometa import (
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.test.tests.test_helpers import TempFileWithMetadata
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
 @pytest.mark.integration
@@ -69,12 +68,10 @@ class TestSyncStrategy:
             merged = get_merged_unified_metadata(test_file)
             assert merged.get(UnifiedMetadataKey.TITLE) == "Synced Title"
 
-    def test_default_strategy_is_sync(self, sample_wav_file: Path, temp_audio_file: Path):
+    def test_default_strategy_is_sync(self):
         # Copy sample file to temp location with correct extension
-        test_file = temp_audio_file.with_suffix('.wav')
-        shutil.copy2(sample_wav_file, test_file)
-        
-        # First, add ID3v2 metadata using external script
+        with TempFileWithMetadata({}, "wav") as test_file:
+            # First, add ID3v2 metadata using external script
         import subprocess
         subprocess.run([
             "mid3v2", 
@@ -104,8 +101,7 @@ class TestSyncStrategy:
 
     def test_id3v1_not_preserved_with_sync_strategy(self, sample_mp3_file: Path, temp_audio_file: Path):
         # Create test file with ID3v1 metadata using external script
-        test_file = temp_audio_file.with_suffix('.mp3')
-        shutil.copy2(sample_mp3_file, test_file)
+        with TempFileWithMetadata({}, "mp3") as test_file:
         
         # Add ID3v1 metadata using external script
         import subprocess
@@ -145,8 +141,7 @@ class TestSyncStrategy:
 
     def test_id3v1_modification_success(self, sample_mp3_file: Path, temp_audio_file: Path):
         # Create test file with ID3v1 metadata using external script
-        test_file = temp_audio_file.with_suffix('.mp3')
-        shutil.copy2(sample_mp3_file, test_file)
+        with TempFileWithMetadata({}, "mp3") as test_file:
         
         # Add ID3v1 metadata using external script
         import subprocess
@@ -174,8 +169,7 @@ class TestSyncStrategy:
 
     def test_sync_strategy_wav_with_id3v1_field_truncation(self, sample_wav_file: Path, temp_audio_file: Path):
         # Create WAV file with ID3v1 metadata using external script
-        test_file = temp_audio_file.with_suffix('.wav')
-        shutil.copy2(sample_wav_file, test_file)
+        with TempFileWithMetadata({}, "wav") as test_file:
         
         # Add ID3v1 metadata using external script
         import subprocess

@@ -1,5 +1,4 @@
 import pytest
-import subprocess
 
 from audiometa import get_merged_unified_metadata, get_specific_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -193,15 +192,9 @@ class TestId3v2GenreReading:
             assert genres is None or genres == []
 
     def test_id3v2_genre_with_other_metadata(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            # Set other metadata using external tools
-            subprocess.run([
-                "mid3v2", "--title=Test Title", "--artist=Test Artist", 
-                "--album=Test Album", str(test_file.path)
-            ], check=True, capture_output=True)
-            
+        with TempFileWithMetadata({"title": "Test Title", "artist": "Test Artist", "album": "Test Album"}, "mp3") as test_file:
             # Set genre using helper
-            script_helper.set_id3v2_multiple_genres(test_file.path, ["Rock", "Alternative"])
+            test_file.set_id3v2_multiple_genres(["Rock", "Alternative"])
             
             metadata = get_merged_unified_metadata(test_file.path)
             genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)

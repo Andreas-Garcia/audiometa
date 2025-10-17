@@ -7,14 +7,12 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 class TestMultipleEntriesId3v2:
     def test_write_multiple_artists(self, temp_audio_file: Path):
-        # Write multiple artists using update_file_metadata
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two", "Artist Three"]
         }
         
         update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2)
         
-        # Read back using unified function
         unified_metadata = get_merged_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
         
@@ -43,7 +41,6 @@ class TestMultipleEntriesId3v2:
         assert "Featured Artist" in artists
 
     def test_write_multiple_album_artists(self, temp_audio_file: Path):
-        # Write multiple album artists
         metadata = {
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: ["Album Artist One", "Album Artist Two"]
         }
@@ -59,7 +56,6 @@ class TestMultipleEntriesId3v2:
         assert "Album Artist Two" in album_artists
 
     def test_write_multiple_composers(self, temp_audio_file: Path):
-        # Write multiple composers
         metadata = {
             UnifiedMetadataKey.COMPOSER: ["Composer A", "Composer B", "Composer C"]
         }
@@ -76,7 +72,6 @@ class TestMultipleEntriesId3v2:
         assert "Composer C" in composers
 
     def test_write_multiple_involved_people(self, temp_audio_file: Path):
-        # Write multiple involved people
         metadata = {
             UnifiedMetadataKey.INVOLVED_PEOPLE: ["Producer: John Doe", "Engineer: Jane Smith", "Mixer: Bob Johnson"]
         }

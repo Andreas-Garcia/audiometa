@@ -1,5 +1,4 @@
 from pathlib import Path
-import subprocess
 
 from audiometa import (
     update_file_metadata,
@@ -9,23 +8,19 @@ from audiometa import (
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.test.tests.test_helpers import TempFileWithMetadata
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
 class TestMultiMetadataFormatSync:
     def test_wav_sync_multiple_values_with_all_formats(self, sample_wav_file: Path, temp_audio_file: Path):
         # Create WAV file with existing ID3v2, RIFF, and ID3v1 metadata
         with TempFileWithMetadata({"title": "Initial Title"}, "wav") as test_file:
-            # Set up initial metadata in all three formats using external tools
+            # Set up initial metadata in all three formats using helper methods
             # ID3v2 metadata
-            subprocess.run([
-                "mid3v2", 
-                "--song=Original ID3v2 Title",
-                "--artist=Original ID3v2 Artist",
-                "--album=Original ID3v2 Album",
-                "--genre=Original ID3v2 Genre",
-                str(test_file.path)
-            ], check=True)
+            test_file.set_id3v2_title("Original ID3v2 Title")
+            test_file.set_id3v2_artist("Original ID3v2 Artist")
+            test_file.set_id3v2_album("Original ID3v2 Album")
+            test_file.set_id3v2_genre("Original ID3v2 Genre")
             
             # RIFF metadata (using our library)
             riff_metadata = {
@@ -120,14 +115,10 @@ class TestMultiMetadataFormatSync:
         with TempFileWithMetadata({"title": "Initial Title"}, "mp3") as test_file:
             # Set up initial metadata in both formats
             # ID3v2 metadata
-            subprocess.run([
-                "mid3v2", 
-                "--song=Original ID3v2 Title",
-                "--artist=Original ID3v2 Artist",
-                "--album=Original ID3v2 Album",
-                "--genre=Original ID3v2 Genre",
-                str(test_file.path)
-            ], check=True)
+            test_file.set_id3v2_title("Original ID3v2 Title")
+            test_file.set_id3v2_artist("Original ID3v2 Artist")
+            test_file.set_id3v2_album("Original ID3v2 Album")
+            test_file.set_id3v2_genre("Original ID3v2 Genre")
             
             # ID3v1 metadata (using our library)
             id3v1_metadata = {
@@ -200,14 +191,10 @@ class TestMultiMetadataFormatSync:
         with TempFileWithMetadata({"title": "Initial Title"}, "flac") as test_file:
             # Set up initial metadata in all three formats
             # ID3v2 metadata
-            subprocess.run([
-                "mid3v2", 
-                "--song=Original ID3v2 Title",
-                "--artist=Original ID3v2 Artist",
-                "--album=Original ID3v2 Album",
-                "--genre=Original ID3v2 Genre",
-                str(test_file.path)
-            ], check=True)
+            test_file.set_id3v2_title("Original ID3v2 Title")
+            test_file.set_id3v2_artist("Original ID3v2 Artist")
+            test_file.set_id3v2_album("Original ID3v2 Album")
+            test_file.set_id3v2_genre("Original ID3v2 Genre")
             
             # Vorbis metadata (using our library)
             vorbis_metadata = {

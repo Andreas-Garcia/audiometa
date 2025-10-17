@@ -349,6 +349,48 @@ class TempFileWithMetadata:
         command = ["mid3v2", "--genre", genre_string, str(self.test_file)]
         return self._run_external_tool(command)
     
+    def set_id3v2_multiple_artists(self, artists: list[str]):
+        """Set ID3v2 multiple artists using external mid3v2 tool."""
+        # Try to delete existing TPE1 tags, but don't fail if they don't exist
+        try:
+            command = ["mid3v2", "--delete", "TPE1", str(self.test_file)]
+            self._run_external_tool(command)
+        except RuntimeError:
+            # Ignore if TPE1 tags don't exist
+            pass
+        
+        for artist in artists:
+            command = ["mid3v2", "--TPE1", artist, str(self.test_file)]
+            self._run_external_tool(command)
+    
+    def set_id3v2_multiple_album_artists(self, album_artists: list[str]):
+        """Set ID3v2 multiple album artists using external mid3v2 tool."""
+        # Try to delete existing TPE2 tags, but don't fail if they don't exist
+        try:
+            command = ["mid3v2", "--delete", "TPE2", str(self.test_file)]
+            self._run_external_tool(command)
+        except RuntimeError:
+            # Ignore if TPE2 tags don't exist
+            pass
+        
+        for album_artist in album_artists:
+            command = ["mid3v2", "--TPE2", album_artist, str(self.test_file)]
+            self._run_external_tool(command)
+    
+    def set_id3v2_multiple_composers(self, composers: list[str]):
+        """Set ID3v2 multiple composers using external mid3v2 tool."""
+        # Try to delete existing TCOM tags, but don't fail if they don't exist
+        try:
+            command = ["mid3v2", "--delete", "TCOM", str(self.test_file)]
+            self._run_external_tool(command)
+        except RuntimeError:
+            # Ignore if TCOM tags don't exist
+            pass
+        
+        for composer in composers:
+            command = ["mid3v2", "--TCOM", composer, str(self.test_file)]
+            self._run_external_tool(command)
+    
     def set_id3v2_max_metadata(self):
         """Set maximum ID3v2 metadata using external script."""
         return self._run_script("set-id3v2-max-metadata.sh")
@@ -607,6 +649,65 @@ class TempFileWithMetadata:
         """Set Vorbis genre using external metaflac tool."""
         command = ["metaflac", "--set-tag", f"GENRE={genre}", str(self.test_file)]
         return self._run_external_tool(command)
+    
+    def set_vorbis_multiple_artists(self, artists: list[str]):
+        """Set Vorbis multiple artists using external metaflac tool."""
+        # Try to remove existing ARTIST tags, but don't fail if they don't exist
+        try:
+            command = ["metaflac", "--remove-tag", "ARTIST", str(self.test_file)]
+            self._run_external_tool(command)
+        except RuntimeError:
+            # Ignore if ARTIST tags don't exist
+            pass
+        
+        for artist in artists:
+            command = ["metaflac", "--set-tag", f"ARTIST={artist}", str(self.test_file)]
+            self._run_external_tool(command)
+    
+    def set_vorbis_multiple_album_artists(self, album_artists: list[str]):
+        """Set Vorbis multiple album artists using external metaflac tool."""
+        command = ["metaflac", "--remove-tag", "ALBUMARTIST", str(self.test_file)]
+        self._run_external_tool(command)
+        
+        for album_artist in album_artists:
+            command = ["metaflac", "--set-tag", f"ALBUMARTIST={album_artist}", str(self.test_file)]
+            self._run_external_tool(command)
+    
+    def set_vorbis_multiple_composers(self, composers: list[str]):
+        """Set Vorbis multiple composers using external metaflac tool."""
+        command = ["metaflac", "--remove-tag", "COMPOSER", str(self.test_file)]
+        self._run_external_tool(command)
+        
+        for composer in composers:
+            command = ["metaflac", "--set-tag", f"COMPOSER={composer}", str(self.test_file)]
+            self._run_external_tool(command)
+    
+    def set_vorbis_multiple_genres(self, genres: list[str]):
+        """Set Vorbis multiple genres using external metaflac tool."""
+        command = ["metaflac", "--remove-tag", "GENRE", str(self.test_file)]
+        self._run_external_tool(command)
+        
+        for genre in genres:
+            command = ["metaflac", "--set-tag", f"GENRE={genre}", str(self.test_file)]
+            self._run_external_tool(command)
+    
+    def set_vorbis_multiple_performers(self, performers: list[str]):
+        """Set Vorbis multiple performers using external metaflac tool."""
+        command = ["metaflac", "--remove-tag", "PERFORMER", str(self.test_file)]
+        self._run_external_tool(command)
+        
+        for performer in performers:
+            command = ["metaflac", "--set-tag", f"PERFORMER={performer}", str(self.test_file)]
+            self._run_external_tool(command)
+    
+    def set_vorbis_multiple_comments(self, comments: list[str]):
+        """Set Vorbis multiple comments using external metaflac tool."""
+        command = ["metaflac", "--remove-tag", "COMMENT", str(self.test_file)]
+        self._run_external_tool(command)
+        
+        for comment in comments:
+            command = ["metaflac", "--set-tag", f"COMMENT={comment}", str(self.test_file)]
+            self._run_external_tool(command)
     
     def delete_vorbis_genre(self):
         """Delete Vorbis genre using external metaflac tool."""

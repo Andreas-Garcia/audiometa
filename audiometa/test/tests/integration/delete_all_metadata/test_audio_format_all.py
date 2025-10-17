@@ -1,6 +1,5 @@
 import pytest
 from pathlib import Path
-import shutil
 
 from audiometa import (
     delete_all_metadata,
@@ -9,17 +8,15 @@ from audiometa import (
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.test.tests.test_helpers import TempFileWithMetadata
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
 @pytest.mark.integration
 class TestDeleteAllMetadataAllFormats:
 
-    def test_delete_all_metadata_formats_mp3(self, metadata_id3v1_small_mp3: Path, temp_audio_file: Path):
-        # Copy sample file with ID3v1 metadata to temp location
-        shutil.copy2(metadata_id3v1_small_mp3, temp_audio_file)
-        
-        # Add ID3v2 metadata using the library
+    def test_delete_all_metadata_formats_mp3(self):
+        with TempFileWithMetadata({"title": "ID3v1 Title", "artist": "ID3v1 Artist"}, "id3v1") as test_file:
+            # Add ID3v2 metadata using the library
         id3v2_metadata = {
             UnifiedMetadataKey.TITLE: "ID3v2 Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Artist"]

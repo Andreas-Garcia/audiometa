@@ -1,12 +1,11 @@
 import pytest
 from pathlib import Path
-import shutil
 
 from audiometa import (
     delete_all_metadata,
     AudioFile
 )
-from audiometa.test.tests.test_helpers import TempFileWithMetadata
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
 @pytest.mark.integration
@@ -26,13 +25,11 @@ class TestDeleteAllMetadataBasic:
             result = delete_all_metadata(audio_file)
             assert result is True
 
-    def test_delete_all_metadata_file_with_no_metadata(self, sample_mp3_file: Path, temp_audio_file: Path):
-        # Copy sample file to temp location
-        shutil.copy2(sample_mp3_file, temp_audio_file)
-        
-        # Delete metadata from file that has no metadata
-        result = delete_all_metadata(temp_audio_file)
-        assert result is True
+    def test_delete_all_metadata_file_with_no_metadata(self):
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            # Delete metadata from file that has no metadata
+            result = delete_all_metadata(test_file.path)
+            assert result is True
 
     def test_delete_all_metadata_id3v2_version_specific(self):
         # First add some metadata using external script

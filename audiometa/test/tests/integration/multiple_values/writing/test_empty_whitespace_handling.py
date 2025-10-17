@@ -1,7 +1,7 @@
 
 from pathlib import Path
 
-from audiometa import update_file_metadata, get_merged_unified_metadata
+from audiometa import update_file_metadata, get_merged_unified_metadata, get_specific_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
@@ -14,8 +14,8 @@ class TestEmptyWhitespaceHandling:
         update_file_metadata(temp_audio_file, metadata)
         
         # Verify it was written
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        assert unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) is not None
+        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
+        assert artists is not None
         
         # Now write empty list (should remove the field)
         metadata = {
@@ -24,8 +24,8 @@ class TestEmptyWhitespaceHandling:
         update_file_metadata(temp_audio_file, metadata)
         
         # Verify field was removed
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        assert unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) is None
+        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
+        assert artists is None
 
     def test_write_none_removes_field(self, temp_audio_file: Path):
         # First write some metadata
@@ -35,8 +35,8 @@ class TestEmptyWhitespaceHandling:
         update_file_metadata(temp_audio_file, metadata)
         
         # Verify it was written
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        assert unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) is not None
+        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
+        assert artists is not None
         
         # Now write None (should remove the field)
         metadata = {
@@ -45,8 +45,8 @@ class TestEmptyWhitespaceHandling:
         update_file_metadata(temp_audio_file, metadata)
         
         # Verify field was removed
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        assert unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) is None
+        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
+        assert artists is None
 
     def test_write_empty_strings_in_list(self, temp_audio_file: Path):
         # Write list with empty strings
@@ -55,8 +55,7 @@ class TestEmptyWhitespaceHandling:
         }
         update_file_metadata(temp_audio_file, metadata)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         
         # Should filter out empty strings
         assert isinstance(artists, list)
