@@ -170,16 +170,16 @@ def test_wav_sync_multiple_values(self, sample_wav_file: Path, temp_audio_file: 
 
 ### Test Isolation and Avoiding Circular Dependencies
 
-#### Reading Tests Must Use External Tools
+#### All Tests Must Use External Tools for Initial Data Setup
 
-For tests that verify **reading functionality**, NEVER use the library's own `update_file_metadata()` function. This creates circular dependencies where writing logic could mask reading bugs.
+For tests that verify **reading, writing, or deleting functionality**, NEVER use the library's own `update_file_metadata()` function to set up initial test data. This ensures proper test isolation and prevents testing the library's own writing logic when testing other functionality.
 
-#### ❌ WRONG - Creates circular dependency:
+#### ❌ WRONG - Poor test isolation:
 
 ```python
 def test_id3v1_genre_reading(self):
     with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-        # ❌ Using our own library to set metadata
+        # ❌ Using our own library to set metadata - poor test isolation
         update_file_metadata(test_file.path, {
             UnifiedMetadataKey.GENRE_NAME: "Rock"
         }, metadata_format=MetadataFormat.ID3V1)
@@ -187,20 +187,37 @@ def test_id3v1_genre_reading(self):
         # Testing reading - but we used our own writing logic!
         metadata = get_merged_unified_metadata(test_file.path)
         assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == ["Rock"]
+
+def test_delete_lyrics_id3v2(self):
+    with TempFileWithMetadata({}, "mp3") as test_file:
+        # ❌ Using our own library to set initial data - poor test isolation
+        update_file_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: "Test lyrics"})
+
+        # Testing deletion - but we used our own writing logic to set up!
+        update_file_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None})
+        assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LYRICS) is None
 ```
 
-#### ✅ CORRECT - Use external tools:
+#### ✅ CORRECT - Use external tools for proper test isolation:
 
 ```python
 def test_id3v1_genre_reading(self):
     with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-        # ✅ Use external tool to set metadata
-        script_helper = ScriptHelper()
-        script_helper.set_id3v1_max_metadata(test_file.path)
+        # ✅ Use external tool to set metadata - proper test isolation
+        test_file.set_id3v1_max_metadata()
 
         # Now test reading with external verification
         metadata = get_merged_unified_metadata(test_file.path)
         assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == ["Blues"]
+
+def test_delete_lyrics_id3v2(self):
+    with TempFileWithMetadata({}, "mp3") as test_file:
+        # ✅ Use external tool to set initial data - proper test isolation
+        test_file.set_id3v2_lyrics("Test lyrics")
+
+        # Test deletion using our library
+        update_file_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None})
+        assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LYRICS) is None
 ```
 
 #### ✅ ALTERNATIVE - Use TempFileWithMetadata with specific format:
@@ -213,33 +230,19 @@ def test_id3v1_genre_reading(self):
         assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == ["Rock"]
 ```
 
-#### ✅ ALTERNATIVE - Use subprocess with external tools:
+#### Available TempFileWithMetadata Methods
 
-```python
-def test_riff_genre_reading(self):
-    with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-        # ✅ Use external tool directly
-        subprocess.run([
-            "exiftool", "-overwrite_original",
-            "-Genre=Rock; Alternative; Indie",
-            str(test_file.path)
-        ], check=True)
-
-        metadata = get_merged_unified_metadata(test_file.path)
-        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == ["Rock"]
-```
-
-#### Available External Tools
-
-- **ScriptHelper class**: `set_id3v1_max_metadata()`, `set_id3v2_max_metadata()`, `set_vorbis_max_metadata()`, `set_riff_max_metadata()`
-- **External tools**: `id3v2`, `mid3v2`, `metaflac`, `bwfmetaedit`, `exiftool`, `ffmpeg`
-- **TempFileWithMetadata**: Uses external tools internally for specific formats
+- **Max metadata methods**: `set_id3v1_max_metadata()`, `set_id3v2_max_metadata()`, `set_vorbis_max_metadata()`, `set_riff_max_metadata()`
+- **Specific field methods**: `set_id3v2_lyrics()`, `set_id3v2_title()`, `set_id3v2_artist()`, `set_id3v2_album()`, etc.
+- **Delete methods**: `delete_id3v2_lyrics()`, `delete_id3v2_title()`, `delete_id3v2_artist()`, etc.
+- **TempFileWithMetadata**: Uses external tools internally for proper test isolation
 
 #### When to Use Each Approach
 
-- **Reading tests**: Always use external tools or `TempFileWithMetadata` with specific format
-- **Writing tests**: Can use `update_file_metadata()` (testing writing functionality)
-- **Integration tests**: Mix both approaches as appropriate
+- **Reading tests**: Use `TempFileWithMetadata` methods for initial data setup
+- **Writing tests**: Use `TempFileWithMetadata` methods for initial data setup, then test `update_file_metadata()` functionality
+- **Deleting tests**: Use `TempFileWithMetadata` methods for initial data setup, then test deletion functionality
+- **Integration tests**: Use `TempFileWithMetadata` methods consistently
 - **Unit tests**: Use mocks and direct object instantiation
 
 ### Individual Metadata Reading Tests
