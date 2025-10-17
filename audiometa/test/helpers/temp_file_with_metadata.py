@@ -505,8 +505,8 @@ class TempFileWithMetadata:
         return self._run_external_tool(command)
     
     def set_id3v2_title(self, title: str):
-        """Set ID3v2 title using external mid3v2 tool."""
-        command = ["mid3v2", "--song", title, str(self.test_file)]
+        """Set ID3v2 title using external id3v2 tool with --id3v2-only flag."""
+        command = ["id3v2", "--id3v2-only", "--song", title, str(self.test_file)]
         return self._run_external_tool(command)
     
     def delete_id3v2_title(self):
@@ -545,8 +545,8 @@ class TempFileWithMetadata:
         return self._run_external_tool(command)
     
     def set_id3v2_artist(self, artist: str):
-        """Set ID3v2 artist using external mid3v2 tool."""
-        command = ["mid3v2", "--artist", artist, str(self.test_file)]
+        """Set ID3v2 artist using external id3v2 tool with --id3v2-only flag."""
+        command = ["id3v2", "--id3v2-only", "--artist", artist, str(self.test_file)]
         return self._run_external_tool(command)
     
     def delete_id3v2_artist(self):

@@ -1,7 +1,7 @@
 import pytest
 
 from audiometa import delete_all_metadata
-from audiometa.test.tests.test_helpers import TempFileWithMetadata
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
 @pytest.mark.integration
