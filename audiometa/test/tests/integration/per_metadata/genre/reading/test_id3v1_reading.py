@@ -64,7 +64,7 @@ class TestId3v1GenreReading:
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
-            assert genres is not None
+            assert genres is None
 
     def test_id3v1_genre_single_genre_only(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:

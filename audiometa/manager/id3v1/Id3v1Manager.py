@@ -238,7 +238,7 @@ class Id3v1Manager(MetadataManager):
         
         # Genre (byte 127)
         genre_name = app_metadata.get(UnifiedMetadataKey.GENRES_NAMES)
-        if genre_name:
+        if genre_name is not None:
             # Handle both single string and list values gracefully
             if isinstance(genre_name, list):
                 genre_name = genre_name[0] if genre_name else None
@@ -249,6 +249,12 @@ class Id3v1Manager(MetadataManager):
                     tag_data[127] = genre_code
                 else:
                     tag_data[127] = 255  # Unknown genre
+            else:
+                # Genre is explicitly set to None/empty - mark as undefined for deletion
+                tag_data[127] = 255  # Undefined genre
+        else:
+            # Genre is not specified - mark as undefined for deletion
+            tag_data[127] = 255  # Undefined genre
         
         return bytes(tag_data)
 
