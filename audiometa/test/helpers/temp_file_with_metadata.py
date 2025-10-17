@@ -389,10 +389,7 @@ class TempFileWithMetadata:
         """Remove RIFF metadata using external script."""
         return self._run_script("remove_riff.py")
     
-    # =============================================================================
-    # Header Detection and Verification (previously in temp_file_with_metadata)
-    # =============================================================================
-    
+
     def has_id3v2_header(self) -> bool:
         """Check if file has ID3v2 header by reading the first 10 bytes.
         
