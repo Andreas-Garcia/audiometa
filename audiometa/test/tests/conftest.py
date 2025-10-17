@@ -206,36 +206,38 @@ def metadata_id3v1_and_id3v2_mp3(test_files_dir: Path, temp_audio_file: Path) ->
     import shutil
     import subprocess
     
-    # Copy a sample MP3 file to temp location
-    sample_file = test_files_dir / "sample.mp3"
-    shutil.copy2(sample_file, temp_audio_file)
-    
-    # Set ID3v1 metadata first
-    subprocess.run([
-        "id3v2",
-        "--comment", "ID3v1 Comment",
-        "--artist", "ID3v1 Artist",
-        "--album", "ID3v1 Album",
-        "--song", "ID3v1 Title",
-        "--year", "2023",
-        "--track", "1",
-        "--genre", "0",
-        "--id3v1-only",
-        str(temp_audio_file)
-    ], check=True)
-    
-    # Set ID3v2 metadata with different values
-    subprocess.run([
-        "mid3v2",
-        "--artist", "ID3v2 Artist",
-        "--album", "ID3v2 Album",
-        "--song", "ID3v2 Title",
-        "--comment", "ID3v2 Comment",
-        "--year", "2024",
-        "--track", "2",
-        "--genre", "Rock",
-        str(temp_audio_file)
-    ], check=True)
+    # Create a test file with metadata using TempFileWithMetadata
+    from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+    with TempFileWithMetadata({}, "mp3") as test_file:
+        # Copy the test file to the temp location
+        shutil.copy2(test_file.path, temp_audio_file)
+        
+        # Set ID3v1 metadata first
+        subprocess.run([
+            "id3v2",
+            "--comment", "ID3v1 Comment",
+            "--artist", "ID3v1 Artist",
+            "--album", "ID3v1 Album",
+            "--song", "ID3v1 Title",
+            "--year", "2023",
+            "--track", "1",
+            "--genre", "0",
+            "--id3v1-only",
+            str(temp_audio_file)
+        ], check=True)
+        
+        # Set ID3v2 metadata with different values
+        subprocess.run([
+            "mid3v2",
+            "--artist", "ID3v2 Artist",
+            "--album", "ID3v2 Album",
+            "--song", "ID3v2 Title",
+            "--comment", "ID3v2 Comment",
+            "--year", "2024",
+            "--track", "2",
+            "--genre", "Rock",
+            str(temp_audio_file)
+        ], check=True)
     
     return temp_audio_file
 
