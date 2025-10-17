@@ -177,7 +177,7 @@ def _create_minimal_audio_file(file_path: Path, format_type: str) -> None:
         format_type: Audio format ('mp3', 'flac', 'wav')
     """
     # Use existing sample files as templates
-    test_files_dir = Path(__file__).parent.parent / "data" / "audio_files"
+    test_files_dir = Path(__file__).parent.parent.parent / "data" / "audio_files"
     
     if format_type.lower() in ['mp3', 'id3v1']:
         template_file = test_files_dir / "metadata=none.mp3"

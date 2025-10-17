@@ -11,7 +11,7 @@ import shutil
 from pathlib import Path
 from typing import Dict, Any
 
-from .._internal_test_helpers import create_test_file_with_metadata
+from .internal_helpers import create_test_file_with_metadata
 
 
 class TempFileWithMetadata:
