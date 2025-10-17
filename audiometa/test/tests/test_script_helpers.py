@@ -13,15 +13,15 @@ from typing import Optional, Dict, Any
 
 class ScriptHelper:
     
-    def __init__(self, scripts_dir: Optional[Path] = None):
-        if scripts_dir is None:
-            # Default to the scripts directory relative to this file
-            self.scripts_dir = Path(__file__).parent.parent / "data" / "scripts"
-        else:
-            self.scripts_dir = scripts_dir
+    @staticmethod
+    def _get_scripts_dir() -> Path:
+        """Get the scripts directory path."""
+        return Path(__file__).parent.parent / "data" / "scripts"
     
-    def _run_script(self, script_name: str, file_path: Path, check: bool = True) -> subprocess.CompletedProcess:
-        script_path = self.scripts_dir / script_name
+    @staticmethod
+    def _run_script(script_name: str, file_path: Path, check: bool = True) -> subprocess.CompletedProcess:
+        scripts_dir = ScriptHelper._get_scripts_dir()
+        script_path = scripts_dir / script_name
         if not script_path.exists():
             raise FileNotFoundError(f"Script not found: {script_path}")
         
@@ -42,30 +42,96 @@ class ScriptHelper:
         except subprocess.CalledProcessError as e:
             raise RuntimeError(f"Script {script_name} failed: {e.stderr}") from e
     
-    def set_id3v2_max_metadata(self, file_path: Path) -> subprocess.CompletedProcess:
-        return self._run_script("set-id3v2-max-metadata.sh", file_path)
+    @staticmethod
+    def set_id3v2_max_metadata(file_path: Path) -> subprocess.CompletedProcess:
+        return ScriptHelper._run_script("set-id3v2-max-metadata.sh", file_path)
     
-    def set_vorbis_max_metadata(self, file_path: Path) -> subprocess.CompletedProcess:
-        return self._run_script("set-vorbis-max-metadata.sh", file_path)
+    @staticmethod
+    def set_vorbis_max_metadata(file_path: Path) -> subprocess.CompletedProcess:
+        return ScriptHelper._run_script("set-vorbis-max-metadata.sh", file_path)
     
-    def set_riff_max_metadata(self, file_path: Path) -> subprocess.CompletedProcess:
-        return self._run_script("set-riff-max-metadata.sh", file_path)
+    @staticmethod
+    def set_riff_max_metadata(file_path: Path) -> subprocess.CompletedProcess:
+        return ScriptHelper._run_script("set-riff-max-metadata.sh", file_path)
     
-    def set_id3v1_max_metadata(self, file_path: Path) -> subprocess.CompletedProcess:
-        return self._run_script("set-id3v1-max-metadata.sh", file_path)
+    @staticmethod
+    def set_id3v1_max_metadata(file_path: Path) -> subprocess.CompletedProcess:
+        return ScriptHelper._run_script("set-id3v1-max-metadata.sh", file_path)
     
-    def set_artists_one_two_three_vorbis(self, file_path: Path) -> subprocess.CompletedProcess:
-        return self._run_script("set-artists-One-Two-Three-vorbis.sh", file_path)
+    @staticmethod
+    def set_artists_one_two_three_vorbis(file_path: Path) -> subprocess.CompletedProcess:
+        return ScriptHelper._run_script("set-artists-One-Two-Three-vorbis.sh", file_path)
     
-    def remove_id3_metadata(self, file_path: Path) -> subprocess.CompletedProcess:
-        return self._run_script("remove_id3.py", file_path)
+    @staticmethod
+    def remove_id3_metadata(file_path: Path) -> subprocess.CompletedProcess:
+        return ScriptHelper._run_script("remove_id3.py", file_path)
     
-    def remove_riff_metadata(self, file_path: Path) -> subprocess.CompletedProcess:
-        return self._run_script("remove_riff.py", file_path)
+    @staticmethod
+    def remove_riff_metadata(file_path: Path) -> subprocess.CompletedProcess:
+        return ScriptHelper._run_script("remove_riff.py", file_path)
+    
+    @staticmethod
+    def set_id3v2_genre(file_path: Path, genre: str) -> subprocess.CompletedProcess:
+        """Set ID3v2 genre using external mid3v2 tool."""
+        try:
+            result = subprocess.run([
+                "mid3v2", "--genre", genre, str(file_path)
+            ], check=True, capture_output=True, text=True)
+            return result
+        except (subprocess.CalledProcessError, FileNotFoundError) as e:
+            raise RuntimeError(f"Failed to set ID3v2 genre: {e}") from e
+    
+    @staticmethod
+    def set_id3v2_multiple_genres(file_path: Path, genres: list[str]) -> subprocess.CompletedProcess:
+        """Set ID3v2 multiple genres using external mid3v2 tool."""
+        try:
+            # Join genres with semicolon separator for mid3v2
+            genre_string = "; ".join(genres)
+            result = subprocess.run([
+                "mid3v2", "--genre", genre_string, str(file_path)
+            ], check=True, capture_output=True, text=True)
+            return result
+        except (subprocess.CalledProcessError, FileNotFoundError) as e:
+            raise RuntimeError(f"Failed to set ID3v2 multiple genres: {e}") from e
+    
+    @staticmethod
+    def set_id3v1_genre(file_path: Path, genre_code: str) -> subprocess.CompletedProcess:
+        """Set ID3v1 genre using external id3v2 tool."""
+        try:
+            result = subprocess.run([
+                "id3v2", "--id3v1-only", 
+                f"--genre={genre_code}",
+                str(file_path)
+            ], check=True, capture_output=True, text=True)
+            return result
+        except (subprocess.CalledProcessError, FileNotFoundError) as e:
+            raise RuntimeError(f"Failed to set ID3v1 genre: {e}") from e
+    
+    @staticmethod
+    def set_riff_genre_text(file_path: Path, genre_text: str) -> subprocess.CompletedProcess:
+        """Set RIFF genre using external exiftool or bwfmetaedit tool."""
+        try:
+            # Try exiftool first
+            result = subprocess.run([
+                "exiftool", "-overwrite_original", 
+                f"-Genre={genre_text}",
+                str(file_path)
+            ], check=True, capture_output=True, text=True)
+            return result
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            try:
+                # Fallback to bwfmetaedit
+                result = subprocess.run([
+                    "bwfmetaedit", f"--IGNR={genre_text}", str(file_path)
+                ], check=True, capture_output=True, text=True)
+                return result
+            except (subprocess.CalledProcessError, FileNotFoundError) as e:
+                raise RuntimeError(f"Failed to set RIFF genre: {e}") from e
     
     # Header Detection Methods
     
-    def has_id3v2_header(self, file_path: Path) -> bool:
+    @staticmethod
+    def has_id3v2_header(file_path: Path) -> bool:
         """Check if file has ID3v2 header by reading the first 10 bytes.
         
         Args:
@@ -81,7 +147,8 @@ class ScriptHelper:
         except (IOError, OSError):
             return False
     
-    def has_id3v1_header(self, file_path: Path) -> bool:
+    @staticmethod
+    def has_id3v1_header(file_path: Path) -> bool:
         """Check if file has ID3v1 header by reading the last 128 bytes.
         
         Args:
@@ -98,7 +165,8 @@ class ScriptHelper:
         except (IOError, OSError):
             return False
     
-    def has_vorbis_comments(self, file_path: Path) -> bool:
+    @staticmethod
+    def has_vorbis_comments(file_path: Path) -> bool:
         """Check if file has Vorbis comments using metaflac.
         
         Args:
@@ -116,7 +184,8 @@ class ScriptHelper:
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
     
-    def has_riff_info_chunk(self, file_path: Path) -> bool:
+    @staticmethod
+    def has_riff_info_chunk(file_path: Path) -> bool:
         """Check if file has RIFF INFO chunk by reading file structure.
         
         Args:
@@ -192,7 +261,8 @@ class ScriptHelper:
         except (IOError, OSError, ValueError):
             return False
     
-    def get_metadata_headers_present(self, file_path: Path) -> Dict[str, bool]:
+    @staticmethod
+    def get_metadata_headers_present(file_path: Path) -> Dict[str, bool]:
         """Get a comprehensive report of all metadata headers present in the file.
         
         Args:
@@ -202,13 +272,14 @@ class ScriptHelper:
             Dictionary with format names as keys and boolean presence as values
         """
         return {
-            'id3v2': self.has_id3v2_header(file_path),
-            'id3v1': self.has_id3v1_header(file_path),
-            'vorbis': self.has_vorbis_comments(file_path),
-            'riff': self.has_riff_info_chunk(file_path)
+            'id3v2': ScriptHelper.has_id3v2_header(file_path),
+            'id3v1': ScriptHelper.has_id3v1_header(file_path),
+            'vorbis': ScriptHelper.has_vorbis_comments(file_path),
+            'riff': ScriptHelper.has_riff_info_chunk(file_path)
         }
     
-    def verify_headers_removed(self, file_path: Path, expected_removed: list[str] = None) -> Dict[str, bool]:
+    @staticmethod
+    def verify_headers_removed(file_path: Path, expected_removed: list[str] = None) -> Dict[str, bool]:
         """Verify that specified metadata headers have been removed.
         
         Args:
@@ -222,14 +293,15 @@ class ScriptHelper:
         if expected_removed is None:
             expected_removed = ['id3v2', 'id3v1', 'vorbis', 'riff']
         
-        headers_present = self.get_metadata_headers_present(file_path)
+        headers_present = ScriptHelper.get_metadata_headers_present(file_path)
         
         return {
             format_name: not headers_present.get(format_name, False)
             for format_name in expected_removed
         }
     
-    def check_metadata_with_external_tools(self, file_path: Path) -> Dict[str, Any]:
+    @staticmethod
+    def check_metadata_with_external_tools(file_path: Path) -> Dict[str, Any]:
         """Check metadata using external tools for comprehensive verification.
         
         Args:
