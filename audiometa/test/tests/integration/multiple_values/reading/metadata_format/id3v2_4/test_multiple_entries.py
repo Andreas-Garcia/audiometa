@@ -10,7 +10,7 @@ class TestId3v2_4MultipleEntries:
             test_file.set_id3v2_4_multiple_artists(["Artist One", "Artist Two", "Artist Three"])
             
             # Verify raw data structure using the new method
-            verification = test_file.verify_multiple_entries_in_raw_data("TPE1", expected_count=3)
+            verification = test_file.verify_id3v2_4_multiple_entries_in_raw_data("TPE1", expected_count=3)
             
             # Verify the single TPE1 entry contains all artists with proper separation
             assert "TPE1=Artist One / Artist Two / Artist Three" in verification['raw_output']
