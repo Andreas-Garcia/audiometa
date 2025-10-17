@@ -26,43 +26,39 @@ class TestRiffManager:
         with pytest.raises(FileTypeNotSupportedError):
             RiffManager(audio_file)
 
-    def test_riff_manager_update_metadata(self, sample_wav_file: Path, temp_wav_file: Path):
-        import shutil
-        shutil.copy2(sample_wav_file, temp_wav_file)
-        
-        audio_file = AudioFile(temp_wav_file)
-        manager = RiffManager(audio_file)
-        
-        test_metadata = {
-            UnifiedMetadataKey.TITLE: "RIFF Test Title",
-            UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Test Artist"],
-            UnifiedMetadataKey.ALBUM_NAME: "RIFF Test Album"
-        }
-        
-        manager.update_file_metadata(test_metadata)
-        
-        # Verify metadata was updated
-        updated_metadata = manager.get_app_metadata()
-        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "RIFF Test Title"
-        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["RIFF Test Artist"]
-        assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "RIFF Test Album"
+    def test_riff_manager_update_metadata(self):
+        with TempFileWithMetadata({}, "wav") as test_file:
+            audio_file = AudioFile(test_file.path)
+            manager = RiffManager(audio_file)
+            
+            test_metadata = {
+                UnifiedMetadataKey.TITLE: "RIFF Test Title",
+                UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Test Artist"],
+                UnifiedMetadataKey.ALBUM_NAME: "RIFF Test Album"
+            }
+            
+            manager.update_file_metadata(test_metadata)
+            
+            # Verify metadata was updated
+            updated_metadata = manager.get_app_metadata()
+            assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "RIFF Test Title"
+            assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["RIFF Test Artist"]
+            assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "RIFF Test Album"
 
-    def test_riff_manager_rating_supported(self, sample_wav_file: Path, temp_wav_file: Path):
-        import shutil
-        shutil.copy2(sample_wav_file, temp_wav_file)
-        
-        audio_file = AudioFile(temp_wav_file)
-        manager = RiffManager(audio_file, normalized_rating_max_value=100)
-        
-        test_metadata = {
-            UnifiedMetadataKey.TITLE: "RIFF Test Title",
-            UnifiedMetadataKey.RATING: 85  # RIFF supports rating through IRTD chunk
-        }
-        
-        # This should work without raising an exception
-        manager.update_file_metadata(test_metadata)
-        
-        # Verify metadata was updated
-        updated_metadata = manager.get_app_metadata()
-        assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "RIFF Test Title"
-        assert updated_metadata.get(UnifiedMetadataKey.RATING) is not None
+    def test_riff_manager_rating_supported(self):
+        with TempFileWithMetadata({}, "wav") as test_file:
+            audio_file = AudioFile(test_file.path)
+            manager = RiffManager(audio_file, normalized_rating_max_value=100)
+            
+            test_metadata = {
+                UnifiedMetadataKey.TITLE: "RIFF Test Title",
+                UnifiedMetadataKey.RATING: 85  # RIFF supports rating through IRTD chunk
+            }
+            
+            # This should work without raising an exception
+            manager.update_file_metadata(test_metadata)
+            
+            # Verify metadata was updated
+            updated_metadata = manager.get_app_metadata()
+            assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "RIFF Test Title"
+            assert updated_metadata.get(UnifiedMetadataKey.RATING) is not None
