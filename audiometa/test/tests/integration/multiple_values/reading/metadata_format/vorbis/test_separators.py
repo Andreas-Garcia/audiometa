@@ -1,5 +1,4 @@
 import pytest
-import subprocess
 
 from audiometa import get_merged_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -10,15 +9,8 @@ class TestVorbisSeparators:
     def test_semicolon_separated_artists(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist One;Artist Two;Artist Three",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                test_file.set_vorbis_multiple_artists(["Artist One", "Artist Two", "Artist Three"])
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set semicolon-separated artists")
             
             unified_metadata = get_merged_unified_metadata(test_file.path)

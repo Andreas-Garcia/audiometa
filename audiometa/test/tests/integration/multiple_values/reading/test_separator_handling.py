@@ -1,5 +1,4 @@
 import pytest
-import subprocess
 
 from audiometa import get_merged_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -46,15 +45,8 @@ class TestSeparatorHandling:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Set single artist tag with slash-separated values
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist One/Artist Two/Artist Three",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                test_file.set_vorbis_artist("Artist One/Artist Two/Artist Three")
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set slash-separated artists")
             
             # Read metadata
@@ -73,15 +65,8 @@ class TestSeparatorHandling:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Set single artist tag with backslash-separated values
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist One\\Artist Two\\Artist Three",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                test_file.set_vorbis_artist("Artist One\\Artist Two\\Artist Three")
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set backslash-separated artists")
             
             # Read metadata
@@ -100,15 +85,8 @@ class TestSeparatorHandling:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Set single artist tag with double-slash-separated values
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist One//Artist Two//Artist Three",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                test_file.set_vorbis_artist("Artist One//Artist Two//Artist Three")
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set double-slash-separated artists")
             
             # Read metadata
@@ -127,15 +105,8 @@ class TestSeparatorHandling:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Set single artist tag with double-backslash-separated values
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist One\\\\Artist Two\\\\Artist Three",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                test_file.set_vorbis_artist("Artist One\\\\Artist Two\\\\Artist Three")
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set double-backslash-separated artists")
             
             # Read metadata
@@ -155,16 +126,9 @@ class TestSeparatorHandling:
             # Test that separators are processed in the correct priority order
             # Based on METADATA_MULTI_VALUE_SEPARATORS = ("//", "\\\\", ";", "\\", "/", ",")
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
                 # Use multiple separators - should split on highest priority first
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist One//Artist Two;Artist Three,Artist Four",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                test_file.set_vorbis_artist("Artist One//Artist Two;Artist Three,Artist Four")
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set mixed separator artists")
             
             # Read metadata
@@ -184,15 +148,8 @@ class TestSeparatorHandling:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Test separators with surrounding whitespace
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist One ; Artist Two , Artist Three",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                test_file.set_vorbis_artist("Artist One ; Artist Two , Artist Three")
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set whitespace-separated artists")
             
             # Read metadata
@@ -215,15 +172,9 @@ class TestSeparatorHandling:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Test separators that create empty values
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist One;;Artist Two;",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
+                test_file.set_vorbis_artist("Artist One;;Artist Two;")
                 
-            except (subprocess.CalledProcessError, FileNotFoundError):
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set empty-separated artists")
             
             # Read metadata
@@ -242,15 +193,9 @@ class TestSeparatorHandling:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Test that separators within artist names are preserved
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist & Co.;Artist vs. Other;Artist + Collaborator",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
+                test_file.set_vorbis_artist("Artist & Co.;Artist vs. Other;Artist + Collaborator")
                 
-            except (subprocess.CalledProcessError, FileNotFoundError):
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set special character artists")
             
             # Read metadata
@@ -269,15 +214,9 @@ class TestSeparatorHandling:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Test single value without separators
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Single Artist",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
+                test_file.set_vorbis_artist("Single Artist")
                 
-            except (subprocess.CalledProcessError, FileNotFoundError):
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set single artist")
             
             # Read metadata
@@ -294,15 +233,9 @@ class TestSeparatorHandling:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Test separators with genres (another multi-value field)
             try:
-                subprocess.run(["metaflac", "--remove-tag=GENRE", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=GENRE=Rock;Pop;Jazz",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
+                test_file.set_vorbis_genre("Rock;Pop;Jazz")
                 
-            except (subprocess.CalledProcessError, FileNotFoundError):
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set separated genres")
             
             # Read metadata
@@ -321,15 +254,9 @@ class TestSeparatorHandling:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Test separators with composers (another multi-value field)
             try:
-                subprocess.run(["metaflac", "--remove-tag=COMPOSER", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=COMPOSER=Composer One,Composer Two,Composer Three",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
+                test_file.set_vorbis_multiple_composers(["Composer One", "Composer Two", "Composer Three"])
                 
-            except (subprocess.CalledProcessError, FileNotFoundError):
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set separated composers")
             
             # Read metadata
@@ -348,15 +275,9 @@ class TestSeparatorHandling:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Test complex scenario with multiple separators and edge cases
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist One//Artist Two;Artist Three,Artist Four\\Artist Five",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
+                test_file.set_vorbis_artist("Artist One//Artist Two;Artist Three,Artist Four\\Artist Five")
                 
-            except (subprocess.CalledProcessError, FileNotFoundError):
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set complex separated artists")
             
             # Read metadata

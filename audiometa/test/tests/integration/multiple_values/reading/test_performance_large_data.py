@@ -44,19 +44,15 @@ class TestPerformanceLargeData:
         # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Test performance with complex separator scenarios
-            complex_artists = "//".join([f"Artist {i+1};Artist {i+2},Artist {i+3}" for i in range(0, 30, 3)])
+            complex_artists = ["Artist 1", "Artist 2", "Artist 3", "Artist 4", "Artist 5", "Artist 6", 
+                              "Artist 7", "Artist 8", "Artist 9", "Artist 10", "Artist 11", "Artist 12",
+                              "Artist 13", "Artist 14", "Artist 15", "Artist 16", "Artist 17", "Artist 18",
+                              "Artist 19", "Artist 20", "Artist 21", "Artist 22", "Artist 23", "Artist 24",
+                              "Artist 25", "Artist 26", "Artist 27", "Artist 28", "Artist 29", "Artist 30"]
             
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-                subprocess.run([
-                    "metaflac",
-                    f"--set-tag=ARTIST={complex_artists}",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                test_file.set_vorbis_multiple_artists(complex_artists)
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set complex separated artists")
             
             start_time = time.time()
@@ -79,16 +75,8 @@ class TestPerformanceLargeData:
             long_artist = "A" * 50000  # 50,000 character artist name
             
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-                subprocess.run([
-                    "metaflac",
-                    f"--set-tag=ARTIST={long_artist}",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                test_file.set_vorbis_artist(long_artist)
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set very long artist")
             
             unified_metadata = get_merged_unified_metadata(test_file.path)
@@ -103,17 +91,9 @@ class TestPerformanceLargeData:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Set up test data
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-                artist_commands = []
-                for i in range(10):
-                    artist_commands.extend(["--set-tag", f"ARTIST=Artist {i+1}"])
-                
-                subprocess.run(["metaflac"] + artist_commands + [str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                artists_list = [f"Artist {i+1}" for i in range(10)]
+                test_file.set_vorbis_multiple_artists(artists_list)
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set test artists")
             
             # Test repeated reads
@@ -133,28 +113,19 @@ class TestPerformanceLargeData:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Test performance when multiple multi-value fields are populated
             try:
-                subprocess.run(["metaflac", "--remove-all-tags", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
                 # Set multiple artists
-                artist_commands = []
-                for i in range(10):
-                    artist_commands.extend(["--set-tag", f"ARTIST=Artist {i+1}"])
+                artists_list = [f"Artist {i+1}" for i in range(10)]
+                test_file.set_vorbis_multiple_artists(artists_list)
                 
                 # Set multiple genres
-                genre_commands = []
-                for i in range(5):
-                    genre_commands.extend(["--set-tag", f"GENRE=Genre {i+1}"])
+                genres_list = [f"Genre {i+1}" for i in range(5)]
+                test_file.set_vorbis_multiple_genres(genres_list)
                 
                 # Set multiple composers
-                composer_commands = []
-                for i in range(8):
-                    composer_commands.extend(["--set-tag", f"COMPOSER=Composer {i+1}"])
+                composers_list = [f"Composer {i+1}" for i in range(8)]
+                test_file.set_vorbis_multiple_composers(composers_list)
                 
-                all_commands = artist_commands + genre_commands + composer_commands + [str(test_file.path)]
-                subprocess.run(["metaflac"] + all_commands, check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set multiple multi-value fields")
             
             start_time = time.time()
@@ -181,19 +152,11 @@ class TestPerformanceLargeData:
         # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Test performance with data that has lots of whitespace processing
-            whitespace_heavy_artists = "   Artist One   ;   Artist Two   ,   Artist Three   "
+            whitespace_heavy_artists = ["   Artist One   ", "   Artist Two   ", "   Artist Three   "]
             
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-                subprocess.run([
-                    "metaflac",
-                    f"--set-tag=ARTIST={whitespace_heavy_artists}",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                test_file.set_vorbis_multiple_artists(whitespace_heavy_artists)
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set whitespace-heavy artists")
             
             start_time = time.time()

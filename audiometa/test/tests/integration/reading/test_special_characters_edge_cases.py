@@ -1,5 +1,4 @@
 import pytest
-import subprocess
 from pathlib import Path
 
 from audiometa import get_merged_unified_metadata
@@ -11,19 +10,9 @@ class TestSpecialCharactersEdgeCases:
     def test_read_unicode_characters(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=François",
-                    "--set-tag=ARTIST=José", 
-                    "--set-tag=ARTIST=Müller",
-                    "--set-tag=ARTIST=北京",
-                    "--set-tag=TITLE=Café Music 音乐",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                test_file.set_vorbis_multiple_artists(["François", "José", "Müller", "北京"])
+                test_file.set_vorbis_title("Café Music 音乐")
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set unicode metadata")
             
             unified_metadata = get_merged_unified_metadata(test_file.path)
@@ -43,18 +32,9 @@ class TestSpecialCharactersEdgeCases:
     def test_read_special_punctuation(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist & Co.",
-                    "--set-tag=ARTIST=Band (feat. Singer)",
-                    "--set-tag=ARTIST=Group - The Band",
-                    "--set-tag=TITLE=Song (Remix) - Special Edition",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                test_file.set_vorbis_multiple_artists(["Artist & Co.", "Band (feat. Singer)", "Group - The Band"])
+                test_file.set_vorbis_title("Song (Remix) - Special Edition")
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set special punctuation metadata")
             
             unified_metadata = get_merged_unified_metadata(test_file.path)
@@ -73,18 +53,9 @@ class TestSpecialCharactersEdgeCases:
     def test_read_quotes_and_apostrophes(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist's Band",
-                    "--set-tag=ARTIST=The \"Quoted\" Band",
-                    "--set-tag=ARTIST=It's a Band",
-                    "--set-tag=TITLE=Don't Stop \"Believing\"",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                test_file.set_vorbis_multiple_artists(["Artist's Band", "The \"Quoted\" Band", "It's a Band"])
+                test_file.set_vorbis_title("Don't Stop \"Believing\"")
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set quotes metadata")
             
             unified_metadata = get_merged_unified_metadata(test_file.path)
@@ -103,18 +74,9 @@ class TestSpecialCharactersEdgeCases:
     def test_read_control_characters(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist\twith\ttabs",
-                    "--set-tag=ARTIST=Band\nwith\nnewlines",
-                    "--set-tag=ARTIST=Group\rwith\rcarriage",
-                    "--set-tag=TITLE=Song\twith\ttabs",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                test_file.set_vorbis_multiple_artists(["Artist\twith\ttabs", "Band\nwith\nnewlines", "Group\rwith\rcarriage"])
+                test_file.set_vorbis_title("Song\twith\ttabs")
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set control characters metadata")
             
             unified_metadata = get_merged_unified_metadata(test_file.path)
@@ -134,17 +96,9 @@ class TestSpecialCharactersEdgeCases:
         long_string = "A" * 1000
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    f"--set-tag=ARTIST={long_string}",
-                    "--set-tag=ARTIST=Short Artist",
-                    f"--set-tag=TITLE={'B' * 500}",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                test_file.set_vorbis_multiple_artists([long_string, "Short Artist"])
+                test_file.set_vorbis_title('B' * 500)
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set long strings metadata")
             
             unified_metadata = get_merged_unified_metadata(test_file.path)
@@ -162,20 +116,9 @@ class TestSpecialCharactersEdgeCases:
     def test_read_mixed_encodings(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=ASCII Artist",
-                    "--set-tag=ARTIST=Français",
-                    "--set-tag=ARTIST=Русский",
-                    "--set-tag=ARTIST=العربية",
-                    "--set-tag=ARTIST=中文",
-                    "--set-tag=TITLE=Mixed 编码 Title",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                test_file.set_vorbis_multiple_artists(["ASCII Artist", "Français", "Русский", "العربية", "中文"])
+                test_file.set_vorbis_title("Mixed 编码 Title")
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set mixed encodings metadata")
             
             unified_metadata = get_merged_unified_metadata(test_file.path)
@@ -196,18 +139,9 @@ class TestSpecialCharactersEdgeCases:
     def test_read_special_separator_characters(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist; with; semicolons",
-                    "--set-tag=ARTIST=Band, with, commas",
-                    "--set-tag=ARTIST=Group|with|pipes",
-                    "--set-tag=TITLE=Song; with; separators",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                test_file.set_vorbis_multiple_artists(["Artist; with; semicolons", "Band, with, commas", "Group|with|pipes"])
+                test_file.set_vorbis_title("Song; with; separators")
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set separator characters metadata")
             
             unified_metadata = get_merged_unified_metadata(test_file.path)
@@ -226,18 +160,9 @@ class TestSpecialCharactersEdgeCases:
     def test_read_html_xml_characters(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist <tag>",
-                    "--set-tag=ARTIST=Band &amp; Co.",
-                    "--set-tag=ARTIST=Group &lt;test&gt;",
-                    "--set-tag=TITLE=Song &amp; Title",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                test_file.set_vorbis_multiple_artists(["Artist <tag>", "Band &amp; Co.", "Group &lt;test&gt;"])
+                test_file.set_vorbis_title("Song &amp; Title")
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set HTML/XML characters metadata")
             
             unified_metadata = get_merged_unified_metadata(test_file.path)
@@ -256,18 +181,9 @@ class TestSpecialCharactersEdgeCases:
     def test_read_emoji_characters(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist 🎵",
-                    "--set-tag=ARTIST=Band 🎸",
-                    "--set-tag=ARTIST=Group 🎤",
-                    "--set-tag=TITLE=Song 🎶 with 🎵 emojis",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                test_file.set_vorbis_multiple_artists(["Artist 🎵", "Band 🎸", "Group 🎤"])
+                test_file.set_vorbis_title("Song 🎶 with 🎵 emojis")
+            except RuntimeError:
                 pytest.skip("metaflac not available or failed to set emoji characters metadata")
             
             unified_metadata = get_merged_unified_metadata(test_file.path)
