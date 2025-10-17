@@ -411,6 +411,21 @@ class TempFileWithMetadata:
             command.extend(["--TPE1", artist])
         command.append(str(self.test_file))
         self._run_external_tool(command)
+        
+    def set_id3v2_4_single_artist(self, artist: str):
+        """Set ID3v2.4 single artist using external mid3v2 tool."""
+        # Try to delete existing TPE1 tags, but don't fail if they don't exist
+        try:
+            command = ["mid3v2", "--delete", "TPE1", str(self.test_file)]
+            self._run_external_tool(command)
+        except RuntimeError:
+            # Ignore if TPE1 tags don't exist
+            pass
+        
+    def get_id3v2_4_all_raw_data(self) -> str:
+        """Get all raw data from ID3v2.4 using external mid3v2 tool."""
+        command = ["mid3v2", "--list", str(self.test_file)]
+        return self._run_external_tool(command).stdout
     
     def set_id3v2_multiple_album_artists(self, album_artists: list[str]):
         """Set ID3v2 multiple album artists using external mid3v2 tool."""
@@ -1107,3 +1122,64 @@ class TempFileWithMetadata:
                 results['metaflac'] = {'success': False, 'error': str(e)}
         
         return results
+    
+    def verify_multiple_entries_in_raw_data(self, tag_name: str, expected_count: int = None) -> Dict[str, Any]:
+        """Verify multiple entries exist in raw ID3v2 data using external tools.
+        
+        Args:
+            tag_name: The ID3v2 tag name to check (e.g., 'TPE1', 'TPE2', 'TCOM')
+            expected_count: Expected number of entries. If None, just checks if multiple exist.
+        
+        Returns:
+            Dictionary with verification results including:
+            - success: Whether the verification succeeded
+            - actual_count: Number of entries found
+            - has_multiple: Whether multiple entries exist
+            - raw_output: Raw mid3v2 output
+            - entries: List of individual entries found
+        """
+        if not self.test_file:
+            return {'success': False, 'error': 'No test file available'}
+        
+        try:
+            result = subprocess.run(
+                ['mid3v2', '-l', str(self.test_file)],
+                capture_output=True, text=True, check=True
+            )
+            raw_output = result.stdout
+            
+            # Count occurrences of the tag
+            tag_pattern = f"{tag_name}="
+            actual_count = raw_output.count(tag_pattern)
+            has_multiple = actual_count > 1
+            
+            # Extract individual entries
+            entries = []
+            for line in raw_output.split('\n'):
+                if line.strip().startswith(tag_pattern):
+                    entries.append(line.strip())
+            
+            # Check if expected count matches
+            count_matches = expected_count is None or actual_count == expected_count
+            
+            return {
+                'success': True,
+                'actual_count': actual_count,
+                'has_multiple': has_multiple,
+                'count_matches': count_matches,
+                'raw_output': raw_output,
+                'entries': entries,
+                'tag_name': tag_name
+            }
+            
+        except (subprocess.CalledProcessError, FileNotFoundError) as e:
+            return {
+                'success': False,
+                'error': str(e),
+                'actual_count': 0,
+                'has_multiple': False,
+                'count_matches': False,
+                'raw_output': '',
+                'entries': [],
+                'tag_name': tag_name
+            }
