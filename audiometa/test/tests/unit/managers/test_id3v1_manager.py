@@ -7,6 +7,7 @@ from audiometa import AudioFile
 from audiometa.manager.id3v1.Id3v1Manager import Id3v1Manager
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import MetadataNotSupportedError
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
 @pytest.mark.unit
@@ -42,11 +43,8 @@ class TestId3v1Manager:
 
     def test_id3v1_manager_write_support(self, sample_mp3_file: Path, temp_audio_file: Path):
         # Copy sample file to temp location for testing
-        import shutil
-        test_file = temp_audio_file.with_suffix('.mp3')
-        shutil.copy2(sample_mp3_file, test_file)
-        
-        audio_file = AudioFile(test_file)
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            audio_file = AudioFile(test_file.path)
         manager = Id3v1Manager(audio_file)
         
         test_metadata = {
@@ -66,11 +64,8 @@ class TestId3v1Manager:
 
     def test_id3v1_manager_write_unsupported_fields_raises_error(self, sample_mp3_file: Path, temp_audio_file: Path):
         # Copy sample file to temp location for testing
-        import shutil
-        test_file = temp_audio_file.with_suffix('.mp3')
-        shutil.copy2(sample_mp3_file, test_file)
-        
-        audio_file = AudioFile(test_file)
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            audio_file = AudioFile(test_file.path)
         manager = Id3v1Manager(audio_file)
         
         # Test unsupported fields that should raise MetadataNotSupportedError
