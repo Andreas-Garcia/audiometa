@@ -20,6 +20,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
   - [Format-Specific Operations](#format-specific-operations)
   - [Writing Strategies](#writing-strategies)
   - [Multi-Value Fields Support](#multi-value-fields-support)
+  - [Genre Handling](#genre-handling)
   - [Rating Profiles](#rating-profiles)
   - [Error Handling](#error-handling)
 - [Metadata Field Reference](#metadata-field-reference)
@@ -1115,6 +1116,212 @@ title = metadata.get(UnifiedMetadataKey.TITLE)  # Returns: "Main Title" (string)
 
 # Multi-value fields return lists
 artists = metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)  # Returns: ["Artist 1", "Artist 2"] (list)
+```
+
+### Genre Handling
+
+AudioMeta provides comprehensive genre support across all audio formats, with intelligent handling of genre codes, multiple genres, and format-specific limitations.
+
+#### Genre Support by Format
+
+| Format            | Multiple Genres | Genre Codes | Custom Genres | Notes                                                                      |
+| ----------------- | --------------- | ----------- | ------------- | -------------------------------------------------------------------------- |
+| **ID3v2 (MP3)**   | ✅              | ✅          | ✅            | Full support for multiple genres and custom names                          |
+| **Vorbis (FLAC)** | ✅              | ❌          | ✅            | Text-based genres with separator support                                   |
+| **RIFF (WAV)**    | ✅\*            | ✅          | ✅\*          | Text mode: multiple genres via separators; Code mode: single genre (0-147) |
+| **ID3v1**         | ❌              | ✅          | ❌            | Single genre with code conversion                                          |
+
+#### ID3v1 Genre Code System
+
+ID3v1 uses a standardized genre code system with 192 predefined genres:
+
+- **Genres 0-79**: Original ID3v1 specification
+- **Genres 80-125**: Winamp extensions
+- **Genres 126-147**: Other players' extensions
+- **Genres 148-191**: Winamp 5.6 extensions (November 2010)
+- **Code 255**: Unknown/unspecified genre
+
+**Popular Genres:**
+
+```python
+# Common genre codes
+0: "Blues"
+17: "Rock"
+18: "Techno"
+25: "Euro-Techno"
+32: "Classical"
+80: "Folk"
+131: "Indie"
+189: "Dubstep"
+```
+
+#### Automatic Genre Conversion
+
+The library automatically converts genre names to appropriate codes when writing to ID3v1 and RIFF formats:
+
+```python
+# Writing genres - automatic conversion
+update_file_metadata("song.mp3", {
+    UnifiedMetadataKey.GENRE_NAME: ["Rock", "Alternative"]
+})
+
+# For ID3v1: Converts "Rock" to code 17 (takes first genre only)
+# For RIFF: Uses genre codes (0-147) or falls back to text mode
+# For ID3v2/Vorbis: Stores as text values
+```
+
+**Conversion Logic:**
+
+1. **Exact Match**: Case-insensitive exact name match
+2. **Partial Match**: Genre name contained in standard name
+3. **Fallback**: Code 255 (unknown) if no match found
+
+#### Multiple Genre Handling
+
+**Reading Multiple Genres:**
+
+```python
+metadata = get_merged_unified_metadata("song.mp3")
+genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+# Returns: ['Rock', 'Alternative', 'Indie'] (list)
+```
+
+**Writing Multiple Genres:**
+
+```python
+# All formats accept lists
+update_file_metadata("song.mp3", {
+    UnifiedMetadataKey.GENRE_NAME: ["Rock", "Alternative", "Indie"]
+})
+
+# Format-specific behavior:
+# - ID3v2: Stores all genres as separate frames
+# - Vorbis: Stores as semicolon-separated values
+# - RIFF: Uses first genre only (code-based)
+# - ID3v1: Uses first genre only (code-based)
+```
+
+#### Format-Specific Limitations
+
+**RIFF/WAV Format:**
+
+- **Genre Code Mode (Preferred)**: Uses predefined codes (0-147)
+- **Text Mode (Less Common)**: Direct text storage (limited compatibility)
+- **Single Genre Only**: No multiple genre support
+- **No Custom Genres**: Limited to standard genre list
+
+#### RIFF Genre Support
+
+RIFF supports two distinct genre modes, each with different capabilities and compatibility characteristics.
+
+**Genre Code Mode:**
+
+- **Format**: Single numeric value (0-147) stored in IGNR tag
+- **Compatibility**: High - works with older software and players
+- **Limitations**:
+  - Only predefined genres from ID3v1/RIFF standard list
+  - Single genre only
+  - No custom genres
+- **Example**: Code `17` = "Rock", Code `20` = "Alternative"
+
+**Text Mode (Less Common):**
+
+- **Format**: Text string stored in IGNR tag
+- **Compatibility**: Lower - not all software recognizes this mode
+- **Capabilities**:
+  - Multiple genres via separators (real-world usage)
+  - Custom genre names
+  - Mixed genre codes and names
+  - More flexible than code mode
+
+**Common Multi-Genre Text Patterns:**
+
+- `"Rock; Alternative; Indie"` (semicolon-separated names)
+- `"Jazz, Fusion, Experimental"` (comma-separated names)
+- `"Electronic/Dance/Ambient"` (slash-separated names)
+- `"17; 20; 131"` (semicolon-separated codes)
+- `"8, 30, 26"` (comma-separated codes)
+- `"Rock; 20; Indie"` (mixed names and codes)
+
+**Why This Matters:**
+Many audio editing software and tagging tools write multiple genres to RIFF files using separators, even though it's not standardized. This creates a gap between what users write and what AudioMeta currently reads.
+
+**Examples:**
+
+```python
+# Example 1: Genre names only
+# File contains: "Rock; Alternative; Indie" in IGNR tag
+metadata = get_merged_unified_metadata("song.wav")
+genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+# Currently returns: ["Rock"] (first genre only)
+# Future: Will return: ["Rock", "Alternative", "Indie"]
+
+# Example 2: Genre codes only
+# File contains: "17; 20; 131" in IGNR tag
+metadata = get_merged_unified_metadata("song.wav")
+genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+# Currently returns: ["Rock"] (first code converted to name)
+# Future: Will return: ["Rock", "Alternative", "Indie"]
+
+# Example 3: Mixed codes and names
+# File contains: "Rock; 20; Indie" in IGNR tag
+metadata = get_merged_unified_metadata("song.wav")
+genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+# Currently returns: ["Rock"] (first genre only)
+# Future: Will return: ["Rock", "Alternative", "Indie"]
+```
+
+**ID3v1 Format:**
+
+- **Single Genre Only**: Takes first genre from list
+- **Code-Based**: Converts names to numeric codes
+- **No Custom Genres**: Limited to predefined list
+- **30-Character Limit**: Genre names truncated if too long
+
+**ID3v2/Vorbis Formats:**
+
+- **Full Flexibility**: Multiple genres, custom names
+- **Text-Based**: No code conversion needed
+- **Separator Support**: Handles semicolon-separated values
+- **Unlimited**: No practical limits on genre count
+
+#### Working with Genre Codes
+
+```python
+from audiometa.utils.id3v1_genre_code_map import ID3V1_GENRE_CODE_MAP
+
+# Look up genre code
+genre_code = 17  # Rock
+genre_name = ID3V1_GENRE_CODE_MAP[genre_code]  # "Rock"
+
+# Find code by name
+def find_genre_code(name):
+    for code, genre in ID3V1_GENRE_CODE_MAP.items():
+        if genre and genre.lower() == name.lower():
+            return code
+    return None
+
+rock_code = find_genre_code("Rock")  # Returns 17
+```
+
+#### Best Practices
+
+1. **Use Descriptive Names**: Write genres as readable text, let the library handle conversion
+2. **Order Matters**: For single-genre formats, the first genre in the list is used
+3. **Format Awareness**: Check format capabilities before writing multiple genres
+4. **Fallback Handling**: Unknown genres gracefully fall back to "Unknown" (code 255)
+
+```python
+# Recommended approach
+genres = ["Rock", "Alternative", "Indie"]
+update_file_metadata("song.mp3", {
+    UnifiedMetadataKey.GENRE_NAME: genres
+})
+
+# The library automatically:
+# - Converts to codes for ID3v1/RIFF
+# - Stores as text for ID3v2/Vorbis
+# - Handles format limitations gracefully
 ```
 
 ### Rating Profiles
