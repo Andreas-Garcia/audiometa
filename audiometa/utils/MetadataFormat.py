@@ -19,8 +19,8 @@ class MetadataFormat(str, Enum):
             dictionary mapping file extensions to ordered list of tag types
         """
         return {
-            '.flac': [cls.VORBIS, cls.ID3V2, cls.ID3V1],
-            '.mp3': [cls.ID3V2, cls.ID3V1],
-            '.wav': [cls.RIFF, cls.ID3V2, cls.ID3V1],
+            '.flac': [cls.VORBIS, cls.ID3V2, cls.ID3V2_3, cls.ID3V2_4, cls.ID3V1],
+            '.mp3': [cls.ID3V2, cls.ID3V2_3, cls.ID3V2_4, cls.ID3V1],
+            '.wav': [cls.RIFF, cls.ID3V2, cls.ID3V2_3, cls.ID3V2_4, cls.ID3V1],
         }
     
