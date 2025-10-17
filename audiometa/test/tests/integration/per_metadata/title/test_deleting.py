@@ -1,64 +1,61 @@
 import pytest
 
-
-
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
-
-
-
-from audiometa import get_specific_metadata, update_file_metadata
+from audiometa import get_specific_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.utils.MetadataFormat import MetadataFormat
 
 
 @pytest.mark.integration
 class TestTitleDeleting:
     def test_delete_title_id3v2(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-        
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: "Test Title"}, metadata_format=MetadataFormat.ID3V2)
+            # Set metadata using helper method
+            test_file.set_id3v2_title("Test Title")
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) == "Test Title"
         
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: None}, metadata_format=MetadataFormat.ID3V2)
+            # Delete metadata using helper method
+            test_file.delete_id3v2_title()
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) is None
 
     def test_delete_title_id3v1(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-        
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: "Test Title"}, metadata_format=MetadataFormat.ID3V1)
+            # Set metadata using helper method
+            test_file.set_id3v1_title("Test Title")
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) == "Test Title"
         
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: None}, metadata_format=MetadataFormat.ID3V1)
+            # Delete metadata using helper method
+            test_file.delete_id3v1_title()
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) is None
 
     def test_delete_title_riff(self):
         with TempFileWithMetadata({}, "wav") as test_file:
-        
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: "Test Title"}, metadata_format=MetadataFormat.RIFF)
+            # Set metadata using helper method
+            test_file.set_riff_title("Test Title")
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) == "Test Title"
         
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: None}, metadata_format=MetadataFormat.RIFF)
+            # Delete metadata using helper method
+            test_file.delete_riff_title()
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) is None
 
     def test_delete_title_vorbis(self):
         with TempFileWithMetadata({}, "flac") as test_file:
-        
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: "Test Title"}, metadata_format=MetadataFormat.VORBIS)
+            # Set metadata using helper method
+            test_file.set_vorbis_title("Test Title")
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) == "Test Title"
         
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: None}, metadata_format=MetadataFormat.VORBIS)
+            # Delete metadata using helper method
+            test_file.delete_vorbis_title()
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) is None
 
     def test_delete_title_preserves_other_fields(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
+            # Set multiple metadata fields using helper methods
+            test_file.set_id3v2_title("Test Title")
+            test_file.set_id3v2_artist("Test Artist")
+            test_file.set_id3v2_album("Test Album")
         
-            update_file_metadata(test_file.path, {
-                UnifiedMetadataKey.TITLE: "Test Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "Test Album"
-            })
-        
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: None})
+            # Delete only title using helper method
+            test_file.delete_id3v2_title()
         
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) is None
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
@@ -66,13 +63,14 @@ class TestTitleDeleting:
 
     def test_delete_title_already_none(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-        
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: None})
+            # Try to delete title that doesn't exist
+            test_file.delete_id3v2_title()
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) is None
 
     def test_delete_title_empty_string(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-        
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: ""})
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: None})
+            # Set empty title using helper method
+            test_file.set_id3v2_title("")
+            # Delete the empty title
+            test_file.delete_id3v2_title()
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) is None

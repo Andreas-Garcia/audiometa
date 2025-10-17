@@ -74,13 +74,14 @@ A comprehensive Python library for reading and writing audio metadata across mul
 **Vorbis (FLAC Native)**
 
 - **Primary Support**: FLAC files (native Vorbis comments)
-- **Features**: All metadata fields, multiple artists, cover art
+- **Features**: Most metadata fields, multiple artists, cover art
+- **Limitations**: Some fields not supported (lyrics, etc.)
 - **Note**: Standard metadata format for FLAC files
 
 **RIFF (WAV Native)**
 
 - **Strict Support**: WAV files only
-- **Features**: Most metadata fields, some limitations
+- **Features**: Most metadata fields including album artist, language, comments
 - **Limitations**: Some fields not supported (BPM, lyrics, etc.)
 - **Note**: Native metadata format for WAV files
 
@@ -1572,18 +1573,18 @@ The library supports a comprehensive set of metadata fields across different aud
 | Title             | ✓ (30)         | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                    |
 | Artist            | ✓ (30)         | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                    |
 | Album             | ✓ (30)         | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                    |
-| Album Artist      |                | ✓ (Format)     | ✓ (Format)   |               |                      |
+| Album Artist      |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                    |
 | Genre             | ✓ (1#)         | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                    |
 | Release Date      | ✓ (4)          | ✓ (10)         | ✓ (10)       | ✓ (10)        | ✓                    |
 | Track Number      | ✓ (1#)         | ✓ (0-255#)     | ✓ (Unlim#)   | ✓ (Unlim#)    | ✓                    |
 | Rating            |                | ✓ (0-255#)     | ✓ (0-100#)   | ✓ (0-100#\*)  | ✓                    |
 | BPM               |                | ✓ (0-65535#)   | ✓ (0-65535#) |               | ✓                    |
-| Language          |                | ✓ (3)          | ✓ (3)        |               | ✓                    |
+| Language          |                | ✓ (3)          | ✓ (3)        | ✓ (3)         | ✓                    |
 | Composer          |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                    |
 | Publisher         |                | ✓ (Format)     | ✓ (Format)   |               | ✓                    |
 | Copyright         |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                    |
-| Lyrics            |                | ✓ (Format)     | ✓ (Format)   |               | ✓                    |
-| Comment           | ✓ (28)         | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    |                      |
+| Lyrics            |                | ✓ (Format)     |              |               | ✓                    |
+| Comment           | ✓ (28)         | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    | ✓                    |
 | Encoder           |                | ✓ (Format)     | ✓ (Format)   | ✓ (Format)    |                      |
 | URL               |                | ✓ (Format)     | ✓ (Format)   |               |                      |
 | ISRC              |                | ✓ (12)         | ✓ (12)       |               |                      |

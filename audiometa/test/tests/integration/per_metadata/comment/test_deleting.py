@@ -1,64 +1,61 @@
 import pytest
 
-
-
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
-
-
-
-from audiometa import get_specific_metadata, update_file_metadata
+from audiometa import get_specific_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.utils.MetadataFormat import MetadataFormat
 
 
 @pytest.mark.integration
 class TestCommentDeleting:
     def test_delete_comment_id3v2(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-        
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: "Test comment"}, metadata_format=MetadataFormat.ID3V2)
+            # Set metadata using helper method
+            test_file.set_id3v2_comment("Test comment")
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) == "Test comment"
         
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.ID3V2)
+            # Delete metadata using helper method
+            test_file.delete_id3v2_comment()
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) is None
 
     def test_delete_comment_id3v1(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-        
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: "Test comment"}, metadata_format=MetadataFormat.ID3V1)
+            # Set metadata using helper method
+            test_file.set_id3v1_comment("Test comment")
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) == "Test comment"
         
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.ID3V1)
+            # Delete metadata using helper method
+            test_file.delete_id3v1_comment()
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) is None
 
     def test_delete_comment_riff(self):
         with TempFileWithMetadata({}, "wav") as test_file:
-        
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: "Test comment"}, metadata_format=MetadataFormat.RIFF)
+            # Set metadata using helper method
+            test_file.set_riff_comment("Test comment")
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) == "Test comment"
         
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.RIFF)
+            # Delete metadata using helper method
+            test_file.delete_riff_comment()
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) is None
 
     def test_delete_comment_vorbis(self):
         with TempFileWithMetadata({}, "flac") as test_file:
-        
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: "Test comment"}, metadata_format=MetadataFormat.VORBIS)
+            # Set metadata using helper method
+            test_file.set_vorbis_comment("Test comment")
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) == "Test comment"
         
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.VORBIS)
+            # Delete metadata using helper method
+            test_file.delete_vorbis_comment()
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) is None
 
     def test_delete_comment_preserves_other_fields(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
+            # Set multiple metadata fields using helper methods
+            test_file.set_id3v2_comment("Test comment")
+            test_file.set_id3v2_title("Test Title")
+            test_file.set_id3v2_artist("Test Artist")
         
-            update_file_metadata(test_file.path, {
-                UnifiedMetadataKey.COMMENT: "Test comment",
-                UnifiedMetadataKey.TITLE: "Test Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"]
-            })
-        
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None})
+            # Delete only comment using helper method
+            test_file.delete_id3v2_comment()
         
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) is None
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) == "Test Title"
@@ -66,13 +63,14 @@ class TestCommentDeleting:
 
     def test_delete_comment_already_none(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-        
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None})
+            # Try to delete comment that doesn't exist
+            test_file.delete_id3v2_comment()
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) is None
 
     def test_delete_comment_empty_string(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-        
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: ""})
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None})
+            # Set empty comment using helper method
+            test_file.set_id3v2_comment("")
+            # Delete the empty comment
+            test_file.delete_id3v2_comment()
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) is None

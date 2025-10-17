@@ -409,6 +409,299 @@ class TempFileWithMetadata:
         """Remove RIFF metadata using external script."""
         return self._run_script("remove_riff.py")
     
+    # =============================================================================
+    # Individual Metadata Field Operations
+    # =============================================================================
+    
+    def set_id3v2_comment(self, comment: str):
+        """Set ID3v2 comment using external mid3v2 tool."""
+        command = ["mid3v2", "--comment", comment, str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_id3v2_comment(self):
+        """Delete ID3v2 comment using external mid3v2 tool."""
+        command = ["mid3v2", "--delete", "COMM", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_id3v1_comment(self, comment: str):
+        """Set ID3v1 comment using external id3v2 tool."""
+        command = ["id3v2", "--id3v1-only", "--comment", comment, str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_id3v1_comment(self):
+        """Delete ID3v1 comment using external id3v2 tool."""
+        command = ["id3v2", "--id3v1-only", "--delete", "COMM", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_riff_comment(self, comment: str):
+        """Set RIFF comment using external bwfmetaedit tool."""
+        command = ["bwfmetaedit", f"--ICMT={comment}", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_riff_comment(self):
+        """Delete RIFF comment using external bwfmetaedit tool."""
+        command = ["bwfmetaedit", "--delete-ICMT", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_vorbis_comment(self, comment: str):
+        """Set Vorbis comment using external metaflac tool."""
+        command = ["metaflac", "--set-tag", f"COMMENT={comment}", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_vorbis_comment(self):
+        """Delete Vorbis comment using external metaflac tool."""
+        command = ["metaflac", "--remove-tag", "COMMENT", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_id3v2_title(self, title: str):
+        """Set ID3v2 title using external mid3v2 tool."""
+        command = ["mid3v2", "--song", title, str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_id3v2_title(self):
+        """Delete ID3v2 title using external mid3v2 tool."""
+        command = ["mid3v2", "--delete", "TIT2", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_id3v1_title(self, title: str):
+        """Set ID3v1 title using external id3v2 tool."""
+        command = ["id3v2", "--id3v1-only", "--song", title, str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_id3v1_title(self):
+        """Delete ID3v1 title using external id3v2 tool."""
+        command = ["id3v2", "--id3v1-only", "--delete", "TIT2", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_riff_title(self, title: str):
+        """Set RIFF title using external bwfmetaedit tool."""
+        command = ["bwfmetaedit", f"--INAM={title}", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_riff_title(self):
+        """Delete RIFF title using external bwfmetaedit tool."""
+        command = ["bwfmetaedit", "--delete-INAM", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_vorbis_title(self, title: str):
+        """Set Vorbis title using external metaflac tool."""
+        command = ["metaflac", "--set-tag", f"TITLE={title}", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_vorbis_title(self):
+        """Delete Vorbis title using external metaflac tool."""
+        command = ["metaflac", "--remove-tag", "TITLE", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_id3v2_artist(self, artist: str):
+        """Set ID3v2 artist using external mid3v2 tool."""
+        command = ["mid3v2", "--artist", artist, str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_id3v2_artist(self):
+        """Delete ID3v2 artist using external mid3v2 tool."""
+        command = ["mid3v2", "--delete", "TPE1", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_id3v1_artist(self, artist: str):
+        """Set ID3v1 artist using external id3v2 tool."""
+        command = ["id3v2", "--id3v1-only", "--artist", artist, str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_id3v1_artist(self):
+        """Delete ID3v1 artist using external id3v2 tool."""
+        command = ["id3v2", "--id3v1-only", "--delete", "TPE1", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_riff_artist(self, artist: str):
+        """Set RIFF artist using external bwfmetaedit tool."""
+        command = ["bwfmetaedit", f"--IART={artist}", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_riff_artist(self):
+        """Delete RIFF artist using external bwfmetaedit tool."""
+        command = ["bwfmetaedit", "--delete-IART", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_vorbis_artist(self, artist: str):
+        """Set Vorbis artist using external metaflac tool."""
+        command = ["metaflac", "--set-tag", f"ARTIST={artist}", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_vorbis_artist(self):
+        """Delete Vorbis artist using external metaflac tool."""
+        command = ["metaflac", "--remove-tag", "ARTIST", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_id3v2_album(self, album: str):
+        """Set ID3v2 album using external mid3v2 tool."""
+        command = ["mid3v2", "--album", album, str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_id3v2_album(self):
+        """Delete ID3v2 album using external mid3v2 tool."""
+        command = ["mid3v2", "--delete", "TALB", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_id3v1_album(self, album: str):
+        """Set ID3v1 album using external id3v2 tool."""
+        command = ["id3v2", "--id3v1-only", "--album", album, str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_id3v1_album(self):
+        """Delete ID3v1 album using external id3v2 tool."""
+        command = ["id3v2", "--id3v1-only", "--delete", "TALB", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_riff_album(self, album: str):
+        """Set RIFF album using external bwfmetaedit tool."""
+        command = ["bwfmetaedit", f"--IPRD={album}", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_riff_album(self):
+        """Delete RIFF album using external bwfmetaedit tool."""
+        command = ["bwfmetaedit", "--delete-IPRD", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_vorbis_album(self, album: str):
+        """Set Vorbis album using external metaflac tool."""
+        command = ["metaflac", "--set-tag", f"ALBUM={album}", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_vorbis_album(self):
+        """Delete Vorbis album using external metaflac tool."""
+        command = ["metaflac", "--remove-tag", "ALBUM", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_id3v2_genre(self, genre: str):
+        """Set ID3v2 genre using external mid3v2 tool."""
+        command = ["mid3v2", "--genre", genre, str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_id3v2_genre(self):
+        """Delete ID3v2 genre using external mid3v2 tool."""
+        command = ["mid3v2", "--delete", "TCON", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_id3v1_genre(self, genre: str):
+        """Set ID3v1 genre using external id3v2 tool."""
+        command = ["id3v2", "--id3v1-only", "--genre", genre, str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_id3v1_genre(self):
+        """Delete ID3v1 genre using external id3v2 tool."""
+        command = ["id3v2", "--id3v1-only", "--delete", "TCON", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_riff_genre(self, genre: str):
+        """Set RIFF genre using external bwfmetaedit tool."""
+        command = ["bwfmetaedit", f"--IGNR={genre}", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_riff_genre(self):
+        """Delete RIFF genre using external bwfmetaedit tool."""
+        command = ["bwfmetaedit", "--delete-IGNR", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_vorbis_genre(self, genre: str):
+        """Set Vorbis genre using external metaflac tool."""
+        command = ["metaflac", "--set-tag", f"GENRE={genre}", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_vorbis_genre(self):
+        """Delete Vorbis genre using external metaflac tool."""
+        command = ["metaflac", "--remove-tag", "GENRE", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_id3v2_lyrics(self, lyrics: str):
+        """Set ID3v2 lyrics using external mid3v2 tool."""
+        command = ["mid3v2", "--USLT", f"eng:{lyrics}", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_id3v2_lyrics(self):
+        """Delete ID3v2 lyrics using external mid3v2 tool."""
+        command = ["mid3v2", "--delete", "USLT", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_id3v1_lyrics(self, lyrics: str):
+        """Set ID3v1 lyrics using external id3v2 tool."""
+        command = ["id3v2", "--id3v1-only", "--USLT", f"eng:{lyrics}", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_id3v1_lyrics(self):
+        """Delete ID3v1 lyrics using external id3v2 tool."""
+        command = ["id3v2", "--id3v1-only", "--delete", "USLT", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_riff_lyrics(self, lyrics: str):
+        """Set RIFF lyrics using external bwfmetaedit tool."""
+        command = ["bwfmetaedit", f"--ILYT={lyrics}", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_riff_lyrics(self):
+        """Delete RIFF lyrics using external bwfmetaedit tool."""
+        command = ["bwfmetaedit", "--delete-ILYT", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_vorbis_lyrics(self, lyrics: str):
+        """Set Vorbis lyrics using external metaflac tool."""
+        command = ["metaflac", "--set-tag", f"LYRICS={lyrics}", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_vorbis_lyrics(self):
+        """Delete Vorbis lyrics using external metaflac tool."""
+        command = ["metaflac", "--remove-tag", "LYRICS", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_id3v2_language(self, language: str):
+        """Set ID3v2 language using external mid3v2 tool."""
+        command = ["mid3v2", "--TLAN", language, str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_id3v2_language(self):
+        """Delete ID3v2 language using external mid3v2 tool."""
+        command = ["mid3v2", "--delete", "TLAN", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_riff_language(self, language: str):
+        """Set RIFF language using external bwfmetaedit tool."""
+        command = ["bwfmetaedit", f"--ILNG={language}", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_riff_language(self):
+        """Delete RIFF language using external bwfmetaedit tool."""
+        command = ["bwfmetaedit", "--delete-ILNG", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_vorbis_language(self, language: str):
+        """Set Vorbis language using external metaflac tool."""
+        command = ["metaflac", "--set-tag", f"LANGUAGE={language}", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_vorbis_language(self):
+        """Delete Vorbis language using external metaflac tool."""
+        command = ["metaflac", "--remove-tag", "LANGUAGE", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_id3v2_bpm(self, bpm: int):
+        """Set ID3v2 BPM using external mid3v2 tool."""
+        command = ["mid3v2", "--TBPM", str(bpm), str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_id3v2_bpm(self):
+        """Delete ID3v2 BPM using external mid3v2 tool."""
+        command = ["mid3v2", "--delete", "TBPM", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_vorbis_bpm(self, bpm: int):
+        """Set Vorbis BPM using external metaflac tool."""
+        command = ["metaflac", "--set-tag", f"BPM={bpm}", str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def delete_vorbis_bpm(self):
+        """Delete Vorbis BPM using external metaflac tool."""
+        command = ["metaflac", "--remove-tag", "BPM", str(self.test_file)]
+        return self._run_external_tool(command)
 
     def has_id3v2_header(self) -> bool:
         """Check if file has ID3v2 header by reading the first 10 bytes.

@@ -3,6 +3,7 @@ from pathlib import Path
 from audiometa import update_file_metadata, get_merged_unified_metadata, get_single_format_app_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
 class TestMultipleEntriesRiff:
@@ -42,21 +43,22 @@ class TestMultipleEntriesRiff:
         assert "Secondary Artist" in artists
         assert "Featured Artist" in artists
 
-    def test_write_multiple_album_artists(self, temp_audio_file: Path):
-        # Write multiple album artists
-        metadata = {
-            UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: ["Album Artist One", "Album Artist Two"]
-        }
-        
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.RIFF)
-        
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        album_artists = unified_metadata.get(UnifiedMetadataKey.ALBUM_ARTISTS_NAMES)
-        
-        assert isinstance(album_artists, list)
-        assert len(album_artists) == 2
-        assert "Album Artist One" in album_artists
-        assert "Album Artist Two" in album_artists
+    def test_write_multiple_album_artists(self):
+        # Write multiple album artists - RIFF supports album artists via IAAR tag
+        with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
+            metadata = {
+                UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: ["Album Artist One", "Album Artist Two"]
+            }
+            
+            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
+            
+            unified_metadata = get_merged_unified_metadata(test_file.path)
+            album_artists = unified_metadata.get(UnifiedMetadataKey.ALBUM_ARTISTS_NAMES)
+            
+            assert isinstance(album_artists, list)
+            assert len(album_artists) == 2
+            assert "Album Artist One" in album_artists
+            assert "Album Artist Two" in album_artists
 
     def test_write_multiple_composers(self, temp_audio_file: Path):
         # Write multiple composers

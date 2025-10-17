@@ -29,5 +29,6 @@ class TestCommentReading:
 
     def test_riff(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
+            test_file._set_wav_metadata_with_bwfmetaedit(test_file.path, {"comment": "Test Comment RIFF"})
             comment = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT)
-            assert comment is None
+            assert comment == "Test Comment RIFF"

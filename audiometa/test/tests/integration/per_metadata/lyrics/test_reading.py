@@ -17,7 +17,7 @@ class TestLyricsReading:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             test_file.set_id3v2_max_metadata()
             lyrics = get_specific_metadata(test_file.path, UnifiedMetadataKey.LYRICS)
-            assert lyrics == "a" * 1000
+            assert lyrics == "a" * 4000
 
     def test_vorbis(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
