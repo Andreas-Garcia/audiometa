@@ -232,7 +232,7 @@ class TempFileWithMetadata:
             format_type: Audio format ('mp3', 'flac', 'wav')
         """
         # Use existing sample files as templates
-        test_files_dir = Path(__file__).parent.parent.parent / "data" / "audio_files"
+        test_files_dir = Path(__file__).parent.parent.parent / "test" / "data" / "audio_files"
         
         if format_type.lower() in ['mp3', 'id3v1']:
             template_file = test_files_dir / "metadata=none.mp3"
@@ -274,7 +274,7 @@ class TempFileWithMetadata:
     
     def _get_scripts_dir(self) -> Path:
         """Get the scripts directory path."""
-        return Path(__file__).parent.parent.parent / "data" / "scripts"
+        return Path(__file__).parent.parent.parent / "test" / "data" / "scripts"
     
     def _run_script(self, script_name: str, check: bool = True) -> subprocess.CompletedProcess:
         """Run an external script with proper error handling."""

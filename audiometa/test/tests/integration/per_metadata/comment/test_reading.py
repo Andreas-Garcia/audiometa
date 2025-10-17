@@ -1,42 +1,33 @@
-
 import pytest
-import shutil
 
-from audiometa import get_specific_metadata, update_file_metadata
+
+
+from audiometa import get_specific_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
 @pytest.mark.integration
 class TestCommentReading:
-    def test_id3v2(self, metadata_none_mp3, temp_audio_file):
-        shutil.copy2(metadata_none_mp3, temp_audio_file)
-        test_comment = "Test Comment ID3v2"
-        test_metadata = {UnifiedMetadataKey.COMMENT: test_comment}
-        update_file_metadata(temp_audio_file, test_metadata, metadata_format=MetadataFormat.ID3V2)
-        comment = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.COMMENT)
-        assert comment == test_comment
+    def test_id3v1(self):
+        with TempFileWithMetadata({"title": "Test Song"}, "id3v1") as test_file:
+            test_file.set_id3v1_max_metadata()
+            comment = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT)
+            assert comment == "a" * 28
 
-    def test_riff(self, metadata_none_wav, temp_wav_file):
-        shutil.copy2(metadata_none_wav, temp_wav_file)
-        test_comment = "Test Comment RIFF"
-        test_metadata = {UnifiedMetadataKey.COMMENT: test_comment}
-        update_file_metadata(temp_wav_file, test_metadata, metadata_format=MetadataFormat.RIFF)
-        comment = get_specific_metadata(temp_wav_file, UnifiedMetadataKey.COMMENT)
-        assert comment == test_comment
+    def test_id3v2(self):
+        with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
+            test_file.set_id3v2_max_metadata()
+            comment = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT)
+            assert comment == "a" * 4000
 
-    def test_vorbis(self, metadata_none_flac, temp_flac_file):
-        shutil.copy2(metadata_none_flac, temp_flac_file)
-        test_comment = "Test Comment Vorbis"
-        test_metadata = {UnifiedMetadataKey.COMMENT: test_comment}
-        update_file_metadata(temp_flac_file, test_metadata, metadata_format=MetadataFormat.VORBIS)
-        comment = get_specific_metadata(temp_flac_file, UnifiedMetadataKey.COMMENT)
-        assert comment == test_comment
+    def test_vorbis(self):
+        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
+            test_file.set_vorbis_max_metadata()
+            comment = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT)
+            assert comment == "a" * 1000
 
-    def test_id3v1(self, metadata_none_mp3, temp_audio_file):
-        shutil.copy2(metadata_none_mp3, temp_audio_file)
-        test_comment = "Test Comment ID3v1"
-        test_metadata = {UnifiedMetadataKey.COMMENT: test_comment}
-        update_file_metadata(temp_audio_file, test_metadata, metadata_format=MetadataFormat.ID3V1)
-        comment = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.COMMENT)
-        assert comment == test_comment
+    def test_riff(self):
+        with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
+            comment = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT)
+            assert comment is None

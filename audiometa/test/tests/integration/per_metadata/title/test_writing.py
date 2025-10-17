@@ -13,44 +13,43 @@ from audiometa.test.tests.test_helpers import TempFileWithMetadata
 
 @pytest.mark.integration
 class TestTitleWriting:
-    def test_id3v2(self, temp_audio_file):
+    def test_id3v2(self, test_file.path):
         test_title = "Test Title ID3v2"
         test_metadata = {"title": test_title}
         
         # Use external script to set metadata instead of app's update function
         with TempFileWithMetadata(test_metadata, "mp3") as test_file:
-            # Now test that our reading logic works correctly
-            title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
-            assert title == test_title
+                # Now test that our reading logic works correctly
+                title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
+                assert title == test_title
 
-    def test_riff(self, metadata_none_wav, temp_wav_file):
+    def test_riff(self):
         test_title = "Test Title RIFF"
         test_metadata = {"title": test_title}
         
         # Use external script to set metadata instead of app's update function
         with TempFileWithMetadata(test_metadata, "wav") as test_file:
-            # Now test that our reading logic works correctly
-            title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
-            assert title == test_title
+                # Now test that our reading logic works correctly
+                title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
+                assert title == test_title
 
-    def test_vorbis(self, metadata_none_flac, temp_flac_file):
+    def test_vorbis(self):
         test_title = "Test Title Vorbis"
         test_metadata = {"title": test_title}
         
         # Use external script to set metadata instead of app's update function
         with TempFileWithMetadata(test_metadata, "flac") as test_file:
-            # Now test that our reading logic works correctly
-            title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
-            assert title == test_title
+                # Now test that our reading logic works correctly
+                title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
+                assert title == test_title
 
-    def test_id3v1(self, metadata_none_mp3, temp_audio_file):
-        import shutil
-        from audiometa import update_file_metadata
+    def test_id3v1(self):
+                from audiometa import update_file_metadata
         from audiometa.utils.MetadataFormat import MetadataFormat
         
-        shutil.copy2(metadata_none_mp3, temp_audio_file)
-        test_title = "Test Title ID3v1"
-        test_metadata = {UnifiedMetadataKey.TITLE: test_title}
-        update_file_metadata(temp_audio_file, test_metadata, metadata_format=MetadataFormat.ID3V1)
-        title = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE)
-        assert title == test_title
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            test_title = "Test Title ID3v1"
+            test_metadata = {UnifiedMetadataKey.TITLE: test_title}
+            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
+            title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
+            assert title == test_title
