@@ -392,17 +392,35 @@ with TempFileWithMetadata({}, "mp3") as test_file:
 | Basic functionality           | Temporary files      | Simple, clean, fast                                                           |
 | Regression testing            | Pre-created files    | Known problematic files                                                       |
 
+### Testing API Patterns
+
+The codebase follows a **functional API approach** for all tests. Use these functions directly with file paths:
+
+```python
+# For reading metadata
+metadata = get_merged_unified_metadata(file_path)
+title = get_specific_metadata(file_path, UnifiedMetadataKey.TITLE)
+
+# For writing metadata
+update_file_metadata(file_path, metadata_dict)
+
+# For file operations
+duration = get_duration_in_sec(file_path)
+bitrate = get_bitrate(file_path)
+```
+
+**Note:** `AudioFile` objects are only used in unit tests for the `AudioFile` class itself. All other tests use the functional APIs above.
+
 ### Examples for Each Scenario
 
 #### Reading existing metadata (Pre-created files)
 
 ```python
-def test_read_metadata_from_pre_created_file(sample_mp3_file):
+def test_read_metadata_from_pre_created_file(sample_mp3_file: Path):
     """Test reading metadata from a pre-created file with known metadata."""
-    audio_file = AudioFile(sample_mp3_file)
-    metadata = audio_file.read_metadata()
-    assert metadata.title == "Sample Title"
-    assert metadata.artist == "Sample Artist"
+    metadata = get_merged_unified_metadata(sample_mp3_file)
+    assert metadata.get(UnifiedMetadataKey.TITLE) == ["Sample Title"]
+    assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Sample Artist"]
 ```
 
 #### Testing writing functionality (TempFileWithMetadata)
@@ -416,23 +434,24 @@ def test_write_metadata_using_temp_file():
         "mp3"
     ) as test_file:
         # Now test our application's writing functionality
-        audio_file = AudioFile(test_file.path)
-        audio_file.write_metadata({"title": "New Title"})
+        new_metadata = {
+            UnifiedMetadataKey.TITLE: "New Title"
+        }
+        update_file_metadata(test_file.path, new_metadata)
 
         # Verify by reading back
-        metadata = audio_file.read_metadata()
-        assert metadata.title == "New Title"
+        metadata = get_merged_unified_metadata(test_file.path)
+        assert metadata.get(UnifiedMetadataKey.TITLE) == ["New Title"]
 ```
 
 #### Edge case testing (Pre-created files)
 
 ```python
-def test_corrupted_metadata_handling(corrupted_mp3_file):
+def test_corrupted_metadata_handling(corrupted_mp3_file: Path):
     """Test handling of corrupted metadata using pre-created problematic file."""
-    audio_file = AudioFile(corrupted_mp3_file)
     # Test that our app gracefully handles corrupted metadata
     with pytest.raises(CorruptedMetadataError):
-        audio_file.read_metadata()
+        get_merged_unified_metadata(corrupted_mp3_file)
 ```
 
 #### Dynamic test scenarios (TempFileWithMetadata)
@@ -458,34 +477,35 @@ def test_specific_metadata_combination():
         assert test_file.has_id3v1_header()
 
         # Test our application
-        audio_file = AudioFile(test_file.path)
-        metadata = audio_file.read_metadata()
-        assert metadata.genre == "Custom Genre"
+        metadata = get_merged_unified_metadata(test_file.path)
+        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == ["Custom Genre"]
 ```
 
 #### Basic functionality (Temporary files)
 
 ```python
-def test_basic_read_write_operations(empty_mp3_file):
+def test_basic_read_write_operations(temp_audio_file: Path):
     """Test basic functionality with a simple temporary file."""
-    audio_file = AudioFile(empty_mp3_file)
+    # Test writing metadata
+    test_metadata = {
+        UnifiedMetadataKey.TITLE: "Test Title",
+        UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"]
+    }
+    update_file_metadata(temp_audio_file, test_metadata)
 
-    # Test writing
-    audio_file.write_metadata({"title": "Test Title"})
-
-    # Test reading
-    metadata = audio_file.read_metadata()
-    assert metadata.title == "Test Title"
+    # Test reading metadata
+    metadata = get_merged_unified_metadata(temp_audio_file)
+    assert metadata.get(UnifiedMetadataKey.TITLE) == ["Test Title"]
+    assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
 ```
 
 #### Regression testing (Pre-created files)
 
 ```python
-def test_regression_issue_123(problematic_wav_file):
+def test_regression_issue_123(problematic_wav_file: Path):
     """Test a specific regression that was fixed in issue #123."""
     # This file previously caused a crash
-    audio_file = AudioFile(problematic_wav_file)
-    metadata = audio_file.read_metadata()
+    metadata = get_merged_unified_metadata(problematic_wav_file)
     # Verify the fix works
     assert metadata is not None
 ```
@@ -495,7 +515,7 @@ def test_regression_issue_123(problematic_wav_file):
 ```
 ../data/audio_files/           # Pre-created test files
 ├── sample.mp3                 # Basic sample files
-├── metadata=*.mp3            # Metadata scenarios
+├── metadata=*.mp3            # Metadata format scenarioscomm
 ├── rating_*.wav              # Rating test cases
 ├── artists=*.mp3             # Artist metadata tests
 └── duration=*.flac           # Duration test cases
