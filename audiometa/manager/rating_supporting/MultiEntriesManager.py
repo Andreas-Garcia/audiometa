@@ -5,6 +5,7 @@ from mutagen._file import FileType as MutagenMetadata
 from mutagen.id3 import ID3
 
 from ...audio_file import AudioFile
+from ...exceptions import MetadataNotSupportedError
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from ...utils.rating_profiles import RatingWriteProfile
 from ...utils.types import AppMetadataValue, RawMetadataKey
@@ -77,16 +78,18 @@ class MultiEntriesManager(RatingSupportingMetadataManager):
         if not first_value:
             return []
             
-        # Try each separator in order of priority
+        # Process all separators in sequence (same logic as base MetadataManager)
+        # but only for the single entry (legacy data detection)
+        current_values = [first_value]
         for separator in METADATA_MULTI_VALUE_SEPARATORS:
-            if separator in first_value:
-                # Split by this separator and clean up
-                parsed_values = [val.strip() for val in first_value.split(separator)]
-                # Filter out empty values
-                return [val for val in parsed_values if val]
-                
-        # No separator found, return the original value
-        return [first_value]
+            new_values = []
+            for val in current_values:
+                new_values.extend(val.split(separator))
+            current_values = new_values
+            
+        # Clean up and filter empty values
+        parsed_values = [val.strip() for val in current_values if val.strip()]
+        return parsed_values
 
     def get_app_specific_metadata(self, app_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
         """
