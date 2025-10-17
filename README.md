@@ -846,20 +846,25 @@ The library intelligently handles multiple values across different metadata form
 
 The following fields support semantic multiple values:
 
-| Field                     | ID3v2 (MP3) | Vorbis (FLAC) | RIFF (WAV) | ID3v1 |
-| ------------------------- | ----------- | ------------- | ---------- | ----- |
-| **`ARTISTS_NAMES`**       | ✅          | ✅            | ✅\*       | ✅\*  |
-| **`ALBUM_ARTISTS_NAMES`** | ✅          | ✅            | ✅\*       | ✅\*  |
-| **`GENRE_NAME`**          | ✅          | ✅            | ✅\*       | ✅\*  |
-| **`COMPOSER`**            | ✅          | ✅            | ✅\*       | ✅\*  |
-| **`MUSICIANS`**           | ✅          | ✅            | ✅\*       | ✅\*  |
-| **`CONDUCTOR`**           | ✅          | ✅            | ✅\*       | ✅\*  |
-| **`ARRANGER`**            | ✅          | ✅            | ✅\*       | ✅\*  |
+| Field                     | ID3v2.3 (MP3) | ID3v2.4 (MP3) | Vorbis (FLAC) | RIFF (WAV) | ID3v1 |
+| ------------------------- | ------------- | ------------- | ------------- | ---------- | ----- |
+| **`ARTISTS_NAMES`**       | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
+| **`ALBUM_ARTISTS_NAMES`** | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
+| **`GENRE_NAME`**          | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
+| **`COMPOSER`**            | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
+| **`MUSICIANS`**           | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
+| **`CONDUCTOR`**           | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
+| **`ARRANGER`**            | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
 
 **Legend:**
 
 - ✅ = Multiple entries supported (best practice)
 - ✅\* = Separator-based parsing only (legacy limitation)
+
+**ID3v2 Version Differences:**
+
+- **ID3v2.3**: Uses concatenation with separators (✅\*) - specification limitation
+- **ID3v2.4**: Uses multiple separate frames (✅) - specification feature
 
 #### Reading Multiple Values
 
@@ -954,11 +959,12 @@ update_file_metadata("song.wav", metadata, metadata_format=MetadataFormat.RIFF)
 **Format Limitations:**
 
 - **Vorbis (FLAC)**: Supports true multiple entries (separate frames) ✅
-- **ID3v2 (MP3)**: Uses single frame with separators (e.g., "Artist One;Artist Two") ⚠️
+- **ID3v2.4 (MP3)**: Supports true multiple entries (separate frames) ✅
+- **ID3v2.3 (MP3)**: Uses single frame with separators (e.g., "Artist One;Artist Two") ⚠️
 - **RIFF (WAV)**: Uses single frame with separators ⚠️
 - **ID3v1**: Uses single frame with separators ⚠️
 
-> **Note**: ID3v2, RIFF, and ID3v1 formats do not support multiple separate frames for the same metadata field. Multiple values are stored as a single frame with separator characters.
+> **Note**: ID3v2.3, RIFF, and ID3v1 formats do not support multiple separate frames for the same metadata field. Multiple values are stored as a single frame with separator characters. ID3v2.4 supports multiple separate frames, but the library uses ID3v2.3 by default for maximum compatibility.
 
 **Smart Separator Selection (Legacy Formats):**
 
@@ -1668,6 +1674,50 @@ The library gracefully handles common edge cases:
 - `""` → Track number: `None` (empty string)
 - `"5/12/15"` → Track number: `5` (takes first part before first slash)
 - `"5-12"` → `ValueError` (different separator, no slash)
+
+### ID3v2 Multiple Entries Specification
+
+The ID3v2 specification has different rules for handling multiple values depending on the version:
+
+#### ID3v2.3 (Default - Maximum Compatibility)
+
+- **Multiple Frames**: ❌ **NOT supported** - Only one frame per type allowed
+- **Multiple Values**: Uses concatenation within a single frame with separators
+- **Example**: `"Artist One;Artist Two;Artist Three"` in a single `TPE1` frame
+- **Why**: ID3v2.3 specification limits each frame type to one instance per tag
+- **Compatibility**: Maximum compatibility with older players and devices
+
+#### ID3v2.4 (Modern Features)
+
+- **Multiple Frames**: ✅ **Supported** - Multiple frames of the same type allowed
+- **Multiple Values**: Uses separate frames for each value
+- **Example**: Three separate `TPE1` frames: `"Artist One"`, `"Artist Two"`, `"Artist Three"`
+- **Why**: ID3v2.4 specification explicitly allows multiple instances of the same frame type
+- **Compatibility**: Modern players and applications that support ID3v2.4
+
+#### Library Behavior
+
+The library automatically adapts based on the ID3v2 version:
+
+- **ID3v2.3 (default)**: Uses concatenation with smart separator selection
+- **ID3v2.4**: Uses multiple separate frames when `id3v2_version=(2, 4, 0)` is specified
+
+```python
+from audiometa import update_file_metadata
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+
+# ID3v2.3 (default) - uses concatenation
+update_file_metadata("song.mp3", {
+    UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"]
+})
+# Result: Single TPE1 frame with "Artist One;Artist Two"
+
+# ID3v2.4 - uses multiple frames
+update_file_metadata("song.mp3", {
+    UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"]
+}, id3v2_version=(2, 4, 0))
+# Result: Two separate TPE1 frames: "Artist One" and "Artist Two"
+```
 
 ### Legend
 
