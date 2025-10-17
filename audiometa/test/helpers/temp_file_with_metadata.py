@@ -313,7 +313,10 @@ class TempFileWithMetadata:
         except (subprocess.CalledProcessError, FileNotFoundError) as e:
             raise RuntimeError(f"External tool failed: {e}") from e
     
-    # ID3v1 Operations
+    # =============================================================================
+    # ID3v1 Format Operations
+    # =============================================================================
+    
     def set_id3v1_genre(self, genre_code: str):
         """Set ID3v1 genre using external id3v2 tool."""
         command = [
@@ -331,7 +334,10 @@ class TempFileWithMetadata:
         """Remove ID3v1 metadata using external script."""
         return self._run_script("remove_id3.py")
     
-    # ID3v2 Operations
+    # =============================================================================
+    # ID3v2 Format Operations
+    # =============================================================================
+    
     def set_id3v2_genre(self, genre: str):
         """Set ID3v2 genre using external mid3v2 tool."""
         command = ["mid3v2", "--genre", genre, str(self.test_file)]
@@ -351,7 +357,10 @@ class TempFileWithMetadata:
         """Remove ID3v2 metadata using external script."""
         return self._run_script("remove_id3.py")
     
-    # Vorbis Operations
+    # =============================================================================
+    # Vorbis Format Operations
+    # =============================================================================
+    
     def set_vorbis_max_metadata(self):
         """Set maximum Vorbis metadata using external script."""
         return self._run_script("set-vorbis-max-metadata.sh")
@@ -360,7 +369,18 @@ class TempFileWithMetadata:
         """Set specific artists metadata using external script."""
         return self._run_script("set-artists-One-Two-Three-vorbis.sh")
     
-    # RIFF Operations
+    def set_vorbis_genre(self, genre_text: str):
+        """Set Vorbis genre using external metaflac tool."""
+        command = [
+            "metaflac", "--set-tag", f"GENRE={genre_text}",
+            str(self.test_file)
+        ]
+        return self._run_external_tool(command)
+    
+    # =============================================================================
+    # RIFF Format Operations
+    # =============================================================================
+    
     def set_riff_max_metadata(self):
         """Set maximum RIFF metadata using external script."""
         return self._run_script("set-riff-max-metadata.sh")
