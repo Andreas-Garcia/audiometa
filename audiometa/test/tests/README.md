@@ -515,7 +515,7 @@ def test_regression_issue_123(problematic_wav_file: Path):
 ```
 ../data/audio_files/           # Pre-created test files
 ├── sample.mp3                 # Basic sample files
-├── metadata=*.mp3            # Metadata format scenarioscomm
+├── metadata=*.mp3            # Metadata format scenarios
 ├── rating_*.wav              # Rating test cases
 ├── artists=*.mp3             # Artist metadata tests
 └── duration=*.flac           # Duration test cases

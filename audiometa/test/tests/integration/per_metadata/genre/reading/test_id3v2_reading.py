@@ -1,10 +1,9 @@
 import pytest
 import subprocess
-from pathlib import Path
 
 from audiometa import get_merged_unified_metadata, get_specific_metadata
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.test.tests.test_helpers import TempFileWithMetadata
 
 
 @pytest.mark.integration
