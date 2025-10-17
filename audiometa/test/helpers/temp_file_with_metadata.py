@@ -39,7 +39,7 @@ class TempFileWithMetadata:
         
         Args:
             metadata: Dictionary of metadata to set on the test file
-            format_type: Audio format ('mp3', 'id3v1', 'flac', 'wav')
+            format_type: Audio format ('mp3', 'id3v1', 'id3v2.3', 'id3v2.4', 'flac', 'wav')
         """
         self.metadata = metadata
         self.format_type = format_type
@@ -94,8 +94,11 @@ class TempFileWithMetadata:
             Path to the created file with metadata
         """
         # Create temporary file with correct extension
-        # For id3v1, use .mp3 extension since it's still an MP3 file
-        actual_extension = 'mp3' if format_type.lower() == 'id3v1' else format_type.lower()
+        # For id3v1, id3v2.3, id3v2.4, use .mp3 extension since they're still MP3 files
+        if format_type.lower() in ['id3v1', 'id3v2.3', 'id3v2.4']:
+            actual_extension = 'mp3'
+        else:
+            actual_extension = format_type.lower()
         with tempfile.NamedTemporaryFile(suffix=f'.{actual_extension}', delete=False) as tmp_file:
             target_file = Path(tmp_file.name)
         
@@ -109,6 +112,9 @@ class TempFileWithMetadata:
         elif format_type.lower() == 'id3v1':
             # Use id3v2 --id3v1-only for ID3v1 metadata
             self._set_mp3_metadata_with_id3v1(target_file, metadata)
+        elif format_type.lower() in ['id3v2.3', 'id3v2.4']:
+            # Use mid3v2 for ID3v2.3 and ID3v2.4 metadata
+            self._set_mp3_metadata_with_mid3v2(target_file, metadata)
         elif format_type.lower() == 'flac':
             # Use metaflac for FLAC files
             self._set_flac_metadata_with_metaflac(target_file, metadata)
@@ -234,7 +240,7 @@ class TempFileWithMetadata:
         # Use existing sample files as templates
         test_files_dir = Path(__file__).parent.parent.parent / "test" / "data" / "audio_files"
         
-        if format_type.lower() in ['mp3', 'id3v1']:
+        if format_type.lower() in ['mp3', 'id3v1', 'id3v2.3', 'id3v2.4']:
             template_file = test_files_dir / "metadata=none.mp3"
         elif format_type.lower() == 'flac':
             template_file = test_files_dir / "metadata=none.flac"
@@ -246,13 +252,19 @@ class TempFileWithMetadata:
         if not template_file.exists():
             # Fallback: create a minimal file using ffmpeg if available
             try:
-                # For id3v1, use mp3 format for ffmpeg
-                actual_format = 'mp3' if format_type.lower() == 'id3v1' else format_type.lower()
+                # For id3v1, id3v2.3, id3v2.4, use mp3 format for ffmpeg
+                if format_type.lower() in ['id3v1', 'id3v2.3', 'id3v2.4']:
+                    actual_format = 'mp3'
+                else:
+                    actual_format = format_type.lower()
                 self._create_minimal_audio_with_ffmpeg(file_path, actual_format)
             except (subprocess.CalledProcessError, FileNotFoundError):
                 # Last resort: copy from any available sample file
-                # For id3v1, look for mp3 files
-                search_format = 'mp3' if format_type.lower() == 'id3v1' else format_type.lower()
+                # For id3v1, id3v2.3, id3v2.4, look for mp3 files
+                if format_type.lower() in ['id3v1', 'id3v2.3', 'id3v2.4']:
+                    search_format = 'mp3'
+                else:
+                    search_format = format_type.lower()
                 sample_files = list(test_files_dir.glob(f"*.{search_format}"))
                 if sample_files:
                     shutil.copy2(sample_files[0], file_path)
@@ -366,6 +378,40 @@ class TempFileWithMetadata:
         command.append(str(self.test_file))
         self._run_external_tool(command)
     
+    def set_id3v2_3_multiple_artists(self, artists: list[str]):
+        """Set ID3v2.3 multiple artists using external mid3v2 tool."""
+        # Try to delete existing TPE1 tags, but don't fail if they don't exist
+        try:
+            command = ["mid3v2", "--delete", "TPE1", str(self.test_file)]
+            self._run_external_tool(command)
+        except RuntimeError:
+            # Ignore if TPE1 tags don't exist
+            pass
+        
+        # Set all artists in a single command
+        command = ["mid3v2"]
+        for artist in artists:
+            command.extend(["--TPE1", artist])
+        command.append(str(self.test_file))
+        self._run_external_tool(command)
+    
+    def set_id3v2_4_multiple_artists(self, artists: list[str]):
+        """Set ID3v2.4 multiple artists using external mid3v2 tool."""
+        # Try to delete existing TPE1 tags, but don't fail if they don't exist
+        try:
+            command = ["mid3v2", "--delete", "TPE1", str(self.test_file)]
+            self._run_external_tool(command)
+        except RuntimeError:
+            # Ignore if TPE1 tags don't exist
+            pass
+        
+        # Set all artists in a single command
+        command = ["mid3v2"]
+        for artist in artists:
+            command.extend(["--TPE1", artist])
+        command.append(str(self.test_file))
+        self._run_external_tool(command)
+    
     def set_id3v2_multiple_album_artists(self, album_artists: list[str]):
         """Set ID3v2 multiple album artists using external mid3v2 tool."""
         # Try to delete existing TPE2 tags, but don't fail if they don't exist
@@ -402,6 +448,14 @@ class TempFileWithMetadata:
     
     def set_id3v2_max_metadata(self):
         """Set maximum ID3v2 metadata using external script."""
+        return self._run_script("set-id3v2-max-metadata.sh")
+    
+    def set_id3v2_3_max_metadata(self):
+        """Set maximum ID3v2.3 metadata using external script."""
+        return self._run_script("set-id3v2-max-metadata.sh")
+    
+    def set_id3v2_4_max_metadata(self):
+        """Set maximum ID3v2.4 metadata using external script."""
         return self._run_script("set-id3v2-max-metadata.sh")
     
     def remove_id3v2_metadata(self):
