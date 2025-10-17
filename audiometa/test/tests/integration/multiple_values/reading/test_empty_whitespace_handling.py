@@ -1,57 +1,34 @@
 import pytest
 
-from audiometa import get_merged_unified_metadata
+from audiometa import get_merged_unified_metadata, get_specific_metadata
+from audiometa.utils import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
 class TestEmptyWhitespaceHandling:
     def test_no_multiple_entries_returns_single_value(self):
-        # Create temporary file with basic metadata
+
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             test_file.set_vorbis_artist("Single Artist")
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, MetadataFormat.VORBIS)
             
             assert isinstance(artists, list)
             assert len(artists) == 1
             assert "Single Artist" in artists
 
     def test_empty_metadata_returns_none(self):
-        # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-all-tags", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to remove metadata")
+            test_file.delete_vorbis_all()
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, MetadataFormat.VORBIS)
             
             assert artists is None
 
     def test_mixed_empty_and_valid_entries(self):
-        # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Valid Artist 1",
-                    "--set-tag=ARTIST=",  # Empty
-                    "--set-tag=ARTIST=Valid Artist 2",
-                    "--set-tag=ARTIST=",  # Empty
-                    "--set-tag=ARTIST=Valid Artist 3",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set mixed artists")
+            test_file.set_vorbis_multiple_artists(["Valid Artist 1", "", "Valid Artist 2", "", "Valid Artist 3"])
             
             unified_metadata = get_merged_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -64,27 +41,10 @@ class TestEmptyWhitespaceHandling:
             assert "" not in artists
 
     def test_whitespace_only_entries(self):
-        # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Valid Artist",
-                    "--set-tag=ARTIST=   ",  # Whitespace only
-                    "--set-tag=ARTIST=\t",   # Tab only
-                    "--set-tag=ARTIST=\n",   # Newline only
-                    "--set-tag=ARTIST=Another Valid Artist",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set whitespace artists")
+            test_file.set_vorbis_multiple_artists(["Valid Artist", "   ", "\t", "\n", "Another Valid Artist"])
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, MetadataFormat.VORBIS)
             
             assert isinstance(artists, list)
             assert len(artists) == 2  # Only valid artists
@@ -95,22 +55,10 @@ class TestEmptyWhitespaceHandling:
                 assert artist.strip() != ""
 
     def test_empty_values_after_separation(self):
-        # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist One;;Artist Two;",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set empty-separated artists")
+            test_file.set_vorbis_multiple_artists(["Artist One;;Artist Two;"])
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, MetadataFormat.VORBIS)
             
             assert isinstance(artists, list)
             assert len(artists) == 2  # Only non-empty values
@@ -119,79 +67,25 @@ class TestEmptyWhitespaceHandling:
             assert "" not in artists
 
     def test_whitespace_around_separators(self):
-        # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist One ; Artist Two , Artist Three",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set whitespace-separated artists")
+            test_file.set_vorbis_multiple_artists(["Artist One ; Artist Two ; Artist Three"])
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, MetadataFormat.VORBIS)
             
-            assert isinstance(artists, list)
-            assert len(artists) == 3
-            assert "Artist One" in artists
-            assert "Artist Two" in artists
-            assert "Artist Three" in artists
-            
-            for artist in artists:
-                assert artist == artist.strip()
+            assert artists == ["Artist One", "Artist Two", "Artist Three"]
 
     def test_only_whitespace_entries(self):
-        # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=   ",
-                    "--set-tag=ARTIST=\t",
-                    "--set-tag=ARTIST=\n",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set whitespace-only artists")
+            test_file.set_vorbis_multiple_artists(["   ", "\t", "\n"])
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, MetadataFormat.VORBIS)
             
-            # Should return None when all values are whitespace-only
             assert artists is None
 
     def test_mixed_whitespace_and_valid_entries(self):
-        # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Valid Artist",
-                    "--set-tag=ARTIST=   ",
-                    "--set-tag=ARTIST=Another Valid Artist",
-                    "--set-tag=ARTIST=\t",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set mixed whitespace artists")
+            test_file.set_vorbis_multiple_artists(["Valid Artist", "   ", "Another Valid Artist", "\t"])
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, MetadataFormat.VORBIS)
             
-            assert isinstance(artists, list)
-            assert len(artists) == 2  # Only valid artists
-            assert "Valid Artist" in artists
-            assert "Another Valid Artist" in artists
+            assert artists == ["Valid Artist", "Another Valid Artist"]
