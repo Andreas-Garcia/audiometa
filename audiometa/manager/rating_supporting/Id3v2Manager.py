@@ -345,6 +345,38 @@ class Id3v2Manager(MultiEntriesManager):
     def _update_formatted_value_in_raw_mutagen_metadata(self, raw_mutagen_metadata: RawMetadataDict,
                                                         raw_metadata_key: RawMetadataKey,
                                                         app_metadata_value: AppMetadataValue):
+        # Handle multiple values by concatenating with separators (ID3v2 limitation)
+        if (isinstance(app_metadata_value, list) and 
+            all(isinstance(item, str) for item in app_metadata_value)):
+            
+            # Get the corresponding UnifiedMetadataKey
+            app_metadata_key = None
+            for key, raw_key in self.metadata_keys_direct_map_write.items():
+                if raw_key == raw_metadata_key:
+                    app_metadata_key = key
+                    break
+                    
+            if app_metadata_key and app_metadata_key.can_semantically_have_multiple_values():
+                # For ID3v2, concatenate multiple values with separators
+                # Use the same separator priority as the reading logic
+                from ..MetadataManager import METADATA_MULTI_VALUE_SEPARATORS
+                
+                # Find a separator that doesn't appear in any of the values
+                separator = None
+                for sep in METADATA_MULTI_VALUE_SEPARATORS:
+                    if not any(sep in value for value in app_metadata_value):
+                        separator = sep
+                        break
+                
+                # If no separator is safe, use the last one (comma)
+                if separator is None:
+                    separator = METADATA_MULTI_VALUE_SEPARATORS[-1]
+                
+                # Concatenate values
+                concatenated_value = separator.join(app_metadata_value)
+                app_metadata_value = concatenated_value
+        
+        # Handle single values with the original logic
         raw_mutagen_metadata_id3: ID3 = cast(ID3, raw_mutagen_metadata)
         raw_mutagen_metadata_id3.delall(raw_metadata_key)
         
@@ -374,20 +406,175 @@ class Id3v2Manager(MultiEntriesManager):
         else:
             raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=app_metadata_value))
 
-    def _save_with_version(self, file_path: str) -> None:
-        """Save ID3 tags with the specified version."""
+    def _add_single_formatted_value_in_raw_mutagen_metadata(self, raw_mutagen_metadata: MutagenMetadata,
+                                                          raw_metadata_key: RawMetadataKey,
+                                                          app_metadata_value: str):
+        """
+        Add a single formatted value to raw mutagen metadata without deleting existing ones.
+        This is used for adding multiple entries of the same type.
+        
+        Args:
+            raw_mutagen_metadata: The raw mutagen metadata object
+            raw_metadata_key: The raw metadata key
+            app_metadata_value: The single value to add
+        """
+        raw_mutagen_metadata_id3: ID3 = cast(ID3, raw_mutagen_metadata)
+        text_frame_class = self.ID3_TEXT_FRAME_CLASS_MAP[raw_metadata_key]
+
+        if raw_metadata_key == self.Id3TextFrame.RATING:
+            raw_mutagen_metadata_id3.add(text_frame_class(email=self.ID3_RATING_APP_EMAIL, rating=app_metadata_value))
+        elif raw_metadata_key == self.Id3TextFrame.COMMENT:
+            # Handle COMM frames (comment frames)
+            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, lang='eng', desc='', text=app_metadata_value))
+        elif raw_metadata_key == self.Id3TextFrame.LYRICS:
+            # Handle USLT frames (unsynchronized lyrics frames)
+            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, lang='eng', desc='', text=app_metadata_value))
+        elif raw_metadata_key == self.Id3TextFrame.URL:
+            # Handle WOAR frames (official artist/performer webpage)
+            raw_mutagen_metadata_id3.add(text_frame_class(url=app_metadata_value))
+        elif raw_metadata_key == self.Id3TextFrame.BPM:
+            # Handle TBPM frames (BPM must be a string)
+            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=str(app_metadata_value)))
+        elif raw_metadata_key == self.Id3TextFrame.TRACK_NUMBER:
+            # Handle TRCK frames (track number must be a string)
+            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=str(app_metadata_value)))
+        else:
+            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=app_metadata_value))
+
+    def _preserve_id3v1_metadata(self, file_path: str) -> bytes | None:
+        """Read and preserve existing ID3v1 metadata from the end of the file.
+        
+        Returns:
+            The 128-byte ID3v1 tag data if present, None otherwise
+        """
+        try:
+            with open(file_path, 'rb') as f:
+                f.seek(-128, 2)  # Seek to last 128 bytes
+                data = f.read(128)
+                if data.startswith(b'TAG'):
+                    print(f"DEBUG: Found ID3v1 data: {data[:10]}")
+                    # Decode the title to see what we're preserving
+                    title_bytes = data[3:33].strip(b'\0')
+                    title = title_bytes.decode('latin1', 'replace')
+                    print(f"DEBUG: ID3v1 title being preserved: \"{title}\"")
+                    return data
+                else:
+                    print(f"DEBUG: No ID3v1 data found, last 128 bytes: {data[:10]}")
+        except (IOError, OSError) as e:
+            print(f"DEBUG: Error reading ID3v1 data: {e}")
+        return None
+    
+    def _save_with_id3v1_preservation(self, file_path: str, id3v1_data: bytes | None) -> None:
+        """Save ID3v2 metadata while preserving ID3v1 data.
+        
+        Args:
+            file_path: Path to the audio file
+            id3v1_data: The 128-byte ID3v1 tag data to preserve, or None
+        """
         if self.raw_mutagen_metadata is not None:
             # Extract the major version number from the tuple (2, 3, 0) -> 3
             version_major = self.id3v2_version[1]
-            self.raw_mutagen_metadata.save(file_path, v2_version=version_major)
+            
+            if id3v1_data:
+                # Save to a temporary file first
+                import tempfile
+                import shutil
+                
+                with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as temp_file:
+                    temp_path = temp_file.name
+                
+                try:
+                    # Save ID3v2 to temp file
+                    self.raw_mutagen_metadata.save(temp_path, v2_version=version_major)
+                    
+                    # Read the temp file and append ID3v1 data
+                    with open(temp_path, 'rb') as f:
+                        temp_data = f.read()
+                
+                    
+                    # Append ID3v1 data to the temp file
+                    final_data = temp_data + id3v1_data
+                
+                    
+                    # Write the final file
+                    with open(file_path, 'wb') as f:
+                        f.write(final_data)
+                        
+                finally:
+                    # Clean up temp file
+                    import os
+                    try:
+                        os.unlink(temp_path)
+                    except OSError:
+                        pass
+            else:
+                # No ID3v1 data to preserve, save normally
+                self.raw_mutagen_metadata.save(file_path, v2_version=version_major)
+
+    def _save_with_version(self, file_path: str) -> None:
+        """Save ID3 tags with the specified version, preserving existing ID3v1 metadata."""
+        if self.raw_mutagen_metadata is not None:
+            # Preserve existing ID3v1 metadata before saving ID3v2
+            id3v1_data = self._preserve_id3v1_metadata(file_path)
+            
+            # Save ID3v2 while preserving ID3v1
+            self._save_with_id3v1_preservation(file_path, id3v1_data)
 
     def update_file_metadata(self, app_metadata: AppMetadata):
-        """Override to use custom save method with version control."""
-        # First, let the parent class handle rating conversion
-        super().update_file_metadata(app_metadata)
+        """Override to use custom save method with version control and ID3v1 preservation."""
+        if not self.metadata_keys_direct_map_write:
+            raise MetadataNotSupportedError('This format does not support metadata modification')
+
+        # Handle rating conversion first (from parent class)
+        if UnifiedMetadataKey.RATING in app_metadata:
+            # Rating handling logic from parent class
+            if self.metadata_keys_direct_map_write[UnifiedMetadataKey.RATING] is None:
+                # Rating is handled indirectly by the manager
+                pass
+            else:
+                # Rating is handled directly by the base class
+                if self.update_using_mutagen_metadata:
+                    value: int | None = app_metadata[UnifiedMetadataKey.RATING]  # type: ignore
+                    if value is not None:
+                        if self.normalized_rating_max_value is None:
+                            from ...exceptions import ConfigurationError
+                            raise ConfigurationError(
+                                "If updating the rating, the max value of the normalized rating must be set.")
+
+                        try:
+                            normalized_rating = int(float(value))
+                            file_rating = self._convert_normalized_rating_to_file_rating(normalized_rating=normalized_rating)
+                            app_metadata[UnifiedMetadataKey.RATING] = file_rating
+                        except (TypeError, ValueError):
+                            from ...exceptions import InvalidRatingValueError
+                            raise InvalidRatingValueError(f"Invalid rating value: {value}. Expected a numeric value.")
+
+        # Preserve ID3v1 metadata before any modifications
+        file_path = self.audio_file.get_file_path_or_object()
+        id3v1_data = self._preserve_id3v1_metadata(file_path)
         
-        # Then use custom save method with version control
-        self._save_with_version(self.audio_file.get_file_path_or_object())
+        # Update the raw mutagen metadata (without saving yet)
+        if self.raw_mutagen_metadata is None:
+            self.raw_mutagen_metadata = self._extract_mutagen_metadata()
+
+        for app_metadata_key in list(app_metadata.keys()):
+            app_metadata_value = app_metadata[app_metadata_key]
+            if app_metadata_key not in self.metadata_keys_direct_map_write:
+                from ...exceptions import MetadataNotSupportedError
+                raise MetadataNotSupportedError(f'{app_metadata_key} metadata not supported by this format')
+            else:
+                raw_metadata_key = self.metadata_keys_direct_map_write[app_metadata_key]
+                if raw_metadata_key:
+                    self._update_formatted_value_in_raw_mutagen_metadata(
+                        raw_mutagen_metadata=self.raw_mutagen_metadata, raw_metadata_key=raw_metadata_key,
+                        app_metadata_value=app_metadata_value)
+                else:
+                    self._update_undirectly_mapped_metadata(
+                        raw_mutagen_metadata=self.raw_mutagen_metadata, app_metadata_value=app_metadata_value,
+                        app_metadata_key=app_metadata_key)
+        
+        # Save with ID3v1 preservation
+        self._save_with_id3v1_preservation(file_path, id3v1_data)
 
     def delete_metadata(self) -> bool:
         """Delete all ID3v2 metadata from the audio file.
