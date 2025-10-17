@@ -4,8 +4,7 @@ from pathlib import Path
 
 from audiometa import get_merged_unified_metadata, get_specific_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
-from audiometa.test.tests.script_helpers import Id3v2Helper
+from audiometa.test.tests.test_helpers import TempFileWithMetadata
 
 
 @pytest.mark.integration
@@ -13,7 +12,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_single_genre(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_genre(test_file.path, "Rock")
+            test_file.set_id3v2_genre( "Rock")
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -21,7 +20,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_multiple_genres_separate_frames(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_multiple_genres(test_file.path, ["Rock", "Alternative", "Indie"])
+            test_file.set_id3v2_multiple_genres( ["Rock", "Alternative", "Indie"])
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -29,7 +28,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_genre_with_semicolon_separator(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_genre(test_file.path, "Rock; Alternative; Indie")
+            test_file.set_id3v2_genre( "Rock; Alternative; Indie")
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -37,7 +36,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_genre_with_comma_separator(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_genre(test_file.path, "Jazz, Fusion, Experimental")
+            test_file.set_id3v2_genre( "Jazz, Fusion, Experimental")
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -45,7 +44,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_genre_with_slash_separator(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_genre(test_file.path, "Electronic/Dance/Ambient")
+            test_file.set_id3v2_genre( "Electronic/Dance/Ambient")
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -53,7 +52,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_genre_with_double_slash_separator(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_genre(test_file.path, "Rock//Alternative//Indie")
+            test_file.set_id3v2_genre( "Rock//Alternative//Indie")
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -61,7 +60,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_genre_with_backslash_separator(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_genre(test_file.path, "Rock\\Alternative\\Indie")
+            test_file.set_id3v2_genre( "Rock\\Alternative\\Indie")
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -69,7 +68,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_genre_with_double_backslash_separator(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_genre(test_file.path, "Rock\\\\Alternative\\\\Indie")
+            test_file.set_id3v2_genre( "Rock\\\\Alternative\\\\Indie")
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -77,7 +76,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_genre_mixed_separators(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_genre(test_file.path, "Rock; Alternative, Indie/Experimental")
+            test_file.set_id3v2_genre( "Rock; Alternative, Indie/Experimental")
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -85,7 +84,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_genre_with_extra_whitespace(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_genre(test_file.path, " Rock ; Alternative ; Indie ")
+            test_file.set_id3v2_genre( " Rock ; Alternative ; Indie ")
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -93,7 +92,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_genre_duplicate_separators(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_genre(test_file.path, "Rock;;;Alternative")
+            test_file.set_id3v2_genre( "Rock;;;Alternative")
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -101,7 +100,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_genre_empty_string(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_genre(test_file.path, "")
+            test_file.set_id3v2_genre( "")
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -117,7 +116,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_genre_whitespace_only(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_genre(test_file.path, "   ")
+            test_file.set_id3v2_genre( "   ")
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -125,7 +124,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_genre_special_characters(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_genre(test_file.path, "Rock & Roll; R&B; Hip-Hop")
+            test_file.set_id3v2_genre( "Rock & Roll; R&B; Hip-Hop")
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -133,7 +132,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_genre_unicode_characters(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_genre(test_file.path, "Música; 音楽; موسيقى")
+            test_file.set_id3v2_genre( "Música; 音楽; موسيقى")
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -142,7 +141,7 @@ class TestId3v2GenreReading:
     def test_id3v2_genre_very_long_text(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             long_genre = "Very Long Genre Name That Might Exceed Normal Limits And Test Edge Cases For ID3v2 Format"
-            Id3v2Helper.set_genre(test_file.path, long_genre)
+            test_file.set_id3v2_genre( long_genre)
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -156,7 +155,7 @@ class TestId3v2GenreReading:
         
         for genre in custom_genres:
             with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-                Id3v2Helper.set_genre(test_file.path, genre)
+                test_file.set_id3v2_genre( genre)
                 
                 metadata = get_merged_unified_metadata(test_file.path)
                 genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
@@ -166,7 +165,7 @@ class TestId3v2GenreReading:
     def test_id3v2_genre_multiple_custom_genres(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             custom_genres = ["Post-Rock", "Shoegaze", "Dream Pop", "Chillwave", "Vaporwave"]
-            Id3v2Helper.set_multiple_genres(test_file.path, custom_genres)
+            test_file.set_id3v2_multiple_genres( custom_genres)
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -174,7 +173,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_genre_with_genre_codes(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_genre(test_file.path, "17; 20; 131")
+            test_file.set_id3v2_genre( "17; 20; 131")
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -182,7 +181,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_genre_mixed_names_and_codes(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_genre(test_file.path, "Rock; 20; Indie")
+            test_file.set_id3v2_genre( "Rock; 20; Indie")
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -215,7 +214,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_genre_id3v2_3_version(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_multiple_genres(test_file.path, ["Rock", "Alternative"])
+            test_file.set_id3v2_multiple_genres( ["Rock", "Alternative"])
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -223,7 +222,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_genre_id3v2_4_version(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_multiple_genres(test_file.path, ["Rock", "Alternative"])
+            test_file.set_id3v2_multiple_genres( ["Rock", "Alternative"])
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -231,7 +230,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_genre_edge_case_single_character(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_genre(test_file.path, "A")
+            test_file.set_id3v2_genre( "A")
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -239,7 +238,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_genre_edge_case_numbers_only(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_genre(test_file.path, "12345")
+            test_file.set_id3v2_genre( "12345")
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             
@@ -247,7 +246,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_genre_edge_case_special_separators_in_values(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            Id3v2Helper.set_multiple_genres(test_file.path, ["Rock; with; semicolons", "Another, with, commas", "Rock/with/slashes"])
+            test_file.set_id3v2_multiple_genres( ["Rock; with; semicolons", "Another, with, commas", "Rock/with/slashes"])
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
             

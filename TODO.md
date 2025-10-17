@@ -17,9 +17,16 @@ This file tracks future work, improvements, and testing tasks for AudioMeta Pyth
 ### Medium Priority
 
 - [ ] **OGG file support**
+
   - Currently planned but not implemented
   - Vorbis comment support for OGG files
   - Integration with existing Vorbis manager
+
+- [ ] **Batch processing with parallelization**
+  - Add support for processing multiple audio files simultaneously
+  - Implement parallel metadata reading/writing operations
+  - Add progress tracking and error handling for batch operations
+  - Consider thread pool or multiprocessing for CPU-intensive tasks
 
 ---
 

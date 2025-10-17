@@ -296,7 +296,7 @@ class TestGetFullMetadata:
 
     def test_header_detection_for_different_formats(self):
         """Test header detection methods for different audio formats."""
-        from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
+        from audiometa.test.tests.test_helpers import TempFileWithMetadata
         
         # Test MP3 format
         with TempFileWithMetadata({"title": "MP3 Test"}, "mp3") as mp3_manager:

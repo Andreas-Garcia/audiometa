@@ -1,7 +1,7 @@
 import json
 import subprocess
 import sys
-from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.tests.test_helpers import TempFileWithMetadata
 
 
 class TestCLIUnified:

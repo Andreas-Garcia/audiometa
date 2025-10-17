@@ -8,7 +8,7 @@ import pytest
 
 from audiometa import get_specific_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.tests.test_helpers import TempFileWithMetadata
 
 
 @pytest.mark.integration

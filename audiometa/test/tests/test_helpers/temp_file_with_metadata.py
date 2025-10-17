@@ -1,38 +1,40 @@
-"""Base temporary file with metadata utilities for testing.
+"""Consolidated temporary file with metadata utilities for testing.
 
-This module provides the base TempFileWithMetadata class for creating temporary 
-test files with specific metadata configurations, with automatic cleanup support 
-and header detection.
+This module provides a unified TempFileWithMetadata class that combines
+file management, external tool operations, and metadata verification
+in a single, clean API.
 """
 
 import subprocess
+import tempfile
+import shutil
 from pathlib import Path
 from typing import Dict, Any
+
 from .._internal_test_helpers import create_test_file_with_metadata
 
 
 class TempFileWithMetadata:
-    """Context manager for test files with automatic cleanup and header detection.
+    """Context manager for test files with comprehensive metadata operations.
     
-    This class provides a clean way to create temporary test files with
-    specific metadata and ensures they are automatically cleaned up when
-    the context exits, even if an exception occurs. It also provides
-    methods to detect and verify metadata headers in the test file.
+    This class provides a unified interface for:
+    - Creating temporary test files with metadata
+    - Performing external tool operations
+    - Verifying metadata and headers
+    - Automatic cleanup
     
     Example:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            # Use test_file.path for file operations
-            update_file_metadata(test_file.path, new_metadata)
+            # Set additional metadata using external tools
+            test_file.set_id3v1_genre("17")
+            test_file.set_id3v2_genre("Rock")
             
-            # Check if headers exist
-            if test_file.has_id3v2_header():
-                print("ID3v2 header present")
+            # Verify headers
+            assert test_file.has_id3v2_header()
             
-            # Get comprehensive header report
-            headers = test_file.get_metadata_headers_present()
-            print(f"Headers: {headers}")
-        # File is automatically cleaned up here
-        """
+            # Use test_file.path for testing
+            metadata = get_merged_unified_metadata(test_file.path)
+    """
     
     def __init__(self, metadata: dict, format_type: str):
         """Initialize the context manager.
@@ -76,7 +78,130 @@ class TempFileWithMetadata:
         if self.test_file and self.test_file.exists():
             self.test_file.unlink()
     
-    # Header Detection Methods
+    # =============================================================================
+    # External Tool Operations (previously in script helpers)
+    # =============================================================================
+    
+    def _get_scripts_dir(self) -> Path:
+        """Get the scripts directory path."""
+        return Path(__file__).parent.parent.parent / "data" / "scripts"
+    
+    def _run_script(self, script_name: str, check: bool = True) -> subprocess.CompletedProcess:
+        """Run an external script with proper error handling."""
+        scripts_dir = self._get_scripts_dir()
+        script_path = scripts_dir / script_name
+        if not script_path.exists():
+            raise FileNotFoundError(f"Script not found: {script_path}")
+        
+        if not script_path.is_file():
+            raise FileNotFoundError(f"Script is not a file: {script_path}")
+        
+        # Make script executable
+        script_path.chmod(0o755)
+        
+        try:
+            result = subprocess.run(
+                [str(script_path), str(self.test_file)],
+                capture_output=True,
+                text=True,
+                check=check
+            )
+            return result
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(f"Script {script_name} failed: {e.stderr}") from e
+    
+    def _run_external_tool(self, command: list[str], check: bool = True) -> subprocess.CompletedProcess:
+        """Run an external tool with proper error handling."""
+        try:
+            result = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                check=check
+            )
+            return result
+        except (subprocess.CalledProcessError, FileNotFoundError) as e:
+            raise RuntimeError(f"External tool failed: {e}") from e
+    
+    # ID3v1 Operations
+    def set_id3v1_genre(self, genre_code: str):
+        """Set ID3v1 genre using external id3v2 tool."""
+        command = [
+            "id3v2", "--id3v1-only", 
+            f"--genre={genre_code}",
+            str(self.test_file)
+        ]
+        return self._run_external_tool(command)
+    
+    def set_id3v1_max_metadata(self):
+        """Set maximum ID3v1 metadata using external script."""
+        return self._run_script("set-id3v1-max-metadata.sh")
+    
+    def remove_id3v1_metadata(self):
+        """Remove ID3v1 metadata using external script."""
+        return self._run_script("remove_id3.py")
+    
+    # ID3v2 Operations
+    def set_id3v2_genre(self, genre: str):
+        """Set ID3v2 genre using external mid3v2 tool."""
+        command = ["mid3v2", "--genre", genre, str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_id3v2_multiple_genres(self, genres: list[str]):
+        """Set ID3v2 multiple genres using external mid3v2 tool."""
+        genre_string = "; ".join(genres)
+        command = ["mid3v2", "--genre", genre_string, str(self.test_file)]
+        return self._run_external_tool(command)
+    
+    def set_id3v2_max_metadata(self):
+        """Set maximum ID3v2 metadata using external script."""
+        return self._run_script("set-id3v2-max-metadata.sh")
+    
+    def remove_id3v2_metadata(self):
+        """Remove ID3v2 metadata using external script."""
+        return self._run_script("remove_id3.py")
+    
+    # Vorbis Operations
+    def set_vorbis_max_metadata(self):
+        """Set maximum Vorbis metadata using external script."""
+        return self._run_script("set-vorbis-max-metadata.sh")
+    
+    def set_vorbis_artists_one_two_three(self):
+        """Set specific artists metadata using external script."""
+        return self._run_script("set-artists-One-Two-Three-vorbis.sh")
+    
+    # RIFF Operations
+    def set_riff_max_metadata(self):
+        """Set maximum RIFF metadata using external script."""
+        return self._run_script("set-riff-max-metadata.sh")
+    
+    def set_riff_genre_text(self, genre_text: str):
+        """Set RIFF genre using external exiftool or bwfmetaedit tool."""
+        try:
+            # Try exiftool first
+            command = [
+                "exiftool", "-overwrite_original", 
+                f"-Genre={genre_text}",
+                str(self.test_file)
+            ]
+            return self._run_external_tool(command)
+        except RuntimeError:
+            try:
+                # Fallback to bwfmetaedit
+                command = [
+                    "bwfmetaedit", f"--IGNR={genre_text}", str(self.test_file)
+                ]
+                return self._run_external_tool(command)
+            except RuntimeError as e:
+                raise RuntimeError(f"Failed to set RIFF genre: {e}") from e
+    
+    def remove_riff_metadata(self):
+        """Remove RIFF metadata using external script."""
+        return self._run_script("remove_riff.py")
+    
+    # =============================================================================
+    # Header Detection and Verification (previously in temp_file_with_metadata)
+    # =============================================================================
     
     def has_id3v2_header(self) -> bool:
         """Check if file has ID3v2 header by reading the first 10 bytes.
