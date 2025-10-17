@@ -40,7 +40,7 @@ class TestDeletionWorkflows:
             
             # 2. Add more metadata using app's function
             additional_metadata = {
-                UnifiedMetadataKey.RATING: 85,
+                UnifiedMetadataKey.RATING: 80,
                 UnifiedMetadataKey.BPM: 120,
                 UnifiedMetadataKey.COMMENT: "Updated comment"
             }
@@ -48,7 +48,7 @@ class TestDeletionWorkflows:
             
             # 3. Verify metadata was added
             updated_metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
-            assert updated_metadata.get(UnifiedMetadataKey.RATING) == 85
+            assert updated_metadata.get(UnifiedMetadataKey.RATING) == 80
             assert updated_metadata.get(UnifiedMetadataKey.BPM) == 120
             
             # 4. Delete all metadata
