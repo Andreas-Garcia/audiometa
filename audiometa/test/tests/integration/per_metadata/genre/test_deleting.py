@@ -12,7 +12,7 @@ class TestGenreDeleting:
         shutil.copy2(metadata_none_mp3, temp_audio_file)
         
         update_file_metadata(temp_audio_file, {UnifiedMetadataKey.GENRE_NAME: "Rock"}, metadata_format=MetadataFormat.ID3V2)
-        assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.GENRE_NAME) == "Rock"
+        assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.GENRE_NAME) == ["Rock"]
         
         update_file_metadata(temp_audio_file, {UnifiedMetadataKey.GENRE_NAME: None}, metadata_format=MetadataFormat.ID3V2)
         assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.GENRE_NAME) is None
@@ -21,7 +21,7 @@ class TestGenreDeleting:
         shutil.copy2(metadata_none_mp3, temp_audio_file)
         
         update_file_metadata(temp_audio_file, {UnifiedMetadataKey.GENRE_NAME: "Rock"}, metadata_format=MetadataFormat.ID3V1)
-        assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.GENRE_NAME) == "Rock"
+        assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.GENRE_NAME) == ["Rock"]
         
         update_file_metadata(temp_audio_file, {UnifiedMetadataKey.GENRE_NAME: None}, metadata_format=MetadataFormat.ID3V1)
         assert get_specific_metadata(temp_audio_file, UnifiedMetadataKey.GENRE_NAME) is None
@@ -30,7 +30,7 @@ class TestGenreDeleting:
         shutil.copy2(metadata_none_wav, temp_wav_file)
         
         update_file_metadata(temp_wav_file, {UnifiedMetadataKey.GENRE_NAME: "Rock"}, metadata_format=MetadataFormat.RIFF)
-        assert get_specific_metadata(temp_wav_file, UnifiedMetadataKey.GENRE_NAME) == "Rock"
+        assert get_specific_metadata(temp_wav_file, UnifiedMetadataKey.GENRE_NAME) == ["Rock"]
         
         update_file_metadata(temp_wav_file, {UnifiedMetadataKey.GENRE_NAME: None}, metadata_format=MetadataFormat.RIFF)
         assert get_specific_metadata(temp_wav_file, UnifiedMetadataKey.GENRE_NAME) is None
@@ -39,7 +39,7 @@ class TestGenreDeleting:
         shutil.copy2(metadata_none_flac, temp_flac_file)
         
         update_file_metadata(temp_flac_file, {UnifiedMetadataKey.GENRE_NAME: "Rock"}, metadata_format=MetadataFormat.VORBIS)
-        assert get_specific_metadata(temp_flac_file, UnifiedMetadataKey.GENRE_NAME) == "Rock"
+        assert get_specific_metadata(temp_flac_file, UnifiedMetadataKey.GENRE_NAME) == ["Rock"]
         
         update_file_metadata(temp_flac_file, {UnifiedMetadataKey.GENRE_NAME: None}, metadata_format=MetadataFormat.VORBIS)
         assert get_specific_metadata(temp_flac_file, UnifiedMetadataKey.GENRE_NAME) is None

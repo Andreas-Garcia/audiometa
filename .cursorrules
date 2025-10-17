@@ -168,6 +168,80 @@ def test_wav_sync_multiple_values(self, sample_wav_file: Path, temp_audio_file: 
     shutil.copy2(sample_wav_file, test_file)  # Don't do this
 ```
 
+### Test Isolation and Avoiding Circular Dependencies
+
+#### Reading Tests Must Use External Tools
+
+For tests that verify **reading functionality**, NEVER use the library's own `update_file_metadata()` function. This creates circular dependencies where writing logic could mask reading bugs.
+
+#### ❌ WRONG - Creates circular dependency:
+
+```python
+def test_id3v1_genre_reading(self):
+    with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
+        # ❌ Using our own library to set metadata
+        update_file_metadata(test_file.path, {
+            UnifiedMetadataKey.GENRE_NAME: "Rock"
+        }, metadata_format=MetadataFormat.ID3V1)
+
+        # Testing reading - but we used our own writing logic!
+        metadata = get_merged_unified_metadata(test_file.path)
+        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == ["Rock"]
+```
+
+#### ✅ CORRECT - Use external tools:
+
+```python
+def test_id3v1_genre_reading(self):
+    with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
+        # ✅ Use external tool to set metadata
+        script_helper = ScriptHelper()
+        script_helper.set_id3v1_max_metadata(test_file.path)
+
+        # Now test reading with external verification
+        metadata = get_merged_unified_metadata(test_file.path)
+        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == ["Blues"]
+```
+
+#### ✅ ALTERNATIVE - Use TempFileWithMetadata with specific format:
+
+```python
+def test_id3v1_genre_reading(self):
+    # ✅ TempFileWithMetadata uses external tools internally
+    with TempFileWithMetadata({"genre": "Rock"}, "id3v1") as test_file:
+        metadata = get_merged_unified_metadata(test_file.path)
+        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == ["Rock"]
+```
+
+#### ✅ ALTERNATIVE - Use subprocess with external tools:
+
+```python
+def test_riff_genre_reading(self):
+    with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
+        # ✅ Use external tool directly
+        subprocess.run([
+            "exiftool", "-overwrite_original",
+            "-Genre=Rock; Alternative; Indie",
+            str(test_file.path)
+        ], check=True)
+
+        metadata = get_merged_unified_metadata(test_file.path)
+        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == ["Rock"]
+```
+
+#### Available External Tools
+
+- **ScriptHelper class**: `set_id3v1_max_metadata()`, `set_id3v2_max_metadata()`, `set_vorbis_max_metadata()`, `set_riff_max_metadata()`
+- **External tools**: `id3v2`, `mid3v2`, `metaflac`, `bwfmetaedit`, `exiftool`, `ffmpeg`
+- **TempFileWithMetadata**: Uses external tools internally for specific formats
+
+#### When to Use Each Approach
+
+- **Reading tests**: Always use external tools or `TempFileWithMetadata` with specific format
+- **Writing tests**: Can use `update_file_metadata()` (testing writing functionality)
+- **Integration tests**: Mix both approaches as appropriate
+- **Unit tests**: Use mocks and direct object instantiation
+
 ## File Organization
 
 ### Module Structure
