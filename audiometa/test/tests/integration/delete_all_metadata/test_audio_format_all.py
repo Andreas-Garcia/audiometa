@@ -82,7 +82,6 @@ class TestDeleteAllMetadataAllFormats:
     def test_delete_all_metadata_removes_all_formats(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             # Add ID3v1 metadata using external script
-            import subprocess
             test_metadata = {
                 "title": "ID3v1 Title",
                 "artist": "ID3v1 Artist"

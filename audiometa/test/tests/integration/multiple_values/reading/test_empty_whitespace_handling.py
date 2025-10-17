@@ -1,5 +1,4 @@
 import pytest
-import subprocess
 
 from audiometa import get_merged_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -10,17 +9,7 @@ class TestEmptyWhitespaceHandling:
     def test_no_multiple_entries_returns_single_value(self):
         # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Single Artist",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set single artist")
+            test_file.set_vorbis_artist("Single Artist")
             
             unified_metadata = get_merged_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)

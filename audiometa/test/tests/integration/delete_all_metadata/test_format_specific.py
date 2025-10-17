@@ -56,15 +56,10 @@ class TestDeleteAllMetadataFormatSpecific:
         """Test deleting only RIFF metadata while preserving ID3v2 metadata."""
         with TempFileWithMetadata({"title": "Test RIFF Title", "artist": "Test RIFF Artist"}, "wav") as test_file:
             # Create WAV file with both RIFF and ID3v2 metadata
-            # First add ID3v2 metadata using external script
-            import subprocess
-            subprocess.run([
-                "mid3v2", 
-                "--song=Test ID3v2 Title",
-                "--artist=Test ID3v2 Artist", 
-                "--album=Test ID3v2 Album",
-                str(test_file.path)
-            ], check=True)
+            # Add ID3v2 metadata using TempFileWithMetadata methods
+            test_file.set_id3v2_title("Test ID3v2 Title")
+            test_file.set_id3v2_artist("Test ID3v2 Artist")
+            test_file.set_id3v2_album("Test ID3v2 Album")
             
             # Verify both formats have metadata before deletion
             riff_before = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)

@@ -1,5 +1,4 @@
 import pytest
-import subprocess
 
 from audiometa import get_merged_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -9,20 +8,11 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 class TestUnicodeHandling:
     def test_unicode_characters(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist Café",
-                    "--set-tag=ARTIST=Artist 音乐",
-                    "--set-tag=ARTIST=Artist 🎵",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set unicode artists")
+            test_file.set_vorbis_multiple_artists([
+                "Artist Café",
+                "Artist 音乐",
+                "Artist 🎵"
+            ])
             
             unified_metadata = get_merged_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)

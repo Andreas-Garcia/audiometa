@@ -1,5 +1,4 @@
 import pytest
-import subprocess
 
 from audiometa import get_merged_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -9,20 +8,7 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 class TestMultipleValuesEdgeCases:
     def test_numeric_entries(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist 1",
-                    "--set-tag=ARTIST=Artist 2",
-                    "--set-tag=ARTIST=123",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set numeric artists")
+            test_file.set_vorbis_multiple_artists(["Artist 1", "Artist 2", "123"])
             
             unified_metadata = get_merged_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -35,21 +21,12 @@ class TestMultipleValuesEdgeCases:
 
     def test_case_sensitivity_preservation(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist One",
-                    "--set-tag=ARTIST=ARTIST TWO",
-                    "--set-tag=ARTIST=artist three",
-                    "--set-tag=ARTIST=ArTiSt FoUr",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set case-sensitive artists")
+            test_file.set_vorbis_multiple_artists([
+                "Artist One",
+                "ARTIST TWO", 
+                "artist three",
+                "ArTiSt FoUr"
+            ])
             
             unified_metadata = get_merged_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -63,22 +40,13 @@ class TestMultipleValuesEdgeCases:
 
     def test_duplicate_entries_preservation(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist One",
-                    "--set-tag=ARTIST=Artist Two",
-                    "--set-tag=ARTIST=Artist One",  # Duplicate
-                    "--set-tag=ARTIST=Artist Three",
-                    "--set-tag=ARTIST=Artist Two",  # Another duplicate
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set duplicate artists")
+            test_file.set_vorbis_multiple_artists([
+                "Artist One",
+                "Artist Two", 
+                "Artist One",  # Duplicate
+                "Artist Three",
+                "Artist Two"   # Another duplicate
+            ])
             
             unified_metadata = get_merged_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -91,21 +59,12 @@ class TestMultipleValuesEdgeCases:
 
     def test_order_preservation(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=First Artist",
-                    "--set-tag=ARTIST=Second Artist",
-                    "--set-tag=ARTIST=Third Artist",
-                    "--set-tag=ARTIST=Fourth Artist",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set ordered artists")
+            test_file.set_vorbis_multiple_artists([
+                "First Artist",
+                "Second Artist",
+                "Third Artist",
+                "Fourth Artist"
+            ])
             
             unified_metadata = get_merged_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -120,19 +79,7 @@ class TestMultipleValuesEdgeCases:
     def test_very_long_single_entry(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             long_artist = "A" * 10000  # 10,000 character artist name
-            
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-                subprocess.run([
-                    "metaflac",
-                    f"--set-tag=ARTIST={long_artist}",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set long artist")
+            test_file.set_vorbis_multiple_artists([long_artist])
             
             unified_metadata = get_merged_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -142,33 +89,9 @@ class TestMultipleValuesEdgeCases:
             assert artists[0] == long_artist
 
     def test_mixed_metadata_types(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-all-tags", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist One",
-                    "--set-tag=ARTIST=Artist Two",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=GENRE=Rock",
-                    "--set-tag=GENRE=Alternative",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=TITLE=Single Title",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set mixed metadata")
+        with TempFileWithMetadata({"title": "Single Title"}, "flac") as test_file:
+            test_file.set_vorbis_multiple_artists(["Artist One", "Artist Two"])
+            test_file.set_vorbis_multiple_genres(["Rock", "Alternative"])
             
             unified_metadata = get_merged_unified_metadata(test_file.path)
             

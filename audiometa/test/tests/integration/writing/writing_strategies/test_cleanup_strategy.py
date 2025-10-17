@@ -30,15 +30,10 @@ class TestCleanupStrategy:
         }
         
         with TempFileWithMetadata(basic_metadata, "wav") as test_file:
-            # First, add ID3v2 metadata using external script
-            import subprocess
-            subprocess.run([
-                "mid3v2", 
-                "--song=ID3v2 Title",
-                "--artist=ID3v2 Artist", 
-                "--album=ID3v2 Album",
-                str(test_file.path)
-            ], check=True)
+            # First, add ID3v2 metadata using TempFileWithMetadata
+            test_file.set_id3v2_title("ID3v2 Title")
+            test_file.set_id3v2_artist("ID3v2 Artist")
+            test_file.set_id3v2_album("ID3v2 Album")
             
             # Verify ID3v2 metadata was written
             id3v2_result = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
@@ -67,16 +62,10 @@ class TestCleanupStrategy:
     def test_id3v1_not_preserved_with_cleanup_strategy(self):
         # Create test file with ID3v1 metadata using external script
         with TempFileWithMetadata({}, "mp3") as test_file:
-            # Add ID3v1 metadata using external script
-            import subprocess
-            subprocess.run([
-                "id3v2", 
-                "--song=ID3v1 Title",
-                "--artist=ID3v1 Artist", 
-                "--album=ID3v1 Album",
-                "--id3v1-only",
-                str(test_file.path)
-            ], check=True)
+            # Add ID3v1 metadata using TempFileWithMetadata
+            test_file.set_id3v1_title("ID3v1 Title")
+            test_file.set_id3v1_artist("ID3v1 Artist")
+            test_file.set_id3v1_album("ID3v1 Album")
             
             # Verify ID3v1 metadata was written
             id3v1_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)

@@ -1,5 +1,4 @@
 import pytest
-import subprocess
 import time
 
 from audiometa import get_merged_unified_metadata
@@ -11,19 +10,9 @@ class TestPerformanceLargeData:
     def test_performance_with_many_entries(self):
         # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-                artist_commands = []
-                for i in range(20):
-                    artist_commands.extend(["--set-tag", f"ARTIST=Artist {i+1}"])
-                
-                subprocess.run(["metaflac"] + artist_commands + [str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set many artists")
+            # Set many artists using TempFileWithMetadata
+            artists_list = [f"Artist {i+1}" for i in range(20)]
+            test_file.set_vorbis_multiple_artists(artists_list)
             
             for _ in range(5):
                 unified_metadata = get_merged_unified_metadata(test_file.path)
@@ -35,21 +24,9 @@ class TestPerformanceLargeData:
     def test_performance_with_large_separated_values(self):
         # Create temporary file with basic metadata
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            # Create a single tag with many values separated by semicolons
-            many_artists = ";".join([f"Artist {i+1}" for i in range(50)])
-            
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                
-                subprocess.run([
-                    "metaflac",
-                    f"--set-tag=ARTIST={many_artists}",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set many separated artists")
+            # Set many artists using TempFileWithMetadata
+            artists_list = [f"Artist {i+1}" for i in range(50)]
+            test_file.set_vorbis_multiple_artists(artists_list)
             
             start_time = time.time()
             unified_metadata = get_merged_unified_metadata(test_file.path)
