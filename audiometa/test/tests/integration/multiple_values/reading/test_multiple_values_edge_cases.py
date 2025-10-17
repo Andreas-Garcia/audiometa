@@ -178,7 +178,7 @@ class TestMultipleValuesEdgeCases:
             assert "Artist One" in artists
             assert "Artist Two" in artists
             
-            genres = unified_metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = unified_metadata.get(UnifiedMetadataKey.GENRES_NAMES)
             assert isinstance(genres, list)
             assert len(genres) == 2
             assert "Rock" in genres

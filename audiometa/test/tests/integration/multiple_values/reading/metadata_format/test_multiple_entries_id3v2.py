@@ -139,7 +139,7 @@ class TestMultipleEntriesId3v2:
         
         # Read metadata
         unified_metadata = get_merged_unified_metadata(sample_mp3_file)
-        genres = unified_metadata.get(UnifiedMetadataKey.GENRE_NAME)
+        genres = unified_metadata.get(UnifiedMetadataKey.GENRES_NAMES)
         
         # Should return a list with multiple genres
         assert isinstance(genres, list)

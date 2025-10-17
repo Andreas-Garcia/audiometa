@@ -182,7 +182,7 @@ class TestPerformanceLargeData:
         # Add single values
         large_metadata[UnifiedMetadataKey.TITLE] = "Large Metadata Test"
         large_metadata[UnifiedMetadataKey.ALBUM_NAME] = "Large Album"
-        large_metadata[UnifiedMetadataKey.GENRE_NAME] = "Test Genre"
+        large_metadata[UnifiedMetadataKey.GENRES_NAMES] = "Test Genre"
         large_metadata[UnifiedMetadataKey.COMMENT] = "This is a test comment for large metadata"
         
         start_time = time.time()
@@ -205,7 +205,7 @@ class TestPerformanceLargeData:
         # Check single value fields
         assert unified_metadata.get(UnifiedMetadataKey.TITLE) == "Large Metadata Test"
         assert unified_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Large Album"
-        assert unified_metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Test Genre"
+        assert unified_metadata.get(UnifiedMetadataKey.GENRES_NAMES) == "Test Genre"
         assert unified_metadata.get(UnifiedMetadataKey.COMMENT) == "This is a test comment for large metadata"
         
         # Performance assertions

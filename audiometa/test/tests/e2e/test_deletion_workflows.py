@@ -154,7 +154,7 @@ class TestDeletionWorkflows:
             remaining_deletion = {
                 UnifiedMetadataKey.ALBUM_NAME: None,
                 UnifiedMetadataKey.RELEASE_DATE: None,
-                UnifiedMetadataKey.GENRE_NAME: None
+                UnifiedMetadataKey.GENRES_NAMES: None
             }
             update_file_metadata(test_file.path, remaining_deletion)
             
@@ -162,7 +162,7 @@ class TestDeletionWorkflows:
             final_metadata = get_merged_unified_metadata(test_file)
             assert final_metadata.get(UnifiedMetadataKey.ALBUM_NAME) is None
             assert final_metadata.get(UnifiedMetadataKey.RELEASE_DATE) is None
-            assert final_metadata.get(UnifiedMetadataKey.GENRE_NAME) is None
+            assert final_metadata.get(UnifiedMetadataKey.GENRES_NAMES) is None
 
     def test_cross_format_deletion_consistency(self, sample_mp3_file, sample_flac_file, sample_wav_file):
         # E2e test for deletion consistency across formats

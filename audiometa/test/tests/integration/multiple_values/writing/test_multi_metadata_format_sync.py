@@ -32,7 +32,7 @@ class TestMultiMetadataFormatSync:
                 UnifiedMetadataKey.TITLE: "Original RIFF Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Original RIFF Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "Original RIFF Album",
-                UnifiedMetadataKey.GENRE_NAME: "Original RIFF Genre"
+                UnifiedMetadataKey.GENRES_NAMES: "Original RIFF Genre"
             }
             update_file_metadata(test_file.path, riff_metadata, metadata_format=MetadataFormat.RIFF)
             
@@ -41,7 +41,7 @@ class TestMultiMetadataFormatSync:
                 UnifiedMetadataKey.TITLE: "Original ID3v1 Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Original ID3v1 Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "Original ID3v1 Album",
-                UnifiedMetadataKey.GENRE_NAME: "Original ID3v1 Genre"
+                UnifiedMetadataKey.GENRES_NAMES: "Original ID3v1 Genre"
             }
             update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
             
@@ -134,7 +134,7 @@ class TestMultiMetadataFormatSync:
                 UnifiedMetadataKey.TITLE: "Original ID3v1 Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Original ID3v1 Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "Original ID3v1 Album",
-                UnifiedMetadataKey.GENRE_NAME: "Original ID3v1 Genre"
+                UnifiedMetadataKey.GENRES_NAMES: "Original ID3v1 Genre"
             }
             update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
             
@@ -214,7 +214,7 @@ class TestMultiMetadataFormatSync:
                 UnifiedMetadataKey.TITLE: "Original Vorbis Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Original Vorbis Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "Original Vorbis Album",
-                UnifiedMetadataKey.GENRE_NAME: "Original Vorbis Genre"
+                UnifiedMetadataKey.GENRES_NAMES: "Original Vorbis Genre"
             }
             update_file_metadata(test_file.path, vorbis_metadata, metadata_format=MetadataFormat.VORBIS)
             
@@ -223,7 +223,7 @@ class TestMultiMetadataFormatSync:
                 UnifiedMetadataKey.TITLE: "Original ID3v1 Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Original ID3v1 Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "Original ID3v1 Album",
-                UnifiedMetadataKey.GENRE_NAME: "Original ID3v1 Genre"
+                UnifiedMetadataKey.GENRES_NAMES: "Original ID3v1 Genre"
             }
             update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
             

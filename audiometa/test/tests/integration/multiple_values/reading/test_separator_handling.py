@@ -327,7 +327,7 @@ class TestSeparatorHandling:
             
             # Read metadata
             unified_metadata = get_merged_unified_metadata(test_file.path)
-            genres = unified_metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = unified_metadata.get(UnifiedMetadataKey.GENRES_NAMES)
             
             # Should split genres on semicolon
             assert isinstance(genres, list)

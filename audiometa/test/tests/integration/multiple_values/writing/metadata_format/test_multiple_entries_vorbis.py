@@ -93,13 +93,13 @@ class TestMultipleEntriesVorbis:
         
         # Write multiple genres
         metadata = {
-            UnifiedMetadataKey.GENRE_NAME: ["Rock", "Alternative", "Indie"]
+            UnifiedMetadataKey.GENRES_NAMES: ["Rock", "Alternative", "Indie"]
         }
         
         update_file_metadata(temp_flac_file, metadata, metadata_format=MetadataFormat.VORBIS)
         
         unified_metadata = get_merged_unified_metadata(temp_flac_file)
-        genres = unified_metadata.get(UnifiedMetadataKey.GENRE_NAME)
+        genres = unified_metadata.get(UnifiedMetadataKey.GENRES_NAMES)
         
         assert isinstance(genres, list)
         assert len(genres) == 3

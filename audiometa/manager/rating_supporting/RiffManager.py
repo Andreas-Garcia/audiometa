@@ -95,7 +95,7 @@ class RiffManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.ARTISTS_NAMES: self.RiffTagKey.ARTIST_NAME,
             UnifiedMetadataKey.ALBUM_NAME: self.RiffTagKey.ALBUM_NAME,
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.RiffTagKey.ALBUM_ARTISTS_NAMES,
-            UnifiedMetadataKey.GENRE_NAME: None,
+            UnifiedMetadataKey.GENRES_NAMES: None,
             UnifiedMetadataKey.RATING: None,
             UnifiedMetadataKey.LANGUAGE: self.RiffTagKey.LANGUAGE,
             UnifiedMetadataKey.RELEASE_DATE: self.RiffTagKey.DATE,
@@ -109,7 +109,7 @@ class RiffManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.ARTISTS_NAMES: self.RiffTagKey.ARTIST_NAME,
             UnifiedMetadataKey.ALBUM_NAME: self.RiffTagKey.ALBUM_NAME,
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.RiffTagKey.ALBUM_ARTISTS_NAMES,
-            UnifiedMetadataKey.GENRE_NAME: None,
+            UnifiedMetadataKey.GENRES_NAMES: None,
             UnifiedMetadataKey.RATING: None,
             UnifiedMetadataKey.LANGUAGE: self.RiffTagKey.LANGUAGE,
             UnifiedMetadataKey.RELEASE_DATE: self.RiffTagKey.DATE,
@@ -282,7 +282,7 @@ class RiffManager(RatingSupportingMetadataManager):
     def _get_undirectly_mapped_metadata_value_other_than_rating_from_raw_clean_metadata(
             self, app_metadata_key: UnifiedMetadataKey, raw_clean_metadata: RawMetadataDict) -> AppMetadataValue:
 
-        if app_metadata_key == UnifiedMetadataKey.GENRE_NAME:
+        if app_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
             return self._get_genre_name_from_raw_clean_metadata_id3v1(
                 raw_clean_metadata=raw_clean_metadata, raw_metadata_ket=self.RiffTagKey.GENRE_NAME_OR_CODE)
         else:
@@ -483,7 +483,7 @@ class RiffManager(RatingSupportingMetadataManager):
 
         riff_key = self.metadata_keys_direct_map_write.get(app_key)
         if not riff_key:
-            if app_key == UnifiedMetadataKey.GENRE_NAME:
+            if app_key == UnifiedMetadataKey.GENRES_NAMES:
                 return self.RiffTagKey.GENRE_NAME_OR_CODE
             elif app_key == UnifiedMetadataKey.RATING:
                 return self.RiffTagKey.RATING
@@ -495,7 +495,7 @@ class RiffManager(RatingSupportingMetadataManager):
         if isinstance(value, list):
             value = value[0] if value else ""
 
-        if app_key == UnifiedMetadataKey.GENRE_NAME:
+        if app_key == UnifiedMetadataKey.GENRES_NAMES:
             value = self._get_genre_code_from_name(str(value))
         elif app_key == UnifiedMetadataKey.RATING:
             # Convert normalized rating to file rating for RIFF format

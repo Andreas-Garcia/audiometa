@@ -58,7 +58,7 @@ class TestSeparatorHandling:
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist; with; semicolons", "Artist, with, commas"],
             UnifiedMetadataKey.COMPOSER: ["Composer / with / slashes", "Composer \\ with \\ backslashes"],
             UnifiedMetadataKey.MUSICIANS: ["Guitar; Lead: Alice", "Bass, Electric: Bob"],
-            UnifiedMetadataKey.GENRE_NAME: ["Rock; Alternative", "Jazz, Fusion"]
+            UnifiedMetadataKey.GENRES_NAMES: ["Rock; Alternative", "Jazz, Fusion"]
         }
         update_file_metadata(temp_audio_file, metadata)
         
@@ -83,7 +83,7 @@ class TestSeparatorHandling:
         assert "Guitar; Lead: Alice" in musicians
         assert "Bass, Electric: Bob" in musicians
         
-        genres = unified_metadata.get(UnifiedMetadataKey.GENRE_NAME)
+        genres = unified_metadata.get(UnifiedMetadataKey.GENRES_NAMES)
         assert isinstance(genres, list)
         assert len(genres) == 2
         assert "Rock; Alternative" in genres

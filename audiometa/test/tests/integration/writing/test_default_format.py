@@ -124,7 +124,7 @@ class TestDefaultWritingFormat:
                 UnifiedMetadataKey.TITLE: "WAV Test Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["WAV Test Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "WAV Test Album",
-                UnifiedMetadataKey.GENRE_NAME: "Test Genre"
+                UnifiedMetadataKey.GENRES_NAMES: "Test Genre"
             }
             
             # Update metadata using default format (should be RIFF)
@@ -135,7 +135,7 @@ class TestDefaultWritingFormat:
             assert riff_metadata.get(UnifiedMetadataKey.TITLE) == "WAV Test Title"
             assert riff_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["WAV Test Artist"]
             assert riff_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "WAV Test Album"
-            assert riff_metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Other"
+            assert riff_metadata.get(UnifiedMetadataKey.GENRES_NAMES) == "Other"
             
             # Verify that merged metadata (which follows priority order) returns RIFF data
             merged_metadata = get_merged_unified_metadata(temp_wav_file)

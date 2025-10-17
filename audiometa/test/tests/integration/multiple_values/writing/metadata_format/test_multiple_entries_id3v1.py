@@ -64,13 +64,13 @@ class TestMultipleEntriesId3v1:
         initial_metadata = {"title": "Test Song"}
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             metadata = {
-                UnifiedMetadataKey.GENRE_NAME: ["Rock", "Alternative", "Indie"]
+                UnifiedMetadataKey.GENRES_NAMES: ["Rock", "Alternative", "Indie"]
             }
             
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
             
             id3v1_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
-            genres = id3v1_metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = id3v1_metadata.get(UnifiedMetadataKey.GENRES_NAMES)
             
             assert isinstance(genres, str)
             assert "Rock" in genres
@@ -207,7 +207,7 @@ class TestMultipleEntriesId3v1:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"],
                 UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: ["Album Artist One", "Album Artist Two"],
                 UnifiedMetadataKey.COMPOSER: ["Composer One", "Composer Two"],
-                UnifiedMetadataKey.GENRE_NAME: ["Rock", "Alternative"]
+                UnifiedMetadataKey.GENRES_NAMES: ["Rock", "Alternative"]
             }
             
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
@@ -217,7 +217,7 @@ class TestMultipleEntriesId3v1:
             artists = id3v1_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             album_artists = id3v1_metadata.get(UnifiedMetadataKey.ALBUM_ARTISTS_NAMES)
             composers = id3v1_metadata.get(UnifiedMetadataKey.COMPOSER)
-            genres = id3v1_metadata.get(UnifiedMetadataKey.GENRE_NAME)
+            genres = id3v1_metadata.get(UnifiedMetadataKey.GENRES_NAMES)
             
             assert isinstance(artists, str)
             assert isinstance(album_artists, str)

@@ -33,7 +33,7 @@ class TestVorbisMultipleEntriesWriting:
             new_metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["New Artist 1", "New Artist 2", "New Artist 3"],
                 UnifiedMetadataKey.COMPOSER: ["New Composer X", "New Composer Y"],
-                UnifiedMetadataKey.GENRE_NAME: ["Jazz", "Fusion", "Experimental"]
+                UnifiedMetadataKey.GENRES_NAMES: ["Jazz", "Fusion", "Experimental"]
             }
             
             update_file_metadata(test_file.path, new_metadata, metadata_format=MetadataFormat.VORBIS)

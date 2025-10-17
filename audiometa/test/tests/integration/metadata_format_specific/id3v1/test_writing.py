@@ -22,7 +22,7 @@ class TestId3v1Writing:
             UnifiedMetadataKey.TITLE: "Test Song Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"],
             UnifiedMetadataKey.ALBUM_NAME: "Test Album",
-            UnifiedMetadataKey.GENRE_NAME: "Test Genre",
+            UnifiedMetadataKey.GENRES_NAMES: "Test Genre",
             UnifiedMetadataKey.RATING: 8
         }
         
@@ -35,7 +35,7 @@ class TestId3v1Writing:
         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Song Title"
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
-        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Test Genre"
+        assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Test Genre"]
         assert metadata.get(UnifiedMetadataKey.RATING) == 0
 
     def test_multiple_metadata_writing(self, sample_mp3_file: Path, temp_audio_file: Path):
@@ -46,7 +46,7 @@ class TestId3v1Writing:
             UnifiedMetadataKey.TITLE: "Written Song Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["Written Artist"],
             UnifiedMetadataKey.ALBUM_NAME: "Written Album",
-            UnifiedMetadataKey.GENRE_NAME: "Written Genre",
+            UnifiedMetadataKey.GENRES_NAMES: ["Written Genre"],
             UnifiedMetadataKey.RATING: 9
         }
         
@@ -59,5 +59,5 @@ class TestId3v1Writing:
         assert metadata.get(UnifiedMetadataKey.TITLE) == "Written Song Title"
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Written Artist"]
         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Written Album"
-        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Written Genre"
+        assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Written Genre"]
         assert metadata.get(UnifiedMetadataKey.RATING) == 0

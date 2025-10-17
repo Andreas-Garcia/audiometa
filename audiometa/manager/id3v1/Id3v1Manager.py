@@ -65,7 +65,7 @@ class Id3v1Manager(MetadataManager):
             UnifiedMetadataKey.RELEASE_DATE: Id3v1RawMetadataKey.YEAR,
             UnifiedMetadataKey.TRACK_NUMBER: Id3v1RawMetadataKey.TRACK_NUMBER,
             UnifiedMetadataKey.COMMENT: Id3v1RawMetadataKey.COMMENT,
-            UnifiedMetadataKey.GENRE_NAME: None,
+            UnifiedMetadataKey.GENRES_NAMES: None,
         }
         metadata_keys_direct_map_write: dict = {
             UnifiedMetadataKey.TITLE: Id3v1RawMetadataKey.TITLE,
@@ -74,7 +74,7 @@ class Id3v1Manager(MetadataManager):
             UnifiedMetadataKey.RELEASE_DATE: Id3v1RawMetadataKey.YEAR,
             UnifiedMetadataKey.TRACK_NUMBER: Id3v1RawMetadataKey.TRACK_NUMBER,
             UnifiedMetadataKey.COMMENT: Id3v1RawMetadataKey.COMMENT,
-            UnifiedMetadataKey.GENRE_NAME: None,  # Handled indirectly
+            UnifiedMetadataKey.GENRES_NAMES: None,  # Handled indirectly
         }
         super().__init__(
             audio_file=audio_file, 
@@ -110,7 +110,7 @@ class Id3v1Manager(MetadataManager):
 
     def _get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
             self, raw_clean_metadata: RawMetadataDict, app_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
-        if app_metadata_key == UnifiedMetadataKey.GENRE_NAME:
+        if app_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
             return self._get_genre_name_from_raw_clean_metadata_id3v1(
                 raw_clean_metadata=raw_clean_metadata, raw_metadata_ket=Id3v1RawMetadataKey.GENRE_CODE_OR_NAME)
         raise MetadataNotSupportedError(f'{app_metadata_key} metadata is not undirectly handled')
@@ -118,7 +118,7 @@ class Id3v1Manager(MetadataManager):
     def _update_undirectly_mapped_metadata(self, raw_mutagen_metadata: MutagenMetadata,
                                            app_metadata_value: AppMetadataValue,
                                            app_metadata_key: UnifiedMetadataKey):
-        if app_metadata_key == UnifiedMetadataKey.GENRE_NAME:
+        if app_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
             # Handle both single string and list values gracefully
             if isinstance(app_metadata_value, list):
                 app_metadata_value = app_metadata_value[0] if app_metadata_value else None
@@ -237,7 +237,7 @@ class Id3v1Manager(MetadataManager):
                 tag_data[126] = track_num
         
         # Genre (byte 127)
-        genre_name = app_metadata.get(UnifiedMetadataKey.GENRE_NAME)
+        genre_name = app_metadata.get(UnifiedMetadataKey.GENRES_NAMES)
         if genre_name:
             # Handle both single string and list values gracefully
             if isinstance(genre_name, list):

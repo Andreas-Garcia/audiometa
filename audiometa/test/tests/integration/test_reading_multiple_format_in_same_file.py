@@ -121,7 +121,7 @@ class TestConflictingMetadata:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v1 Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "ID3v1 Album",
                 UnifiedMetadataKey.RELEASE_DATE: "2023",
-                UnifiedMetadataKey.GENRE_NAME: "Rock"
+                UnifiedMetadataKey.GENRES_NAMES: "Rock"
             }
             update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
             id3v2_metadata = {
@@ -152,7 +152,7 @@ class TestConflictingMetadata:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v1 Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "ID3v1 Album",
                 UnifiedMetadataKey.RELEASE_DATE: "2023",
-                UnifiedMetadataKey.GENRE_NAME: "Rock"
+                UnifiedMetadataKey.GENRES_NAMES: "Rock"
             }
             update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
             
@@ -180,7 +180,7 @@ class TestConflictingMetadata:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v1 Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "ID3v1 Album",
                 UnifiedMetadataKey.RELEASE_DATE: "2023",
-                UnifiedMetadataKey.GENRE_NAME: "Rock"
+                UnifiedMetadataKey.GENRES_NAMES: "Rock"
             }
             update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
             id3v2_metadata = {UnifiedMetadataKey.TITLE: "ID3v2 Title"}

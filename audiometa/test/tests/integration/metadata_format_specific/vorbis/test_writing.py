@@ -23,7 +23,7 @@ class TestVorbisWriting:
             UnifiedMetadataKey.TITLE: "Test Title FLAC",
             UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist FLAC"],
             UnifiedMetadataKey.ALBUM_NAME: "Test Album FLAC",
-            UnifiedMetadataKey.GENRE_NAME: "Test Genre FLAC",
+            UnifiedMetadataKey.GENRES_NAMES: "Test Genre FLAC",
             UnifiedMetadataKey.RATING: 10
         }
         update_file_metadata(temp_audio_file, test_metadata, normalized_rating_max_value=100)
@@ -31,7 +31,7 @@ class TestVorbisWriting:
         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title FLAC"
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist FLAC"]
         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album FLAC"
-        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Test Genre FLAC"
+        assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == "Test Genre FLAC"
         assert metadata.get(UnifiedMetadataKey.RATING) == 1
 
     def test_multiple_metadata_reading(self, sample_flac_file: Path, temp_audio_file: Path):
@@ -42,7 +42,7 @@ class TestVorbisWriting:
             UnifiedMetadataKey.TITLE: "Test Song Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"],
             UnifiedMetadataKey.ALBUM_NAME: "Test Album",
-            UnifiedMetadataKey.GENRE_NAME: "Test Genre",
+            UnifiedMetadataKey.GENRES_NAMES: "Test Genre",
             UnifiedMetadataKey.RATING: 8
         }
         
@@ -55,7 +55,7 @@ class TestVorbisWriting:
         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Song Title"
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
-        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Test Genre"
+        assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == "Test Genre"
         assert metadata.get(UnifiedMetadataKey.RATING) == 0
 
     def test_multiple_metadata_writing(self, sample_flac_file: Path, temp_audio_file: Path):
@@ -66,7 +66,7 @@ class TestVorbisWriting:
             UnifiedMetadataKey.TITLE: "Written Song Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["Written Artist"],
             UnifiedMetadataKey.ALBUM_NAME: "Written Album",
-            UnifiedMetadataKey.GENRE_NAME: "Written Genre",
+            UnifiedMetadataKey.GENRES_NAMES: "Written Genre",
             UnifiedMetadataKey.RATING: 9
         }
         
@@ -79,7 +79,7 @@ class TestVorbisWriting:
         assert metadata.get(UnifiedMetadataKey.TITLE) == "Written Song Title"
         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Written Artist"]
         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Written Album"
-        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == "Written Genre"
+        assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == "Written Genre"
         assert metadata.get(UnifiedMetadataKey.RATING) == 0
 
     def test_none_field_removal_vorbis(self, sample_flac_file: Path, temp_audio_file: Path):

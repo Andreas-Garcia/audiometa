@@ -14,7 +14,7 @@ class TestId3v1GenreReading:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             test_file.set_id3v1_genre("17")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
@@ -22,7 +22,7 @@ class TestId3v1GenreReading:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             test_file.set_id3v1_genre("0")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Blues"]
 
@@ -30,7 +30,7 @@ class TestId3v1GenreReading:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             test_file.set_id3v1_genre( "32")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Classical"]
 
@@ -38,7 +38,7 @@ class TestId3v1GenreReading:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             test_file.set_id3v1_genre( "80")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Folk"]
 
@@ -46,7 +46,7 @@ class TestId3v1GenreReading:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             test_file.set_id3v1_genre( "131")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Indie"]
 
@@ -54,7 +54,7 @@ class TestId3v1GenreReading:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             test_file.set_id3v1_genre( "189")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Dubstep"]
 
@@ -62,7 +62,7 @@ class TestId3v1GenreReading:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             test_file.set_id3v1_genre( "255")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres is not None
 
@@ -70,7 +70,7 @@ class TestId3v1GenreReading:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             test_file.set_id3v1_genre("17")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
@@ -78,7 +78,7 @@ class TestId3v1GenreReading:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             test_file.set_id3v1_genre("17")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
@@ -86,7 +86,7 @@ class TestId3v1GenreReading:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             test_file.set_id3v1_genre("17")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
@@ -95,7 +95,7 @@ class TestId3v1GenreReading:
             long_genre = "Very Long Genre Name That Exceeds 30 Characters"
             test_file.set_id3v1_genre("17")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres is not None
             assert len(genres[0]) <= 30
@@ -104,7 +104,7 @@ class TestId3v1GenreReading:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             test_file.set_id3v1_genre( "255")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres is None or genres == []
 
@@ -112,7 +112,7 @@ class TestId3v1GenreReading:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             # No genre set - test file has no genre
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres is None or genres == []
 
@@ -120,7 +120,7 @@ class TestId3v1GenreReading:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             test_file.set_id3v1_genre( "255")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres is None or genres == []
 
@@ -128,7 +128,7 @@ class TestId3v1GenreReading:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             test_file.set_id3v1_genre("17")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres is not None
 
@@ -142,7 +142,7 @@ class TestId3v1GenreReading:
         for genre in original_genres:
             with TempFileWithMetadata({"title": "Test Song", "genre": genre}, "id3v1") as test_file:
                 metadata = get_merged_unified_metadata(test_file.path)
-                genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+                genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
                 
                 assert genres == [genre]
 
@@ -157,7 +157,7 @@ class TestId3v1GenreReading:
         for genre in winamp_genres:
             with TempFileWithMetadata({"title": "Test Song", "genre": genre}, "id3v1") as test_file:
                 metadata = get_merged_unified_metadata(test_file.path)
-                genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+                genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
                 
                 assert genres == [genre]
 
@@ -172,13 +172,13 @@ class TestId3v1GenreReading:
         for genre in winamp_56_genres:
             with TempFileWithMetadata({"title": "Test Song", "genre": genre}, "id3v1") as test_file:
                 metadata = get_merged_unified_metadata(test_file.path)
-                genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+                genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
                 
                 assert genres == [genre]
 
     def test_id3v1_genre_no_metadata(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres is None or genres == []
 
@@ -187,7 +187,7 @@ class TestId3v1GenreReading:
             test_file.set_id3v1_genre("17")
             
             # Test that genre reading works correctly
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             assert genres == ["Rock"]
             
             # Test that other metadata is also present (using get_merged_unified_metadata for multiple fields)

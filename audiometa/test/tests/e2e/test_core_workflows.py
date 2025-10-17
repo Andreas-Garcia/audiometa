@@ -43,7 +43,7 @@ class TestCoreWorkflows:
                 UnifiedMetadataKey.TITLE: "New Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["New Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "New Album",
-                UnifiedMetadataKey.GENRE_NAME: "Rock",
+                UnifiedMetadataKey.GENRES_NAMES: "Rock",
                 UnifiedMetadataKey.COMMENT: "Test comment"
             }
             
@@ -55,7 +55,7 @@ class TestCoreWorkflows:
             assert metadata.get(UnifiedMetadataKey.TITLE) == "New Title"
             assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["New Artist"]
             assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "New Album"
-            assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == ["Rock"]
+            assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
             assert metadata.get(UnifiedMetadataKey.COMMENT) == "Test comment"
     
     def test_batch_metadata_processing(self, sample_mp3_file, sample_flac_file, sample_wav_file):

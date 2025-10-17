@@ -15,7 +15,7 @@ class TestRiffGenreParsing:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             self._set_riff_genre_text(test_file.path, "17; 20; 131")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
@@ -23,7 +23,7 @@ class TestRiffGenreParsing:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             self._set_riff_genre_text(test_file.path, "8, 30, 26")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Jazz"]
 
@@ -31,7 +31,7 @@ class TestRiffGenreParsing:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             self._set_riff_genre_text(test_file.path, "52/35/26")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Electronic"]
 
@@ -39,7 +39,7 @@ class TestRiffGenreParsing:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             self._set_riff_genre_text(test_file.path, "Rock; Alternative; Indie")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
@@ -47,7 +47,7 @@ class TestRiffGenreParsing:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             self._set_riff_genre_text(test_file.path, "Jazz, Fusion, Experimental")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Jazz"]
 
@@ -55,7 +55,7 @@ class TestRiffGenreParsing:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             self._set_riff_genre_text(test_file.path, "Electronic/Dance/Ambient")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Electronic"]
 
@@ -63,7 +63,7 @@ class TestRiffGenreParsing:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             self._set_riff_genre_text(test_file.path, "Rock; 20; Indie")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
@@ -71,7 +71,7 @@ class TestRiffGenreParsing:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             self._set_riff_genre_text(test_file.path, "17 | Alternative | 131")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
@@ -79,7 +79,7 @@ class TestRiffGenreParsing:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             self._set_riff_genre_text(test_file.path, "17")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
@@ -87,7 +87,7 @@ class TestRiffGenreParsing:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             self._set_riff_genre_text(test_file.path, "Rock")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
@@ -95,7 +95,7 @@ class TestRiffGenreParsing:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             self._set_riff_genre_text(test_file.path, "999")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["999"]
 
@@ -103,7 +103,7 @@ class TestRiffGenreParsing:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             self._set_riff_genre_text(test_file.path, "")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres is None or genres == []
 
@@ -111,7 +111,7 @@ class TestRiffGenreParsing:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             self._set_riff_genre_text(test_file.path, "   ")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres is None or genres == []
 
@@ -119,7 +119,7 @@ class TestRiffGenreParsing:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             self._set_riff_genre_text(test_file.path, " Rock ; Alternative ; Indie ")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
@@ -127,7 +127,7 @@ class TestRiffGenreParsing:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             self._set_riff_genre_text(test_file.path, "Rock; Alternative, Indie/Experimental")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
@@ -135,17 +135,17 @@ class TestRiffGenreParsing:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             self._set_riff_genre_text(test_file.path, "Rock;;;Alternative")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
     def test_riff_genre_code_mode_vs_text_mode(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             update_file_metadata(test_file.path, {
-                UnifiedMetadataKey.GENRE_NAME: "Rock"
+                UnifiedMetadataKey.GENRES_NAMES: "Rock"
             }, metadata_format=MetadataFormat.RIFF)
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
@@ -154,7 +154,7 @@ class TestRiffGenreParsing:
             long_genre = "Very Long Genre Name That Might Exceed Normal Limits And Test Edge Cases"
             self._set_riff_genre_text(test_file.path, long_genre)
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == [long_genre]
 
@@ -163,7 +163,7 @@ class TestRiffGenreParsing:
             special_genre = "Rock & Roll; R&B; Hip-Hop"
             self._set_riff_genre_text(test_file.path, special_genre)
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock & Roll"]
 
@@ -191,40 +191,40 @@ class TestRiffGenreWriting:
     def test_riff_writes_single_genre_from_list(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             update_file_metadata(test_file.path, {
-                UnifiedMetadataKey.GENRE_NAME: ["Rock", "Alternative", "Indie"]
+                UnifiedMetadataKey.GENRES_NAMES: ["Rock", "Alternative", "Indie"]
             }, metadata_format=MetadataFormat.RIFF)
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
     def test_riff_writes_genre_code_from_name(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             update_file_metadata(test_file.path, {
-                UnifiedMetadataKey.GENRE_NAME: "Rock"
+                UnifiedMetadataKey.GENRES_NAMES: "Rock"
             }, metadata_format=MetadataFormat.RIFF)
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
     def test_riff_writes_unknown_genre_as_code_255(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             update_file_metadata(test_file.path, {
-                UnifiedMetadataKey.GENRE_NAME: "Unknown Genre"
+                UnifiedMetadataKey.GENRES_NAMES: "Unknown Genre"
             }, metadata_format=MetadataFormat.RIFF)
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres is not None
 
     def test_riff_handles_empty_genre_list(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             update_file_metadata(test_file.path, {
-                UnifiedMetadataKey.GENRE_NAME: []
+                UnifiedMetadataKey.GENRES_NAMES: []
             }, metadata_format=MetadataFormat.RIFF)
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres is None or genres == []
 
@@ -236,7 +236,7 @@ class TestRiffGenreFutureEnhancement:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             self._set_riff_genre_text(test_file.path, "Rock; Alternative; Indie")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
@@ -244,7 +244,7 @@ class TestRiffGenreFutureEnhancement:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             self._set_riff_genre_text(test_file.path, "17; 20; 131")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
@@ -252,7 +252,7 @@ class TestRiffGenreFutureEnhancement:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             self._set_riff_genre_text(test_file.path, "Rock; 20; Indie")
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRE_NAME)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
