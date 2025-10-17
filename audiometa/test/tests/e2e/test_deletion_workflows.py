@@ -270,13 +270,13 @@ class TestDeletionWorkflows:
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             # 1. Add rating with normalization
             rating_metadata = {
-                UnifiedMetadataKey.RATING: 75
+                UnifiedMetadataKey.RATING: 80
             }
             update_file_metadata(test_file.path, rating_metadata, normalized_rating_max_value=100)
             
             # 2. Verify rating was added
             metadata_with_rating = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
-            assert metadata_with_rating.get(UnifiedMetadataKey.RATING) == 75
+            assert metadata_with_rating.get(UnifiedMetadataKey.RATING) == 80
             
             # 3. Delete rating
             rating_deletion = {
