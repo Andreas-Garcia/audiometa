@@ -77,7 +77,7 @@ class TestVorbisWriting:
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Written Song Title"
             assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Written Artist"]
             assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Written Album"
-            assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == "Written Genre"
+            assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Written Genre"]
             assert metadata.get(UnifiedMetadataKey.RATING) == 0
 
     def test_none_field_removal_vorbis(self):
