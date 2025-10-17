@@ -1,13 +1,14 @@
-"""Temporary file with metadata utilities for testing.
+"""Base temporary file with metadata utilities for testing.
 
-This module provides utilities for creating temporary test files with specific
-metadata configurations, with automatic cleanup support and header detection.
+This module provides the base TempFileWithMetadata class for creating temporary 
+test files with specific metadata configurations, with automatic cleanup support 
+and header detection.
 """
 
 import subprocess
 from pathlib import Path
 from typing import Dict, Any
-from ._internal_test_helpers import create_test_file_with_metadata
+from .._internal_test_helpers import create_test_file_with_metadata
 
 
 class TempFileWithMetadata:
@@ -292,5 +293,3 @@ class TempFileWithMetadata:
                 results['metaflac'] = {'success': False, 'error': str(e)}
         
         return results
-
-

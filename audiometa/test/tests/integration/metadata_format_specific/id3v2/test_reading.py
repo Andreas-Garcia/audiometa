@@ -14,7 +14,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError
 from audiometa.test.tests.temp_file_with_metadata import TempFileWithMetadata
-from audiometa.test.tests.test_script_helpers import ScriptHelper
+from audiometa.test.tests.script_helpers import Id3v2Helper
 
 
 @pytest.mark.integration
@@ -96,10 +96,8 @@ class TestId3v2Reading:
     def test_wav_with_id3v2_and_id3v1_metadata(self):
         # Create a WAV file with both ID3v2 and ID3v1 metadata
         with TempFileWithMetadata({}, "wav") as test_file:
-            script_helper = ScriptHelper()
-            
             # First, add ID3v2 metadata using the script helper
-            script_helper.set_id3v2_max_metadata(test_file.path)
+            Id3v2Helper.set_max_metadata(test_file.path)
             
             # Then add ID3v1 metadata using the library
             id3v1_metadata = {
