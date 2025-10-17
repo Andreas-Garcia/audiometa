@@ -236,11 +236,6 @@ class Id3v2Manager(MultiEntriesManager):
             UnifiedMetadataKey.COPYRIGHT: self.Id3TextFrame.COPYRIGHT,
             UnifiedMetadataKey.LYRICS: self.Id3TextFrame.LYRICS,
             UnifiedMetadataKey.COMMENT: self.Id3TextFrame.COMMENT,
-            UnifiedMetadataKey.ENCODER: self.Id3TextFrame.ENCODER,
-            UnifiedMetadataKey.URL: self.Id3TextFrame.URL,
-            UnifiedMetadataKey.ISRC: self.Id3TextFrame.ISRC,
-            UnifiedMetadataKey.MOOD: self.Id3TextFrame.MOOD,
-            UnifiedMetadataKey.KEY: self.Id3TextFrame.KEY,
         }
         metadata_keys_direct_map_write: dict = {
             UnifiedMetadataKey.TITLE: self.Id3TextFrame.TITLE,
@@ -258,11 +253,6 @@ class Id3v2Manager(MultiEntriesManager):
             UnifiedMetadataKey.COPYRIGHT: self.Id3TextFrame.COPYRIGHT,
             UnifiedMetadataKey.LYRICS: self.Id3TextFrame.LYRICS,
             UnifiedMetadataKey.COMMENT: self.Id3TextFrame.COMMENT,
-            UnifiedMetadataKey.ENCODER: self.Id3TextFrame.ENCODER,
-            UnifiedMetadataKey.URL: self.Id3TextFrame.URL,
-            UnifiedMetadataKey.ISRC: self.Id3TextFrame.ISRC,
-            UnifiedMetadataKey.MOOD: self.Id3TextFrame.MOOD,
-            UnifiedMetadataKey.KEY: self.Id3TextFrame.KEY,
         }
 
         super().__init__(audio_file=audio_file,
