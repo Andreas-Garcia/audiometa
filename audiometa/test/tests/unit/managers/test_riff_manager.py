@@ -7,6 +7,7 @@ from audiometa import AudioFile
 from audiometa.manager.rating_supporting.RiffManager import RiffManager
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
 @pytest.mark.unit
