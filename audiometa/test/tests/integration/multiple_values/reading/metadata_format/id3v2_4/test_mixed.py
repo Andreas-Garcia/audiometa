@@ -7,7 +7,7 @@ class TestId3v2_4Mixed:
     def test_mixed_single_and_multiple_values(self):
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             test_file.set_id3v2_4_multiple_artists(["Artist 1;Artist 2", "Artist 3", "Artist 4"])
-            verification = test_file.verify_multiple_entries_in_raw_data("TPE1", expected_count=3)
+            verification = test_file.verify_id3v2_4_multiple_entries_in_raw_data("TPE1", expected_count=3)
             
             assert "TPE1=Artist 1;Artist 2 / Artist 3 / Artist 4" in verification['raw_output']
             
