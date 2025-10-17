@@ -422,6 +422,11 @@ class TempFileWithMetadata:
             # Ignore if TPE1 tags don't exist
             pass
         
+        command = ["mid3v2"]
+        command.extend(["--TPE1", artist])
+        command.append(str(self.test_file))
+        self._run_external_tool(command)
+        
     def get_id3v2_4_all_raw_data(self) -> str:
         """Get all raw data from ID3v2.4 using external mid3v2 tool."""
         command = ["mid3v2", "--list", str(self.test_file)]
