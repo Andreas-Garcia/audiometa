@@ -272,10 +272,6 @@ class TempFileWithMetadata:
         
         subprocess.run(cmd, check=True, capture_output=True)
     
-    # =============================================================================
-    # External Tool Operations (previously in script helpers)
-    # =============================================================================
-    
     def _get_scripts_dir(self) -> Path:
         """Get the scripts directory path."""
         return Path(__file__).parent.parent.parent / "data" / "scripts"
