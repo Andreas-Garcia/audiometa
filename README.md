@@ -846,7 +846,7 @@ The library intelligently handles multiple values across different metadata form
 
 Metadata formats can represent multi-value fields in two ways:
 
-**1. Multiple Field Instances (Multi-Frame/Multi-Key)**
+##### Multiple Field Instances (Multi-Frame/Multi-Key)
 
 Each value is stored as a separate instance of the same field or frame.
 
@@ -861,15 +861,36 @@ ARTIST=Artist 3
 - **Advantage**: Clean separation, no parsing ambiguity
 - **Note**: Repeated fields can occur in any format, even when not formally standardized
 
-| Format  | Support    | Official Fields | Unofficial Fields | Notes                                                                           |
-| ------- | ---------- | --------------- | ----------------- | ------------------------------------------------------------------------------- |
-| ID3v1   | ❌ No      | None            | None              | Only one field per tag; repeated fields not allowed                             |
-| ID3v2.3 | ⚠️ Partial | None            | All fields        | Multiple frames allowed technically, but not officially defined for text values |
-| ID3v2.4 | ✅ Yes     | All fields      | All fields        | Supports multiple frames for the same field type                                |
-| RIFF    | ✅ Yes     | None            | All fields        | Duplicate chunks supported; all fields can have multiple instances              |
-| Vorbis  | ✅ Yes     | All fields      | All fields        | Fully supported; repeated field names represent multiple values                 |
+| Format  | Support    | Official Fields         | Unofficial Fields | Notes                                                                           |
+| ------- | ---------- | ----------------------- | ----------------- | ------------------------------------------------------------------------------- |
+| ID3v1   | ❌ No      | None                    | None              | Only one field per tag; repeated fields not allowed                             |
+| ID3v2.3 | ⚠️ Partial | None                    | All fields        | Multiple frames allowed technically, but not officially defined for text values |
+| ID3v2.4 | ✅ Yes     | Multi-value text fields | All other fields  | Supports multiple frames for the same field type                                |
+| RIFF    | ✅ Yes     | None                    | All fields        | Duplicate chunks supported; all fields can have multiple instances              |
+| Vorbis  | ✅ Yes     | Multi-value text fields | All fields        | Allows repeated field names; semantically meaningful for multi-value fields     |
 
-**2. Single field with separated values (separator-based)**
+**Officially Supported Multi-Value Text Fields:**
+
+Both ID3v2.4 and Vorbis Comments specifications officially define semantic meaning for multiple instances of these fields:
+
+| Field Name          | ID3v2.4 Frame | Vorbis Field  | Semantic Meaning                                       |
+| ------------------- | ------------- | ------------- | ------------------------------------------------------ |
+| **Artists**         | `TPE1`        | `ARTIST`      | Multiple artist names for the track                    |
+| **Album Artists**   | `TPE2`        | `ALBUMARTIST` | Multiple album artist names                            |
+| **Composers**       | `TCOM`        | `COMPOSER`    | Multiple composer names                                |
+| **Lyricists**       | `TEXT`        | -             | Multiple lyricist names (ID3v2.4 only)                 |
+| **Conductors**      | `TPE3`        | -             | Multiple conductor names (ID3v2.4 only)                |
+| **Musicians**       | `TMCL`        | -             | Multiple musician credits (ID3v2.4 only)               |
+| **Involved People** | `TIPL`        | -             | Multiple involved people credits (ID3v2.4 only)        |
+| **Performers**      | -             | `PERFORMER`   | Multiple performer names (Vorbis only)                 |
+| **Genres**          | `TCON`        | `GENRE`       | Multiple genre classifications                         |
+| **Comments**        | `COMM`        | `COMMENT`     | Multiple comment entries (with different descriptions) |
+
+- **Comments** (COMM): Multiple comment entries (with different descriptions)
+
+For other field types (track numbers, ratings, titles, etc.), while ID3v2.4 technically allows multiple frames, the specification doesn't define the expected behavior when multiple instances exist.
+
+##### Single field with separated values (separator-based)
 
 All values are stored in one field, separated by a character or delimiter.
 
