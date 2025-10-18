@@ -856,18 +856,19 @@ ARTIST=Artist 2
 ARTIST=Artist 3
 ```
 
-- **Officially supported**: Vorbis Comments (FLAC)
-- **Technically possible**: ID3v2.3, ID3v2.4, RIFF INFO, and even ID3v1
+- **Officially supported**: Vorbis Comments (FLAC), ID3v2.4 (MP3/WAV/FLAC)
+- **Technically possible**: ID3v2.3 (MP3/WAV/FLAC), RIFF INFO (WAV)
+- **Not supported**: ID3v1 (single field per tag only)
 - **Advantage**: Clean separation, no parsing ambiguity
-- **Note**: Repeated fields can occur in any format, even when not formally standardized
+- **Note**: Multiple field instances can occur in most formats, even when not formally standardized
 
-| Format  | Support    | Official Fields         | Unofficial Fields | Notes                                                                           |
-| ------- | ---------- | ----------------------- | ----------------- | ------------------------------------------------------------------------------- |
-| ID3v1   | ❌ No      | None                    | None              | Only one field per tag; repeated fields not allowed                             |
-| ID3v2.3 | ⚠️ Partial | None                    | All fields        | Multiple frames allowed technically, but not officially defined for text values |
-| ID3v2.4 | ✅ Yes     | Multi-value text fields | All other fields  | Supports multiple frames for the same field type                                |
-| RIFF    | ✅ Yes     | None                    | All fields        | Duplicate chunks supported; all fields can have multiple instances              |
-| Vorbis  | ✅ Yes     | Multi-value text fields | All fields        | Allows repeated field names; semantically meaningful for multi-value fields     |
+| Format  | Support | Official Fields         | Unofficial Fields | Notes                                                                           |
+| ------- | ------- | ----------------------- | ----------------- | ------------------------------------------------------------------------------- |
+| ID3v1   | ❌ No   | None                    | None              | Only one field per tag; repeated fields not allowed                             |
+| ID3v2.3 | ✅ Yes  | None                    | All fields        | Multiple frames allowed technically, but not officially defined for text values |
+| ID3v2.4 | ✅ Yes  | Multi-value text fields | All other fields  | Supports multiple frames for the same field type                                |
+| RIFF    | ✅ Yes  | None                    | All fields        | Duplicate chunks supported; all fields can have multiple instances              |
+| Vorbis  | ✅ Yes  | Multi-value text fields | All fields        | Allows repeated field names; semantically meaningful for multi-value fields     |
 
 **Officially Supported Multi-Value Text Fields:**
 
