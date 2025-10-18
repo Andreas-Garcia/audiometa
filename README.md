@@ -19,7 +19,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
 - [Advanced Features](#advanced-features)
   - [Format-Specific Operations](#format-specific-operations)
   - [Writing Strategies](#writing-strategies)
-  - [Multi-Value Fields Support](#multi-value-fields-support)
+  - [Multi-Value Fields Support](#multiple-values)
   - [Genre Handling](#genre-handling)
   - [Rating Profiles](#rating-profiles)
   - [Error Handling](#error-handling)
