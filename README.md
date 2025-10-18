@@ -861,13 +861,13 @@ ARTIST=Artist 3
 - **Advantage**: Clean separation, no parsing ambiguity
 - **Note**: Repeated fields can occur in any format, even when not formally standardized
 
-| Format  | Multi-Field Support | Notes                                                                           |
-| ------- | ------------------- | ------------------------------------------------------------------------------- |
-| ID3v1   | ❌ No               | Only one field per tag; repeated fields not allowed                             |
-| ID3v2.3 | ⚠️ Partial          | Multiple frames allowed technically, but not officially defined for text values |
-| ID3v2.4 | ✅ Yes              | Supports multiple frames and null-separated values                              |
-| RIFF    | ⚠️ Partial          | Duplicate chunks possible, behavior varies by implementation                    |
-| Vorbis  | ✅ Yes              | Fully supported; repeated field names represent multiple values                 |
+| Format  | Support    | Official Fields    | Unofficial Fields  | Notes                                                                           |
+| ------- | ---------- | ------------------ | ------------------ | ------------------------------------------------------------------------------- |
+| ID3v1   | ❌ No      | None               | None               | Only one field per tag; repeated fields not allowed                             |
+| ID3v2.3 | ⚠️ Partial | None               | All text fields    | Multiple frames allowed technically, but not officially defined for text values |
+| ID3v2.4 | ✅ Yes     | All text fields    | All text fields    | Supports multiple frames for the same field type                                |
+| RIFF    | ✅ Yes     | None               | All text fields    | Duplicate chunks supported; all fields can have multiple instances              |
+| Vorbis  | ✅ Yes     | All comment fields | All comment fields | Fully supported; repeated field names represent multiple values                 |
 
 **2. Single field with separated values (separator-based)**
 
