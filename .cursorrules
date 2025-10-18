@@ -243,7 +243,7 @@ def test_id3v1_genre_reading(self):
     with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
         # ❌ Using our own library to set metadata - poor test isolation
         update_file_metadata(test_file.path, {
-            UnifiedMetadataKey.GENRES_NAMES: "Rock"
+            UnifiedMetadataKey.GENRES_NAMES: ["Rock"]
         }, metadata_format=MetadataFormat.ID3V1)
 
         # Testing reading - but we used our own writing logic!
