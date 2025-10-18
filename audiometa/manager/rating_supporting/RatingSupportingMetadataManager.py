@@ -20,14 +20,16 @@ class RatingSupportingMetadataManager(MetadataManager):
                  metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None],
                  rating_write_profile: RatingWriteProfile,
                  normalized_rating_max_value: int | None,
-                 update_using_mutagen_metadata: bool = True):
+                 update_using_mutagen_metadata: bool = True,
+                 supports_native_multi_entries: bool = False):
 
         self.rating_write_profile = rating_write_profile
         self.normalized_rating_max_value = normalized_rating_max_value
         super().__init__(audio_file=audio_file,
                          update_using_mutagen_metadata=update_using_mutagen_metadata,
                          metadata_keys_direct_map_read=metadata_keys_direct_map_read,
-                         metadata_keys_direct_map_write=metadata_keys_direct_map_write)
+                         metadata_keys_direct_map_write=metadata_keys_direct_map_write,
+                         supports_native_multi_entries=supports_native_multi_entries)
 
     @abstractmethod
     def _get_raw_rating_by_traktor_or_not(self, raw_clean_metadata: RawMetadataDict) -> tuple[int | None, bool]:

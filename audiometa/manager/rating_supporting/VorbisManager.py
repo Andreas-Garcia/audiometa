@@ -9,13 +9,13 @@ from ...exceptions import ConfigurationError, FileCorruptedError, InvalidChunkDe
 from ...utils.rating_profiles import RatingWriteProfile
 from ...utils.types import AppMetadataValue, RawMetadataDict, RawMetadataKey
 from ..MetadataManager import UnifiedMetadataKey
-from .MultiEntriesManager import MultiEntriesManager
+from .RatingSupportingMetadataManager import RatingSupportingMetadataManager
 
 
 T = TypeVar('T', str, int)
 
 
-class VorbisManager(MultiEntriesManager):
+class VorbisManager(RatingSupportingMetadataManager):
     """
     Manages Vorbis comments for audio files.
 
@@ -100,7 +100,8 @@ class VorbisManager(MultiEntriesManager):
                          metadata_keys_direct_map_read=metadata_keys_direct_map_read,
                          metadata_keys_direct_map_write=metadata_keys_direct_map_write,
                          rating_write_profile=RatingWriteProfile.BASE_100_PROPORTIONAL,
-                         normalized_rating_max_value=normalized_rating_max_value)
+                         normalized_rating_max_value=normalized_rating_max_value,
+                         supports_native_multi_entries=True)
 
     def _extract_mutagen_metadata(self) -> MutagenMetadata:
         try:

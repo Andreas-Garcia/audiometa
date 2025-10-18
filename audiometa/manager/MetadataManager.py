@@ -31,11 +31,13 @@ class MetadataManager:
     def __init__(self, audio_file: AudioFile,
                  metadata_keys_direct_map_read: dict[UnifiedMetadataKey, RawMetadataKey | None],
                  metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] | None = None,
-                 update_using_mutagen_metadata: bool = True):
+                 update_using_mutagen_metadata: bool = True,
+                 supports_native_multi_entries: bool = False):
         self.audio_file = audio_file
         self.metadata_keys_direct_map_read = metadata_keys_direct_map_read
         self.metadata_keys_direct_map_write = metadata_keys_direct_map_write
         self.update_using_mutagen_metadata = update_using_mutagen_metadata
+        self.supports_native_multi_entries = supports_native_multi_entries
 
     @abstractmethod
     def _extract_mutagen_metadata(self) -> MutagenMetadata:
@@ -72,6 +74,63 @@ class MetadataManager:
         raw_metadata_with_potential_duplicate_keys = \
             self._convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(self.raw_mutagen_metadata)
         return self._extract_and_regroup_raw_metadata_unique_entries(raw_metadata_with_potential_duplicate_keys)
+
+    def _should_apply_smart_parsing(self, values_list_str: list[str]) -> bool:
+        """
+        Determine if smart parsing should be applied based on entry count.
+        
+        Args:
+            values_list_str: List of string values from the metadata
+            
+        Returns:
+            True if parsing should be applied, False otherwise
+        """
+        if not values_list_str:
+            return False
+            
+        # Count non-empty entries
+        non_empty_entries = [val.strip() for val in values_list_str if val.strip()]
+        
+        if len(non_empty_entries) == 0:
+            return False
+            
+        # If we have multiple entries, don't parse (preserve separators)
+        if len(non_empty_entries) > 1:
+            return False
+            
+        # If we have a single entry, parse it (legacy data detection)
+        return True
+
+    def _apply_separator_parsing(self, values_list_str: list[str]) -> list[str]:
+        """
+        Apply separator parsing to split values.
+        
+        Args:
+            values_list_str: List of string values to parse
+            
+        Returns:
+            List of parsed values
+        """
+        if not values_list_str:
+            return []
+            
+        # Get the first non-empty value
+        first_value = next((val.strip() for val in values_list_str if val.strip()), "")
+        if not first_value:
+            return []
+            
+        # Process all separators in sequence (same logic as base MetadataManager)
+        # but only for the single entry (legacy data detection)
+        current_values = [first_value]
+        for separator in METADATA_MULTI_VALUE_SEPARATORS:
+            new_values = []
+            for val in current_values:
+                new_values.extend(val.split(separator))
+            current_values = new_values
+            
+        # Clean up and filter empty values
+        parsed_values = [val.strip() for val in current_values if val.strip()]
+        return parsed_values
 
     def _extract_and_regroup_raw_metadata_unique_entries(
             self, raw_metadata_with_potential_duplicate_keys: RawMetadataDict):
@@ -155,19 +214,31 @@ class MetadataManager:
                 return None
             values_list_str = cast(list[str], value)
             if app_metadata_key.can_semantically_have_multiple_values():
-                values_list_str_with_separated_values_processed: list[str] = []
-                for str_with_potential_separated_values in values_list_str:
-                    # Try each separator in order
-                    current_values = [str_with_potential_separated_values]
-                    for separator in METADATA_MULTI_VALUE_SEPARATORS:
-                        new_values = []
-                        for val in current_values:
-                            new_values.extend(val.split(separator))
-                        current_values = new_values
-                    values_list_str_with_separated_values_processed.extend(
-                        [val.strip() for val in current_values if val.strip()]
-                    )
-                return values_list_str_with_separated_values_processed
+                if self.supports_native_multi_entries:
+                    # Apply smart parsing logic for formats that support native multi-entries
+                    if self._should_apply_smart_parsing(values_list_str):
+                        # Apply parsing for single entry (legacy data detection)
+                        parsed_values = self._apply_separator_parsing(values_list_str)
+                        return parsed_values if parsed_values else None
+                    else:
+                        # No parsing - return as-is but filter empty/whitespace values
+                        filtered_values = [val.strip() for val in values_list_str if val.strip()]
+                        return filtered_values if filtered_values else None
+                else:
+                    # Apply traditional separator parsing for formats without native multi-entry support
+                    values_list_str_with_separated_values_processed: list[str] = []
+                    for str_with_potential_separated_values in values_list_str:
+                        # Try each separator in order
+                        current_values = [str_with_potential_separated_values]
+                        for separator in METADATA_MULTI_VALUE_SEPARATORS:
+                            new_values = []
+                            for val in current_values:
+                                new_values.extend(val.split(separator))
+                            current_values = new_values
+                        values_list_str_with_separated_values_processed.extend(
+                            [val.strip() for val in current_values if val.strip()]
+                        )
+                    return values_list_str_with_separated_values_processed
             return values_list_str
         raise ValueError(f'Unsupported metadata type: {app_metadata_key_optional_type}')
 

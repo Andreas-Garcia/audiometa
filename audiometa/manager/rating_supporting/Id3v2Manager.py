@@ -11,10 +11,10 @@ from ...audio_file import AudioFile
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from ...utils.rating_profiles import RatingWriteProfile
 from ...utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
-from .MultiEntriesManager import MultiEntriesManager
+from .RatingSupportingMetadataManager import RatingSupportingMetadataManager
 
 
-class Id3v2Manager(MultiEntriesManager):
+class Id3v2Manager(RatingSupportingMetadataManager):
     """ID3v2 metadata manager for audio files.
 
     ID3v2 Version Compatibility Table:
@@ -259,7 +259,8 @@ class Id3v2Manager(MultiEntriesManager):
                          metadata_keys_direct_map_read=metadata_keys_direct_map_read,
                          metadata_keys_direct_map_write=metadata_keys_direct_map_write,
                          rating_write_profile=RatingWriteProfile.BASE_255_NON_PROPORTIONAL,
-                         normalized_rating_max_value=normalized_rating_max_value)
+                         normalized_rating_max_value=normalized_rating_max_value,
+                         supports_native_multi_entries=True)
 
     def _extract_mutagen_metadata(self) -> MutagenMetadata:
         try:
@@ -345,7 +346,14 @@ class Id3v2Manager(MultiEntriesManager):
     def _update_formatted_value_in_raw_mutagen_metadata(self, raw_mutagen_metadata: RawMetadataDict,
                                                         raw_metadata_key: RawMetadataKey,
                                                         app_metadata_value: AppMetadataValue):
-        # Handle multiple values by concatenating with separators (ID3v2 limitation)
+        raw_mutagen_metadata_id3: ID3 = cast(ID3, raw_mutagen_metadata)
+        raw_mutagen_metadata_id3.delall(raw_metadata_key)
+        
+        # If value is None, don't add any frames (field is removed)
+        if app_metadata_value is None:
+            return
+        
+        # Handle multiple values by creating separate frames for multi-value fields
         if (isinstance(app_metadata_value, list) and 
             all(isinstance(item, str) for item in app_metadata_value)):
             
@@ -357,8 +365,14 @@ class Id3v2Manager(MultiEntriesManager):
                     break
                     
             if app_metadata_key and app_metadata_key.can_semantically_have_multiple_values():
-                # For ID3v2, concatenate multiple values with separators
-                # Use the same separator priority as the reading logic
+                # For ID3v2, create separate frames for each value (native multi-entry support)
+                text_frame_class = self.ID3_TEXT_FRAME_CLASS_MAP[raw_metadata_key]
+                for value in app_metadata_value:
+                    if value is not None and value != "":
+                        self._add_id3_frame(raw_mutagen_metadata_id3, text_frame_class, raw_metadata_key, value)
+                return
+            else:
+                # For non-multi-value fields, concatenate with separators as fallback
                 from ..MetadataManager import METADATA_MULTI_VALUE_SEPARATORS
                 
                 # Find a separator that doesn't appear in any of the values
@@ -373,54 +387,14 @@ class Id3v2Manager(MultiEntriesManager):
                     separator = METADATA_MULTI_VALUE_SEPARATORS[-1]
                 
                 # Concatenate values
-                concatenated_value = separator.join(app_metadata_value)
-                app_metadata_value = concatenated_value
+                app_metadata_value = separator.join(app_metadata_value)
         
-        # Handle single values with the original logic
-        raw_mutagen_metadata_id3: ID3 = cast(ID3, raw_mutagen_metadata)
-        raw_mutagen_metadata_id3.delall(raw_metadata_key)
-        
-        # If value is None, don't add any frames (field is removed)
-        if app_metadata_value is None:
-            return
-            
+        # Handle single values
         text_frame_class = self.ID3_TEXT_FRAME_CLASS_MAP[raw_metadata_key]
+        self._add_id3_frame(raw_mutagen_metadata_id3, text_frame_class, raw_metadata_key, app_metadata_value)
 
-        if raw_metadata_key == self.Id3TextFrame.RATING:
-            raw_mutagen_metadata_id3.add(text_frame_class(email=self.ID3_RATING_APP_EMAIL, rating=app_metadata_value))
-        elif raw_metadata_key == self.Id3TextFrame.COMMENT:
-            # Handle COMM frames (comment frames)
-            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, lang='eng', desc='', text=app_metadata_value))
-        elif raw_metadata_key == self.Id3TextFrame.LYRICS:
-            # Handle USLT frames (unsynchronized lyrics frames)
-            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, lang='eng', desc='', text=app_metadata_value))
-        elif raw_metadata_key == self.Id3TextFrame.URL:
-            # Handle WOAR frames (official artist/performer webpage)
-            raw_mutagen_metadata_id3.add(text_frame_class(url=app_metadata_value))
-        elif raw_metadata_key == self.Id3TextFrame.BPM:
-            # Handle TBPM frames (BPM must be a string)
-            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=str(app_metadata_value)))
-        elif raw_metadata_key == self.Id3TextFrame.TRACK_NUMBER:
-            # Handle TRCK frames (track number must be a string)
-            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=str(app_metadata_value)))
-        else:
-            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=app_metadata_value))
-
-    def _add_single_formatted_value_in_raw_mutagen_metadata(self, raw_mutagen_metadata: MutagenMetadata,
-                                                          raw_metadata_key: RawMetadataKey,
-                                                          app_metadata_value: str):
-        """
-        Add a single formatted value to raw mutagen metadata without deleting existing ones.
-        This is used for adding multiple entries of the same type.
-        
-        Args:
-            raw_mutagen_metadata: The raw mutagen metadata object
-            raw_metadata_key: The raw metadata key
-            app_metadata_value: The single value to add
-        """
-        raw_mutagen_metadata_id3: ID3 = cast(ID3, raw_mutagen_metadata)
-        text_frame_class = self.ID3_TEXT_FRAME_CLASS_MAP[raw_metadata_key]
-
+    def _add_id3_frame(self, raw_mutagen_metadata_id3: ID3, text_frame_class, raw_metadata_key: RawMetadataKey, app_metadata_value: AppMetadataValue):
+        """Add a single ID3 frame with proper encoding and format handling."""
         if raw_metadata_key == self.Id3TextFrame.RATING:
             raw_mutagen_metadata_id3.add(text_frame_class(email=self.ID3_RATING_APP_EMAIL, rating=app_metadata_value))
         elif raw_metadata_key == self.Id3TextFrame.COMMENT:

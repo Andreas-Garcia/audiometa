@@ -80,7 +80,8 @@ class Id3v1Manager(MetadataManager):
             audio_file=audio_file, 
             metadata_keys_direct_map_read=metadata_keys_direct_map_read,
             metadata_keys_direct_map_write=metadata_keys_direct_map_write,
-            update_using_mutagen_metadata=False  # Use direct file manipulation for ID3v1
+            update_using_mutagen_metadata=False,  # Use direct file manipulation for ID3v1
+            supports_native_multi_entries=False  # ID3v1 doesn't support multiple entries
         )
 
     def _extract_mutagen_metadata(self) -> Id3v1RawMetadata:
