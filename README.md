@@ -842,26 +842,69 @@ update_file_metadata("song.wav", {"title": "New Title"},
 
 The library intelligently handles multiple values across different metadata formats, automatically choosing the best approach for each situation.
 
-#### Supported Multi-Value Fields
+#### Ways to handle multiple values
 
-The following multi-value support details by format:
+Metadata formats can represent multi-value fields in two ways:
 
-| Format  | Multi-Value Support                       | Separator | Notes                                                          |
-| ------- | ----------------------------------------- | --------- | -------------------------------------------------------------- |
-| ID3v1   | ❌ No                                     | /, ;, ,   | One field only; multi-values must be concatenated.             |
-| ID3v2.3 | ⚠️ Partial (unofficial for text values)   | /, ;      | Multiple TPE1 etc. frames possible; not universally supported. |
-| ID3v2.4 | ✅ Yes (null-separated + multiple frames) | /, ;      | Spec defines multi-values via \0; multiple frames also valid.  |
-| RIFF    | ⚠️ Partial (implementation dependent)     | /, ;      | Not standardized; depends on implementation.                   |
-| Vorbis  | ✅ Yes (repeated keys allowed)            | rare      | Spec allows multiple identical fields (e.g., ARTIST=...).      |
+**1. Multiple Field Instances (Multi-Frame/Multi-Key)**
+
+Each value is stored as a separate instance of the same field or frame.
+
+```
+ARTIST=Artist 1
+ARTIST=Artist 2
+ARTIST=Artist 3
+```
+
+- **Officially supported**: Vorbis Comments (FLAC)
+- **Technically possible**: ID3v2.3, ID3v2.4, RIFF INFO, and even ID3v1
+- **Advantage**: Clean separation, no parsing ambiguity
+- **Note**: Repeated fields can occur in any format, even when not formally standardized
+
+| Format  | Multi-Field / Multi-Frame Support | Notes                                                                           |
+| ------- | --------------------------------- | ------------------------------------------------------------------------------- |
+| ID3v1   | ❌ No                             | Only one field per tag; repeated fields not allowed                             |
+| ID3v2.3 | ⚠️ Partial                        | Multiple frames allowed technically, but not officially defined for text values |
+| ID3v2.4 | ✅ Yes                            | Supports multiple frames and null-separated values                              |
+| RIFF    | ⚠️ Partial                        | Duplicate chunks possible, behavior varies by implementation                    |
+| Vorbis  | ✅ Yes                            | Fully supported; repeated field names represent multiple values                 |
+
+**2. Single field with separated values (separator-based)**
+
+All values are stored in one field, separated by a character or delimiter.
+
+Example:
+
+```
+ARTIST=Artist 1; Artist 2
+```
+
+- Used when repeated fields aren’t officially supported, though repeated fields could still occur in these formats.
+- In ID3v2.4, the official separator is a null byte (\0).
+
+| Format  | Separator(s)  | Notes                                                                          |
+| ------- | ------------- | ------------------------------------------------------------------------------ |
+| ID3v1   | `/`, `;`, `,` | Single field only; multi-values concatenated with separator                    |
+| ID3v2.3 | `/`, `;`      | Uses single frame with separators (spec limitation)                            |
+| ID3v2.4 | `/`, `;`      | Null-separated values preferred; separators allowed for backward compatibility |
+| RIFF    | `/`, `;`      | Not standardized; concatenation varies by implementation                       |
+| Vorbis  | rarely needed | Native repeated fields make separators mostly unnecessary                      |
+
+**AudioMeta Library Behavior:**
+
+- **Reading**: Automatically detects and parses both formats using smart separator logic
+- **Writing**: Uses multiple field instances for modern formats (Vorbis, ID3v2.4), separator-based for legacy formats
+- **Separator Priority**: `//` → `\\` → `;` → `\` → `/` → `,` (chooses first separator not present in values)
 
 **Legend:**
 
 - ✅ = Multiple entries supported (best practice)
-- ✅\* = Separator-based parsing only (legacy limitation)
+- ⚠️ = Partial support with limitations
+- ❌ = No support (single value only)
 
 **ID3v2 Version Differences:**
 
-- **ID3v2.3**: Uses concatenation with separators (✅\*) - specification limitation
+- **ID3v2.3**: Uses concatenation with separators (⚠️) - specification limitation
 - **ID3v2.4**: Uses multiple separate frames (✅) - specification feature
 
 #### Reading Multiple Values
