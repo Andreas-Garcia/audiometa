@@ -197,7 +197,7 @@ def get_merged_unified_metadata(
     return result
 
 
-def get_specific_metadata(file: FILE_TYPE, app_metadata_key: UnifiedMetadataKey, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None) -> AppMetadataValue:
+def get_specific_metadata(file: FILE_TYPE, app_metadata_key: UnifiedMetadataKey, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None, metadata_format: MetadataFormat | None = None) -> AppMetadataValue:
     """
     Get a specific metadata field from an audio file.
     
@@ -208,13 +208,17 @@ def get_specific_metadata(file: FILE_TYPE, app_metadata_key: UnifiedMetadataKey,
             Only used when app_metadata_key is RATING. For other metadata fields,
             this parameter is ignored. Defaults to None (no normalization).
         id3v2_version: ID3v2 version tuple for ID3v2-specific operations
+        metadata_format: Specific metadata format to read from. If None, uses priority order.
         
     Returns:
         The metadata value or None if not found
         
     Examples:
-        # Get title (normalized_rating_max_value ignored)
+        # Get title from any format (priority order)
         title = get_specific_metadata("song.mp3", UnifiedMetadataKey.TITLE)
+        
+        # Get title specifically from ID3v2
+        title = get_specific_metadata("song.mp3", UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V2)
         
         # Get rating without normalization
         rating = get_specific_metadata("song.mp3", UnifiedMetadataKey.RATING)
@@ -225,19 +229,28 @@ def get_specific_metadata(file: FILE_TYPE, app_metadata_key: UnifiedMetadataKey,
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
 
-    managers_prioritized = _get_metadata_managers(file=file, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
-    
-    # Try each manager in priority order until we find a value
-    for _, manager in managers_prioritized.items():
+    if metadata_format is not None:
+        # Get metadata from specific format
+        manager = _get_metadata_manager(file=file, tag_format=metadata_format, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
         try:
-            value = manager.get_app_specific_metadata(app_metadata_key=app_metadata_key)
-            if value is not None:
-                return value
+            return manager.get_app_specific_metadata(app_metadata_key=app_metadata_key)
         except Exception:
-            # If this manager doesn't support the key or fails, try the next one
-            continue
-    
-    return None
+            return None
+    else:
+        # Use priority order across all formats
+        managers_prioritized = _get_metadata_managers(file=file, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
+        
+        # Try each manager in priority order until we find a value
+        for _, manager in managers_prioritized.items():
+            try:
+                value = manager.get_app_specific_metadata(app_metadata_key=app_metadata_key)
+                if value is not None:
+                    return value
+            except Exception:
+                # If this manager doesn't support the key or fails, try the next one
+                continue
+        
+        return None
 
 
 def _check_unsupported_fields(app_metadata: AppMetadata, all_managers: dict[MetadataFormat, MetadataManager]) -> list[UnifiedMetadataKey]:

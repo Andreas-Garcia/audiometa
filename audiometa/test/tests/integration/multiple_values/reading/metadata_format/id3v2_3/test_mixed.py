@@ -1,4 +1,4 @@
-from audiometa import get_merged_unified_metadata, get_specific_metadata, update_file_metadata
+from audiometa import get_specific_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -7,7 +7,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 class TestId3v23Mixed:
     def test_mixed_single_and_multiple_values(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            test_file.set_id3v2_multiple_artists(["Artist 1;Artist 2", "Artist 3", "Artist 4"], version="2.3")
+            test_file.set_id3v2_multiple_artists(["Artist 1;Artist 2", "Artist 3", "Artist 4"])
             verification = test_file.verify_id3v2_multiple_entries_in_raw_data("TPE1", expected_count=3)
             
             assert "TPE1" in verification['raw_output'] 
@@ -15,7 +15,7 @@ class TestId3v23Mixed:
             assert "Artist 3" in verification['raw_output']
             assert "Artist 4" in verification['raw_output']
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
             assert isinstance(artists, list)
             assert len(artists) == 3
             assert "Artist 1;Artist 2" in artists
@@ -24,9 +24,9 @@ class TestId3v23Mixed:
 
     def test_mixed_genres_no_parsing(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            test_file.set_id3v2_multiple_genres(["Rock;Alternative", "Indie", "Electronic"], version="2.3")
+            test_file.set_id3v2_multiple_genres(["Rock;Alternative", "Indie", "Electronic"])
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES, metadata_format=MetadataFormat.ID3V2)
             assert isinstance(genres, list)
             assert len(genres) == 3
             assert "Rock;Alternative" in genres
@@ -35,9 +35,9 @@ class TestId3v23Mixed:
 
     def test_mixed_composers_preserves_separators(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            test_file.set_id3v2_multiple_composers(["John Doe;Jane Smith", "Bob Wilson", "Alice Cooper"], version="2.3")
+            test_file.set_id3v2_multiple_composers(["John Doe;Jane Smith", "Bob Wilson", "Alice Cooper"])
             
-            composers = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMPOSER)
+            composers = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMPOSER, metadata_format=MetadataFormat.ID3V2)
             assert isinstance(composers, list)
             assert len(composers) == 3
             assert "John Doe;Jane Smith" in composers
