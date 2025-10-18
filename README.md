@@ -948,9 +948,15 @@ The library then processes each field based on its semantic classification:
   - ✅ Preserves separators within individual entries
 
 - **Single instance found**: Applies smart separator parsing
+
   - Raw data: `["Artist One;Artist Two;Artist Three"]`
   - Result: `["Artist One", "Artist Two", "Artist Three"]`
   - ✅ Parses concatenated values using separator detection
+
+- **Mixed instances found**: Uses all instances as-is (no separator parsing)
+  - Raw data: `["Artist One", "Artist Two;Artist Three", "Artist Four"]`
+  - Result: `["Artist One", "Artist Two;Artist Three", "Artist Four"]`
+  - ✅ Preserves all entries exactly as found, including separators within values
 
 **Format-Specific Behavior:**
 
