@@ -844,17 +844,15 @@ The library intelligently handles multiple values across different metadata form
 
 #### Supported Multi-Value Fields
 
-The following fields support semantic multiple values:
+The following multi-value support details by format:
 
-| Field                     | ID3v2.3 (MP3) | ID3v2.4 (MP3) | Vorbis (FLAC) | RIFF (WAV) | ID3v1 |
-| ------------------------- | ------------- | ------------- | ------------- | ---------- | ----- |
-| **`ARTISTS_NAMES`**       | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
-| **`ALBUM_ARTISTS_NAMES`** | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
-| **`GENRES_NAMES`**        | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
-| **`COMPOSER`**            | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
-| **`MUSICIANS`**           | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
-| **`CONDUCTOR`**           | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
-| **`ARRANGER`**            | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
+| Format  | Multi-Value Support                       | Separator | Notes                                                          |
+| ------- | ----------------------------------------- | --------- | -------------------------------------------------------------- |
+| ID3v1   | ❌ No                                     | /, ;, ,   | One field only; multi-values must be concatenated.             |
+| ID3v2.3 | ⚠️ Partial (unofficial for text values)   | /, ;      | Multiple TPE1 etc. frames possible; not universally supported. |
+| ID3v2.4 | ✅ Yes (null-separated + multiple frames) | /, ;      | Spec defines multi-values via \0; multiple frames also valid.  |
+| RIFF    | ⚠️ Partial (implementation dependent)     | /, ;      | Not standardized; depends on implementation.                   |
+| Vorbis  | ✅ Yes (repeated keys allowed)            | rare      | Spec allows multiple identical fields (e.g., ARTIST=...).      |
 
 **Legend:**
 
