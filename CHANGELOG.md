@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Enhanced `get_specific_metadata` API**: Added optional `metadata_format` parameter to query specific formats
+- Format-specific metadata retrieval without extracting from dictionaries
 - **ID3v1 writing support**: ID3v1 metadata can now be written and modified (previously read-only)
 - Direct file manipulation for ID3v1 tags using 128-byte structure
 - ID3v1 field truncation and validation (30-character limits for text fields)
@@ -22,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Architecture simplification**: Removed MultiEntriesManager layer and integrated smart parsing into base MetadataManager
+- Systematic smart parsing behavior for all semantically multi-value fields
 - **ID3v1 is no longer read-only**: Full read/write support with direct file manipulation
 - ID3v1 now supports all metadata writing strategies (SYNC, PRESERVE, CLEANUP)
 - ID3v1 field mapping updated to use RELEASE_DATE instead of YEAR

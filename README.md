@@ -470,15 +470,19 @@ id3v2_metadata = get_single_format_app_metadata("song.mp3", MetadataFormat.ID3V2
 vorbis_metadata = get_single_format_app_metadata("song.flac", MetadataFormat.VORBIS)
 ```
 
-#### `get_specific_metadata(file_path, field)`
+#### `get_specific_metadata(file_path, field, metadata_format=None)`
 
-Reads a specific metadata field.
+Reads a specific metadata field. If `metadata_format` is specified, reads only from that format; otherwise uses priority order across all formats.
 
 ```python
 from audiometa import get_specific_metadata, UnifiedMetadataKey
+from audiometa.utils.MetadataFormat import MetadataFormat
 
+# Get title using priority order (all formats)
 title = get_specific_metadata("song.mp3", UnifiedMetadataKey.TITLE)
-rating = get_specific_metadata("song.mp3", UnifiedMetadataKey.RATING)
+
+# Get rating from specific format only
+id3v2_rating = get_specific_metadata("song.mp3", UnifiedMetadataKey.RATING, metadata_format=MetadataFormat.ID3V2)
 ```
 
 #### `get_full_metadata(file_path, include_headers=True, include_technical=True)`
@@ -784,16 +788,18 @@ print(f"Title: {metadata.get('title', 'Unknown')}")
 #### Reading from Specific Formats
 
 ```python
-from audiometa import get_single_format_app_metadata, MetadataFormat
+from audiometa import get_single_format_app_metadata, get_specific_metadata, UnifiedMetadataKey
+from audiometa.utils.MetadataFormat import MetadataFormat
 
-# Read only ID3v2 metadata
+# Get complete metadata from specific format
 id3v2_metadata = get_single_format_app_metadata("song.mp3", MetadataFormat.ID3V2)
-
-# Read only Vorbis metadata
 vorbis_metadata = get_single_format_app_metadata("song.flac", MetadataFormat.VORBIS)
-
-# Read only RIFF metadata
 riff_metadata = get_single_format_app_metadata("song.wav", MetadataFormat.RIFF)
+
+# Get specific field from specific format
+id3v2_title = get_specific_metadata("song.mp3", UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V2)
+vorbis_artist = get_specific_metadata("song.flac", UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.VORBIS)
+riff_rating = get_specific_metadata("song.wav", UnifiedMetadataKey.RATING, metadata_format=MetadataFormat.RIFF)
 ```
 
 #### Writing to Specific Formats
