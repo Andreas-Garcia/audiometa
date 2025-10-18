@@ -243,12 +243,12 @@ def test_id3v1_genre_reading(self):
     with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
         # ❌ Using our own library to set metadata - poor test isolation
         update_file_metadata(test_file.path, {
-            UnifiedMetadataKey.GENRE_NAME: "Rock"
+            UnifiedMetadataKey.GENRES_NAMES: "Rock"
         }, metadata_format=MetadataFormat.ID3V1)
 
         # Testing reading - but we used our own writing logic!
         metadata = get_merged_unified_metadata(test_file.path)
-        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == ["Rock"]
+        assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
 
 def test_delete_lyrics_id3v2(self):
     with TempFileWithMetadata({}, "mp3") as test_file:
@@ -270,7 +270,7 @@ def test_id3v1_genre_reading(self):
 
         # Now test reading with external verification
         metadata = get_merged_unified_metadata(test_file.path)
-        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == ["Blues"]
+        assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Blues"]
 
 def test_delete_lyrics_id3v2(self):
     with TempFileWithMetadata({}, "mp3") as test_file:
@@ -289,7 +289,7 @@ def test_id3v1_genre_reading(self):
     # ✅ TempFileWithMetadata uses external tools internally
     with TempFileWithMetadata({"genre": "Rock"}, "id3v1") as test_file:
         metadata = get_merged_unified_metadata(test_file.path)
-        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == ["Rock"]
+        assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
 ```
 
 #### Available TempFileWithMetadata Methods
