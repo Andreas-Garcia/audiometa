@@ -100,8 +100,7 @@ class VorbisManager(RatingSupportingMetadataManager):
                          metadata_keys_direct_map_read=metadata_keys_direct_map_read,
                          metadata_keys_direct_map_write=metadata_keys_direct_map_write,
                          rating_write_profile=RatingWriteProfile.BASE_100_PROPORTIONAL,
-                         normalized_rating_max_value=normalized_rating_max_value,
-                         supports_native_multi_entries=True)
+                         normalized_rating_max_value=normalized_rating_max_value)
 
     def _extract_mutagen_metadata(self) -> MutagenMetadata:
         try:

@@ -31,13 +31,11 @@ class MetadataManager:
     def __init__(self, audio_file: AudioFile,
                  metadata_keys_direct_map_read: dict[UnifiedMetadataKey, RawMetadataKey | None],
                  metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] | None = None,
-                 update_using_mutagen_metadata: bool = True,
-                 supports_native_multi_entries: bool = False):
+                 update_using_mutagen_metadata: bool = True):
         self.audio_file = audio_file
         self.metadata_keys_direct_map_read = metadata_keys_direct_map_read
         self.metadata_keys_direct_map_write = metadata_keys_direct_map_write
         self.update_using_mutagen_metadata = update_using_mutagen_metadata
-        self.supports_native_multi_entries = supports_native_multi_entries
 
     @abstractmethod
     def _extract_mutagen_metadata(self) -> MutagenMetadata:
@@ -214,31 +212,15 @@ class MetadataManager:
                 return None
             values_list_str = cast(list[str], value)
             if app_metadata_key.can_semantically_have_multiple_values():
-                if self.supports_native_multi_entries:
-                    # Apply smart parsing logic for formats that support native multi-entries
-                    if self._should_apply_smart_parsing(values_list_str):
-                        # Apply parsing for single entry (legacy data detection)
-                        parsed_values = self._apply_separator_parsing(values_list_str)
-                        return parsed_values if parsed_values else None
-                    else:
-                        # No parsing - return as-is but filter empty/whitespace values
-                        filtered_values = [val.strip() for val in values_list_str if val.strip()]
-                        return filtered_values if filtered_values else None
+                # Apply smart parsing logic for semantically multi-value fields
+                if self._should_apply_smart_parsing(values_list_str):
+                    # Apply parsing for single entry (legacy data detection)
+                    parsed_values = self._apply_separator_parsing(values_list_str)
+                    return parsed_values if parsed_values else None
                 else:
-                    # Apply traditional separator parsing for formats without native multi-entry support
-                    values_list_str_with_separated_values_processed: list[str] = []
-                    for str_with_potential_separated_values in values_list_str:
-                        # Try each separator in order
-                        current_values = [str_with_potential_separated_values]
-                        for separator in METADATA_MULTI_VALUE_SEPARATORS:
-                            new_values = []
-                            for val in current_values:
-                                new_values.extend(val.split(separator))
-                            current_values = new_values
-                        values_list_str_with_separated_values_processed.extend(
-                            [val.strip() for val in current_values if val.strip()]
-                        )
-                    return values_list_str_with_separated_values_processed
+                    # No parsing - return as-is but filter empty/whitespace values
+                    filtered_values = [val.strip() for val in values_list_str if val.strip()]
+                    return filtered_values if filtered_values else None
             return values_list_str
         raise ValueError(f'Unsupported metadata type: {app_metadata_key_optional_type}')
 

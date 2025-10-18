@@ -123,8 +123,7 @@ class RiffManager(RatingSupportingMetadataManager):
                          metadata_keys_direct_map_write=metadata_keys_direct_map_write,
                          rating_write_profile=RatingWriteProfile.BASE_100_PROPORTIONAL,
                          normalized_rating_max_value=normalized_rating_max_value,
-                         update_using_mutagen_metadata=False,
-                         supports_native_multi_entries=False)
+                         update_using_mutagen_metadata=False)
 
     def _skip_id3v2_tags(self, data: bytes) -> bytes:
         """
