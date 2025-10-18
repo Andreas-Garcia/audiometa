@@ -939,7 +939,7 @@ The library then processes each field based on its semantic classification:
 - **Always takes the first value only**, regardless of format or number of instances
 - Example: `["Main Title", "Alternative Title"]` → Returns: `"Main Title"`
 
-**For Semantic Multi-Value Fields** (semantically multi-value: `ARTISTS_NAMES`, `GENRES_NAMES`, `COMPOSER`, etc.):
+**For Semantic Multi-Value Fields** (semantically multi-value: `ARTISTS_NAMES`, `ALBUM_ARTISTS_NAMES`, `GENRES_NAMES`, `COMPOSER`, `MUSICIANS`, `CONDUCTOR`, `ARRANGER`, `LYRICIST`, `INVOLVED_PEOPLE`, `PERFORMERS`):
 
 - **Multiple instances found**: Uses all instances as-is (no separator parsing)
 
@@ -1195,13 +1195,22 @@ The library automatically classifies fields based on their **semantic meaning**:
 
 **Multi-Value Fields** (semantically represent multiple values, return lists):
 
-- `ARTISTS_NAMES`
-- `ALBUM_ARTISTS_NAMES`
-- `GENRES_NAMES`
-- `COMPOSER`
-- `MUSICIANS`
-- `CONDUCTOR`
-- `ARRANGER`
+**Official Specification Support:**
+
+- `ARTISTS_NAMES` - Multiple artist names for the track
+- `ALBUM_ARTISTS_NAMES` - Multiple album artist names
+- `GENRES_NAMES` - Multiple genre classifications
+- `COMPOSER` - Multiple composer names
+- `MUSICIANS` - Multiple musician credits (ID3v2.4)
+- `CONDUCTOR` - Multiple conductor names (ID3v2.4)
+- `ARRANGER` - Multiple arranger names
+- `LYRICIST` - Multiple lyricist names (ID3v2.4)
+- `INVOLVED_PEOPLE` - Multiple involved people credits (ID3v2.4)
+- `PERFORMERS` - Multiple performer names (Vorbis)
+
+**AudioMeta Extended Support:**
+
+- `COMMENTS` - Multiple comment entries (with different descriptions)
 
 #### Why This Behavior?
 
