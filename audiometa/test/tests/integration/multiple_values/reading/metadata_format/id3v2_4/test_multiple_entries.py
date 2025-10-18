@@ -15,7 +15,7 @@ class TestId3v2_4MultipleEntries:
             # Verify the single TPE1 entry contains all artists with proper separation
             assert "TPE1=Artist One / Artist Two / Artist Three" in verification['raw_output']
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
             
             assert isinstance(artists, list)
             assert len(artists) == 3

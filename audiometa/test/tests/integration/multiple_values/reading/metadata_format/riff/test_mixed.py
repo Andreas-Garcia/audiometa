@@ -15,7 +15,7 @@ class TestRiffMixed:
             assert "Artist 3" in verification['raw_output']
             assert "Artist 4" in verification['raw_output']
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.RIFF)
             assert isinstance(artists, list)
             assert len(artists) == 3
             assert "Artist 1;Artist 2" in artists
@@ -26,7 +26,7 @@ class TestRiffMixed:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             test_file.set_riff_multiple_genres(["Rock;Alternative", "Indie", "Electronic"])
             
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES, metadata_format=MetadataFormat.RIFF)
             assert isinstance(genres, list)
             assert len(genres) == 3
             assert "Rock;Alternative" in genres
@@ -37,7 +37,7 @@ class TestRiffMixed:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             test_file.set_riff_multiple_composers(["John Doe;Jane Smith", "Bob Wilson", "Alice Cooper"])
             
-            composers = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMPOSER)
+            composers = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMPOSER, metadata_format=MetadataFormat.RIFF)
             assert isinstance(composers, list)
             assert len(composers) == 3
             assert "John Doe;Jane Smith" in composers
@@ -48,7 +48,7 @@ class TestRiffMixed:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             test_file.set_riff_multiple_album_artists(["Various;Artists", "Compilation", "Mixed Artists"])
             
-            album_artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ALBUM_ARTISTS_NAMES)
+            album_artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ALBUM_ARTISTS_NAMES, metadata_format=MetadataFormat.RIFF)
             assert isinstance(album_artists, list)
             assert len(album_artists) == 3
             assert "Various;Artists" in album_artists

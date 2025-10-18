@@ -14,7 +14,7 @@ class TestVorbisMixed:
             assert "ARTIST=Artist 3" in verification['raw_output']
             assert "ARTIST=Artist 4" in verification['raw_output']
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.VORBIS)
             assert isinstance(artists, list)
             assert len(artists) == 3
             assert "Artist 1;Artist 2" in artists

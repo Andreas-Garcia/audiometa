@@ -1,6 +1,7 @@
 import pytest
 
 from audiometa import get_merged_unified_metadata, get_specific_metadata
+from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
@@ -14,7 +15,7 @@ class TestId3v2_4Separators:
             
             assert "TPE1=Artist One;Artist Two;Artist Three" in verification['raw_output']
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
             
             assert isinstance(artists, list)
             assert len(artists) == 3
