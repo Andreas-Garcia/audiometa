@@ -6,7 +6,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 class TestId3v23Mixed:
     def test_mixed_single_and_multiple_values(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
+        with TempFileWithMetadata({"title": "Test Song"}, "id3v2.3") as test_file:
             test_file.set_id3v2_multiple_artists(["Artist 1;Artist 2", "Artist 3", "Artist 4"])
             verification = test_file.verify_id3v2_multiple_entries_in_raw_data("TPE1", expected_count=3)
             
@@ -23,7 +23,7 @@ class TestId3v23Mixed:
             assert "Artist 4" in artists
 
     def test_mixed_genres_no_parsing(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
+        with TempFileWithMetadata({"title": "Test Song"}, "id3v2.3") as test_file:
             test_file.set_id3v2_multiple_genres(["Rock;Alternative", "Indie", "Electronic"])
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES, metadata_format=MetadataFormat.ID3V2)
@@ -34,7 +34,7 @@ class TestId3v23Mixed:
             assert "Electronic" in genres
 
     def test_mixed_composers_preserves_separators(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
+        with TempFileWithMetadata({"title": "Test Song"}, "id3v2.3") as test_file:
             test_file.set_id3v2_multiple_composers(["John Doe;Jane Smith", "Bob Wilson", "Alice Cooper"])
             
             composers = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMPOSER, metadata_format=MetadataFormat.ID3V2)
