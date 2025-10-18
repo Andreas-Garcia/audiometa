@@ -11,7 +11,7 @@ class TestMultipleEntriesId3v2_3:
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two", "Artist Three"]
         }
         
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2_3)
+        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
         
         unified_metadata = get_merged_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -28,10 +28,10 @@ class TestMultipleEntriesId3v2_3:
             UnifiedMetadataKey.ARTISTS_NAMES: ["Primary Artist", "Secondary Artist", "Featured Artist"]
         }
         
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2_3)
+        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
         
         # Read back using ID3v2.3 specific function
-        id3v2_metadata = get_single_format_app_metadata(temp_audio_file, MetadataFormat.ID3V2_3)
+        id3v2_metadata = get_single_format_app_metadata(temp_audio_file, MetadataFormat.ID3V2)
         artists = id3v2_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
         
         assert isinstance(artists, list)
@@ -45,7 +45,7 @@ class TestMultipleEntriesId3v2_3:
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: ["Album Artist One", "Album Artist Two"]
         }
         
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2_3)
+        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
         
         unified_metadata = get_merged_unified_metadata(temp_audio_file)
         album_artists = unified_metadata.get(UnifiedMetadataKey.ALBUM_ARTISTS_NAMES)
@@ -60,7 +60,7 @@ class TestMultipleEntriesId3v2_3:
             UnifiedMetadataKey.COMPOSER: ["Composer A", "Composer B", "Composer C"]
         }
         
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2_3)
+        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
         
         unified_metadata = get_merged_unified_metadata(temp_audio_file)
         composers = unified_metadata.get(UnifiedMetadataKey.COMPOSER)
@@ -81,7 +81,7 @@ class TestMultipleEntriesId3v2_3:
             UnifiedMetadataKey.COMPOSER: ["Composer 1", "Composer 2", "Composer 3"]  # Multiple values
         }
         
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2_3)
+        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
         
         unified_metadata = get_merged_unified_metadata(temp_audio_file)
         
@@ -108,7 +108,7 @@ class TestMultipleEntriesId3v2_3:
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"]
         }
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2_3)
+        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
         
         # Verify it was written
         unified_metadata = get_merged_unified_metadata(temp_audio_file)
@@ -118,7 +118,7 @@ class TestMultipleEntriesId3v2_3:
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: []
         }
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2_3)
+        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
         
         # Verify field was removed
         unified_metadata = get_merged_unified_metadata(temp_audio_file)
@@ -129,7 +129,7 @@ class TestMultipleEntriesId3v2_3:
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"]
         }
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2_3)
+        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
         
         # Verify it was written
         unified_metadata = get_merged_unified_metadata(temp_audio_file)
@@ -139,7 +139,7 @@ class TestMultipleEntriesId3v2_3:
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: None
         }
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2_3)
+        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
         
         # Verify field was removed
         unified_metadata = get_merged_unified_metadata(temp_audio_file)
@@ -154,7 +154,7 @@ class TestMultipleEntriesId3v2_3:
             UnifiedMetadataKey.RELEASE_DATE: "2023"
         }
         
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2_3)
+        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
         
         # Verify the metadata was written correctly
         unified_metadata = get_merged_unified_metadata(temp_audio_file)

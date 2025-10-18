@@ -4,8 +4,6 @@ from enum import Enum
 
 class MetadataFormat(str, Enum):
     ID3V2 = 'id3v2'
-    ID3V2_3 = 'id3v2.3'
-    ID3V2_4 = 'id3v2.4'
     ID3V1 = 'id3v1'
     VORBIS = 'vorbis'
     RIFF = 'riff'
@@ -19,8 +17,8 @@ class MetadataFormat(str, Enum):
             dictionary mapping file extensions to ordered list of tag types
         """
         return {
-            '.flac': [cls.VORBIS, cls.ID3V2, cls.ID3V2_3, cls.ID3V2_4, cls.ID3V1],
-            '.mp3': [cls.ID3V2, cls.ID3V2_3, cls.ID3V2_4, cls.ID3V1],
-            '.wav': [cls.RIFF, cls.ID3V2, cls.ID3V2_3, cls.ID3V2_4, cls.ID3V1],
+            '.flac': [cls.VORBIS, cls.ID3V2, cls.ID3V1],
+            '.mp3': [cls.ID3V2, cls.ID3V1],
+            '.wav': [cls.RIFF, cls.ID3V2, cls.ID3V1],
         }
     

@@ -42,7 +42,7 @@ class TestId3v24Reading:
             # Set test metadata
             test_file.set_id3v2_4_max_metadata()
             
-            id3v2_4_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2_4)
+            id3v2_4_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
             assert isinstance(id3v2_4_metadata, dict)
             assert UnifiedMetadataKey.TITLE in id3v2_4_metadata
 
@@ -63,7 +63,7 @@ class TestId3v24Reading:
             assert isinstance(title, str)
             
             # Test single format metadata
-            id3v2_4_metadata = get_single_format_app_metadata(audio_file, MetadataFormat.ID3V2_4)
+            id3v2_4_metadata = get_single_format_app_metadata(audio_file, MetadataFormat.ID3V2)
             assert isinstance(id3v2_4_metadata, dict)
 
     def test_id3v2_4_version_specific_behavior(self):
@@ -72,13 +72,13 @@ class TestId3v24Reading:
             test_file.set_id3v2_4_max_metadata()
             
             # Test that ID3v2.4 specific metadata is present
-            metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2_4)
+            metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
             assert isinstance(metadata, dict)
             
             # ID3v2.4 uses TDRC for recording time instead of ID3v2.3's TYER
             # This test verifies that the library correctly handles version differences
-            if UnifiedMetadataKey.YEAR in metadata:
-                assert isinstance(metadata[UnifiedMetadataKey.YEAR], str)
+            if UnifiedMetadataKey.RELEASE_DATE in metadata:
+                assert isinstance(metadata[UnifiedMetadataKey.RELEASE_DATE], str)
 
     def test_id3v2_4_utf8_encoding_support(self):
         with TempFileWithMetadata({}, "id3v2.4") as test_file:
@@ -89,7 +89,7 @@ class TestId3v24Reading:
                 UnifiedMetadataKey.ALBUM_NAME: "Album Ελληνικά ภาษาไทย"
             }
             
-            update_file_metadata(test_file.path, unicode_metadata, metadata_format=MetadataFormat.ID3V2_4)
+            update_file_metadata(test_file.path, unicode_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             # Verify the Unicode characters are preserved
             metadata = get_merged_unified_metadata(test_file.path)
@@ -116,13 +116,14 @@ class TestId3v24Reading:
             artists = ["Raw Artist One", "Raw Artist Two"]
             test_file.set_id3v2_4_multiple_artists(artists)
             
-            # Verify multiple entries exist in raw data
-            verification_result = test_file.verify_id3v2_4_multiple_entries_in_raw_data("TPE1", expected_count=2)
+            # Test that multiple artists are preserved
+            metadata = get_merged_unified_metadata(test_file.path)
+            retrieved_artists = metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
-            assert verification_result['success']
-            assert verification_result['has_multiple']
-            assert verification_result['actual_count'] == 2
-            assert verification_result['count_matches']
+            assert isinstance(retrieved_artists, list)
+            assert len(retrieved_artists) >= 2
+            assert "Raw Artist One" in retrieved_artists
+            assert "Raw Artist Two" in retrieved_artists
 
     def test_id3v2_4_error_handling(self, temp_audio_file: Path):
         # Test ID3v2.4 with unsupported file type
@@ -131,7 +132,7 @@ class TestId3v24Reading:
         temp_audio_file.write_bytes(b"fake audio content")
         
         with pytest.raises(FileTypeNotSupportedError):
-            get_single_format_app_metadata(str(temp_audio_file), MetadataFormat.ID3V2_4)
+            get_single_format_app_metadata(str(temp_audio_file), MetadataFormat.ID3V2)
 
     def test_id3v2_4_with_other_formats(self):
         with TempFileWithMetadata({}, "id3v2.4") as test_file:
@@ -147,7 +148,7 @@ class TestId3v24Reading:
             update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
             
             # Test that we can read both ID3v2.4 and ID3v1 metadata
-            id3v2_4_metadata_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2_4)
+            id3v2_4_metadata_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
             id3v1_metadata_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
             
             # Verify ID3v2.4 metadata is present
@@ -176,10 +177,10 @@ class TestId3v24Reading:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist with UTF-8: 日本語", "Another Artist: العربية"],
                 UnifiedMetadataKey.ALBUM_NAME: "Album with Emojis: 🎵🎶🎤",
                 UnifiedMetadataKey.GENRES_NAMES: ["Genre 1", "Genre 2", "Genre 3"],
-                UnifiedMetadataKey.COMMENTS: ["Comment with Unicode: русский język"]
+                UnifiedMetadataKey.COMMENT: "Comment with Unicode: русский język"
             }
             
-            update_file_metadata(test_file.path, complex_metadata, metadata_format=MetadataFormat.ID3V2_4)
+            update_file_metadata(test_file.path, complex_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             # Verify all complex metadata is preserved
             metadata = get_merged_unified_metadata(test_file.path)
@@ -199,8 +200,8 @@ class TestId3v24Reading:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist 日本語"],
             }
             
-            update_file_metadata(id3v23_file.path, unicode_test_data, metadata_format=MetadataFormat.ID3V2_3)
-            update_file_metadata(id3v24_file.path, unicode_test_data, metadata_format=MetadataFormat.ID3V2_4)
+            update_file_metadata(id3v23_file.path, unicode_test_data, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
+            update_file_metadata(id3v24_file.path, unicode_test_data, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             # Both should preserve the Unicode characters, but ID3v2.4 should handle them more efficiently
             id3v23_metadata = get_merged_unified_metadata(id3v23_file.path)

@@ -43,7 +43,7 @@ class TestSmartParsingScenarios:
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist; with; semicolons", "Artist Three"]
             }
-            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2_3)
+            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
             # Read metadata
             unified_metadata = get_merged_unified_metadata(test_file.path)
@@ -65,7 +65,7 @@ class TestSmartParsingScenarios:
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist; with; semicolons", "Artist Three"]
             }
-            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2_4)
+            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             # Read metadata
             unified_metadata = get_merged_unified_metadata(test_file.path)
@@ -127,7 +127,7 @@ class TestSmartParsingScenarios:
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One;Artist Two;Artist Three"]
             }
-            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2_3)
+            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
             # Read metadata
             unified_metadata = get_merged_unified_metadata(test_file.path)
@@ -147,7 +147,7 @@ class TestSmartParsingScenarios:
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One;Artist Two;Artist Three"]
             }
-            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2_4)
+            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             # Read metadata
             unified_metadata = get_merged_unified_metadata(test_file.path)

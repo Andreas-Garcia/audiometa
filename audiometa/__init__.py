@@ -31,8 +31,6 @@ FILE_EXTENSION_NOT_HANDLED_MESSAGE = "The file's format is not handled by the se
 TAG_FORMAT_MANAGER_CLASS_MAP = {
     MetadataFormat.ID3V1: Id3v1Manager,
     MetadataFormat.ID3V2: Id3v2Manager,
-    MetadataFormat.ID3V2_3: Id3v2Manager,
-    MetadataFormat.ID3V2_4: Id3v2Manager,
     MetadataFormat.VORBIS: VorbisManager,
     MetadataFormat.RIFF: RiffManager
 }
@@ -60,13 +58,9 @@ def _get_metadata_manager(
     manager_class = TAG_FORMAT_MANAGER_CLASS_MAP[tag_format]
     if issubclass(manager_class, RatingSupportingMetadataManager):
         if manager_class == Id3v2Manager:
-            # Determine ID3v2 version based on format or provided version
+            # Determine ID3v2 version based on provided version or use default
             if id3v2_version is not None:
                 version = id3v2_version
-            elif tag_format == MetadataFormat.ID3V2_3:
-                version = (2, 3, 0)
-            elif tag_format == MetadataFormat.ID3V2_4:
-                version = (2, 4, 0)
             else:
                 version = (2, 3, 0)  # Default to ID3v2.3
             return manager_class(

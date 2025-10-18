@@ -27,7 +27,7 @@ class TestId3v24Writing:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist ID3v2.4"],
                 UnifiedMetadataKey.ALBUM_NAME: "Test Album ID3v2.4",
             }
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2_4)
+            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             metadata = get_merged_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title ID3v2.4"
@@ -42,7 +42,7 @@ class TestId3v24Writing:
                 UnifiedMetadataKey.ALBUM_NAME: "Test Album",
             }
             
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2_4)
+            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             metadata = get_merged_unified_metadata(test_file.path)
             
@@ -58,7 +58,7 @@ class TestId3v24Writing:
                 UnifiedMetadataKey.ALBUM_NAME: "Written Album",
             }
             
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2_4)
+            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             metadata = get_merged_unified_metadata(test_file.path)
             
@@ -73,7 +73,7 @@ class TestId3v24Writing:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Test ID3v2.4 Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "Test ID3v2.4 Album"
             }
-            update_file_metadata(test_file.path, initial_metadata, metadata_format=MetadataFormat.ID3V2_4)
+            update_file_metadata(test_file.path, initial_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             metadata = get_merged_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test ID3v2.4 Title"
@@ -85,7 +85,7 @@ class TestId3v24Writing:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Test ID3v2.4 Artist"],  # Keep this field
                 UnifiedMetadataKey.ALBUM_NAME: None  # Remove this field
             }
-            update_file_metadata(test_file.path, none_metadata, metadata_format=MetadataFormat.ID3V2_4)
+            update_file_metadata(test_file.path, none_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             updated_metadata = get_merged_unified_metadata(test_file.path)
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) is None
@@ -93,21 +93,21 @@ class TestId3v24Writing:
             
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test ID3v2.4 Artist"]
             
-            id3v2_4_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2_4)
+            id3v2_4_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
             assert id3v2_4_metadata.get(UnifiedMetadataKey.TITLE) is None
             assert id3v2_4_metadata.get(UnifiedMetadataKey.ALBUM_NAME) is None
 
     def test_none_vs_empty_string_behavior_id3v2_4(self, temp_audio_file):
         with TempFileWithMetadata({}, "id3v2.4") as test_file:
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: ""}, metadata_format=MetadataFormat.ID3V2_4)
+            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: ""}, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
             assert title is None  # Empty string removes field in ID3v2.4
             
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: None}, metadata_format=MetadataFormat.ID3V2_4)
+            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: None}, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
             assert title is None  # None removes field
             
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: ""}, metadata_format=MetadataFormat.ID3V2_4)
+            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: ""}, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
             assert title is None  # Empty string removes field in ID3v2.4
 
@@ -119,7 +119,7 @@ class TestId3v24Writing:
                 UnifiedMetadataKey.ALBUM_NAME: "Album Ελληνικά ภาษาไทย"
             }
             
-            update_file_metadata(test_file.path, unicode_metadata, metadata_format=MetadataFormat.ID3V2_4)
+            update_file_metadata(test_file.path, unicode_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             metadata = get_merged_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test 中文 العربية русский 🎵"
@@ -133,7 +133,7 @@ class TestId3v24Writing:
                 UnifiedMetadataKey.TITLE: "Multi-Artist Song"
             }
             
-            update_file_metadata(test_file.path, multiple_artists_metadata, metadata_format=MetadataFormat.ID3V2_4)
+            update_file_metadata(test_file.path, multiple_artists_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             metadata = get_merged_unified_metadata(test_file.path)
             retrieved_artists = metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -151,7 +151,7 @@ class TestId3v24Writing:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2.4 Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "ID3v2.4 Album"
             }
-            update_file_metadata(test_file.path, id3v2_4_metadata, metadata_format=MetadataFormat.ID3V2_4)
+            update_file_metadata(test_file.path, id3v2_4_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             id3v1_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v1 Title",
@@ -160,7 +160,7 @@ class TestId3v24Writing:
             }
             update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
             
-            id3v2_4_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2_4)
+            id3v2_4_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
             id3v1_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
             
             assert id3v2_4_result.get(UnifiedMetadataKey.TITLE) == "ID3v2.4 Title"
