@@ -864,10 +864,10 @@ ARTIST=Artist 3
 | Format  | Support    | Official Fields | Unofficial Fields | Notes                                                                           |
 | ------- | ---------- | --------------- | ----------------- | ------------------------------------------------------------------------------- |
 | ID3v1   | ❌ No      | None            | None              | Only one field per tag; repeated fields not allowed                             |
-| ID3v2.3 | ⚠️ Partial | None            | All text fields   | Multiple frames allowed technically, but not officially defined for text values |
-| ID3v2.4 | ✅ Yes     | All text fields | All text fields   | Supports multiple frames for the same field type                                |
-| RIFF    | ✅ Yes     | None            | All text fields   | Duplicate chunks supported; all fields can have multiple instances              |
-| Vorbis  | ✅ Yes     | All text fields | All text fields   | Fully supported; repeated field names represent multiple values                 |
+| ID3v2.3 | ⚠️ Partial | None            | All fields        | Multiple frames allowed technically, but not officially defined for text values |
+| ID3v2.4 | ✅ Yes     | All fields      | All fields        | Supports multiple frames for the same field type                                |
+| RIFF    | ✅ Yes     | None            | All fields        | Duplicate chunks supported; all fields can have multiple instances              |
+| Vorbis  | ✅ Yes     | All fields      | All fields        | Fully supported; repeated field names represent multiple values                 |
 
 **2. Single field with separated values (separator-based)**
 
