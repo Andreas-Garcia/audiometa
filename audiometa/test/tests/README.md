@@ -478,7 +478,7 @@ def test_specific_metadata_combination():
 
         # Test our application
         metadata = get_merged_unified_metadata(test_file.path)
-        assert metadata.get(UnifiedMetadataKey.GENRE_NAME) == ["Custom Genre"]
+        assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Custom Genre"]
 ```
 
 #### Basic functionality (Temporary files)

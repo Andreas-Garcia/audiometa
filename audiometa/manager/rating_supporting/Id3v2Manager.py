@@ -167,7 +167,7 @@ class Id3v2Manager(MultiEntriesManager):
         ARTISTS_NAMES = 'TPE1'
         ALBUM_NAME = 'TALB'
         ALBUM_ARTISTS_NAMES = 'TPE2'
-        GENRE_NAME = 'TCON'
+        GENRES_NAMES = 'TCON'
 
         # In cleaned metadata, the rating is stored as a tuple the potential identifier (e.g. 'Traktor') and the rating
         # value
@@ -197,7 +197,7 @@ class Id3v2Manager(MultiEntriesManager):
         Id3TextFrame.ARTISTS_NAMES: TPE1,
         Id3TextFrame.ALBUM_NAME: TALB,
         Id3TextFrame.ALBUM_ARTISTS_NAMES: TPE2,
-        Id3TextFrame.GENRE_NAME: TCON,
+        Id3TextFrame.GENRES_NAMES: TCON,
         Id3TextFrame.LANGUAGE: TLAN,
         Id3TextFrame.RECORDING_TIME: TDRC,
         Id3TextFrame.RELEASE_TIME: TDRL,
@@ -225,7 +225,7 @@ class Id3v2Manager(MultiEntriesManager):
             UnifiedMetadataKey.ARTISTS_NAMES: self.Id3TextFrame.ARTISTS_NAMES,
             UnifiedMetadataKey.ALBUM_NAME: self.Id3TextFrame.ALBUM_NAME,
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.Id3TextFrame.ALBUM_ARTISTS_NAMES,
-            UnifiedMetadataKey.GENRES_NAMES: self.Id3TextFrame.GENRE_NAME,
+            UnifiedMetadataKey.GENRES_NAMES: self.Id3TextFrame.GENRES_NAMES,
             UnifiedMetadataKey.RATING: None,
             UnifiedMetadataKey.LANGUAGE: self.Id3TextFrame.LANGUAGE,
             UnifiedMetadataKey.RELEASE_DATE: self.Id3TextFrame.RELEASE_TIME,
@@ -242,7 +242,7 @@ class Id3v2Manager(MultiEntriesManager):
             UnifiedMetadataKey.ARTISTS_NAMES: self.Id3TextFrame.ARTISTS_NAMES,
             UnifiedMetadataKey.ALBUM_NAME: self.Id3TextFrame.ALBUM_NAME,
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.Id3TextFrame.ALBUM_ARTISTS_NAMES,
-            UnifiedMetadataKey.GENRES_NAMES: self.Id3TextFrame.GENRE_NAME,
+            UnifiedMetadataKey.GENRES_NAMES: self.Id3TextFrame.GENRES_NAMES,
             UnifiedMetadataKey.RATING: self.Id3TextFrame.RATING,
             UnifiedMetadataKey.LANGUAGE: self.Id3TextFrame.LANGUAGE,
             UnifiedMetadataKey.RELEASE_DATE: self.Id3TextFrame.RELEASE_TIME,

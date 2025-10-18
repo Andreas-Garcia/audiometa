@@ -101,7 +101,7 @@ class MetadataManager:
             except ValueError:
                 genre_name = cast(str, raw_value)
             
-            # Return as list since GENRE_NAME is a multi-value field
+            # Return as list since GENRES_NAMES is a multi-value field
             return [genre_name] if genre_name else None
         return None
 

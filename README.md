@@ -850,7 +850,7 @@ The following fields support semantic multiple values:
 | ------------------------- | ------------- | ------------- | ------------- | ---------- | ----- |
 | **`ARTISTS_NAMES`**       | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
 | **`ALBUM_ARTISTS_NAMES`** | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
-| **`GENRE_NAME`**          | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
+| **`GENRES_NAMES`**        | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
 | **`COMPOSER`**            | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
 | **`MUSICIANS`**           | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
 | **`CONDUCTOR`**           | ✅\*          | ✅            | ✅            | ✅\*       | ✅\*  |
@@ -885,7 +885,7 @@ result = get_merged_unified_metadata("song.mp3")
 print(result[UnifiedMetadataKey.ARTISTS_NAMES])
 # Output: ['Artist One', 'Artist Two', 'Artist Three']
 
-print(result[UnifiedMetadataKey.GENRE_NAME])
+print(result[UnifiedMetadataKey.GENRES_NAMES])
 # Output: ['Rock', 'Alternative', 'Indie']
 ```
 
@@ -937,7 +937,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 metadata = {
     UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two", "Artist Three"],
     UnifiedMetadataKey.COMPOSER: ["Composer A", "Composer B"],
-    UnifiedMetadataKey.GENRE_NAME: ["Rock", "Alternative", "Indie"]
+    UnifiedMetadataKey.GENRES_NAMES: ["Rock", "Alternative", "Indie"]
 }
 
 # For FLAC: Creates separate entries (Vorbis supports multiple frames)
@@ -1098,7 +1098,7 @@ The library automatically classifies fields as single-value or multi-value:
 
 - `ARTISTS_NAMES`
 - `ALBUM_ARTISTS_NAMES`
-- `GENRE_NAME`
+- `GENRES_NAMES`
 - `COMPOSER`
 - `MUSICIANS`
 - `CONDUCTOR`
@@ -1169,7 +1169,7 @@ The library automatically converts genre names to appropriate codes when writing
 ```python
 # Writing genres - automatic conversion
 update_file_metadata("song.mp3", {
-    UnifiedMetadataKey.GENRE_NAME: ["Rock", "Alternative"]
+    UnifiedMetadataKey.GENRES_NAMES: ["Rock", "Alternative"]
 })
 
 # For ID3v1: Converts "Rock" to code 17 (takes first genre only)
@@ -1189,7 +1189,7 @@ update_file_metadata("song.mp3", {
 
 ```python
 metadata = get_merged_unified_metadata("song.mp3")
-genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
 # Returns: ['Rock', 'Alternative', 'Indie'] (list)
 ```
 
@@ -1198,7 +1198,7 @@ genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
 ```python
 # All formats accept lists
 update_file_metadata("song.mp3", {
-    UnifiedMetadataKey.GENRE_NAME: ["Rock", "Alternative", "Indie"]
+    UnifiedMetadataKey.GENRES_NAMES: ["Rock", "Alternative", "Indie"]
 })
 
 # Format-specific behavior:
@@ -1259,21 +1259,21 @@ Many audio editing software and tagging tools write multiple genres to RIFF file
 # Example 1: Genre names only
 # File contains: "Rock; Alternative; Indie" in IGNR tag
 metadata = get_merged_unified_metadata("song.wav")
-genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
 # Currently returns: ["Rock"] (first genre only)
 # Future: Will return: ["Rock", "Alternative", "Indie"]
 
 # Example 2: Genre codes only
 # File contains: "17; 20; 131" in IGNR tag
 metadata = get_merged_unified_metadata("song.wav")
-genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
 # Currently returns: ["Rock"] (first code converted to name)
 # Future: Will return: ["Rock", "Alternative", "Indie"]
 
 # Example 3: Mixed codes and names
 # File contains: "Rock; 20; Indie" in IGNR tag
 metadata = get_merged_unified_metadata("song.wav")
-genres = metadata.get(UnifiedMetadataKey.GENRE_NAME)
+genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
 # Currently returns: ["Rock"] (first genre only)
 # Future: Will return: ["Rock", "Alternative", "Indie"]
 ```
@@ -1322,7 +1322,7 @@ rock_code = find_genre_code("Rock")  # Returns 17
 # Recommended approach
 genres = ["Rock", "Alternative", "Indie"]
 update_file_metadata("song.mp3", {
-    UnifiedMetadataKey.GENRE_NAME: genres
+    UnifiedMetadataKey.GENRES_NAMES: genres
 })
 
 # The library automatically:
