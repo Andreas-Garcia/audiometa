@@ -10,7 +10,7 @@ import tempfile
 from pathlib import Path
 from typing import Dict, Any, List
 
-from .id3v2 import Mid3v2Tool, Id3v2Tool, ID3v2MetadataVerifier, ID3v2MultipleMetadataManager, ID3v2SeparatorMetadataManager, ID3HeaderVerifier, ID3v2MetadataDeleter, ID3v1MetadataDeleter, ID3v2MetadataSetter, ID3v1MetadataSetter
+from .id3v2 import Mid3v2Tool, Id3v2Tool, ID3v2MetadataVerifier, ID3v2MultipleMetadataManager, ID3HeaderVerifier, ID3v2MetadataDeleter, ID3v1MetadataDeleter, ID3v2MetadataSetter, ID3v1MetadataSetter
 from .vorbis import VorbisMetadataVerifier, VorbisHeaderVerifier, VorbisMetadataDeleter, VorbisMetadataSetter
 from .riff import RIFFMetadataVerifier, RIFFHeaderVerifier, RIFFMetadataDeleter, RIFFMetadataSetter
 from .common import AudioFileCreator, ComprehensiveMetadataVerifier
@@ -514,13 +514,13 @@ class TempFileWithMetadata:
     # =============================================================================
     
     def set_id3v2_separator_artists(self, artists_string: str, version: str = "2.3"):
-        ID3v2SeparatorMetadataManager.set_separator_artists(self.test_file, artists_string, version)
+        ID3v2MetadataSetter.set_separator_artists(self.test_file, artists_string, version)
     
     def set_id3v2_separator_genres(self, genres_string: str, version: str = "2.3"):
-        ID3v2SeparatorMetadataManager.set_separator_genres(self.test_file, genres_string, version)
+        ID3v2MetadataSetter.set_separator_genres(self.test_file, genres_string, version)
     
     def set_id3v2_separator_composers(self, composers_string: str, version: str = "2.3"):
-        ID3v2SeparatorMetadataManager.set_separator_composers(self.test_file, composers_string, version)
+        ID3v2MetadataSetter.set_separator_composers(self.test_file, composers_string, version)
     
     def set_riff_separator_artists(self, artists_string: str):
         RIFFMetadataSetter.set_separator_artists(self.test_file, artists_string)

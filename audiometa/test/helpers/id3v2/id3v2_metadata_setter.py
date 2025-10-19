@@ -49,10 +49,6 @@ class ID3v2MetadataSetter:
         scripts_dir = Path(__file__).parent.parent.parent.parent / "test" / "data" / "scripts"
         run_script("set-id3v2-max-metadata.sh", file_path, scripts_dir)
 
-
-class ID3v2SeparatorMetadataManager:
-    """Static utility class for setting ID3v2 metadata using separator-based approaches for testing single-field separator parsing."""
-
     @staticmethod
     def set_separator_artists(file_path: Path, artists_string: str, version: str = "2.3"):
         """Set ID3v2 artists as a single field with separators using external tool."""

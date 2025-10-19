@@ -8,7 +8,6 @@ from .id3v2_metadata_verifier import ID3v2MetadataVerifier
 
 # Specialized managers
 from .id3v2_multiple_metadata_manager import ID3v2MultipleMetadataManager
-from .id3v2_separator_metadata_manager import ID3v2SeparatorMetadataManager
 
 # Advanced tools
 from .manual_id3v2_frame_creator import ManualID3v2FrameCreator
@@ -27,7 +26,6 @@ __all__ = [
     
     # Specialized managers
     "ID3v2MultipleMetadataManager",
-    "ID3v2SeparatorMetadataManager",
     
     # Advanced tools
     "ManualID3v2FrameCreator",
