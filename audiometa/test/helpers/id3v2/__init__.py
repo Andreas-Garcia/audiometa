@@ -10,11 +10,10 @@ from .id3v2_metadata_verifier import ID3v2MetadataVerifier
 from .id3v2_multiple_metadata_manager import ID3v2MultipleMetadataManager
 
 # Advanced tools
-from .manual_id3v2_frame_creator import ManualID3v2FrameCreator
+from .id3v2_frame_manual_creator import ManualID3v2FrameCreator
 
 # External tool wrappers
 from .mid3v2_tool import Mid3v2Tool, ExternalMetadataToolError
-from .id3v2_tool import Id3v2Tool
 
 __all__ = [
     # Core operations
@@ -32,6 +31,5 @@ __all__ = [
     
     # External tool wrappers
     "Mid3v2Tool",
-    "ExternalMetadataToolError",
-    "Id3v2Tool"
+    "ExternalMetadataToolError"
 ]

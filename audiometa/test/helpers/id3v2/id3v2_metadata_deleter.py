@@ -1,7 +1,8 @@
 """ID3v2 metadata deletion operations."""
 
 from pathlib import Path
-from .mid3v2_tool import Mid3v2Tool
+from .mid3v2_tool import Mid3v2Tool, ExternalMetadataToolError
+from ..common.external_tool_runner import run_external_tool
 
 
 class ID3v2MetadataDeleter:
@@ -38,3 +39,12 @@ class ID3v2MetadataDeleter:
     @staticmethod
     def delete_bpm(file_path: Path) -> None:
         Mid3v2Tool.delete_frame(file_path, "TBPM")
+    
+    @staticmethod
+    def delete_tag(file_path: Path, tag_name: str) -> None:
+        """Delete a specific ID3v2 tag using id3v2 tool."""
+        try:
+            command = ["id3v2", "--id3v2-only", "--delete", tag_name, str(file_path)]
+            run_external_tool(command, "id3v2")
+        except ExternalMetadataToolError:
+            pass

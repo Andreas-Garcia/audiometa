@@ -3,8 +3,8 @@
 from pathlib import Path
 from typing import List
 from .mid3v2_tool import Mid3v2Tool
-from .id3v2_tool import Id3v2Tool
 from ..id3v1.id3v1_metadata_setter import ID3v1MetadataSetter
+from ..common.external_tool_runner import run_external_tool
 
 
 class ID3v2MetadataSetter:
@@ -16,11 +16,15 @@ class ID3v2MetadataSetter:
     
     @staticmethod
     def set_title(file_path: Path, title: str) -> None:
-        Id3v2Tool.set_id3v2_title(file_path, title)
+        """Set ID3v2 title using id3v2 tool."""
+        command = ["id3v2", "--id3v2-only", "--song", title, str(file_path)]
+        run_external_tool(command, "id3v2")
     
     @staticmethod
     def set_artist(file_path: Path, artist: str) -> None:
-        Id3v2Tool.set_id3v2_artist(file_path, artist)
+        """Set ID3v2 artist using id3v2 tool."""
+        command = ["id3v2", "--id3v2-only", "--artist", artist, str(file_path)]
+        run_external_tool(command, "id3v2")
     
     @staticmethod
     def set_album(file_path: Path, album: str) -> None:

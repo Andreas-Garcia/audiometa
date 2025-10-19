@@ -41,3 +41,26 @@ class ID3v1MetadataSetter:
         from pathlib import Path
         scripts_dir = Path(__file__).parent.parent.parent.parent / "test" / "data" / "scripts"
         run_script("set-id3v1-max-metadata.sh", file_path, scripts_dir)
+    
+    @staticmethod
+    def set_metadata(file_path: Path, metadata: Dict[str, Any]) -> None:
+        """Set ID3v1 metadata using id3v2 tool (id3v2 can also set ID3v1 tags)."""
+        cmd = ["id3v2", "--id3v1-only"]
+        
+        # Map common metadata keys to id3v2 arguments for ID3v1
+        key_mapping = {
+            'title': '--song',
+            'artist': '--artist', 
+            'album': '--album',
+            'year': '--year',
+            'genre': '--genre',
+            'comment': '--comment',
+            'track': '--track'
+        }
+        
+        for key, value in metadata.items():
+            if key.lower() in key_mapping:
+                cmd.extend([key_mapping[key.lower()], str(value)])
+        
+        cmd.append(str(file_path))
+        run_external_tool(cmd, "id3v2")
