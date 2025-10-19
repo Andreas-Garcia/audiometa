@@ -50,19 +50,16 @@ class ID3v2MetadataSetter:
         run_script("set-id3v2-max-metadata.sh", file_path, scripts_dir)
 
     @staticmethod
-    def set_separator_artists(file_path: Path, artists_string: str, version: str = "2.3"):
-        """Set ID3v2 artists as a single field with separators using external tool."""
+    def set_separator_artists(file_path: Path, artists_string: str):
         command = ["mid3v2", "--artist", artists_string, str(file_path)]
         Mid3v2Tool.run_command(command)
 
     @staticmethod
-    def set_separator_genres(file_path: Path, genres_string: str, version: str = "2.3"):
-        """Set ID3v2 genres as a single field with separators using external tool."""
+    def set_separator_genres(file_path: Path, genres_string: str):
         command = ["mid3v2", "--genre", genres_string, str(file_path)]
         Mid3v2Tool.run_command(command)
 
     @staticmethod
-    def set_separator_composers(file_path: Path, composers_string: str, version: str = "2.3"):
-        """Set ID3v2 composers as a single field with separators using external tool."""
+    def set_separator_composers(file_path: Path, composers_string: str):
         command = ["mid3v2", "--TCOM", composers_string, str(file_path)]
         Mid3v2Tool.run_command(command)
