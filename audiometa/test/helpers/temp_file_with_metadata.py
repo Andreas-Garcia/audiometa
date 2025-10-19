@@ -12,7 +12,7 @@ from typing import Dict, Any, List
 
 from .id3v2 import Mid3v2Tool, Id3v2Tool, ID3v2MetadataVerifier, ID3v2MultipleMetadataManager, ID3v2SeparatorMetadataManager, ID3HeaderVerifier, ID3v2MetadataDeleter, ID3v1MetadataDeleter, ID3v2MetadataSetter, ID3v1MetadataSetter
 from .vorbis import VorbisMetadataVerifier, VorbisHeaderVerifier, VorbisMetadataDeleter, VorbisMetadataSetter
-from .riff import BwfmetaeditTool, RIFFMetadataVerifier, RIFFMultipleMetadataManager, RIFFHeaderVerifier, RIFFMetadataDeleter, RIFFMetadataSetter
+from .riff import RIFFMetadataVerifier, RIFFHeaderVerifier, RIFFMetadataDeleter, RIFFMetadataSetter
 from .common import AudioFileCreator, ScriptRunner, ComprehensiveMetadataVerifier
 from .common.external_tool_runner import run_external_tool
 
@@ -141,7 +141,7 @@ class TempFileWithMetadata:
         VorbisMetadataSetter.set_flac_metadata(file_path, metadata)
     
     def _set_wav_metadata_with_bwfmetaedit(self, file_path: Path, metadata: dict) -> None:
-        BwfmetaeditTool.set_wav_metadata(file_path, metadata)
+        RIFFMetadataSetter.set_wav_metadata(file_path, metadata)
     
     def _create_minimal_audio_file(self, file_path: Path, format_type: str) -> None:
         test_files_dir = Path(__file__).parent.parent.parent / "test" / "data" / "audio_files"
@@ -538,19 +538,19 @@ class TempFileWithMetadata:
         RIFFMetadataSetter.set_separator_album_artists(self.test_file, album_artists_string)
     
     def set_riff_multiple_artists(self, artists: List[str]):
-        RIFFMultipleMetadataManager.set_multiple_artists(self.test_file, artists)
+        RIFFMetadataSetter.set_multiple_artists(self.test_file, artists)
     
     def set_riff_multiple_genres(self, genres: List[str]):
-        RIFFMultipleMetadataManager.set_multiple_genres(self.test_file, genres)
+        RIFFMetadataSetter.set_multiple_genres(self.test_file, genres)
     
     def set_riff_multiple_composers(self, composers: List[str]):
-        RIFFMultipleMetadataManager.set_multiple_composers(self.test_file, composers)
+        RIFFMetadataSetter.set_multiple_composers(self.test_file, composers)
     
     def set_riff_multiple_album_artists(self, album_artists: List[str]):
-        RIFFMultipleMetadataManager.set_multiple_album_artists(self.test_file, album_artists)
+        RIFFMetadataSetter.set_multiple_album_artists(self.test_file, album_artists)
     
     def set_riff_multiple_comments(self, comments: List[str]):
-        RIFFMultipleMetadataManager.set_multiple_comments(self.test_file, comments)
+        RIFFMetadataSetter.set_multiple_comments(self.test_file, comments)
     
     def set_id3v2_multiple_comments(self, comments: List[str], in_separate_frames: bool = False):
         ID3v2MultipleMetadataManager.set_multiple_comments(self.test_file, comments, in_separate_frames)
