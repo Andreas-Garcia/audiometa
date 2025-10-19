@@ -918,12 +918,6 @@ ARTIST=Artist 1; Artist 2
 | RIFF    | `/`, `;`      | Not standardized; concatenation varies by implementation                       |
 | Vorbis  | rarely needed | Native repeated fields make separators mostly unnecessary                      |
 
-**AudioMeta Library Behavior:**
-
-- **Reading**: Uses smart multi value reading logic: first extracts all field instances individually, then applies field-specific processing (single-value fields take first only, multi-value fields use smart parsing)
-- **Writing**: Uses multiple field instances for modern formats (Vorbis, ID3v2.4), separator-based for legacy formats
-- **Separator Priority**: `//` → `\\` → `;` → `\` → `/` → `,` (chooses first separator not present in values)
-
 #### Reading Multiple Values
 
 The library uses **smart multi value reading logic** that follows a two-step process to handle the complex variations in how metadata can be stored:

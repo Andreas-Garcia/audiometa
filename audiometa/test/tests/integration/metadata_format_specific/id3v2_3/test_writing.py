@@ -50,7 +50,7 @@ class TestId3v23Writing:
             assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
             assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
 
-    def test_multiple_metadata_writing(self, temp_audio_file):
+    def test_multiple_metadata_writing(self):
         with TempFileWithMetadata({}, "id3v2.3") as test_file:
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "Written Song Title",

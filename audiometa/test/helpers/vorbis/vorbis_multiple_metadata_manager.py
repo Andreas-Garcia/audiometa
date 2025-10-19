@@ -7,31 +7,34 @@ from .metaflac_tool import MetaflacTool
 
 
 class VorbisMultipleMetadataManager:
-    """Manager for setting multiple values in Vorbis comment metadata."""
+    """Static utility class for setting multiple values in Vorbis comment metadata."""
     
-    def __init__(self, file_path: Path):
-        self.file_path = file_path
+    @staticmethod
+    def set_multiple_artists(file_path: Path, artists: List[str]):
+        """Set multiple Vorbis artists using external metaflac tool."""
+        MetaflacTool.set_multiple_tags(file_path, "ARTIST", artists)
     
-    def set_multiple_artists(self, artists: List[str]):
-        """Set Vorbis multiple artists using external metaflac tool."""
-        MetaflacTool.set_multiple_tags(self.file_path, "ARTIST", artists)
+    @staticmethod
+    def set_multiple_album_artists(file_path: Path, album_artists: List[str]):
+        """Set multiple Vorbis album artists using external metaflac tool."""
+        MetaflacTool.set_multiple_tags(file_path, "ALBUMARTIST", album_artists)
     
-    def set_multiple_album_artists(self, album_artists: List[str]):
-        """Set Vorbis multiple album artists using external metaflac tool."""
-        MetaflacTool.set_multiple_tags(self.file_path, "ALBUMARTIST", album_artists)
+    @staticmethod
+    def set_multiple_composers(file_path: Path, composers: List[str]):
+        """Set multiple Vorbis composers using external metaflac tool."""
+        MetaflacTool.set_multiple_tags(file_path, "COMPOSER", composers)
     
-    def set_multiple_composers(self, composers: List[str]):
-        """Set Vorbis multiple composers using external metaflac tool."""
-        MetaflacTool.set_multiple_tags(self.file_path, "COMPOSER", composers)
+    @staticmethod
+    def set_multiple_genres(file_path: Path, genres: List[str]):
+        """Set multiple Vorbis genres using external metaflac tool."""
+        MetaflacTool.set_multiple_tags(file_path, "GENRE", genres)
     
-    def set_multiple_genres(self, genres: List[str]):
-        """Set Vorbis multiple genres using external metaflac tool."""
-        MetaflacTool.set_multiple_tags(self.file_path, "GENRE", genres)
+    @staticmethod
+    def set_multiple_performers(file_path: Path, performers: List[str]):
+        """Set multiple Vorbis performers using external metaflac tool."""
+        MetaflacTool.set_multiple_tags(file_path, "PERFORMER", performers)
     
-    def set_multiple_performers(self, performers: List[str]):
-        """Set Vorbis multiple performers using external metaflac tool."""
-        MetaflacTool.set_multiple_tags(self.file_path, "PERFORMER", performers)
-    
-    def set_multiple_comments(self, comments: List[str]):
-        """Set Vorbis multiple comments using external metaflac tool."""
-        MetaflacTool.set_multiple_tags(self.file_path, "COMMENT", comments)
+    @staticmethod
+    def set_multiple_comments(file_path: Path, comments: List[str]):
+        """Set multiple Vorbis comments using external metaflac tool."""
+        MetaflacTool.set_multiple_tags(file_path, "COMMENT", comments)

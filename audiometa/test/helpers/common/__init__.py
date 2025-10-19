@@ -2,12 +2,11 @@
 
 from .audio_file_creator import AudioFileCreator
 from .script_runner import ScriptRunner
-from .metadata_header_verifier import MetadataHeaderVerifier
 from .comprehensive_metadata_verifier import ComprehensiveMetadataVerifier
+from .metadata_deleter import MetadataDeleter
 
 __all__ = [
     "AudioFileCreator",
     "ScriptRunner",
-    "MetadataHeaderVerifier", 
     "ComprehensiveMetadataVerifier"
 ]

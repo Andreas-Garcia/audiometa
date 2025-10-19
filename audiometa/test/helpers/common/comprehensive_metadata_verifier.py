@@ -4,11 +4,31 @@ import subprocess
 from pathlib import Path
 from typing import Dict, Any, List
 
-from .metadata_header_verifier import MetadataHeaderVerifier
+from ..id3v2 import ID3HeaderVerifier
+from ..vorbis import VorbisHeaderVerifier 
+from ..riff import RIFFHeaderVerifier
 
 
 class ComprehensiveMetadataVerifier:
     """Utilities for comprehensive metadata verification across all formats."""
+    
+    @staticmethod
+    def get_metadata_headers_present(file_path: Path) -> Dict[str, bool]:
+        """Get a comprehensive report of all metadata headers present in the file.
+        
+        Returns:
+            Dict mapping format names to boolean indicating presence:
+            - 'id3v2': ID3v2 header present
+            - 'id3v1': ID3v1 header present  
+            - 'vorbis': Vorbis comments present
+            - 'riff': RIFF INFO chunk present
+        """
+        return {
+            'id3v2': ID3HeaderVerifier.has_id3v2_header(file_path),
+            'id3v1': ID3HeaderVerifier.has_id3v1_header(file_path),
+            'vorbis': VorbisHeaderVerifier.has_vorbis_comments(file_path),
+            'riff': RIFFHeaderVerifier.has_riff_info_chunk(file_path)
+        }
     
     @staticmethod
     def check_metadata_with_external_tools(file_path: Path) -> Dict[str, Any]:
@@ -83,7 +103,7 @@ class ComprehensiveMetadataVerifier:
         if expected_removed is None:
             expected_removed = ['id3v2', 'id3v1', 'vorbis', 'riff']
         
-        headers_present = MetadataHeaderVerifier.get_metadata_headers_present(file_path)
+        headers_present = ComprehensiveMetadataVerifier.get_metadata_headers_present(file_path)
         
         return {
             format_name: not headers_present.get(format_name, False)

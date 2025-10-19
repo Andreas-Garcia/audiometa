@@ -46,3 +46,65 @@ class Id3v2Tool:
         
         cmd.append(str(file_path))
         Id3v2Tool.run_command(cmd)
+    
+    @staticmethod
+    def delete_id3v1_tag(file_path: Path, tag_name: str) -> None:
+        """Delete a specific ID3v1 tag using id3v2 tool."""
+        try:
+            command = ["id3v2", "--id3v1-only", "--delete", tag_name, str(file_path)]
+            Id3v2Tool.run_command(command)
+        except ExternalMetadataToolError:
+            # Ignore if tag doesn't exist
+            pass
+    
+    @staticmethod
+    def delete_id3v2_tag(file_path: Path, tag_name: str) -> None:
+        """Delete a specific ID3v2 tag using id3v2 tool with --id3v2-only flag."""
+        try:
+            command = ["id3v2", "--id3v2-only", "--delete", tag_name, str(file_path)]
+            Id3v2Tool.run_command(command)
+        except ExternalMetadataToolError:
+            # Ignore if tag doesn't exist
+            pass
+    
+    @staticmethod
+    def set_id3v2_title(file_path: Path, title: str) -> None:
+        """Set ID3v2 title using id3v2 tool with --id3v2-only flag."""
+        command = ["id3v2", "--id3v2-only", "--song", title, str(file_path)]
+        Id3v2Tool.run_command(command)
+    
+    @staticmethod
+    def set_id3v2_artist(file_path: Path, artist: str) -> None:
+        """Set ID3v2 artist using id3v2 tool with --id3v2-only flag."""
+        command = ["id3v2", "--id3v2-only", "--artist", artist, str(file_path)]
+        Id3v2Tool.run_command(command)
+    
+    @staticmethod
+    def set_id3v1_genre(file_path: Path, genre_code: str) -> None:
+        """Set ID3v1 genre using id3v2 tool."""
+        command = ["id3v2", "--id3v1-only", f"--genre={genre_code}", str(file_path)]
+        Id3v2Tool.run_command(command)
+    
+    @staticmethod
+    def set_id3v1_comment(file_path: Path, comment: str) -> None:
+        """Set ID3v1 comment using id3v2 tool."""
+        command = ["id3v2", "--id3v1-only", "--comment", comment, str(file_path)]
+        Id3v2Tool.run_command(command)
+    
+    @staticmethod
+    def set_id3v1_title(file_path: Path, title: str) -> None:
+        """Set ID3v1 title using id3v2 tool."""
+        command = ["id3v2", "--id3v1-only", "--song", title, str(file_path)]
+        Id3v2Tool.run_command(command)
+    
+    @staticmethod
+    def set_id3v1_artist(file_path: Path, artist: str) -> None:
+        """Set ID3v1 artist using id3v2 tool."""
+        command = ["id3v2", "--id3v1-only", "--artist", artist, str(file_path)]
+        Id3v2Tool.run_command(command)
+    
+    @staticmethod
+    def set_id3v1_album(file_path: Path, album: str) -> None:
+        """Set ID3v1 album using id3v2 tool."""
+        command = ["id3v2", "--id3v1-only", "--album", album, str(file_path)]
+        Id3v2Tool.run_command(command)

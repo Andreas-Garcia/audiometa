@@ -75,3 +75,39 @@ class Mid3v2Tool:
         command = ["mid3v2", "-l", str(file_path)]
         result = Mid3v2Tool.run_command(command)
         return result.stdout
+    
+    @staticmethod
+    def set_comment(file_path: Path, comment: str) -> None:
+        """Set ID3v2 comment using mid3v2 tool."""
+        command = ["mid3v2", "--comment", comment, str(file_path)]
+        Mid3v2Tool.run_command(command)
+    
+    @staticmethod
+    def set_album(file_path: Path, album: str) -> None:
+        """Set ID3v2 album using mid3v2 tool."""
+        command = ["mid3v2", "--album", album, str(file_path)]
+        Mid3v2Tool.run_command(command)
+    
+    @staticmethod
+    def set_genre(file_path: Path, genre: str) -> None:
+        """Set ID3v2 genre using mid3v2 tool."""
+        command = ["mid3v2", "--genre", genre, str(file_path)]
+        Mid3v2Tool.run_command(command)
+    
+    @staticmethod
+    def set_lyrics(file_path: Path, lyrics: str) -> None:
+        """Set ID3v2 lyrics using mid3v2 tool."""
+        command = ["mid3v2", "--USLT", f"eng:{lyrics}", str(file_path)]
+        Mid3v2Tool.run_command(command)
+    
+    @staticmethod
+    def set_language(file_path: Path, language: str) -> None:
+        """Set ID3v2 language using mid3v2 tool."""
+        command = ["mid3v2", "--TLAN", language, str(file_path)]
+        Mid3v2Tool.run_command(command)
+    
+    @staticmethod
+    def set_bpm(file_path: Path, bpm: int) -> None:
+        """Set ID3v2 BPM using mid3v2 tool."""
+        command = ["mid3v2", "--TBPM", str(bpm), str(file_path)]
+        Mid3v2Tool.run_command(command)

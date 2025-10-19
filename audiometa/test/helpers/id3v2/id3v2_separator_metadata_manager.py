@@ -6,22 +6,22 @@ from .mid3v2_tool import Mid3v2Tool
 
 
 class ID3v2SeparatorMetadataManager:
-    """Manager for setting ID3v2 metadata using separator-based approaches for testing single-field separator parsing."""
+    """Static utility class for setting ID3v2 metadata using separator-based approaches for testing single-field separator parsing."""
     
-    def __init__(self, file_path: Path):
-        self.file_path = file_path
-    
-    def set_separator_artists(self, artists_string: str, version: str = "2.3"):
+    @staticmethod
+    def set_separator_artists(file_path: Path, artists_string: str, version: str = "2.3"):
         """Set ID3v2 artists as a single field with separators using external tool."""
-        command = ["mid3v2", "--artist", artists_string, str(self.file_path)]
+        command = ["mid3v2", "--artist", artists_string, str(file_path)]
         Mid3v2Tool.run_command(command)
     
-    def set_separator_genres(self, genres_string: str, version: str = "2.3"):
+    @staticmethod
+    def set_separator_genres(file_path: Path, genres_string: str, version: str = "2.3"):
         """Set ID3v2 genres as a single field with separators using external tool."""
-        command = ["mid3v2", "--genre", genres_string, str(self.file_path)]
+        command = ["mid3v2", "--genre", genres_string, str(file_path)]
         Mid3v2Tool.run_command(command)
     
-    def set_separator_composers(self, composers_string: str, version: str = "2.3"):
+    @staticmethod
+    def set_separator_composers(file_path: Path, composers_string: str, version: str = "2.3"):
         """Set ID3v2 composers as a single field with separators using external tool."""
-        command = ["mid3v2", "--TCOM", composers_string, str(self.file_path)]
+        command = ["mid3v2", "--TCOM", composers_string, str(file_path)]
         Mid3v2Tool.run_command(command)
