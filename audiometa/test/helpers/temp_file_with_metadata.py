@@ -7,7 +7,6 @@ in a single, clean API.
 
 import subprocess
 import tempfile
-import shutil
 from pathlib import Path
 from typing import Dict, Any, List
 
@@ -533,27 +532,21 @@ class TempFileWithMetadata:
         ID3v2SeparatorMetadataManager.set_separator_artists(self.test_file, artists_string, version)
     
     def set_id3v2_separator_genres(self, genres_string: str, version: str = "2.3"):
-        """Set ID3v2 genres as a single field with separators using external tool."""
         ID3v2SeparatorMetadataManager.set_separator_genres(self.test_file, genres_string, version)
     
     def set_id3v2_separator_composers(self, composers_string: str, version: str = "2.3"):
-        """Set ID3v2 composers as a single field with separators using external tool."""
         ID3v2SeparatorMetadataManager.set_separator_composers(self.test_file, composers_string, version)
     
     def set_riff_separator_artists(self, artists_string: str):
-        """Set RIFF artists as a single field with separators using external tool."""
         RIFFSeparatorMetadataManager.set_separator_artists(self.test_file, artists_string)
     
     def set_riff_separator_genres(self, genres_string: str):
-        """Set RIFF genres as a single field with separators using external tool."""
         RIFFSeparatorMetadataManager.set_separator_genres(self.test_file, genres_string)
     
     def set_riff_separator_composers(self, composers_string: str):
-        """Set RIFF composers as a single field with separators using external tool."""
         RIFFSeparatorMetadataManager.set_separator_composers(self.test_file, composers_string)
     
     def set_riff_separator_album_artists(self, album_artists_string: str):
-        """Set RIFF album artists as a single field with separators using external tool."""
         RIFFSeparatorMetadataManager.set_separator_album_artists(self.test_file, album_artists_string)
     
     def set_riff_multiple_artists(self, artists: List[str]):
