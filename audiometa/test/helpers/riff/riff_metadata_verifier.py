@@ -8,6 +8,26 @@ from typing import Dict, Any
 class RIFFMetadataVerifier:
     """Utilities for verifying RIFF metadata in audio files."""
     
+    # Mapping from RIFF chunk IDs to exiftool display names
+    RIFF_TAG_TO_EXIFTOOL_NAME = {
+        'IART': 'Artist',
+        'INAM': 'Title', 
+        'IGNR': 'Genre',
+        'ICMT': 'Comment',
+        'ICOP': 'Copyright',
+        'IENG': 'Engineer',
+        'IMED': 'Medium',
+        'IPRD': 'Product',
+        'ISBJ': 'Subject',
+        'ISFT': 'Software',
+        'ISRC': 'Source',
+        'ICRD': 'Date Created',
+        'ICMP': 'Composer',
+        'IKEY': 'Keywords',
+        'ILNG': 'Language',
+        'IAAR': 'Album Artist',  # Custom field
+    }
+    
     @staticmethod
     def verify_multiple_entries_in_raw_data(file_path: Path, tag_name: str, expected_count: int = None) -> Dict[str, Any]:
         """Verify multiple entries exist in raw RIFF data using external tools.
@@ -33,10 +53,23 @@ class RIFFMetadataVerifier:
             )
             raw_output = result.stdout
             
-            # Count occurrences of the tag - RIFF tags appear as [RIFF] TagName
-            tag_pattern = f"[RIFF] {tag_name}"
+            # Map RIFF chunk ID to exiftool display name
+            display_name = RIFFMetadataVerifier.RIFF_TAG_TO_EXIFTOOL_NAME.get(tag_name, tag_name)
+            
+            # Count occurrences of the tag - RIFF tags appear as [RIFF] DisplayName
+            # Note: exiftool output has variable spacing, so we need to be flexible
             lines = raw_output.split('\n')
-            matching_lines = [line for line in lines if tag_pattern in line]
+            matching_lines = []
+            for line in lines:
+                # Look for lines that start with [RIFF] and contain our display name
+                if line.startswith('[RIFF]') and display_name in line:
+                    # Make sure it's the actual field name, not part of a value
+                    # Format is: [RIFF]<spaces>FieldName<spaces>: Value
+                    parts = line.split(':', 1)
+                    if len(parts) >= 1:
+                        field_part = parts[0].strip()
+                        if field_part.endswith(display_name):
+                            matching_lines.append(line)
             actual_count = len(matching_lines)
             has_multiple = actual_count > 1
             
