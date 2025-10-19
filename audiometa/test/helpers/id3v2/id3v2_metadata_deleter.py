@@ -2,12 +2,7 @@
 
 from pathlib import Path
 from typing import List
-from ..common.external_tool_runner import run_external_tool
-
-
-class ExternalMetadataToolError(Exception):
-    """Exception raised when external metadata tools fail."""
-    pass
+from ..common.external_tool_runner import run_external_tool, ExternalMetadataToolError
 
 
 class ID3v2MetadataDeleter:

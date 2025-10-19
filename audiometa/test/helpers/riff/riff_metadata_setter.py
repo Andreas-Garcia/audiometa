@@ -2,8 +2,7 @@
 
 from pathlib import Path
 from typing import Dict, Any, List
-from ..id3v2.id3v2_metadata_deleter import ExternalMetadataToolError
-from ..common.external_tool_runner import run_external_tool
+from ..common.external_tool_runner import run_external_tool, ExternalMetadataToolError
 
 
 class RIFFMetadataSetter:

@@ -10,7 +10,8 @@ import tempfile
 from pathlib import Path
 from typing import Dict, Any, List
 
-from .id3v2 import ID3v2MetadataVerifier, ID3HeaderVerifier, ID3v2MetadataDeleter, ID3v1MetadataDeleter, ID3v2MetadataSetter, ID3v1MetadataSetter
+from .id3v2 import ID3v2MetadataVerifier, ID3HeaderVerifier, ID3v2MetadataDeleter, ID3v2MetadataSetter
+from .id3v1 import ID3v1MetadataDeleter, ID3v1MetadataSetter
 from .vorbis import VorbisMetadataVerifier, VorbisHeaderVerifier, VorbisMetadataDeleter, VorbisMetadataSetter
 from .riff import RIFFMetadataVerifier, RIFFHeaderVerifier, RIFFMetadataDeleter, RIFFMetadataSetter
 from .common import AudioFileCreator, ComprehensiveMetadataVerifier

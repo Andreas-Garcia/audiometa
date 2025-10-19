@@ -12,7 +12,7 @@ from .id3v2_metadata_verifier import ID3v2MetadataVerifier
 from .id3v2_frame_manual_creator import ManualID3v2FrameCreator
 
 # External tool wrappers
-from .id3v2_metadata_deleter import ExternalMetadataToolError
+from ..common.external_tool_runner import ExternalMetadataToolError
 
 __all__ = [
     # Core operations

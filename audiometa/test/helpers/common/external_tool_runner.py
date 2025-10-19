@@ -4,7 +4,10 @@ import subprocess
 from pathlib import Path
 from typing import List, Union
 
-from ..id3v2.id3v2_metadata_deleter import ExternalMetadataToolError
+
+class ExternalMetadataToolError(Exception):
+    """Exception raised when external metadata tools fail."""
+    pass
 
 
 def run_external_tool(command: List[str], tool_name: str = "external tool", check: bool = True) -> subprocess.CompletedProcess:
