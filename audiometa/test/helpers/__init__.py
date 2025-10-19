@@ -26,11 +26,10 @@ Vorbis Format (vorbis/):
 
 RIFF Format (riff/):
 - BwfmetaeditTool: Wrapper for bwfmetaedit operations
-- ExiftoolTool: Wrapper for exiftool operations
 - RIFFMetadataVerifier: Verifying RIFF metadata
 - RIFFMultipleMetadataManager: Managing multiple RIFF chunk values
-- RIFFSeparatorMetadataManager: Managing RIFF separator-based metadata
-- RIFFHeaderVerifier: Verifying RIFF INFO chunk headers
+- RIFFMetadataSetter: Setting RIFF metadata and managing separator-based metadata
+- RIFFHeaderVerifier: Verifying RIFF INFO chunk headers and retrieving metadata information
 
 Common Utilities (common/):
 - AudioFileCreator: Utilities for creating minimal audio files
@@ -41,6 +40,6 @@ Usage:
     from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
     from audiometa.test.helpers.id3v2 import Mid3v2Tool, Id3v2Tool, ID3v2MetadataVerifier, ID3v2MultipleMetadataManager, ID3v2SeparatorMetadataManager, ManualID3v2FrameCreator, ID3HeaderVerifier
     from audiometa.test.helpers.vorbis import VorbisMetadataSetter, VorbisMetadataDeleter, VorbisHeaderVerifier, VorbisMetadataVerifier
-    from audiometa.test.helpers.riff import BwfmetaeditTool, ExiftoolTool, RIFFMetadataVerifier, RIFFMultipleMetadataManager, RIFFSeparatorMetadataManager, RIFFHeaderVerifier
+    from audiometa.test.helpers.riff import BwfmetaeditTool, RIFFMetadataVerifier, RIFFMultipleMetadataManager, RIFFHeaderVerifier
     from audiometa.test.helpers.common import AudioFileCreator, ScriptRunner, ComprehensiveMetadataVerifier
 """

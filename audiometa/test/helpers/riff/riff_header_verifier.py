@@ -1,6 +1,7 @@
 """RIFF metadata header verification utilities."""
 
 from pathlib import Path
+from ..common.external_tool_runner import run_external_tool
 
 
 class RIFFHeaderVerifier:
@@ -75,3 +76,10 @@ class RIFFHeaderVerifier:
                     return False
         except (IOError, OSError, ValueError):
             return False
+    
+    @staticmethod
+    def get_riff_metadata_info(file_path: Path) -> str:
+        """Get RIFF metadata info using exiftool."""
+        command = ["exiftool", "-a", "-G", str(file_path)]
+        result = run_external_tool(command, "exiftool")
+        return result.stdout
