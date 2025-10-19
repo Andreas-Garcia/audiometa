@@ -26,7 +26,7 @@ class TestMetadataManagerHeaderMethods:
             def _convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(self, raw_mutagen_metadata):
                 return {}
             
-            def _get_undirectly_mapped_metadata_value_from_raw_clean_metadata(self, raw_clean_metadata, app_metadata_key):
+            def _get_undirectly_mapped_metadata_value_from_raw_clean_metadata(self, raw_clean_metadata, unified_metadata_key):
                 return None
         
         manager = MockManager(audio_file, {})
@@ -59,7 +59,7 @@ class TestMetadataManagerHeaderMethods:
             def _convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(self, raw_mutagen_metadata):
                 return {}
             
-            def _get_undirectly_mapped_metadata_value_from_raw_clean_metadata(self, raw_clean_metadata, app_metadata_key):
+            def _get_undirectly_mapped_metadata_value_from_raw_clean_metadata(self, raw_clean_metadata, unified_metadata_key):
                 return None
         
         manager = MockManager(audio_file, {})
