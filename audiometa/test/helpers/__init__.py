@@ -9,6 +9,10 @@ Main Classes:
 
 Organized by Format:
 
+ID3v1 Format (id3v1/):
+- Id3v1Tool: Wrapper for id3v1 operations using id3v2 tool
+- ID3v1MetadataDeleter: Deleting ID3v1 metadata
+
 ID3v2 Format (id3v2/):
 - Mid3v2Tool: Wrapper for mid3v2 operations  
 - Id3v2Tool: Wrapper for id3v2 operations
@@ -37,6 +41,7 @@ Common Utilities (common/):
 
 Usage:
     from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+    from audiometa.test.helpers.id3v1 import Id3v1Tool, ID3v1MetadataDeleter
     from audiometa.test.helpers.id3v2 import Mid3v2Tool, Id3v2Tool, ID3v2MetadataVerifier, ID3v2MultipleMetadataManager, ID3v2SeparatorMetadataManager, ManualID3v2FrameCreator, ID3HeaderVerifier
     from audiometa.test.helpers.vorbis import VorbisMetadataSetter, VorbisMetadataDeleter, VorbisHeaderVerifier, VorbisMetadataVerifier
     from audiometa.test.helpers.riff import RIFFMetadataVerifier, RIFFHeaderVerifier

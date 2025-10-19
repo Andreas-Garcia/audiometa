@@ -2,7 +2,7 @@
 
 # Core operations (following RIFF pattern)
 from .id3v2_header_verifier import ID3HeaderVerifier
-from .id3v2_metadata_deleter import ID3v2MetadataDeleter, ID3v1MetadataDeleter
+from .id3v2_metadata_deleter import ID3v2MetadataDeleter
 from .id3v2_metadata_setter import ID3v2MetadataSetter, ID3v1MetadataSetter
 from .id3v2_metadata_verifier import ID3v2MetadataVerifier
 
@@ -21,7 +21,6 @@ __all__ = [
     # Core operations
     "ID3HeaderVerifier",
     "ID3v2MetadataDeleter",
-    "ID3v1MetadataDeleter",
     "ID3v2MetadataSetter",
     "ID3v1MetadataSetter",
     "ID3v2MetadataVerifier",
