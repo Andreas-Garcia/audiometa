@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Dict, Any, List
 
 from .id3v2 import Mid3v2Tool, Id3v2Tool, ID3v2MetadataVerifier, ID3v2MultipleMetadataManager, ID3v2SeparatorMetadataManager, ID3HeaderVerifier, ID3v2MetadataDeleter, ID3v1MetadataDeleter, ID3v2MetadataSetter, ID3v1MetadataSetter
-from .vorbis import MetaflacTool, VorbisMetadataVerifier, VorbisMultipleMetadataManager, VorbisHeaderVerifier, VorbisMetadataDeleter, VorbisMetadataSetter
+from .vorbis import VorbisMetadataVerifier, VorbisHeaderVerifier, VorbisMetadataDeleter, VorbisMetadataSetter
 from .riff import BwfmetaeditTool, RIFFMetadataVerifier, RIFFMultipleMetadataManager, RIFFSeparatorMetadataManager, RIFFHeaderVerifier, RIFFMetadataDeleter, RIFFMetadataSetter
 from .common import AudioFileCreator, ScriptRunner, ComprehensiveMetadataVerifier
 from .common.external_tool_runner import run_external_tool
@@ -138,7 +138,7 @@ class TempFileWithMetadata:
         Id3v2Tool.set_id3v1_metadata(file_path, metadata)
     
     def _set_flac_metadata_with_metaflac(self, file_path: Path, metadata: dict) -> None:
-        MetaflacTool.set_flac_metadata(file_path, metadata)
+        VorbisMetadataSetter.set_flac_metadata(file_path, metadata)
     
     def _set_wav_metadata_with_bwfmetaedit(self, file_path: Path, metadata: dict) -> None:
         BwfmetaeditTool.set_wav_metadata(file_path, metadata)
@@ -411,22 +411,22 @@ class TempFileWithMetadata:
         VorbisMetadataSetter.set_genre(self.test_file, genre)
     
     def set_vorbis_multiple_artists(self, artists: List[str]):
-        VorbisMultipleMetadataManager.set_multiple_artists(self.test_file, artists)
+        VorbisMetadataSetter.set_multiple_artists(self.test_file, artists)
     
     def set_vorbis_multiple_album_artists(self, album_artists: List[str]):
-        VorbisMultipleMetadataManager.set_multiple_album_artists(self.test_file, album_artists)
+        VorbisMetadataSetter.set_multiple_album_artists(self.test_file, album_artists)
     
     def set_vorbis_multiple_composers(self, composers: List[str]):
-        VorbisMultipleMetadataManager.set_multiple_composers(self.test_file, composers)
+        VorbisMetadataSetter.set_multiple_composers(self.test_file, composers)
     
     def set_vorbis_multiple_genres(self, genres: List[str]):
-        VorbisMultipleMetadataManager.set_multiple_genres(self.test_file, genres)
+        VorbisMetadataSetter.set_multiple_genres(self.test_file, genres)
     
     def set_vorbis_multiple_performers(self, performers: List[str]):
-        VorbisMultipleMetadataManager.set_multiple_performers(self.test_file, performers)
+        VorbisMetadataSetter.set_multiple_performers(self.test_file, performers)
     
     def set_vorbis_multiple_comments(self, comments: List[str]):
-        VorbisMultipleMetadataManager.set_multiple_comments(self.test_file, comments)
+        VorbisMetadataSetter.set_multiple_comments(self.test_file, comments)
     
     def delete_vorbis_genre(self):
         VorbisMetadataDeleter.delete_genre(self.test_file)

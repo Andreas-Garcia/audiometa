@@ -19,10 +19,10 @@ ID3v2 Format (id3v2/):
 - ID3HeaderVerifier: Verifying ID3v1/ID3v2 headers
 
 Vorbis Format (vorbis/):
-- MetaflacTool: Wrapper for metaflac operations
+- VorbisMetadataSetter: Setting Vorbis metadata and managing multiple Vorbis comment values
+- VorbisMetadataDeleter: Deleting Vorbis metadata
+- VorbisHeaderVerifier: Verifying Vorbis comment headers and retrieving metadata information
 - VorbisMetadataVerifier: Verifying Vorbis comments
-- VorbisMultipleMetadataManager: Managing multiple Vorbis comment values
-- VorbisHeaderVerifier: Verifying Vorbis comment headers
 
 RIFF Format (riff/):
 - BwfmetaeditTool: Wrapper for bwfmetaedit operations
@@ -40,7 +40,7 @@ Common Utilities (common/):
 Usage:
     from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
     from audiometa.test.helpers.id3v2 import Mid3v2Tool, Id3v2Tool, ID3v2MetadataVerifier, ID3v2MultipleMetadataManager, ID3v2SeparatorMetadataManager, ManualID3v2FrameCreator, ID3HeaderVerifier
-    from audiometa.test.helpers.vorbis import MetaflacTool, VorbisMetadataVerifier, VorbisMultipleMetadataManager, VorbisHeaderVerifier
+    from audiometa.test.helpers.vorbis import VorbisMetadataSetter, VorbisMetadataDeleter, VorbisHeaderVerifier, VorbisMetadataVerifier
     from audiometa.test.helpers.riff import BwfmetaeditTool, ExiftoolTool, RIFFMetadataVerifier, RIFFMultipleMetadataManager, RIFFSeparatorMetadataManager, RIFFHeaderVerifier
     from audiometa.test.helpers.common import AudioFileCreator, ScriptRunner, ComprehensiveMetadataVerifier
 """
