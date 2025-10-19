@@ -535,20 +535,20 @@ class TempFileWithMetadata:
     def set_riff_separator_album_artists(self, album_artists_string: str):
         RIFFMetadataSetter.set_separator_album_artists(self.test_file, album_artists_string)
     
-    def set_riff_multiple_artists(self, artists: List[str]):
-        RIFFMetadataSetter.set_multiple_artists(self.test_file, artists)
+    def set_riff_multiple_artists(self, artists: List[str], in_separate_frames: bool = False):
+        RIFFMetadataSetter.set_multiple_artists(self.test_file, artists, in_separate_frames)
     
-    def set_riff_multiple_genres(self, genres: List[str]):
-        RIFFMetadataSetter.set_multiple_genres(self.test_file, genres)
+    def set_riff_multiple_genres(self, genres: List[str], in_separate_frames: bool = False):
+        RIFFMetadataSetter.set_multiple_genres(self.test_file, genres, in_separate_frames)
     
-    def set_riff_multiple_composers(self, composers: List[str]):
-        RIFFMetadataSetter.set_multiple_composers(self.test_file, composers)
+    def set_riff_multiple_composers(self, composers: List[str], in_separate_frames: bool = False):
+        RIFFMetadataSetter.set_multiple_composers(self.test_file, composers, in_separate_frames)
     
-    def set_riff_multiple_album_artists(self, album_artists: List[str]):
-        RIFFMetadataSetter.set_multiple_album_artists(self.test_file, album_artists)
+    def set_riff_multiple_album_artists(self, album_artists: List[str], in_separate_frames: bool = False):
+        RIFFMetadataSetter.set_multiple_album_artists(self.test_file, album_artists, in_separate_frames)
     
-    def set_riff_multiple_comments(self, comments: List[str]):
-        RIFFMetadataSetter.set_multiple_comments(self.test_file, comments)
+    def set_riff_multiple_comments(self, comments: List[str], in_separate_frames: bool = False):
+        RIFFMetadataSetter.set_multiple_comments(self.test_file, comments, in_separate_frames)
     
     def set_id3v2_multiple_comments(self, comments: List[str], in_separate_frames: bool = False):
         ID3v2MetadataSetter.set_multiple_comments(self.test_file, comments, in_separate_frames)
