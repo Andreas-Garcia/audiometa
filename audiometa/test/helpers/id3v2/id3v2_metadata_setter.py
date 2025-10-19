@@ -64,27 +64,27 @@ class ID3v1MetadataSetter:
     @staticmethod
     def set_genre(file_path: Path, genre_code: str) -> None:
         """Set ID3v1 genre using external id3v2 tool."""
-        Id3v2Tool.set_id3v1_genre(file_path, genre_code)
+        ID3v1MetadataSetter.set_genre(file_path, genre_code)
     
     @staticmethod
     def set_comment(file_path: Path, comment: str) -> None:
         """Set ID3v1 comment using external id3v2 tool."""
-        Id3v2Tool.set_id3v1_comment(file_path, comment)
+        ID3v1MetadataSetter.set_comment(file_path, comment)
     
     @staticmethod
     def set_title(file_path: Path, title: str) -> None:
         """Set ID3v1 title using external id3v2 tool."""
-        Id3v2Tool.set_id3v1_title(file_path, title)
+        ID3v1MetadataSetter.set_title(file_path, title)
     
     @staticmethod
     def set_artist(file_path: Path, artist: str) -> None:
         """Set ID3v1 artist using external id3v2 tool."""
-        Id3v2Tool.set_id3v1_artist(file_path, artist)
+        ID3v1MetadataSetter.set_artist(file_path, artist)
     
     @staticmethod
     def set_album(file_path: Path, album: str) -> None:
         """Set ID3v1 album using external id3v2 tool."""
-        Id3v2Tool.set_id3v1_album(file_path, album)
+        ID3v1MetadataSetter.set_album(file_path, album)
     
     @staticmethod
     def set_max_metadata(file_path: Path) -> None:

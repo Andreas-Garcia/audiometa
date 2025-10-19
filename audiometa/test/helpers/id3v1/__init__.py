@@ -2,8 +2,10 @@
 
 from .id3v1_tool import Id3v1Tool
 from .id3v1_metadata_deleter import ID3v1MetadataDeleter
+from .id3v1_metadata_setter import ID3v1MetadataSetter
 
 __all__ = [
     "Id3v1Tool",
-    "ID3v1MetadataDeleter"
+    "ID3v1MetadataDeleter",
+    "ID3v1MetadataSetter"
 ]

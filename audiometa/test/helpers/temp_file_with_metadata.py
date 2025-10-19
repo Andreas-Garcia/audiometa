@@ -175,12 +175,12 @@ class TempFileWithMetadata:
     
     def set_id3v1_genre(self, genre_code: str):
         ID3v1MetadataSetter.set_genre(self.test_file, genre_code)
-    
+
     def set_id3v1_max_metadata(self):
         ID3v1MetadataSetter.set_max_metadata(self.test_file)
-    
+
     def remove_id3v1_metadata(self):
-        return self._run_script("remove_id3.py")
+        ID3v1MetadataDeleter.delete_genre(self.test_file)
     
     # =============================================================================
     # ID3v2 Format Operations
