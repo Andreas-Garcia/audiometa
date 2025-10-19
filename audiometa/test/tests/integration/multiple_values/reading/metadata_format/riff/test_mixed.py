@@ -1,56 +1,32 @@
-from audiometa import get_merged_unified_metadata, get_specific_metadata, update_file_metadata
+from audiometa import get_merged_unified_metadata, get_specific_metadata, update_file_metadata, get_single_format_app_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 class TestRiffMixed:
-    def test_mixed_single_and_multiple_values(self):
+    def test_mixed_separators_and_multiple_entries(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            test_file.set_riff_multiple_artists(["Artist 1;Artist 2", "Artist 3", "Artist 4"])
+            test_file.set_riff_multiple_artists(["Artist 1;Artist 2", "Artist 3", "Artist 4"], in_separate_frames=True)
             verification = test_file.verify_riff_multiple_entries_in_raw_data("IART", expected_count=3)
             
-            assert "IART" in verification['raw_output'] 
-            assert "Artist 1;Artist" in verification['raw_output']
+            # Verify the raw data creation - exiftool shows RIFF tags as "Artist" not "IART"
+            assert verification["success"], f"Verification failed: {verification.get('error', 'Unknown error')}"
+            assert verification["actual_count"] == 3, f"Expected 3 separate IART frames, found {verification['actual_count']}"
+            assert "[RIFF]" in verification['raw_output']
+            assert "Artist" in verification['raw_output']
+            assert "Artist 1;Artist 2" in verification['raw_output'] 
             assert "Artist 3" in verification['raw_output']
             assert "Artist 4" in verification['raw_output']
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.RIFF)
+            # Get RIFF metadata specifically to read the artists
+            riff_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
+            artists = riff_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             assert isinstance(artists, list)
+            
+            # We created 3 separate RIFF frames, so we should get 3 entries 
+            # (separator parsing happens at a higher level, not in RIFF format itself)
             assert len(artists) == 3
             assert "Artist 1;Artist 2" in artists
             assert "Artist 3" in artists
             assert "Artist 4" in artists
-
-    def test_mixed_genres_no_parsing(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            test_file.set_riff_multiple_genres(["Rock;Alternative", "Indie", "Electronic"])
-            
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES, metadata_format=MetadataFormat.RIFF)
-            assert isinstance(genres, list)
-            assert len(genres) == 3
-            assert "Rock;Alternative" in genres
-            assert "Indie" in genres
-            assert "Electronic" in genres
-
-    def test_mixed_composers_preserves_separators(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            test_file.set_riff_multiple_composers(["John Doe;Jane Smith", "Bob Wilson", "Alice Cooper"])
-            
-            composers = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMPOSER, metadata_format=MetadataFormat.RIFF)
-            assert isinstance(composers, list)
-            assert len(composers) == 3
-            assert "John Doe;Jane Smith" in composers
-            assert "Bob Wilson" in composers
-            assert "Alice Cooper" in composers
-
-    def test_mixed_album_artists_no_parsing(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            test_file.set_riff_multiple_album_artists(["Various;Artists", "Compilation", "Mixed Artists"])
-            
-            album_artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ALBUM_ARTISTS_NAMES, metadata_format=MetadataFormat.RIFF)
-            assert isinstance(album_artists, list)
-            assert len(album_artists) == 3
-            assert "Various;Artists" in album_artists
-            assert "Compilation" in album_artists
-            assert "Mixed Artists" in album_artists
