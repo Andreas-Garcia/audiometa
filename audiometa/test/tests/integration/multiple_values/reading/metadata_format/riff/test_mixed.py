@@ -1,4 +1,4 @@
-from audiometa import get_merged_unified_metadata, get_specific_metadata, update_file_metadata, get_single_format_app_metadata
+from audiometa import get_single_format_app_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
