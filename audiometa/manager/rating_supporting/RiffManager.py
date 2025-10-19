@@ -280,13 +280,13 @@ class RiffManager(RatingSupportingMetadataManager):
         return cast(int, raw_rating), True
 
     def _get_undirectly_mapped_metadata_value_other_than_rating_from_raw_clean_metadata(
-            self, app_metadata_key: UnifiedMetadataKey, raw_clean_metadata: RawMetadataDict) -> AppMetadataValue:
+            self, unified_metadata_key: UnifiedMetadataKey, raw_clean_metadata: RawMetadataDict) -> AppMetadataValue:
 
-        if app_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
+        if unified_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
             return self._get_genre_name_from_raw_clean_metadata_id3v1(
                 raw_clean_metadata=raw_clean_metadata, raw_metadata_ket=self.RiffTagKey.GENRE_NAME_OR_CODE)
         else:
-            raise MetadataNotSupportedError(f'Metadata key not handled: {app_metadata_key}')
+            raise MetadataNotSupportedError(f'Metadata key not handled: {unified_metadata_key}')
 
     def _update_not_using_mutagen_metadata(self, app_metadata: AppMetadata):
         """
@@ -301,9 +301,9 @@ class RiffManager(RatingSupportingMetadataManager):
             raise ConfigurationError('metadata_keys_direct_map_write must be set')
 
         # Validate that all metadata fields are supported by RIFF format
-        for app_metadata_key in app_metadata.keys():
-            if app_metadata_key not in self.metadata_keys_direct_map_write:
-                raise MetadataNotSupportedError(f'{app_metadata_key} metadata not supported by RIFF format')
+        for unified_metadata_key in app_metadata.keys():
+            if unified_metadata_key not in self.metadata_keys_direct_map_write:
+                raise MetadataNotSupportedError(f'{unified_metadata_key} metadata not supported by RIFF format')
 
         # Read the entire file into a mutable bytearray
         self.audio_file.seek(0)

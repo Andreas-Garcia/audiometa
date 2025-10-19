@@ -357,13 +357,13 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             all(isinstance(item, str) for item in app_metadata_value)):
             
             # Get the corresponding UnifiedMetadataKey
-            app_metadata_key = None
+            unified_metadata_key = None
             for key, raw_key in self.metadata_keys_direct_map_write.items():
                 if raw_key == raw_metadata_key:
-                    app_metadata_key = key
+                    unified_metadata_key = key
                     break
                     
-            if app_metadata_key and app_metadata_key.can_semantically_have_multiple_values():
+            if unified_metadata_key and unified_metadata_key.can_semantically_have_multiple_values():
                 # For ID3v2, create separate frames for each value (native multi-entry support)
                 text_frame_class = self.ID3_TEXT_FRAME_CLASS_MAP[raw_metadata_key]
                 for value in app_metadata_value:
@@ -530,13 +530,13 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         if self.raw_mutagen_metadata is None:
             self.raw_mutagen_metadata = self._extract_mutagen_metadata()
 
-        for app_metadata_key in list(app_metadata.keys()):
-            app_metadata_value = app_metadata[app_metadata_key]
-            if app_metadata_key not in self.metadata_keys_direct_map_write:
+        for unified_metadata_key in list(app_metadata.keys()):
+            app_metadata_value = app_metadata[unified_metadata_key]
+            if unified_metadata_key not in self.metadata_keys_direct_map_write:
                 from ...exceptions import MetadataNotSupportedError
-                raise MetadataNotSupportedError(f'{app_metadata_key} metadata not supported by this format')
+                raise MetadataNotSupportedError(f'{unified_metadata_key} metadata not supported by this format')
             else:
-                raw_metadata_key = self.metadata_keys_direct_map_write[app_metadata_key]
+                raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
                 if raw_metadata_key:
                     self._update_formatted_value_in_raw_mutagen_metadata(
                         raw_mutagen_metadata=self.raw_mutagen_metadata, raw_metadata_key=raw_metadata_key,
@@ -544,7 +544,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                 else:
                     self._update_undirectly_mapped_metadata(
                         raw_mutagen_metadata=self.raw_mutagen_metadata, app_metadata_value=app_metadata_value,
-                        app_metadata_key=app_metadata_key)
+                        unified_metadata_key=unified_metadata_key)
         
         # Save with ID3v1 preservation
         self._save_with_id3v1_preservation(file_path, id3v1_data)

@@ -154,8 +154,8 @@ class VorbisManager(RatingSupportingMetadataManager):
 
     def _update_undirectly_mapped_metadata(self, raw_mutagen_metadata: MutagenMetadata,
                                            app_metadata_value: AppMetadataValue,
-                                           app_metadata_key: UnifiedMetadataKey):
-        if app_metadata_key == UnifiedMetadataKey.RATING:
+                                           unified_metadata_key: UnifiedMetadataKey):
+        if unified_metadata_key == UnifiedMetadataKey.RATING:
             if app_metadata_value is not None:
                 app_metadata_value = str(app_metadata_value)
             self._update_formatted_value_in_raw_mutagen_metadata(raw_mutagen_metadata=raw_mutagen_metadata,

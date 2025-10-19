@@ -109,16 +109,16 @@ class Id3v1Manager(MetadataManager):
         return result
 
     def _get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
-            self, raw_clean_metadata: RawMetadataDict, app_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
-        if app_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
+            self, raw_clean_metadata: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
+        if unified_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
             return self._get_genre_name_from_raw_clean_metadata_id3v1(
                 raw_clean_metadata=raw_clean_metadata, raw_metadata_ket=Id3v1RawMetadataKey.GENRE_CODE_OR_NAME)
-        raise MetadataNotSupportedError(f'{app_metadata_key} metadata is not undirectly handled')
+        raise MetadataNotSupportedError(f'{unified_metadata_key} metadata is not undirectly handled')
 
     def _update_undirectly_mapped_metadata(self, raw_mutagen_metadata: MutagenMetadata,
                                            app_metadata_value: AppMetadataValue,
-                                           app_metadata_key: UnifiedMetadataKey):
-        if app_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
+                                           unified_metadata_key: UnifiedMetadataKey):
+        if unified_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
             # Handle both single string and list values gracefully
             if isinstance(app_metadata_value, list):
                 app_metadata_value = app_metadata_value[0] if app_metadata_value else None
@@ -129,7 +129,7 @@ class Id3v1Manager(MetadataManager):
                 if genre_code is not None:
                     raw_mutagen_metadata.tags[Id3v1RawMetadataKey.GENRE_CODE_OR_NAME] = [str(genre_code)]
         else:
-            raise MetadataNotSupportedError(f'{app_metadata_key} metadata is not undirectly handled')
+            raise MetadataNotSupportedError(f'{unified_metadata_key} metadata is not undirectly handled')
 
     def _update_formatted_value_in_raw_mutagen_metadata(self, raw_mutagen_metadata: MutagenMetadata,
                                                         raw_metadata_key: RawMetadataKey,
@@ -169,9 +169,9 @@ class Id3v1Manager(MetadataManager):
     def _update_not_using_mutagen_metadata(self, app_metadata: AppMetadata):
         """Update ID3v1 metadata using direct file manipulation."""
         # Validate that all fields are supported by ID3v1
-        for app_metadata_key in app_metadata.keys():
-            if app_metadata_key not in self.metadata_keys_direct_map_write:
-                raise MetadataNotSupportedError(f'{app_metadata_key} metadata not supported by this format')
+        for unified_metadata_key in app_metadata.keys():
+            if unified_metadata_key not in self.metadata_keys_direct_map_write:
+                raise MetadataNotSupportedError(f'{unified_metadata_key} metadata not supported by this format')
         
         # Read the entire file
         self.audio_file.seek(0)
