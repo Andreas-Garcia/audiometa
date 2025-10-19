@@ -117,37 +117,62 @@ class RIFFMetadataSetter:
         run_external_tool(command, "exiftool")
     
     @staticmethod
-    def set_multiple_artists(file_path: Path, artists: List[str]):
-        # For testing multiple instances, we'd need to use a more sophisticated approach
-        # For now, just set the first artist
-        if artists:
-            command = ["bwfmetaedit", f"--IART={artists[0]}", str(file_path)]
-            run_external_tool(command, "bwfmetaedit")
+    def set_multiple_artists(file_path: Path, artists: List[str], in_separate_frames: bool = False):
+        """Set multiple artists, optionally in separate IART frames."""
+        if in_separate_frames:
+            from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
+            ManualRIFFMetadataCreator.create_multiple_artist_fields(file_path, artists)
+        else:
+            # For testing multiple instances, we'd need to use a more sophisticated approach
+            # For now, just set the first artist
+            if artists:
+                command = ["bwfmetaedit", f"--IART={artists[0]}", str(file_path)]
+                run_external_tool(command, "bwfmetaedit")
     
     @staticmethod
-    def set_multiple_genres(file_path: Path, genres: List[str]):
-        # For now, just set the first genre
-        if genres:
-            command = ["bwfmetaedit", f"--IGNR={genres[0]}", str(file_path)]
-            run_external_tool(command, "bwfmetaedit")
+    def set_multiple_genres(file_path: Path, genres: List[str], in_separate_frames: bool = False):
+        """Set multiple genres, optionally in separate IGNR frames."""
+        if in_separate_frames:
+            from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
+            ManualRIFFMetadataCreator.create_multiple_genre_fields(file_path, genres)
+        else:
+            # For now, just set the first genre
+            if genres:
+                command = ["bwfmetaedit", f"--IGNR={genres[0]}", str(file_path)]
+                run_external_tool(command, "bwfmetaedit")
     
     @staticmethod
-    def set_multiple_composers(file_path: Path, composers: List[str]):
-        # For now, just set the first composer
-        if composers:
-            command = ["bwfmetaedit", f"--ICMP={composers[0]}", str(file_path)]
-            run_external_tool(command, "bwfmetaedit")
+    def set_multiple_composers(file_path: Path, composers: List[str], in_separate_frames: bool = False):
+        """Set multiple composers, optionally in separate ICMP frames."""
+        if in_separate_frames:
+            from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
+            ManualRIFFMetadataCreator.create_multiple_composer_fields(file_path, composers)
+        else:
+            # For now, just set the first composer
+            if composers:
+                command = ["bwfmetaedit", f"--ICMP={composers[0]}", str(file_path)]
+                run_external_tool(command, "bwfmetaedit")
     
     @staticmethod
-    def set_multiple_album_artists(file_path: Path, album_artists: List[str]):
-        # For now, just set the first album artist
-        if album_artists:
-            command = ["bwfmetaedit", f"--IAAR={album_artists[0]}", str(file_path)]
-            run_external_tool(command, "bwfmetaedit")
+    def set_multiple_album_artists(file_path: Path, album_artists: List[str], in_separate_frames: bool = False):
+        """Set multiple album artists, optionally in separate IAAR frames."""
+        if in_separate_frames:
+            from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
+            ManualRIFFMetadataCreator.create_multiple_album_artist_fields(file_path, album_artists)
+        else:
+            # For now, just set the first album artist
+            if album_artists:
+                command = ["bwfmetaedit", f"--IAAR={album_artists[0]}", str(file_path)]
+                run_external_tool(command, "bwfmetaedit")
     
     @staticmethod
-    def set_multiple_comments(file_path: Path, comments: List[str]):
-        # For now, just set the first comment
-        if comments:
-            command = ["bwfmetaedit", f"--ICMT={comments[0]}", str(file_path)]
-            run_external_tool(command, "bwfmetaedit")
+    def set_multiple_comments(file_path: Path, comments: List[str], in_separate_frames: bool = False):
+        """Set multiple comments, optionally in separate ICMT frames."""
+        if in_separate_frames:
+            from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
+            ManualRIFFMetadataCreator.create_multiple_comment_fields(file_path, comments)
+        else:
+            # For now, just set the first comment
+            if comments:
+                command = ["bwfmetaedit", f"--ICMT={comments[0]}", str(file_path)]
+                run_external_tool(command, "bwfmetaedit")
