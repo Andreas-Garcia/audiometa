@@ -1,0 +1,44 @@
+"""Test helpers package for audiometa.
+
+This package provides utilities for creating and managing test files with metadata.
+Classes are organized by metadata format in subdirectories following clean architecture principles.
+
+Main Classes:
+- TempFileWithMetadata: Context manager for test files with comprehensive metadata operations
+  Located in: temp_file_with_metadata.py
+
+Organized by Format:
+
+ID3v2 Format (id3v2/):
+- Mid3v2Tool: Wrapper for mid3v2 operations  
+- Id3v2Tool: Wrapper for id3v2 operations
+- ID3v2MetadataVerifier: Verifying ID3v2 metadata
+- ID3v2MultipleMetadataManager: Managing multiple ID3v2 frame values
+- ID3v2SeparatorMetadataManager: Managing ID3v2 separator-based metadata
+- ManualID3v2FrameCreator: Manual binary construction of ID3v2 frames for testing edge cases
+
+Vorbis Format (vorbis/):
+- MetaflacTool: Wrapper for metaflac operations
+- VorbisMetadataVerifier: Verifying Vorbis comments
+- VorbisMultipleMetadataManager: Managing multiple Vorbis comment values
+
+RIFF Format (riff/):
+- BwfmetaeditTool: Wrapper for bwfmetaedit operations
+- ExiftoolTool: Wrapper for exiftool operations
+- RIFFMetadataVerifier: Verifying RIFF metadata
+- RIFFMultipleMetadataManager: Managing multiple RIFF chunk values
+- RIFFSeparatorMetadataManager: Managing RIFF separator-based metadata
+
+Common Utilities (common/):
+- AudioFileCreator: Utilities for creating minimal audio files
+- ScriptRunner: Utilities for running external scripts
+- MetadataHeaderVerifier: Low-level header verification
+- ComprehensiveMetadataVerifier: Cross-format verification
+
+Usage:
+    from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+    from audiometa.test.helpers.id3v2 import Mid3v2Tool, Id3v2Tool, ID3v2MetadataVerifier, ID3v2MultipleMetadataManager, ID3v2SeparatorMetadataManager, ManualID3v2FrameCreator
+    from audiometa.test.helpers.vorbis import MetaflacTool, VorbisMetadataVerifier, VorbisMultipleMetadataManager
+    from audiometa.test.helpers.riff import BwfmetaeditTool, ExiftoolTool, RIFFMetadataVerifier, RIFFMultipleMetadataManager, RIFFSeparatorMetadataManager
+    from audiometa.test.helpers.common import AudioFileCreator, ScriptRunner, MetadataHeaderVerifier, ComprehensiveMetadataVerifier
+"""

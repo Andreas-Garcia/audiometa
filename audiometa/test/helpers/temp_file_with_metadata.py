@@ -9,7 +9,12 @@ import subprocess
 import tempfile
 import shutil
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List
+
+from .id3v2 import Mid3v2Tool, Id3v2Tool, ID3v2MetadataVerifier, ID3v2MultipleMetadataManager, ID3v2SeparatorMetadataManager
+from .vorbis import MetaflacTool, VorbisMetadataVerifier, VorbisMultipleMetadataManager
+from .riff import BwfmetaeditTool, RIFFMetadataVerifier, RIFFMultipleMetadataManager, RIFFSeparatorMetadataManager
+from .common import AudioFileCreator, ScriptRunner, MetadataHeaderVerifier, ComprehensiveMetadataVerifier
 
 
 class TempFileWithMetadata:
@@ -128,161 +133,24 @@ class TempFileWithMetadata:
     
     def _set_mp3_metadata_with_mid3v2(self, file_path: Path, metadata: dict) -> None:
         """Set MP3 metadata using mid3v2 tool."""
-        cmd = ["mid3v2"]
-        
-        # Map common metadata keys to mid3v2 arguments
-        key_mapping = {
-            'title': '--song',
-            'artist': '--artist', 
-            'album': '--album',
-            'year': '--year',
-            'genre': '--genre',
-            'comment': '--comment',
-            'track': '--track'
-        }
-        
-        for key, value in metadata.items():
-            if key.lower() in key_mapping:
-                cmd.extend([key_mapping[key.lower()], str(value)])
-        
-        cmd.append(str(file_path))
-        
-        try:
-            subprocess.run(cmd, check=True, capture_output=True)
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"mid3v2 failed: {e.stderr}") from e
+        Mid3v2Tool.set_mp3_metadata(file_path, metadata)
     
     def _set_mp3_metadata_with_id3v1(self, file_path: Path, metadata: dict) -> None:
         """Set MP3 metadata using id3v2 tool with --id3v1-only flag."""
-        cmd = ["id3v2", "--id3v1-only"]
-        
-        # Map common metadata keys to id3v2 arguments
-        key_mapping = {
-            'title': '--song',
-            'artist': '--artist', 
-            'album': '--album',
-            'year': '--year',
-            'genre': '--genre',
-            'comment': '--comment',
-            'track': '--track'
-        }
-        
-        for key, value in metadata.items():
-            if key.lower() in key_mapping:
-                cmd.extend([key_mapping[key.lower()], str(value)])
-        
-        cmd.append(str(file_path))
-        
-        try:
-            subprocess.run(cmd, check=True, capture_output=True)
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"id3v2 failed: {e.stderr}") from e
+        Id3v2Tool.set_id3v1_metadata(file_path, metadata)
     
     def _set_flac_metadata_with_metaflac(self, file_path: Path, metadata: dict) -> None:
         """Set FLAC metadata using metaflac tool."""
-        cmd = ["metaflac"]
-        
-        # Map common metadata keys to metaflac arguments
-        key_mapping = {
-            'title': 'TITLE',
-            'artist': 'ARTIST',
-            'album': 'ALBUM',
-            'date': 'DATE',
-            'genre': 'GENRE',
-            'comment': 'COMMENT',
-            'tracknumber': 'TRACKNUMBER'
-        }
-        
-        for key, value in metadata.items():
-            if key.lower() in key_mapping:
-                cmd.extend([f"--set-tag={key_mapping[key.lower()]}={value}"])
-        
-        cmd.append(str(file_path))
-        
-        try:
-            subprocess.run(cmd, check=True, capture_output=True)
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"metaflac failed: {e.stderr}") from e
+        MetaflacTool.set_flac_metadata(file_path, metadata)
     
     def _set_wav_metadata_with_bwfmetaedit(self, file_path: Path, metadata: dict) -> None:
         """Set WAV metadata using bwfmetaedit tool."""
-        cmd = ["bwfmetaedit"]
-        
-        # Map common metadata keys to bwfmetaedit arguments
-        key_mapping = {
-            'title': '--INAM',
-            'artist': '--IART',
-            'album': '--IPRD',
-            'genre': '--IGNR',
-            'date': '--ICRD',
-            'comment': '--ICMT',
-            'track': '--ITRK'
-        }
-        
-        for key, value in metadata.items():
-            if key.lower() in key_mapping:
-                cmd.extend([f"{key_mapping[key.lower()]}={value}"])
-        
-        cmd.append(str(file_path))
-        
-        try:
-            subprocess.run(cmd, check=True, capture_output=True)
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"bwfmetaedit failed: {e.stderr}") from e
+        BwfmetaeditTool.set_wav_metadata(file_path, metadata)
     
     def _create_minimal_audio_file(self, file_path: Path, format_type: str) -> None:
-        """Create a minimal audio file for testing.
-        
-        Args:
-            file_path: Path where to create the file
-            format_type: Audio format ('mp3', 'flac', 'wav')
-        """
-        # Use existing sample files as templates
+        """Create a minimal audio file for testing."""
         test_files_dir = Path(__file__).parent.parent.parent / "test" / "data" / "audio_files"
-        
-        if format_type.lower() in ['mp3', 'id3v1', 'id3v2.3', 'id3v2.4']:
-            template_file = test_files_dir / "metadata=none.mp3"
-        elif format_type.lower() == 'flac':
-            template_file = test_files_dir / "metadata=none.flac"
-        elif format_type.lower() == 'wav':
-            template_file = test_files_dir / "metadata=none.wav"
-        else:
-            raise ValueError(f"Unsupported format type: {format_type}")
-        
-        if not template_file.exists():
-            # Fallback: create a minimal file using ffmpeg if available
-            try:
-                # For id3v1, id3v2.3, id3v2.4, use mp3 format for ffmpeg
-                if format_type.lower() in ['id3v1', 'id3v2.3', 'id3v2.4']:
-                    actual_format = 'mp3'
-                else:
-                    actual_format = format_type.lower()
-                self._create_minimal_audio_with_ffmpeg(file_path, actual_format)
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                # Last resort: copy from any available sample file
-                # For id3v1, id3v2.3, id3v2.4, look for mp3 files
-                if format_type.lower() in ['id3v1', 'id3v2.3', 'id3v2.4']:
-                    search_format = 'mp3'
-                else:
-                    search_format = format_type.lower()
-                sample_files = list(test_files_dir.glob(f"*.{search_format}"))
-                if sample_files:
-                    shutil.copy2(sample_files[0], file_path)
-                else:
-                    raise RuntimeError(f"No template file found for {format_type}")
-        else:
-            # Copy from template
-            shutil.copy2(template_file, file_path)
-    
-    def _create_minimal_audio_with_ffmpeg(self, file_path: Path, format_type: str) -> None:
-        """Create a minimal audio file using ffmpeg."""
-        # Create 1 second of silence
-        cmd = [
-            "ffmpeg", "-f", "lavfi", "-i", "anullsrc=duration=1",
-            "-acodec", format_type.lower(), "-y", str(file_path)
-        ]
-        
-        subprocess.run(cmd, check=True, capture_output=True)
+        AudioFileCreator.create_minimal_audio_file(file_path, format_type, test_files_dir)
     
     def _get_scripts_dir(self) -> Path:
         """Get the scripts directory path."""
@@ -291,26 +159,8 @@ class TempFileWithMetadata:
     def _run_script(self, script_name: str, check: bool = True) -> subprocess.CompletedProcess:
         """Run an external script with proper error handling."""
         scripts_dir = self._get_scripts_dir()
-        script_path = scripts_dir / script_name
-        if not script_path.exists():
-            raise FileNotFoundError(f"Script not found: {script_path}")
-        
-        if not script_path.is_file():
-            raise FileNotFoundError(f"Script is not a file: {script_path}")
-        
-        # Make script executable
-        script_path.chmod(0o755)
-        
-        try:
-            result = subprocess.run(
-                [str(script_path), str(self.test_file)],
-                capture_output=True,
-                text=True,
-                check=check
-            )
-            return result
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"Script {script_name} failed: {e.stderr}") from e
+        script_runner = ScriptRunner(scripts_dir)
+        return script_runner.run_script(script_name, self.test_file)
     
     def _run_external_tool(self, command: list[str], check: bool = True) -> subprocess.CompletedProcess:
         """Run an external tool with proper error handling."""
@@ -328,97 +178,34 @@ class TempFileWithMetadata:
     def _create_multiple_id3v2_frames(self, frame_id: str, texts: list[str]) -> None:
         """Create multiple separate ID3v2 frames using manual binary construction.
         
-        This bypasses standard tools that consolidate multiple frames of the same type,
-        allowing creation of truly separate frames for testing purposes.
+        This uses the ManualID3v2FrameCreator to bypass standard tools that 
+        consolidate multiple frames of the same type, allowing creation of 
+        truly separate frames for testing purposes.
         
         Args:
             frame_id: The ID3v2 frame identifier (e.g., 'TPE1', 'TPE2', 'TCON', 'TCOM')
             texts: List of text values, one per frame
         """
-        import struct
+        from .id3v2 import ManualID3v2FrameCreator
         
-        # Create frames data
-        frames = []
-        for text in texts:
-            frame_data = self._create_id3v2_text_frame(frame_id, text)
-            frames.append(frame_data)
+        creator = ManualID3v2FrameCreator(self.test_file)
         
-        self._write_id3v2_tag_with_frames(frames)
-    
-    def _create_id3v2_text_frame(self, frame_id: str, text: str) -> bytes:
-        """Create a single ID3v2.4 text frame with the given ID and text."""
-        import struct
-        
-        # Text encoding: 3 = UTF-8
-        encoding = 3
-        
-        # Frame data: encoding byte + UTF-8 text + null terminator
-        text_bytes = text.encode('utf-8')
-        frame_data = struct.pack('B', encoding) + text_bytes + b'\x00'
-        
-        # Frame header: ID (4 bytes) + size (4 bytes) + flags (2 bytes)
-        frame_id_bytes = frame_id.encode('ascii')
-        frame_size = len(frame_data)
-        frame_flags = 0x0000  # No flags
-        
-        frame_header = (
-            frame_id_bytes +
-            struct.pack('>I', frame_size) +  # Big-endian 32-bit size
-            struct.pack('>H', frame_flags)   # Big-endian 16-bit flags
-        )
-        
-        return frame_header + frame_data
-    
-    def _synchsafe_int(self, value: int) -> bytes:
-        """Convert integer to ID3v2 synchsafe integer (7 bits per byte)."""
-        import struct
-        
-        # Split into 7-bit chunks, most significant first
-        result = []
-        for i in range(4):
-            result.insert(0, value & 0x7f)
-            value >>= 7
-        return struct.pack('4B', *result)
-    
-    def _write_id3v2_tag_with_frames(self, frames: list[bytes]) -> None:
-        """Write ID3v2.4 tag with the given frames to the file."""
-        import struct
-        
-        # Calculate total size of all frames
-        frames_data = b''.join(frames)
-        tag_size = len(frames_data)
-        
-        # ID3v2.4 header: "ID3" + version + flags + size
-        header = (
-            b'ID3' +                           # ID3 identifier
-            struct.pack('BB', 4, 0) +          # Version 2.4.0
-            struct.pack('B', 0) +              # Flags (no unsynchronisation, etc.)
-            self._synchsafe_int(tag_size)      # Size as synchsafe integer
-        )
-        
-        # Read existing file content (audio data)
-        with open(self.test_file, 'rb') as f:
-            original_data = f.read()
-        
-        # Remove any existing ID3v2 tag
-        audio_data = original_data
-        if original_data.startswith(b'ID3'):
-            # Skip existing ID3v2 tag
-            if len(original_data) >= 10:
-                # Extract size from existing tag
-                size_bytes = original_data[6:10]
-                existing_tag_size = 0
-                for byte in size_bytes:
-                    existing_tag_size = (existing_tag_size << 7) | (byte & 0x7f)
-                
-                # Audio data starts after header (10 bytes) + tag size
-                audio_data = original_data[10 + existing_tag_size:]
-        
-        # Write new file with our custom ID3v2 tag
-        with open(self.test_file, 'wb') as f:
-            f.write(header)
-            f.write(frames_data)
-            f.write(audio_data)
+        # Create frames based on the frame type
+        if frame_id == 'TPE1':
+            creator.create_multiple_tpe1_frames(texts)
+        elif frame_id == 'TPE2':
+            creator.create_multiple_tpe2_frames(texts)
+        elif frame_id == 'TCON':
+            creator.create_multiple_tcon_frames(texts)
+        elif frame_id == 'TCOM':
+            creator.create_multiple_tcom_frames(texts)
+        else:
+            # Generic frame creation for other frame types
+            frames = []
+            for text in texts:
+                frame_data = creator._create_text_frame(frame_id, text)
+                frames.append(frame_data)
+            creator._write_id3v2_tag(frames)
     
     # =============================================================================
     # ID3v1 Format Operations
@@ -450,59 +237,15 @@ class TempFileWithMetadata:
         command = ["mid3v2", "--genre", genre, str(self.test_file)]
         return self._run_external_tool(command)
     
-    def set_id3v2_multiple_genres(self, genres: list[str], in_separate_frames: bool = False):
-        """Set ID3v2 multiple genres using external mid3v2 tool or manual frame creation.
-        
-        Args:
-            genres: List of genre strings to set
-            in_separate_frames: If True, creates multiple separate TCON frames (one per genre) using manual binary construction.
-                              If False (default), creates a single TCON frame with multiple values using mid3v2.
-        """
-        # Try to delete existing TCON tags, but don't fail if they don't exist
-        try:
-            command = ["mid3v2", "--delete", "TCON", str(self.test_file)]
-            self._run_external_tool(command)
-        except RuntimeError:
-            # Ignore if TCON tags don't exist
-            pass
-        
-        if in_separate_frames:
-            # Use manual binary construction to create truly separate TCON frames
-            self._create_multiple_id3v2_frames('TCON', genres)
-        else:
-            # Set all genres in a single command (creates one frame with multiple values)
-            command = ["mid3v2"]
-            for genre in genres:
-                command.extend(["--TCON", genre])
-            command.append(str(self.test_file))
-            self._run_external_tool(command)
+    def set_id3v2_multiple_genres(self, genres: List[str], in_separate_frames: bool = False):
+        """Set ID3v2 multiple genres using external mid3v2 tool or manual frame creation."""
+        manager = ID3v2MultipleMetadataManager(self.test_file)
+        manager.set_multiple_genres(genres, in_separate_frames)
     
-    def set_id3v2_multiple_artists(self, artists: list[str], in_separate_frames: bool = False):
-        """Set ID3v2 multiple artists using external mid3v2 tool or manual frame creation.
-        
-        Args:
-            artists: List of artist strings to set
-            in_separate_frames: If True, creates multiple separate TPE1 frames (one per artist) using manual binary construction.
-                              If False (default), creates a single TPE1 frame with multiple values using mid3v2.
-        """
-        # Try to delete existing TPE1 tags, but don't fail if they don't exist
-        try:
-            command = ["mid3v2", "--delete", "TPE1", str(self.test_file)]
-            self._run_external_tool(command)
-        except RuntimeError:
-            # Ignore if TPE1 tags don't exist
-            pass
-        
-        if in_separate_frames:
-            # Use manual binary construction to create truly separate TPE1 frames
-            self._create_multiple_id3v2_frames('TPE1', artists)
-        else:
-            # Set all artists in a single command (creates one frame with multiple values)
-            command = ["mid3v2"]
-            for artist in artists:
-                command.extend(["--TPE1", artist])
-            command.append(str(self.test_file))
-            self._run_external_tool(command)
+    def set_id3v2_multiple_artists(self, artists: List[str], in_separate_frames: bool = False):
+        """Set ID3v2 multiple artists using external mid3v2 tool or manual frame creation."""
+        manager = ID3v2MultipleMetadataManager(self.test_file)
+        manager.set_multiple_artists(artists, in_separate_frames)
     
     def set_id3v2_3_multiple_artists(self, artists: list[str]):
         """Set ID3v2.3 multiple artists using external mid3v2 tool."""
@@ -558,59 +301,15 @@ class TempFileWithMetadata:
         command = ["mid3v2", "--list", str(self.test_file)]
         return self._run_external_tool(command).stdout
     
-    def set_id3v2_multiple_album_artists(self, album_artists: list[str], in_separate_frames: bool = False):
-        """Set ID3v2 multiple album artists using external mid3v2 tool or manual frame creation.
-        
-        Args:
-            album_artists: List of album artist strings to set
-            in_separate_frames: If True, creates multiple separate TPE2 frames (one per album artist) using manual binary construction.
-                              If False (default), creates a single TPE2 frame with multiple values using mid3v2.
-        """
-        # Try to delete existing TPE2 tags, but don't fail if they don't exist
-        try:
-            command = ["mid3v2", "--delete", "TPE2", str(self.test_file)]
-            self._run_external_tool(command)
-        except RuntimeError:
-            # Ignore if TPE2 tags don't exist
-            pass
-        
-        if in_separate_frames:
-            # Use manual binary construction to create truly separate TPE2 frames
-            self._create_multiple_id3v2_frames('TPE2', album_artists)
-        else:
-            # Set all album artists in a single command (creates one frame with multiple values)
-            command = ["mid3v2"]
-            for album_artist in album_artists:
-                command.extend(["--TPE2", album_artist])
-            command.append(str(self.test_file))
-            self._run_external_tool(command)
+    def set_id3v2_multiple_album_artists(self, album_artists: List[str], in_separate_frames: bool = False):
+        """Set ID3v2 multiple album artists using external mid3v2 tool or manual frame creation."""
+        manager = ID3v2MultipleMetadataManager(self.test_file)
+        manager.set_multiple_album_artists(album_artists, in_separate_frames)
     
-    def set_id3v2_multiple_composers(self, composers: list[str], in_separate_frames: bool = False):
-        """Set ID3v2 multiple composers using external mid3v2 tool or manual frame creation.
-        
-        Args:
-            composers: List of composer strings to set
-            in_separate_frames: If True, creates multiple separate TCOM frames (one per composer) using manual binary construction.
-                              If False (default), creates a single TCOM frame with multiple values using mid3v2.
-        """
-        # Try to delete existing TCOM tags, but don't fail if they don't exist
-        try:
-            command = ["mid3v2", "--delete", "TCOM", str(self.test_file)]
-            self._run_external_tool(command)
-        except RuntimeError:
-            # Ignore if TCOM tags don't exist
-            pass
-        
-        if in_separate_frames:
-            # Use manual binary construction to create truly separate TCOM frames
-            self._create_multiple_id3v2_frames('TCOM', composers)
-        else:
-            # Set all composers in a single command (creates one frame with multiple values)
-            command = ["mid3v2"]
-            for composer in composers:
-                command.extend(["--TCOM", composer])
-            command.append(str(self.test_file))
-            self._run_external_tool(command)
+    def set_id3v2_multiple_composers(self, composers: List[str], in_separate_frames: bool = False):
+        """Set ID3v2 multiple composers using external mid3v2 tool or manual frame creation."""
+        manager = ID3v2MultipleMetadataManager(self.test_file)
+        manager.set_multiple_composers(composers, in_separate_frames)
     
     def set_id3v2_max_metadata(self):
         """Set maximum ID3v2 metadata using external script."""
@@ -879,89 +578,35 @@ class TempFileWithMetadata:
         command = ["metaflac", "--set-tag", f"GENRE={genre}", str(self.test_file)]
         return self._run_external_tool(command)
     
-    def set_vorbis_multiple_artists(self, artists: list[str]):
+    def set_vorbis_multiple_artists(self, artists: List[str]):
         """Set Vorbis multiple artists using external metaflac tool."""
-        # Try to remove existing ARTIST tags, but don't fail if they don't exist
-        try:
-            command = ["metaflac", "--remove-tag", "ARTIST", str(self.test_file)]
-            self._run_external_tool(command)
-        except RuntimeError:
-            # Ignore if ARTIST tags don't exist
-            pass
-        
-        for artist in artists:
-            command = ["metaflac", "--set-tag", f"ARTIST={artist}", str(self.test_file)]
-            self._run_external_tool(command)
+        manager = VorbisMultipleMetadataManager(self.test_file)
+        manager.set_multiple_artists(artists)
     
-    def set_vorbis_multiple_album_artists(self, album_artists: list[str]):
+    def set_vorbis_multiple_album_artists(self, album_artists: List[str]):
         """Set Vorbis multiple album artists using external metaflac tool."""
-        # Try to remove existing ALBUMARTIST tags, but don't fail if they don't exist
-        try:
-            command = ["metaflac", "--remove-tag", "ALBUMARTIST", str(self.test_file)]
-            self._run_external_tool(command)
-        except RuntimeError:
-            # Ignore if ALBUMARTIST tags don't exist
-            pass
-        
-        for album_artist in album_artists:
-            command = ["metaflac", "--set-tag", f"ALBUMARTIST={album_artist}", str(self.test_file)]
-            self._run_external_tool(command)
+        manager = VorbisMultipleMetadataManager(self.test_file)
+        manager.set_multiple_album_artists(album_artists)
     
-    def set_vorbis_multiple_composers(self, composers: list[str]):
+    def set_vorbis_multiple_composers(self, composers: List[str]):
         """Set Vorbis multiple composers using external metaflac tool."""
-        # Try to remove existing COMPOSER tags, but don't fail if they don't exist
-        try:
-            command = ["metaflac", "--remove-tag", "COMPOSER", str(self.test_file)]
-            self._run_external_tool(command)
-        except RuntimeError:
-            # Ignore if COMPOSER tags don't exist
-            pass
-        
-        for composer in composers:
-            command = ["metaflac", "--set-tag", f"COMPOSER={composer}", str(self.test_file)]
-            self._run_external_tool(command)
+        manager = VorbisMultipleMetadataManager(self.test_file)
+        manager.set_multiple_composers(composers)
     
-    def set_vorbis_multiple_genres(self, genres: list[str]):
+    def set_vorbis_multiple_genres(self, genres: List[str]):
         """Set Vorbis multiple genres using external metaflac tool."""
-        # Try to remove existing GENRE tags, but don't fail if they don't exist
-        try:
-            command = ["metaflac", "--remove-tag", "GENRE", str(self.test_file)]
-            self._run_external_tool(command)
-        except RuntimeError:
-            # Ignore if GENRE tags don't exist
-            pass
-        
-        for genre in genres:
-            command = ["metaflac", "--set-tag", f"GENRE={genre}", str(self.test_file)]
-            self._run_external_tool(command)
+        manager = VorbisMultipleMetadataManager(self.test_file)
+        manager.set_multiple_genres(genres)
     
-    def set_vorbis_multiple_performers(self, performers: list[str]):
+    def set_vorbis_multiple_performers(self, performers: List[str]):
         """Set Vorbis multiple performers using external metaflac tool."""
-        # Try to remove existing PERFORMER tags, but don't fail if they don't exist
-        try:
-            command = ["metaflac", "--remove-tag", "PERFORMER", str(self.test_file)]
-            self._run_external_tool(command)
-        except RuntimeError:
-            # Ignore if PERFORMER tags don't exist
-            pass
-        
-        for performer in performers:
-            command = ["metaflac", "--set-tag", f"PERFORMER={performer}", str(self.test_file)]
-            self._run_external_tool(command)
+        manager = VorbisMultipleMetadataManager(self.test_file)
+        manager.set_multiple_performers(performers)
     
-    def set_vorbis_multiple_comments(self, comments: list[str]):
+    def set_vorbis_multiple_comments(self, comments: List[str]):
         """Set Vorbis multiple comments using external metaflac tool."""
-        # Try to remove existing COMMENT tags, but don't fail if they don't exist
-        try:
-            command = ["metaflac", "--remove-tag", "COMMENT", str(self.test_file)]
-            self._run_external_tool(command)
-        except RuntimeError:
-            # Ignore if COMMENT tags don't exist
-            pass
-        
-        for comment in comments:
-            command = ["metaflac", "--set-tag", f"COMMENT={comment}", str(self.test_file)]
-            self._run_external_tool(command)
+        manager = VorbisMultipleMetadataManager(self.test_file)
+        manager.set_multiple_comments(comments)
     
     def delete_vorbis_genre(self):
         """Delete Vorbis genre using external metaflac tool."""
@@ -1059,418 +704,71 @@ class TempFileWithMetadata:
         return self._run_external_tool(command)
 
     def has_id3v2_header(self) -> bool:
-        """Check if file has ID3v2 header by reading the first 10 bytes.
-        
-        Returns:
-            True if ID3v2 header is present, False otherwise
-        """
+        """Check if file has ID3v2 header by reading the first 10 bytes."""
         if not self.test_file:
             return False
-        try:
-            with open(self.test_file, 'rb') as f:
-                header = f.read(10)
-                return header[:3] == b'ID3'
-        except (IOError, OSError):
-            return False
+        return MetadataHeaderVerifier.has_id3v2_header(self.test_file)
     
     def has_id3v1_header(self) -> bool:
-        """Check if file has ID3v1 header by reading the last 128 bytes.
-        
-        Returns:
-            True if ID3v1 header is present, False otherwise
-        """
+        """Check if file has ID3v1 header by reading the last 128 bytes."""
         if not self.test_file:
             return False
-        try:
-            with open(self.test_file, 'rb') as f:
-                f.seek(-128, 2)  # Seek to last 128 bytes
-                header = f.read(128)
-                return header[:3] == b'TAG'
-        except (IOError, OSError):
-            return False
+        return MetadataHeaderVerifier.has_id3v1_header(self.test_file)
     
     def has_vorbis_comments(self) -> bool:
-        """Check if file has Vorbis comments using metaflac.
-        
-        Returns:
-            True if Vorbis comments are present, False otherwise
-        """
+        """Check if file has Vorbis comments using metaflac."""
         if not self.test_file:
             return False
-        try:
-            result = subprocess.run(
-                ['metaflac', '--list', str(self.test_file)],
-                capture_output=True, text=True, check=True
-            )
-            return 'VORBIS_COMMENT' in result.stdout
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            return False
+        return MetadataHeaderVerifier.has_vorbis_comments(self.test_file)
     
     def has_riff_info_chunk(self) -> bool:
-        """Check if file has RIFF INFO chunk by reading file structure.
-        
-        Returns:
-            True if RIFF INFO chunk is present, False otherwise
-        """
+        """Check if file has RIFF INFO chunk by reading file structure."""
         if not self.test_file:
             return False
-        try:
-            with open(self.test_file, 'rb') as f:
-                # Read first few bytes to check for ID3v2 tags
-                first_bytes = f.read(10)
-                f.seek(0)  # Reset to beginning
-                
-                if first_bytes.startswith(b'ID3'):
-                    # File has ID3v2 tags, find RIFF header after them
-                    data = f.read()
-                    pos = 0
-                    while pos < len(data) - 8:
-                        if data[pos:pos+4] == b'RIFF':
-                            # Found RIFF header, check for LIST chunk containing INFO
-                            riff_size = int.from_bytes(data[pos+4:pos+8], 'little')
-                            riff_data = data[pos+8:pos+8+riff_size]
-                            
-                            # Search for LIST chunk containing INFO in RIFF data
-                            # Skip the WAVE chunk header (4 bytes)
-                            info_pos = 4
-                            while info_pos < len(riff_data) - 8:
-                                chunk_id = riff_data[info_pos:info_pos+4]
-                                chunk_size = int.from_bytes(riff_data[info_pos+4:info_pos+8], 'little')
-                                
-                                if chunk_id == b'LIST':
-                                    # Check if this LIST chunk contains INFO
-                                    list_data = riff_data[info_pos+8:info_pos+8+chunk_size]
-                                    if len(list_data) >= 4 and list_data[:4] == b'INFO':
-                                        return True
-                                
-                                # Move to next chunk (chunk size + padding)
-                                info_pos += 8 + chunk_size
-                                if chunk_size % 2 == 1:  # Odd size needs padding
-                                    info_pos += 1
-                            return False
-                        pos += 1
-                    return False
-                else:
-                    # File starts with RIFF header
-                    riff_header = f.read(12)
-                    if riff_header[:4] != b'RIFF':
-                        return False
-                    
-                    # Look for LIST chunk containing INFO
-                    chunk_size = int.from_bytes(riff_header[4:8], 'little')
-                    data = f.read(chunk_size)
-                    
-                    # Search for LIST chunk containing INFO
-                    pos = 0
-                    while pos < len(data) - 8:
-                        chunk_id = data[pos:pos+4]
-                        chunk_size = int.from_bytes(data[pos+4:pos+8], 'little')
-                        
-                        if chunk_id == b'LIST':
-                            # Check if this LIST chunk contains INFO
-                            list_data = data[pos+8:pos+8+chunk_size]
-                            if len(list_data) >= 4 and list_data[:4] == b'INFO':
-                                return True
-                        
-                        # Move to next chunk (chunk size + padding)
-                        pos += 8 + chunk_size
-                        if chunk_size % 2 == 1:  # Odd size needs padding
-                            pos += 1
-                    
-                    return False
-        except (IOError, OSError, ValueError):
-            return False
+        return MetadataHeaderVerifier.has_riff_info_chunk(self.test_file)
     
     def get_metadata_headers_present(self) -> Dict[str, bool]:
-        """Get a comprehensive report of all metadata headers present in the file.
-        
-        Returns:
-            Dictionary with format names as keys and boolean presence as values
-        """
+        """Get a comprehensive report of all metadata headers present in the file."""
         if not self.test_file:
             return {}
-        return {
-            'id3v2': self.has_id3v2_header(),
-            'id3v1': self.has_id3v1_header(),
-            'vorbis': self.has_vorbis_comments(),
-            'riff': self.has_riff_info_chunk()
-        }
+        return MetadataHeaderVerifier.get_metadata_headers_present(self.test_file)
     
-    def verify_headers_removed(self, expected_removed: list[str] = None) -> Dict[str, bool]:
-        """Verify that specified metadata headers have been removed.
-        
-        Args:
-            expected_removed: List of format names that should be removed.
-                             If None, checks all formats.
-        
-        Returns:
-            Dictionary with format names as keys and removal status as values
-        """
+    def verify_headers_removed(self, expected_removed: List[str] = None) -> Dict[str, bool]:
+        """Verify that specified metadata headers have been removed."""
         if not self.test_file:
             return {}
-        if expected_removed is None:
-            expected_removed = ['id3v2', 'id3v1', 'vorbis', 'riff']
-        
-        headers_present = self.get_metadata_headers_present()
-        
-        return {
-            format_name: not headers_present.get(format_name, False)
-            for format_name in expected_removed
-        }
+        return ComprehensiveMetadataVerifier.verify_headers_removed(self.test_file, expected_removed)
     
     def check_metadata_with_external_tools(self) -> Dict[str, Any]:
-        """Check metadata using external tools for comprehensive verification.
-        
-        Returns:
-            Dictionary with tool results
-        """
+        """Check metadata using external tools for comprehensive verification."""
         if not self.test_file:
             return {}
-        results = {}
-        
-        # Check with mid3v2
-        try:
-            result = subprocess.run(
-                ['mid3v2', '-l', str(self.test_file)],
-                capture_output=True, text=True, check=True
-            )
-            results['mid3v2'] = {
-                'success': True,
-                'output': result.stdout,
-                'has_id3v2': 'ID3v2 tag' in result.stdout and 'No ID3v2 tag found' not in result.stdout,
-                'has_id3v1': 'ID3v1 tag' in result.stdout and 'No ID3v1 tag found' not in result.stdout
-            }
-        except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            results['mid3v2'] = {'success': False, 'error': str(e)}
-        
-        # Check with mutagen-inspect
-        try:
-            result = subprocess.run(
-                ['mutagen-inspect', str(self.test_file)],
-                capture_output=True, text=True, check=True
-            )
-            results['mutagen_inspect'] = {
-                'success': True,
-                'output': result.stdout,
-                'has_metadata': 'No tags' not in result.stdout
-            }
-        except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            results['mutagen_inspect'] = {'success': False, 'error': str(e)}
-        
-        # Check with metaflac (for FLAC files)
-        if self.test_file.suffix.lower() == '.flac':
-            try:
-                result = subprocess.run(
-                    ['metaflac', '--list', str(self.test_file)],
-                    capture_output=True, text=True, check=True
-                )
-                results['metaflac'] = {
-                    'success': True,
-                    'output': result.stdout,
-                    'has_vorbis': 'VORBIS_COMMENT' in result.stdout
-                }
-            except (subprocess.CalledProcessError, FileNotFoundError) as e:
-                results['metaflac'] = {'success': False, 'error': str(e)}
-        
-        return results
+        return ComprehensiveMetadataVerifier.check_metadata_with_external_tools(self.test_file)
     
     def verify_id3v2_multiple_entries_in_raw_data(self, tag_name: str, expected_count: int = None) -> Dict[str, Any]:
-        """Verify multiple entries exist in raw ID3v2 data using external tools.
-        
-        This method works for all ID3v2 versions (2.3, 2.4) since mid3v2 can read both.
-        Note: Will detect multiple entries even in ID3v2.3 files where they're not 
-        officially supported but may exist due to malformed files, manual editing, 
-        or format conversion artifacts.
-        
-        Args:
-            tag_name: The ID3v2 tag name to check (e.g., 'TPE1', 'TPE2', 'TCOM')
-            expected_count: Expected number of entries. If None, just checks if multiple exist.
-        
-        Returns:
-            Dictionary with verification results including:
-            - success: Whether the verification succeeded
-            - actual_count: Number of entries found (includes non-compliant duplicates)
-            - has_multiple: Whether multiple entries exist
-            - raw_output: Raw mid3v2 output
-            - entries: List of individual entries found
-        """
+        """Verify multiple entries exist in raw ID3v2 data using external tools."""
         if not self.test_file:
             return {'success': False, 'error': 'No test file available'}
-        
-        try:
-            result = subprocess.run(
-                ['mid3v2', '-l', str(self.test_file)],
-                capture_output=True, text=True, check=True
-            )
-            raw_output = result.stdout
-            
-            # Count occurrences of the tag
-            tag_pattern = f"{tag_name}="
-            actual_count = raw_output.count(tag_pattern)
-            has_multiple = actual_count > 1
-            
-            # Extract individual entries
-            entries = []
-            for line in raw_output.split('\n'):
-                if line.strip().startswith(tag_pattern):
-                    entries.append(line.strip())
-            
-            # Check if expected count matches
-            count_matches = expected_count is None or actual_count == expected_count
-            
-            return {
-                'success': True,
-                'actual_count': actual_count,
-                'has_multiple': has_multiple,
-                'count_matches': count_matches,
-                'raw_output': raw_output,
-                'entries': entries,
-                'tag_name': tag_name
-            }
-            
-        except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            return {
-                'success': False,
-                'error': str(e),
-                'actual_count': 0,
-                'has_multiple': False,
-                'count_matches': False,
-                'raw_output': '',
-                'entries': [],
-                'tag_name': tag_name
-            }
+        return ID3v2MetadataVerifier.verify_multiple_entries_in_raw_data(self.test_file, tag_name, expected_count)
     
     def verify_id3v2_4_multiple_entries_in_raw_data(self, tag_name: str, expected_count: int = None) -> Dict[str, Any]:
         """Verify multiple entries exist in raw ID3v2.4 data using external tools.
         
         This method is kept for backward compatibility but delegates to the general method.
-        
-        Args:
-            tag_name: The ID3v2 tag name to check (e.g., 'TPE1', 'TPE2', 'TCOM')
-            expected_count: Expected number of entries. If None, just checks if multiple exist.
-        
-        Returns:
-            Dictionary with verification results (same as verify_id3v2_multiple_entries_in_raw_data)
         """
         return self.verify_id3v2_multiple_entries_in_raw_data(tag_name, expected_count)
             
     def verify_vorbis_multiple_entries_in_raw_data(self, tag_name: str, expected_count: int = None) -> Dict[str, Any]:
-        """Verify multiple entries exist in raw Vorbis comments using external tools.
-        
-            Args:
-                tag_name: The Vorbis comment tag name to check (e.g., 'ARTIST', 'ALBUM', 'COMPOSER')
-                expected_count: Expected number of entries. If None, just checks if multiple exist.
-            
-            Returns:
-                Dictionary with verification results including:
-                - success: Whether the verification succeeded
-                - actual_count: Number of entries found
-                - has_multiple: Whether multiple entries exist
-                - raw_output: Raw metaflac output
-                - entries: List of individual entries found
-            """
+        """Verify multiple entries exist in raw Vorbis comments using external tools."""
         if not self.test_file:
             return {'success': False, 'error': 'No test file available'}
-        
-        try:
-            result = subprocess.run(
-                ['metaflac', '--list', str(self.test_file)],
-                capture_output=True, text=True, check=True
-            )
-            raw_output = result.stdout
-            
-            # Count occurrences of the tag
-            tag_pattern = f"{tag_name}="
-            actual_count = raw_output.count(tag_pattern)
-            has_multiple = actual_count > 1
-            
-            # Extract individual entries
-            entries = []
-            for line in raw_output.split('\n'):
-                if line.strip().startswith(tag_pattern):
-                    entries.append(line.strip())
-                    
-            # Check if expected count matches
-            count_matches = expected_count is None or actual_count == expected_count
-            
-            return {
-                'success': True,
-                'actual_count': actual_count,
-                'has_multiple': has_multiple,
-                'count_matches': count_matches,
-                'raw_output': raw_output,
-                'entries': entries,
-                'tag_name': tag_name
-            }
-        except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            return {
-                'success': False,
-                'error': str(e),
-                'actual_count': 0,
-                'has_multiple': False,
-                'count_matches': False,
-                'raw_output': '',
-                'entries': [],
-                'tag_name': tag_name
-            }    
+        return VorbisMetadataVerifier.verify_multiple_entries_in_raw_data(self.test_file, tag_name, expected_count)
+    
     def verify_riff_multiple_entries_in_raw_data(self, tag_name: str, expected_count: int = None) -> Dict[str, Any]:
-        """Verify multiple entries exist in raw RIFF data using external tools.
-        
-        Args:
-            tag_name: The RIFF chunk name to check (e.g., 'IART', 'IGNR', 'INAM')
-            expected_count: Expected number of entries. If None, just checks if multiple exist.
-        
-        Returns:
-            Dictionary with verification results including:
-            - success: Whether the verification succeeded
-            - actual_count: Number of entries found
-            - has_multiple: Whether multiple entries exist
-            - raw_output: Raw output from inspection tool
-            - entries: List of individual entries found
-        """
+        """Verify multiple entries exist in raw RIFF data using external tools."""
         if not self.test_file:
             return {'success': False, 'error': 'No test file available'}
-        
-        try:
-            # Use exiftool to inspect RIFF metadata
-            result = subprocess.run(
-                ['exiftool', '-a', '-G', str(self.test_file)],
-                capture_output=True, text=True, check=True
-            )
-            raw_output = result.stdout
-            
-            # Count occurrences of the tag - RIFF tags appear as [RIFF] TagName
-            tag_pattern = f"[RIFF] {tag_name}"
-            lines = raw_output.split('\n')
-            matching_lines = [line for line in lines if tag_pattern in line]
-            actual_count = len(matching_lines)
-            has_multiple = actual_count > 1
-            
-            # Check if expected count matches
-            count_matches = expected_count is None or actual_count == expected_count
-            
-            return {
-                'success': True,
-                'actual_count': actual_count,
-                'has_multiple': has_multiple,
-                'count_matches': count_matches,
-                'raw_output': raw_output,
-                'entries': matching_lines,
-                'tag_name': tag_name
-            }
-            
-        except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            # Fallback: Basic check indicating limited support
-            return {
-                'success': False,
-                'error': f'exiftool not available for RIFF verification: {e}',
-                'actual_count': 0,
-                'has_multiple': False,
-                'count_matches': False,
-                'raw_output': '',
-                'entries': [],
-                'tag_name': tag_name
-            }
+        return RIFFMetadataVerifier.verify_multiple_entries_in_raw_data(self.test_file, tag_name, expected_count)
     
     # =============================================================================
     # Separator-based metadata methods (for testing single-field separator parsing)
@@ -1478,99 +776,65 @@ class TempFileWithMetadata:
     
     def set_id3v2_separator_artists(self, artists_string: str, version: str = "2.3"):
         """Set ID3v2 artists as a single field with separators using external tool."""
-        command = ["mid3v2", "--artist", artists_string, str(self.test_file)]
-        return self._run_external_tool(command)
+        manager = ID3v2SeparatorMetadataManager(self.test_file)
+        manager.set_separator_artists(artists_string, version)
     
     def set_id3v2_separator_genres(self, genres_string: str, version: str = "2.3"):
         """Set ID3v2 genres as a single field with separators using external tool."""
-        command = ["mid3v2", "--genre", genres_string, str(self.test_file)]
-        return self._run_external_tool(command)
+        manager = ID3v2SeparatorMetadataManager(self.test_file)
+        manager.set_separator_genres(genres_string, version)
     
     def set_id3v2_separator_composers(self, composers_string: str, version: str = "2.3"):
         """Set ID3v2 composers as a single field with separators using external tool."""
-        command = ["mid3v2", "--TCOM", composers_string, str(self.test_file)]
-        return self._run_external_tool(command)
+        manager = ID3v2SeparatorMetadataManager(self.test_file)
+        manager.set_separator_composers(composers_string, version)
     
     def set_riff_separator_artists(self, artists_string: str):
         """Set RIFF artists as a single field with separators using external tool."""
-        command = ["bwfmetaedit", f"--IART={artists_string}", str(self.test_file)]
-        return self._run_external_tool(command)
+        manager = RIFFSeparatorMetadataManager(self.test_file)
+        manager.set_separator_artists(artists_string)
     
     def set_riff_separator_genres(self, genres_string: str):
         """Set RIFF genres as a single field with separators using external tool."""
-        command = ["bwfmetaedit", f"--IGNR={genres_string}", str(self.test_file)]
-        return self._run_external_tool(command)
+        manager = RIFFSeparatorMetadataManager(self.test_file)
+        manager.set_separator_genres(genres_string)
     
     def set_riff_separator_composers(self, composers_string: str):
         """Set RIFF composers as a single field with separators using external tool."""
-        command = ["bwfmetaedit", f"--ICMP={composers_string}", str(self.test_file)]
-        return self._run_external_tool(command)
+        manager = RIFFSeparatorMetadataManager(self.test_file)
+        manager.set_separator_composers(composers_string)
     
     def set_riff_separator_album_artists(self, album_artists_string: str):
         """Set RIFF album artists as a single field with separators using external tool."""
-        # RIFF doesn't have a standard album artist field, using a custom approach
-        command = ["bwfmetaedit", f"--IAAR={album_artists_string}", str(self.test_file)]
-        return self._run_external_tool(command)
+        manager = RIFFSeparatorMetadataManager(self.test_file)
+        manager.set_separator_album_artists(album_artists_string)
     
-    def set_riff_multiple_artists(self, artists: list[str]):
+    def set_riff_multiple_artists(self, artists: List[str]):
         """Set RIFF multiple artists using external tool (creates multiple chunks)."""
-        # For testing multiple instances, we'd need to use a more sophisticated approach
-        # For now, just set the first artist
-        if artists:
-            command = ["bwfmetaedit", f"--IART={artists[0]}", str(self.test_file)]
-            return self._run_external_tool(command)
+        manager = RIFFMultipleMetadataManager(self.test_file)
+        manager.set_multiple_artists(artists)
     
-    def set_riff_multiple_genres(self, genres: list[str]):
+    def set_riff_multiple_genres(self, genres: List[str]):
         """Set RIFF multiple genres using external tool."""
-        # For now, just set the first genre
-        if genres:
-            command = ["bwfmetaedit", f"--IGNR={genres[0]}", str(self.test_file)]
-            return self._run_external_tool(command)
+        manager = RIFFMultipleMetadataManager(self.test_file)
+        manager.set_multiple_genres(genres)
     
-    def set_riff_multiple_composers(self, composers: list[str]):
+    def set_riff_multiple_composers(self, composers: List[str]):
         """Set RIFF multiple composers using external tool."""
-        # For now, just set the first composer
-        if composers:
-            command = ["bwfmetaedit", f"--ICMP={composers[0]}", str(self.test_file)]
-            return self._run_external_tool(command)
+        manager = RIFFMultipleMetadataManager(self.test_file)
+        manager.set_multiple_composers(composers)
     
-    def set_riff_multiple_album_artists(self, album_artists: list[str]):
+    def set_riff_multiple_album_artists(self, album_artists: List[str]):
         """Set RIFF multiple album artists using external tool."""
-        # For now, just set the first album artist
-        if album_artists:
-            command = ["bwfmetaedit", f"--IAAR={album_artists[0]}", str(self.test_file)]
-            return self._run_external_tool(command)
+        manager = RIFFMultipleMetadataManager(self.test_file)
+        manager.set_multiple_album_artists(album_artists)
     
-    def set_riff_multiple_comments(self, comments: list[str]):
+    def set_riff_multiple_comments(self, comments: List[str]):
         """Set RIFF multiple comments using external tool."""
-        # For now, just set the first comment
-        if comments:
-            command = ["bwfmetaedit", f"--ICMT={comments[0]}", str(self.test_file)]
-            return self._run_external_tool(command)
+        manager = RIFFMultipleMetadataManager(self.test_file)
+        manager.set_multiple_comments(comments)
     
-    def set_id3v2_multiple_comments(self, comments: list[str], in_separate_frames: bool = False):
-        """Set ID3v2 multiple comments using external mid3v2 tool.
-        
-        Args:
-            comments: List of comment strings to set
-            in_separate_frames: If True, creates multiple separate COMM frames (one per comment).
-                              If False (default), creates a single COMM frame with the first comment value.
-        """
-        # Try to delete existing COMM tags, but don't fail if they don't exist
-        try:
-            command = ["mid3v2", "--delete", "COMM", str(self.test_file)]
-            self._run_external_tool(command)
-        except RuntimeError:
-            # Ignore if COMM tags don't exist
-            pass
-        
-        if in_separate_frames:
-            # Set each comment in a separate mid3v2 call to force multiple frames
-            for comment in comments:
-                command = ["mid3v2", "--comment", comment, str(self.test_file)]
-                self._run_external_tool(command)
-        else:
-            # Set only the first comment (ID3v2 comment fields are typically single-valued)
-            if comments:
-                command = ["mid3v2", "--comment", comments[0], str(self.test_file)]
-                self._run_external_tool(command)
+    def set_id3v2_multiple_comments(self, comments: List[str], in_separate_frames: bool = False):
+        """Set ID3v2 multiple comments using external mid3v2 tool."""
+        manager = ID3v2MultipleMetadataManager(self.test_file)
+        manager.set_multiple_comments(comments, in_separate_frames)
