@@ -9,6 +9,15 @@ class ID3v2MetadataVerifier:
     """Utilities for verifying ID3v2 metadata in audio files."""
     
     @staticmethod
+    def get_metadata_info(file_path: Path) -> str:
+        """Get metadata info using mid3v2 -l command."""
+        result = subprocess.run(
+            ['mid3v2', '-l', str(file_path)],
+            capture_output=True, text=True, check=True
+        )
+        return result.stdout
+    
+    @staticmethod
     def verify_multiple_entries_in_raw_data(file_path: Path, tag_name: str, expected_count: int = None) -> Dict[str, Any]:
         """Verify multiple entries exist in raw ID3v2 data using external tools.
         

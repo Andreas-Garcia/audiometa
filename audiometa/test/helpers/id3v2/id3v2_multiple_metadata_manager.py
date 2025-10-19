@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import List
 
-from .mid3v2_tool import Mid3v2Tool
+from .id3v2_metadata_deleter import ID3v2MetadataDeleter
 
 
 class ID3v2MultipleMetadataManager:
@@ -20,14 +20,14 @@ class ID3v2MultipleMetadataManager:
                               If False (default), creates a single TPE1 frame with multiple values using mid3v2.
         """
         # Delete existing TPE1 tags
-        Mid3v2Tool.delete_frame(file_path, "TPE1")
+        ID3v2MetadataDeleter.delete_frame(file_path, "TPE1")
         
         if in_separate_frames:
             # Use manual binary construction to create truly separate TPE1 frames
             ID3v2MultipleMetadataManager._create_multiple_id3v2_frames(file_path, 'TPE1', artists)
         else:
             # Set all artists in a single command (creates one frame with multiple values)
-            Mid3v2Tool.set_multiple_values_single_frame(file_path, "TPE1", artists)
+            ID3v2MetadataDeleter.set_multiple_values_single_frame(file_path, "TPE1", artists)
     
     @staticmethod
     def set_multiple_genres(file_path: Path, genres: List[str], in_separate_frames: bool = False):
@@ -40,14 +40,14 @@ class ID3v2MultipleMetadataManager:
                               If False (default), creates a single TCON frame with multiple values using mid3v2.
         """
         # Delete existing TCON tags
-        Mid3v2Tool.delete_frame(file_path, "TCON")
+        ID3v2MetadataDeleter.delete_frame(file_path, "TCON")
         
         if in_separate_frames:
             # Use manual binary construction to create truly separate TCON frames
             ID3v2MultipleMetadataManager._create_multiple_id3v2_frames(file_path, 'TCON', genres)
         else:
             # Set all genres in a single command (creates one frame with multiple values)
-            Mid3v2Tool.set_multiple_values_single_frame(file_path, "TCON", genres)
+            ID3v2MetadataDeleter.set_multiple_values_single_frame(file_path, "TCON", genres)
     
     @staticmethod
     def set_multiple_album_artists(file_path: Path, album_artists: List[str], in_separate_frames: bool = False):
@@ -60,14 +60,14 @@ class ID3v2MultipleMetadataManager:
                               If False (default), creates a single TPE2 frame with multiple values using mid3v2.
         """
         # Delete existing TPE2 tags
-        Mid3v2Tool.delete_frame(file_path, "TPE2")
+        ID3v2MetadataDeleter.delete_frame(file_path, "TPE2")
         
         if in_separate_frames:
             # Use manual binary construction to create truly separate TPE2 frames
             ID3v2MultipleMetadataManager._create_multiple_id3v2_frames(file_path, 'TPE2', album_artists)
         else:
             # Set all album artists in a single command (creates one frame with multiple values)
-            Mid3v2Tool.set_multiple_values_single_frame(file_path, "TPE2", album_artists)
+            ID3v2MetadataDeleter.set_multiple_values_single_frame(file_path, "TPE2", album_artists)
     
     @staticmethod
     def set_multiple_composers(file_path: Path, composers: List[str], in_separate_frames: bool = False):
@@ -80,14 +80,14 @@ class ID3v2MultipleMetadataManager:
                               If False (default), creates a single TCOM frame with multiple values using mid3v2.
         """
         # Delete existing TCOM tags
-        Mid3v2Tool.delete_frame(file_path, "TCOM")
+        ID3v2MetadataDeleter.delete_frame(file_path, "TCOM")
         
         if in_separate_frames:
             # Use manual binary construction to create truly separate TCOM frames
             ID3v2MultipleMetadataManager._create_multiple_id3v2_frames(file_path, 'TCOM', composers)
         else:
             # Set all composers in a single command (creates one frame with multiple values)
-            Mid3v2Tool.set_multiple_values_single_frame(file_path, "TCOM", composers)
+            ID3v2MetadataDeleter.set_multiple_values_single_frame(file_path, "TCOM", composers)
     
     @staticmethod
     def set_multiple_comments(file_path: Path, comments: List[str], in_separate_frames: bool = False):
@@ -100,18 +100,20 @@ class ID3v2MultipleMetadataManager:
                               If False (default), creates a single COMM frame with the first comment value.
         """
         # Delete existing COMM tags
-        Mid3v2Tool.delete_frame(file_path, "COMM")
+        ID3v2MetadataDeleter.delete_frame(file_path, "COMM")
         
         if in_separate_frames:
             # Set each comment in a separate mid3v2 call to force multiple frames
+            from ..common.external_tool_runner import run_external_tool
             for comment in comments:
                 command = ["mid3v2", "--comment", comment, str(file_path)]
-                Mid3v2Tool.run_command(command)
+                run_external_tool(command, "mid3v2")
         else:
             # Set only the first comment (ID3v2 comment fields are typically single-valued)
             if comments:
+                from ..common.external_tool_runner import run_external_tool
                 command = ["mid3v2", "--comment", comments[0], str(file_path)]
-                Mid3v2Tool.run_command(command)
+                run_external_tool(command, "mid3v2")
     
     @staticmethod
     def _create_multiple_id3v2_frames(file_path: Path, frame_id: str, texts: List[str]) -> None:
@@ -126,7 +128,7 @@ class ID3v2MultipleMetadataManager:
             frame_id: The ID3v2 frame identifier (e.g., 'TPE1', 'TPE2', 'TCON', 'TCOM')
             texts: List of text values, one per frame
         """
-        from .manual_id3v2_frame_creator import ManualID3v2FrameCreator
+        from .id3v2_frame_manual_creator import ManualID3v2FrameCreator
         
         creator = ManualID3v2FrameCreator(file_path)
         

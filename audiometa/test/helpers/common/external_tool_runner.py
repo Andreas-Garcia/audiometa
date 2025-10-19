@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 from typing import List, Union
 
-from ..id3v2.mid3v2_tool import ExternalMetadataToolError
+from ..id3v2.id3v2_metadata_deleter import ExternalMetadataToolError
 
 
 def run_external_tool(command: List[str], tool_name: str = "external tool", check: bool = True) -> subprocess.CompletedProcess:

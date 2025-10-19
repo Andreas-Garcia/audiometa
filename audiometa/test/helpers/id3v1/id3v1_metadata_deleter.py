@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from ..common.external_tool_runner import run_external_tool
-from ..id3v2.mid3v2_tool import ExternalMetadataToolError
+from ..id3v2.id3v2_metadata_deleter import ExternalMetadataToolError
 
 
 class ID3v1MetadataDeleter:

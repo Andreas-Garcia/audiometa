@@ -10,7 +10,7 @@ import tempfile
 from pathlib import Path
 from typing import Dict, Any, List
 
-from .id3v2 import Mid3v2Tool, ID3v2MetadataVerifier, ID3v2MultipleMetadataManager, ID3HeaderVerifier, ID3v2MetadataDeleter, ID3v1MetadataDeleter, ID3v2MetadataSetter, ID3v1MetadataSetter
+from .id3v2 import ID3v2MetadataVerifier, ID3v2MultipleMetadataManager, ID3HeaderVerifier, ID3v2MetadataDeleter, ID3v1MetadataDeleter, ID3v2MetadataSetter, ID3v1MetadataSetter
 from .vorbis import VorbisMetadataVerifier, VorbisHeaderVerifier, VorbisMetadataDeleter, VorbisMetadataSetter
 from .riff import RIFFMetadataVerifier, RIFFHeaderVerifier, RIFFMetadataDeleter, RIFFMetadataSetter
 from .common import AudioFileCreator, ComprehensiveMetadataVerifier
@@ -132,7 +132,7 @@ class TempFileWithMetadata:
         return target_file
     
     def _set_mp3_metadata_with_mid3v2(self, file_path: Path, metadata: dict) -> None:
-        Mid3v2Tool.set_mp3_metadata(file_path, metadata)
+        ID3v2MetadataSetter.set_mp3_metadata(file_path, metadata)
     
     def _set_mp3_metadata_with_id3v1(self, file_path: Path, metadata: dict) -> None:
         ID3v1MetadataSetter.set_metadata(file_path, metadata)

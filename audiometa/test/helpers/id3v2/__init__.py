@@ -13,7 +13,7 @@ from .id3v2_multiple_metadata_manager import ID3v2MultipleMetadataManager
 from .id3v2_frame_manual_creator import ManualID3v2FrameCreator
 
 # External tool wrappers
-from .mid3v2_tool import Mid3v2Tool, ExternalMetadataToolError
+from .id3v2_metadata_deleter import ExternalMetadataToolError
 
 __all__ = [
     # Core operations
@@ -30,6 +30,5 @@ __all__ = [
     "ManualID3v2FrameCreator",
     
     # External tool wrappers
-    "Mid3v2Tool",
     "ExternalMetadataToolError"
 ]
