@@ -32,13 +32,13 @@ RIFF Format (riff/):
 
 Common Utilities (common/):
 - AudioFileCreator: Utilities for creating minimal audio files
-- ScriptRunner: Utilities for running external scripts
 - ComprehensiveMetadataVerifier: Cross-format comprehensive verification and header detection
+- run_script: Unified function for running external scripts with proper error handling
 
 Usage:
     from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
     from audiometa.test.helpers.id3v2 import Mid3v2Tool, Id3v2Tool, ID3v2MetadataVerifier, ID3v2MultipleMetadataManager, ID3v2SeparatorMetadataManager, ManualID3v2FrameCreator, ID3HeaderVerifier
     from audiometa.test.helpers.vorbis import VorbisMetadataSetter, VorbisMetadataDeleter, VorbisHeaderVerifier, VorbisMetadataVerifier
     from audiometa.test.helpers.riff import RIFFMetadataVerifier, RIFFHeaderVerifier
-    from audiometa.test.helpers.common import AudioFileCreator, ScriptRunner, ComprehensiveMetadataVerifier
+    from audiometa.test.helpers.common import AudioFileCreator, ComprehensiveMetadataVerifier, run_script
 """

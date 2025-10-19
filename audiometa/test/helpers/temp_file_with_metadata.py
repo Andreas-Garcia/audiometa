@@ -13,8 +13,8 @@ from typing import Dict, Any, List
 from .id3v2 import Mid3v2Tool, Id3v2Tool, ID3v2MetadataVerifier, ID3v2MultipleMetadataManager, ID3v2SeparatorMetadataManager, ID3HeaderVerifier, ID3v2MetadataDeleter, ID3v1MetadataDeleter, ID3v2MetadataSetter, ID3v1MetadataSetter
 from .vorbis import VorbisMetadataVerifier, VorbisHeaderVerifier, VorbisMetadataDeleter, VorbisMetadataSetter
 from .riff import RIFFMetadataVerifier, RIFFHeaderVerifier, RIFFMetadataDeleter, RIFFMetadataSetter
-from .common import AudioFileCreator, ScriptRunner, ComprehensiveMetadataVerifier
-from .common.external_tool_runner import run_external_tool
+from .common import AudioFileCreator, ComprehensiveMetadataVerifier
+from .common.external_tool_runner import run_external_tool, run_script
 
 
 class TempFileWithMetadata:
@@ -153,8 +153,8 @@ class TempFileWithMetadata:
     def _run_script(self, script_name: str, check: bool = True) -> subprocess.CompletedProcess:
         """Run an external script with proper error handling."""
         scripts_dir = self._get_scripts_dir()
-        script_runner = ScriptRunner(scripts_dir)
-        return script_runner.run_script(script_name, self.test_file)
+        # Use the unified run_script function for script execution
+        return run_script(script_name, self.test_file, scripts_dir)
     
     def _create_multiple_id3v2_frames(self, frame_id: str, texts: list[str]) -> None:
         """Create multiple separate ID3v2 frames using manual binary construction.
