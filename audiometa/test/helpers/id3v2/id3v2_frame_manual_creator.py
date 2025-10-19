@@ -15,64 +15,74 @@ from typing import List
 
 class ManualID3v2FrameCreator:
     """Creates ID3v2 tags with multiple separate frames by manual binary construction."""
-    
-    def __init__(self, file_path: Path, version: str = "2.4"):
-        self.file_path = file_path
+        
+    @staticmethod
+    def create_multiple_tpe1_frames(file_path: Path, artists: List[str], version: str = "2.4") -> None:
         if version not in ["2.3", "2.4"]:
             raise ValueError("Version must be '2.3' or '2.4'")
-        self.version = version
-        
-    def create_multiple_tpe1_frames(self, artists: List[str]) -> None:
         frames = []
         for artist in artists:
-            frame_data = self._create_text_frame('TPE1', artist)
+            frame_data = ManualID3v2FrameCreator._create_text_frame('TPE1', artist, version)
             frames.append(frame_data)
         
-        self._write_id3v2_tag(frames)
+        ManualID3v2FrameCreator._write_id3v2_tag(file_path, frames, version)
     
-    def create_multiple_tpe2_frames(self, album_artists: List[str]) -> None:
+    @staticmethod
+    def create_multiple_tpe2_frames(file_path: Path, album_artists: List[str], version: str = "2.4") -> None:
+        if version not in ["2.3", "2.4"]:
+            raise ValueError("Version must be '2.3' or '2.4'")
         frames = []
         for album_artist in album_artists:
-            frame_data = self._create_text_frame('TPE2', album_artist)
+            frame_data = ManualID3v2FrameCreator._create_text_frame('TPE2', album_artist, version)
             frames.append(frame_data)
         
-        self._write_id3v2_tag(frames)
+        ManualID3v2FrameCreator._write_id3v2_tag(file_path, frames, version)
     
-    def create_multiple_tcon_frames(self, genres: List[str]) -> None:
+    @staticmethod
+    def create_multiple_tcon_frames(file_path: Path, genres: List[str], version: str = "2.4") -> None:
+        if version not in ["2.3", "2.4"]:
+            raise ValueError("Version must be '2.3' or '2.4'")
         frames = []
         for genre in genres:
-            frame_data = self._create_text_frame('TCON', genre)
+            frame_data = ManualID3v2FrameCreator._create_text_frame('TCON', genre, version)
             frames.append(frame_data)
         
-        self._write_id3v2_tag(frames)
+        ManualID3v2FrameCreator._write_id3v2_tag(file_path, frames, version)
     
-    def create_multiple_tcom_frames(self, composers: List[str]) -> None:
+    @staticmethod
+    def create_multiple_tcom_frames(file_path: Path, composers: List[str], version: str = "2.4") -> None:
+        if version not in ["2.3", "2.4"]:
+            raise ValueError("Version must be '2.3' or '2.4'")
         frames = []
         for composer in composers:
-            frame_data = self._create_text_frame('TCOM', composer)
+            frame_data = ManualID3v2FrameCreator._create_text_frame('TCOM', composer, version)
             frames.append(frame_data)
         
-        self._write_id3v2_tag(frames)
+        ManualID3v2FrameCreator._write_id3v2_tag(file_path, frames, version)
     
-    def create_mixed_multiple_frames(self, artists: List[str], genres: List[str]) -> None:
+    @staticmethod
+    def create_mixed_multiple_frames(file_path: Path, artists: List[str], genres: List[str], version: str = "2.4") -> None:
+        if version not in ["2.3", "2.4"]:
+            raise ValueError("Version must be '2.3' or '2.4'")
         frames = []
         
         # Add multiple TPE1 frames
         for artist in artists:
-            frame_data = self._create_text_frame('TPE1', artist)
+            frame_data = ManualID3v2FrameCreator._create_text_frame('TPE1', artist, version)
             frames.append(frame_data)
         
         # Add multiple TCON frames
         for genre in genres:
-            frame_data = self._create_text_frame('TCON', genre)
+            frame_data = ManualID3v2FrameCreator._create_text_frame('TCON', genre, version)
             frames.append(frame_data)
         
-        self._write_id3v2_tag(frames)
+        ManualID3v2FrameCreator._write_id3v2_tag(file_path, frames, version)
     
-    def _create_text_frame(self, frame_id: str, text: str) -> bytes:
+    @staticmethod
+    def _create_text_frame(frame_id: str, text: str, version: str) -> bytes:
         """Create a single ID3v2 text frame with the given ID and text."""
         # Choose encoding based on version
-        if self.version == "2.3":
+        if version == "2.3":
             # ID3v2.3: Use ISO-8859-1 or UTF-16 (we'll use UTF-16 for broader compatibility)
             encoding = 1  # UTF-16 with BOM
             text_bytes = text.encode('utf-16')
@@ -97,7 +107,8 @@ class ManualID3v2FrameCreator:
         
         return frame_header + frame_data
     
-    def _synchsafe_int(self, value: int) -> bytes:
+    @staticmethod
+    def _synchsafe_int(value: int) -> bytes:
         """Convert integer to ID3v2 synchsafe integer (7 bits per byte)."""
         # Split into 7-bit chunks, most significant first
         result = []
@@ -106,14 +117,15 @@ class ManualID3v2FrameCreator:
             value >>= 7
         return struct.pack('4B', *result)
     
-    def _write_id3v2_tag(self, frames: List[bytes]) -> None:
+    @staticmethod
+    def _write_id3v2_tag(file_path: Path, frames: List[bytes], version: str) -> None:
         """Write ID3v2 tag with the given frames to the file."""
         # Calculate total size of all frames
         frames_data = b''.join(frames)
         tag_size = len(frames_data)
         
         # Create header based on version
-        if self.version == "2.3":
+        if version == "2.3":
             # ID3v2.3 header: "ID3" + version + flags + size (regular integer)
             header = (
                 b'ID3' +                           # ID3 identifier
@@ -127,11 +139,11 @@ class ManualID3v2FrameCreator:
                 b'ID3' +                           # ID3 identifier
                 struct.pack('BB', 4, 0) +          # Version 2.4.0
                 struct.pack('B', 0) +              # Flags (no unsynchronisation, etc.)
-                self._synchsafe_int(tag_size)      # Size as synchsafe integer
+                ManualID3v2FrameCreator._synchsafe_int(tag_size)      # Size as synchsafe integer
             )
         
         # Read existing file content (audio data)
-        with open(self.file_path, 'rb') as f:
+        with open(file_path, 'rb') as f:
             original_data = f.read()
         
         # Remove any existing ID3v2 tag
@@ -156,7 +168,7 @@ class ManualID3v2FrameCreator:
                 audio_data = original_data[10 + existing_tag_size:]
         
         # Write new file with our custom ID3v2 tag
-        with open(self.file_path, 'wb') as f:
+        with open(file_path, 'wb') as f:
             f.write(header)
             f.write(frames_data)
             f.write(audio_data)
@@ -183,13 +195,10 @@ def test_manual_multiple_frames():
             
             print(f"Testing manual multiple frame creation on {tmp_path}")
             
-            # Create manual frame creator with specified version
-            creator = ManualID3v2FrameCreator(tmp_path, version)
-            
             # Test 1: Multiple TPE1 frames
             print(f"\n=== Test 1: Multiple TPE1 frames (ID3v{version}) ===")
             artists = ["Artist One", "Artist Two", "Artist Three"]
-            creator.create_multiple_tpe1_frames(artists)
+            ManualID3v2FrameCreator.create_multiple_tpe1_frames(tmp_path, artists, version)
             
             # Check result with mid3v2
             result = subprocess.run(['mid3v2', '-l', str(tmp_path)], capture_output=True, text=True)
@@ -208,7 +217,7 @@ def test_manual_multiple_frames():
             # Test 2: Multiple TCON frames  
             print(f"\n=== Test 2: Multiple TCON frames (ID3v{version}) ===")
             genres = ["Rock", "Pop", "Alternative"]
-            creator.create_multiple_tcon_frames(genres)
+            ManualID3v2FrameCreator.create_multiple_tcon_frames(tmp_path, genres, version)
             
             result = subprocess.run(['mid3v2', '-l', str(tmp_path)], capture_output=True, text=True)
             print("Result after manual multiple TCON frames:")
@@ -219,9 +228,11 @@ def test_manual_multiple_frames():
             
             # Test 3: Mixed multiple frames
             print(f"\n=== Test 3: Mixed multiple frames (ID3v{version}) ===")
-            creator.create_mixed_multiple_frames(
+            ManualID3v2FrameCreator.create_mixed_multiple_frames(
+                tmp_path,
                 artists=["Artist A", "Artist B"], 
-                genres=["Genre X", "Genre Y"]
+                genres=["Genre X", "Genre Y"],
+                version=version
             )
             
             result = subprocess.run(['mid3v2', '-l', str(tmp_path)], capture_output=True, text=True)
@@ -269,8 +280,7 @@ def create_test_file_with_version(output_path: Path, version: str = "2.4",
     ], check=True, capture_output=True)
     
     # Add multiple frames
-    creator = ManualID3v2FrameCreator(output_path, version)
-    creator.create_mixed_multiple_frames(artists, genres)
+    ManualID3v2FrameCreator.create_mixed_multiple_frames(output_path, artists, genres, version)
     
     print(f"Created test file {output_path} with ID3v{version} containing:")
     print(f"  - Artists: {artists}")
