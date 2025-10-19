@@ -6,8 +6,7 @@ from .id3v2_metadata_deleter import ID3v2MetadataDeleter
 from .id3v2_metadata_setter import ID3v2MetadataSetter, ID3v1MetadataSetter
 from .id3v2_metadata_verifier import ID3v2MetadataVerifier
 
-# Specialized managers
-from .id3v2_multiple_metadata_manager import ID3v2MultipleMetadataManager
+# Specialized managers (moved to ID3v2MetadataSetter)
 
 # Advanced tools
 from .id3v2_frame_manual_creator import ManualID3v2FrameCreator
@@ -23,8 +22,7 @@ __all__ = [
     "ID3v1MetadataSetter",
     "ID3v2MetadataVerifier",
     
-    # Specialized managers
-    "ID3v2MultipleMetadataManager",
+    # Specialized managers (moved to ID3v2MetadataSetter)
     
     # Advanced tools
     "ManualID3v2FrameCreator",

@@ -15,7 +15,7 @@ ID3v1 Format (id3v1/):
 
 ID3v2 Format (id3v2/):
 - ID3v2MetadataVerifier: Verifying ID3v2 metadata
-- ID3v2MultipleMetadataManager: Managing multiple ID3v2 frame values
+- ID3v2MetadataSetter: Setting ID3v2 metadata including multiple frame values
 
 - ManualID3v2FrameCreator: Manual binary construction of ID3v2 frames for testing edge cases
 - ID3HeaderVerifier: Verifying ID3v1/ID3v2 headers
@@ -40,7 +40,7 @@ Common Utilities (common/):
 Usage:
     from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
     from audiometa.test.helpers.id3v1 import Id3v1Tool, ID3v1MetadataDeleter
-    from audiometa.test.helpers.id3v2 import ID3v2MetadataVerifier, ID3v2MultipleMetadataManager, ManualID3v2FrameCreator, ID3HeaderVerifier
+    from audiometa.test.helpers.id3v2 import ID3v2MetadataVerifier, ID3v2MetadataSetter, ManualID3v2FrameCreator, ID3HeaderVerifier
     from audiometa.test.helpers.vorbis import VorbisMetadataSetter, VorbisMetadataDeleter, VorbisHeaderVerifier, VorbisMetadataVerifier
     from audiometa.test.helpers.riff import RIFFMetadataVerifier, RIFFHeaderVerifier
     from audiometa.test.helpers.common import AudioFileCreator, ComprehensiveMetadataVerifier, run_script

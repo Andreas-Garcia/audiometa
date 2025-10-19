@@ -10,7 +10,7 @@ import tempfile
 from pathlib import Path
 from typing import Dict, Any, List
 
-from .id3v2 import ID3v2MetadataVerifier, ID3v2MultipleMetadataManager, ID3HeaderVerifier, ID3v2MetadataDeleter, ID3v1MetadataDeleter, ID3v2MetadataSetter, ID3v1MetadataSetter
+from .id3v2 import ID3v2MetadataVerifier, ID3HeaderVerifier, ID3v2MetadataDeleter, ID3v1MetadataDeleter, ID3v2MetadataSetter, ID3v1MetadataSetter
 from .vorbis import VorbisMetadataVerifier, VorbisHeaderVerifier, VorbisMetadataDeleter, VorbisMetadataSetter
 from .riff import RIFFMetadataVerifier, RIFFHeaderVerifier, RIFFMetadataDeleter, RIFFMetadataSetter
 from .common import AudioFileCreator, ComprehensiveMetadataVerifier
@@ -167,7 +167,7 @@ class TempFileWithMetadata:
             frame_id: The ID3v2 frame identifier (e.g., 'TPE1', 'TPE2', 'TCON', 'TCOM')
             texts: List of text values, one per frame
         """
-        ID3v2MultipleMetadataManager._create_multiple_id3v2_frames(self.test_file, frame_id, texts)
+        ID3v2MetadataSetter._create_multiple_id3v2_frames(self.test_file, frame_id, texts)
     
     # =============================================================================
     # ID3v1 Format Operations
@@ -190,10 +190,10 @@ class TempFileWithMetadata:
         ID3v2MetadataSetter.set_genre(self.test_file, genre)
     
     def set_id3v2_multiple_genres(self, genres: List[str], in_separate_frames: bool = False):
-        ID3v2MultipleMetadataManager.set_multiple_genres(self.test_file, genres, in_separate_frames)
+        ID3v2MetadataSetter.set_multiple_genres(self.test_file, genres, in_separate_frames)
     
     def set_id3v2_multiple_artists(self, artists: List[str], in_separate_frames: bool = False):
-        ID3v2MultipleMetadataManager.set_multiple_artists(self.test_file, artists, in_separate_frames)
+        ID3v2MetadataSetter.set_multiple_artists(self.test_file, artists, in_separate_frames)
     
     def set_id3v2_3_multiple_artists(self, artists: list[str]):
         # Try to delete existing TPE1 tags, but don't fail if they don't exist
@@ -246,10 +246,10 @@ class TempFileWithMetadata:
         return run_external_tool(command, "mid3v2").stdout
     
     def set_id3v2_multiple_album_artists(self, album_artists: List[str], in_separate_frames: bool = False):
-        ID3v2MultipleMetadataManager.set_multiple_album_artists(self.test_file, album_artists, in_separate_frames)
+        ID3v2MetadataSetter.set_multiple_album_artists(self.test_file, album_artists, in_separate_frames)
     
     def set_id3v2_multiple_composers(self, composers: List[str], in_separate_frames: bool = False):
-        ID3v2MultipleMetadataManager.set_multiple_composers(self.test_file, composers, in_separate_frames)
+        ID3v2MetadataSetter.set_multiple_composers(self.test_file, composers, in_separate_frames)
     
     def set_id3v2_max_metadata(self):
         ID3v2MetadataSetter.set_max_metadata(self.test_file)
@@ -550,4 +550,4 @@ class TempFileWithMetadata:
         RIFFMetadataSetter.set_multiple_comments(self.test_file, comments)
     
     def set_id3v2_multiple_comments(self, comments: List[str], in_separate_frames: bool = False):
-        ID3v2MultipleMetadataManager.set_multiple_comments(self.test_file, comments, in_separate_frames)
+        ID3v2MetadataSetter.set_multiple_comments(self.test_file, comments, in_separate_frames)
