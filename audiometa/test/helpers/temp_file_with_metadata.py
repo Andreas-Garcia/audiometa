@@ -325,6 +325,101 @@ class TempFileWithMetadata:
         except (subprocess.CalledProcessError, FileNotFoundError) as e:
             raise RuntimeError(f"External tool failed: {e}") from e
     
+    def _create_multiple_id3v2_frames(self, frame_id: str, texts: list[str]) -> None:
+        """Create multiple separate ID3v2 frames using manual binary construction.
+        
+        This bypasses standard tools that consolidate multiple frames of the same type,
+        allowing creation of truly separate frames for testing purposes.
+        
+        Args:
+            frame_id: The ID3v2 frame identifier (e.g., 'TPE1', 'TPE2', 'TCON', 'TCOM')
+            texts: List of text values, one per frame
+        """
+        import struct
+        
+        # Create frames data
+        frames = []
+        for text in texts:
+            frame_data = self._create_id3v2_text_frame(frame_id, text)
+            frames.append(frame_data)
+        
+        self._write_id3v2_tag_with_frames(frames)
+    
+    def _create_id3v2_text_frame(self, frame_id: str, text: str) -> bytes:
+        """Create a single ID3v2.4 text frame with the given ID and text."""
+        import struct
+        
+        # Text encoding: 3 = UTF-8
+        encoding = 3
+        
+        # Frame data: encoding byte + UTF-8 text + null terminator
+        text_bytes = text.encode('utf-8')
+        frame_data = struct.pack('B', encoding) + text_bytes + b'\x00'
+        
+        # Frame header: ID (4 bytes) + size (4 bytes) + flags (2 bytes)
+        frame_id_bytes = frame_id.encode('ascii')
+        frame_size = len(frame_data)
+        frame_flags = 0x0000  # No flags
+        
+        frame_header = (
+            frame_id_bytes +
+            struct.pack('>I', frame_size) +  # Big-endian 32-bit size
+            struct.pack('>H', frame_flags)   # Big-endian 16-bit flags
+        )
+        
+        return frame_header + frame_data
+    
+    def _synchsafe_int(self, value: int) -> bytes:
+        """Convert integer to ID3v2 synchsafe integer (7 bits per byte)."""
+        import struct
+        
+        # Split into 7-bit chunks, most significant first
+        result = []
+        for i in range(4):
+            result.insert(0, value & 0x7f)
+            value >>= 7
+        return struct.pack('4B', *result)
+    
+    def _write_id3v2_tag_with_frames(self, frames: list[bytes]) -> None:
+        """Write ID3v2.4 tag with the given frames to the file."""
+        import struct
+        
+        # Calculate total size of all frames
+        frames_data = b''.join(frames)
+        tag_size = len(frames_data)
+        
+        # ID3v2.4 header: "ID3" + version + flags + size
+        header = (
+            b'ID3' +                           # ID3 identifier
+            struct.pack('BB', 4, 0) +          # Version 2.4.0
+            struct.pack('B', 0) +              # Flags (no unsynchronisation, etc.)
+            self._synchsafe_int(tag_size)      # Size as synchsafe integer
+        )
+        
+        # Read existing file content (audio data)
+        with open(self.test_file, 'rb') as f:
+            original_data = f.read()
+        
+        # Remove any existing ID3v2 tag
+        audio_data = original_data
+        if original_data.startswith(b'ID3'):
+            # Skip existing ID3v2 tag
+            if len(original_data) >= 10:
+                # Extract size from existing tag
+                size_bytes = original_data[6:10]
+                existing_tag_size = 0
+                for byte in size_bytes:
+                    existing_tag_size = (existing_tag_size << 7) | (byte & 0x7f)
+                
+                # Audio data starts after header (10 bytes) + tag size
+                audio_data = original_data[10 + existing_tag_size:]
+        
+        # Write new file with our custom ID3v2 tag
+        with open(self.test_file, 'wb') as f:
+            f.write(header)
+            f.write(frames_data)
+            f.write(audio_data)
+    
     # =============================================================================
     # ID3v1 Format Operations
     # =============================================================================
@@ -355,14 +450,41 @@ class TempFileWithMetadata:
         command = ["mid3v2", "--genre", genre, str(self.test_file)]
         return self._run_external_tool(command)
     
-    def set_id3v2_multiple_genres(self, genres: list[str]):
-        """Set ID3v2 multiple genres using external mid3v2 tool."""
-        genre_string = "; ".join(genres)
-        command = ["mid3v2", "--genre", genre_string, str(self.test_file)]
-        return self._run_external_tool(command)
+    def set_id3v2_multiple_genres(self, genres: list[str], in_separate_frames: bool = False):
+        """Set ID3v2 multiple genres using external mid3v2 tool or manual frame creation.
+        
+        Args:
+            genres: List of genre strings to set
+            in_separate_frames: If True, creates multiple separate TCON frames (one per genre) using manual binary construction.
+                              If False (default), creates a single TCON frame with multiple values using mid3v2.
+        """
+        # Try to delete existing TCON tags, but don't fail if they don't exist
+        try:
+            command = ["mid3v2", "--delete", "TCON", str(self.test_file)]
+            self._run_external_tool(command)
+        except RuntimeError:
+            # Ignore if TCON tags don't exist
+            pass
+        
+        if in_separate_frames:
+            # Use manual binary construction to create truly separate TCON frames
+            self._create_multiple_id3v2_frames('TCON', genres)
+        else:
+            # Set all genres in a single command (creates one frame with multiple values)
+            command = ["mid3v2"]
+            for genre in genres:
+                command.extend(["--TCON", genre])
+            command.append(str(self.test_file))
+            self._run_external_tool(command)
     
-    def set_id3v2_multiple_artists(self, artists: list[str]):
-        """Set ID3v2 multiple artists using external mid3v2 tool."""
+    def set_id3v2_multiple_artists(self, artists: list[str], in_separate_frames: bool = False):
+        """Set ID3v2 multiple artists using external mid3v2 tool or manual frame creation.
+        
+        Args:
+            artists: List of artist strings to set
+            in_separate_frames: If True, creates multiple separate TPE1 frames (one per artist) using manual binary construction.
+                              If False (default), creates a single TPE1 frame with multiple values using mid3v2.
+        """
         # Try to delete existing TPE1 tags, but don't fail if they don't exist
         try:
             command = ["mid3v2", "--delete", "TPE1", str(self.test_file)]
@@ -371,12 +493,16 @@ class TempFileWithMetadata:
             # Ignore if TPE1 tags don't exist
             pass
         
-        # Set all artists in a single command
-        command = ["mid3v2"]
-        for artist in artists:
-            command.extend(["--TPE1", artist])
-        command.append(str(self.test_file))
-        self._run_external_tool(command)
+        if in_separate_frames:
+            # Use manual binary construction to create truly separate TPE1 frames
+            self._create_multiple_id3v2_frames('TPE1', artists)
+        else:
+            # Set all artists in a single command (creates one frame with multiple values)
+            command = ["mid3v2"]
+            for artist in artists:
+                command.extend(["--TPE1", artist])
+            command.append(str(self.test_file))
+            self._run_external_tool(command)
     
     def set_id3v2_3_multiple_artists(self, artists: list[str]):
         """Set ID3v2.3 multiple artists using external mid3v2 tool."""
@@ -432,8 +558,14 @@ class TempFileWithMetadata:
         command = ["mid3v2", "--list", str(self.test_file)]
         return self._run_external_tool(command).stdout
     
-    def set_id3v2_multiple_album_artists(self, album_artists: list[str]):
-        """Set ID3v2 multiple album artists using external mid3v2 tool."""
+    def set_id3v2_multiple_album_artists(self, album_artists: list[str], in_separate_frames: bool = False):
+        """Set ID3v2 multiple album artists using external mid3v2 tool or manual frame creation.
+        
+        Args:
+            album_artists: List of album artist strings to set
+            in_separate_frames: If True, creates multiple separate TPE2 frames (one per album artist) using manual binary construction.
+                              If False (default), creates a single TPE2 frame with multiple values using mid3v2.
+        """
         # Try to delete existing TPE2 tags, but don't fail if they don't exist
         try:
             command = ["mid3v2", "--delete", "TPE2", str(self.test_file)]
@@ -442,15 +574,25 @@ class TempFileWithMetadata:
             # Ignore if TPE2 tags don't exist
             pass
         
-        # Set all album artists in a single command
-        command = ["mid3v2"]
-        for album_artist in album_artists:
-            command.extend(["--TPE2", album_artist])
-        command.append(str(self.test_file))
-        self._run_external_tool(command)
+        if in_separate_frames:
+            # Use manual binary construction to create truly separate TPE2 frames
+            self._create_multiple_id3v2_frames('TPE2', album_artists)
+        else:
+            # Set all album artists in a single command (creates one frame with multiple values)
+            command = ["mid3v2"]
+            for album_artist in album_artists:
+                command.extend(["--TPE2", album_artist])
+            command.append(str(self.test_file))
+            self._run_external_tool(command)
     
-    def set_id3v2_multiple_composers(self, composers: list[str]):
-        """Set ID3v2 multiple composers using external mid3v2 tool."""
+    def set_id3v2_multiple_composers(self, composers: list[str], in_separate_frames: bool = False):
+        """Set ID3v2 multiple composers using external mid3v2 tool or manual frame creation.
+        
+        Args:
+            composers: List of composer strings to set
+            in_separate_frames: If True, creates multiple separate TCOM frames (one per composer) using manual binary construction.
+                              If False (default), creates a single TCOM frame with multiple values using mid3v2.
+        """
         # Try to delete existing TCOM tags, but don't fail if they don't exist
         try:
             command = ["mid3v2", "--delete", "TCOM", str(self.test_file)]
@@ -459,12 +601,16 @@ class TempFileWithMetadata:
             # Ignore if TCOM tags don't exist
             pass
         
-        # Set all composers in a single command
-        command = ["mid3v2"]
-        for composer in composers:
-            command.extend(["--TCOM", composer])
-        command.append(str(self.test_file))
-        self._run_external_tool(command)
+        if in_separate_frames:
+            # Use manual binary construction to create truly separate TCOM frames
+            self._create_multiple_id3v2_frames('TCOM', composers)
+        else:
+            # Set all composers in a single command (creates one frame with multiple values)
+            command = ["mid3v2"]
+            for composer in composers:
+                command.extend(["--TCOM", composer])
+            command.append(str(self.test_file))
+            self._run_external_tool(command)
     
     def set_id3v2_max_metadata(self):
         """Set maximum ID3v2 metadata using external script."""
@@ -1402,9 +1548,29 @@ class TempFileWithMetadata:
             command = ["bwfmetaedit", f"--ICMT={comments[0]}", str(self.test_file)]
             return self._run_external_tool(command)
     
-    def set_id3v2_multiple_comments(self, comments: list[str], version: str = "2.3"):
-        """Set ID3v2 multiple comments using external tool."""
-        # For now, just set the first comment
-        if comments:
-            command = ["mid3v2", "--comment", comments[0], str(self.test_file)]
-            return self._run_external_tool(command)
+    def set_id3v2_multiple_comments(self, comments: list[str], in_separate_frames: bool = False):
+        """Set ID3v2 multiple comments using external mid3v2 tool.
+        
+        Args:
+            comments: List of comment strings to set
+            in_separate_frames: If True, creates multiple separate COMM frames (one per comment).
+                              If False (default), creates a single COMM frame with the first comment value.
+        """
+        # Try to delete existing COMM tags, but don't fail if they don't exist
+        try:
+            command = ["mid3v2", "--delete", "COMM", str(self.test_file)]
+            self._run_external_tool(command)
+        except RuntimeError:
+            # Ignore if COMM tags don't exist
+            pass
+        
+        if in_separate_frames:
+            # Set each comment in a separate mid3v2 call to force multiple frames
+            for comment in comments:
+                command = ["mid3v2", "--comment", comment, str(self.test_file)]
+                self._run_external_tool(command)
+        else:
+            # Set only the first comment (ID3v2 comment fields are typically single-valued)
+            if comments:
+                command = ["mid3v2", "--comment", comments[0], str(self.test_file)]
+                self._run_external_tool(command)
