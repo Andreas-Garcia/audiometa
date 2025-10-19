@@ -14,6 +14,7 @@ from .id3v2 import Mid3v2Tool, Id3v2Tool, ID3v2MetadataVerifier, ID3v2MultipleMe
 from .vorbis import MetaflacTool, VorbisMetadataVerifier, VorbisMultipleMetadataManager, VorbisHeaderVerifier, VorbisMetadataDeleter, VorbisMetadataSetter
 from .riff import BwfmetaeditTool, RIFFMetadataVerifier, RIFFMultipleMetadataManager, RIFFSeparatorMetadataManager, RIFFHeaderVerifier, RIFFMetadataDeleter, RIFFMetadataSetter
 from .common import AudioFileCreator, ScriptRunner, ComprehensiveMetadataVerifier
+from .common.external_tool_runner import run_external_tool
 
 
 class TempFileWithMetadata:
@@ -155,19 +156,6 @@ class TempFileWithMetadata:
         script_runner = ScriptRunner(scripts_dir)
         return script_runner.run_script(script_name, self.test_file)
     
-    def _run_external_tool(self, command: list[str], check: bool = True) -> subprocess.CompletedProcess:
-        """Run an external tool with proper error handling."""
-        try:
-            result = subprocess.run(
-                command,
-                capture_output=True,
-                text=True,
-                check=check
-            )
-            return result
-        except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            raise RuntimeError(f"External tool failed: {e}") from e
-    
     def _create_multiple_id3v2_frames(self, frame_id: str, texts: list[str]) -> None:
         """Create multiple separate ID3v2 frames using manual binary construction.
         
@@ -211,8 +199,8 @@ class TempFileWithMetadata:
         # Try to delete existing TPE1 tags, but don't fail if they don't exist
         try:
             command = ["mid3v2", "--delete", "TPE1", str(self.test_file)]
-            self._run_external_tool(command)
-        except RuntimeError:
+            run_external_tool(command, "mid3v2")
+        except Exception:
             # Ignore if TPE1 tags don't exist
             pass
         
@@ -221,14 +209,14 @@ class TempFileWithMetadata:
         for artist in artists:
             command.extend(["--TPE1", artist])
         command.append(str(self.test_file))
-        self._run_external_tool(command)
+        run_external_tool(command, "mid3v2")
     
     def set_id3v2_4_multiple_artists(self, artists: list[str]):
         # Try to delete existing TPE1 tags, but don't fail if they don't exist
         try:
             command = ["mid3v2", "--delete", "TPE1", str(self.test_file)]
-            self._run_external_tool(command)
-        except RuntimeError:
+            run_external_tool(command, "mid3v2")
+        except Exception:
             # Ignore if TPE1 tags don't exist
             pass
         
@@ -237,25 +225,25 @@ class TempFileWithMetadata:
         for artist in artists:
             command.extend(["--TPE1", artist])
         command.append(str(self.test_file))
-        self._run_external_tool(command)
+        run_external_tool(command, "mid3v2")
         
     def set_id3v2_4_single_artist(self, artist: str):
         # Try to delete existing TPE1 tags, but don't fail if they don't exist
         try:
             command = ["mid3v2", "--delete", "TPE1", str(self.test_file)]
-            self._run_external_tool(command)
-        except RuntimeError:
+            run_external_tool(command, "mid3v2")
+        except Exception:
             # Ignore if TPE1 tags don't exist
             pass
         
         command = ["mid3v2"]
         command.extend(["--TPE1", artist])
         command.append(str(self.test_file))
-        self._run_external_tool(command)
+        run_external_tool(command, "mid3v2")
         
     def get_id3v2_4_all_raw_data(self) -> str:
         command = ["mid3v2", "--list", str(self.test_file)]
-        return self._run_external_tool(command).stdout
+        return run_external_tool(command, "mid3v2").stdout
     
     def set_id3v2_multiple_album_artists(self, album_artists: List[str], in_separate_frames: bool = False):
         ID3v2MultipleMetadataManager.set_multiple_album_artists(self.test_file, album_artists, in_separate_frames)
