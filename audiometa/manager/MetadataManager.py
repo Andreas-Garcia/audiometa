@@ -48,13 +48,13 @@ class MetadataManager:
 
     @abstractmethod
     def _get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
-            self, raw_clean_metadata: RawMetadataDict, app_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
+            self, raw_clean_metadata: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
         raise NotImplementedError()
 
     @abstractmethod
     def _update_undirectly_mapped_metadata(self, raw_mutagen_metadata: MutagenMetadata,
                                            app_metadata_value: AppMetadataValue,
-                                           app_metadata_key: UnifiedMetadataKey):
+                                           unified_metadata_key: UnifiedMetadataKey):
         raise NotImplementedError()
 
     @abstractmethod
@@ -173,17 +173,17 @@ class MetadataManager:
                 app_metadata[metadata_key] = app_metadata_value
         return app_metadata
 
-    def get_app_specific_metadata(self, app_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
+    def get_app_specific_metadata(self, unified_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
         if self.raw_clean_metadata is None:
             self.raw_clean_metadata = self._get_cleaned_raw_metadata_from_file()
 
-        if app_metadata_key not in self.metadata_keys_direct_map_read:
-            raise MetadataNotSupportedError(f'{app_metadata_key} metadata not supported by this format')
+        if unified_metadata_key not in self.metadata_keys_direct_map_read:
+            raise MetadataNotSupportedError(f'{unified_metadata_key} metadata not supported by this format')
 
-        raw_metadata_key = self.metadata_keys_direct_map_read[app_metadata_key]
+        raw_metadata_key = self.metadata_keys_direct_map_read[unified_metadata_key]
         if not raw_metadata_key:
             return self._get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
-                raw_clean_metadata=self.raw_clean_metadata, app_metadata_key=app_metadata_key)
+                raw_clean_metadata=self.raw_clean_metadata, unified_metadata_key=unified_metadata_key)
 
         value = self.raw_clean_metadata.get(raw_metadata_key)
 
@@ -191,7 +191,7 @@ class MetadataManager:
             return None
         
         # For string types, we need to distinguish between None (not present) and empty string (present but empty)
-        app_metadata_key_optional_type = app_metadata_key.get_optional_type()
+        app_metadata_key_optional_type = unified_metadata_key.get_optional_type()
         if app_metadata_key_optional_type == str and value[0] == "":
             return ""
         
@@ -199,7 +199,7 @@ class MetadataManager:
             return None
         if app_metadata_key_optional_type == int:
             # Handle ID3v2 track number format "track/total" (e.g., "99/99")
-            if app_metadata_key == UnifiedMetadataKey.TRACK_NUMBER and "/" in str(value[0]):
+            if unified_metadata_key == UnifiedMetadataKey.TRACK_NUMBER and "/" in str(value[0]):
                 track_str = str(value[0]).split("/")[0].strip()
                 return int(track_str) if track_str.isdigit() else None
             return int(value[0]) if value else None
@@ -211,7 +211,7 @@ class MetadataManager:
             if not value:
                 return None
             values_list_str = cast(list[str], value)
-            if app_metadata_key.can_semantically_have_multiple_values():
+            if unified_metadata_key.can_semantically_have_multiple_values():
                 # Apply smart parsing logic for semantically multi-value fields
                 if self._should_apply_smart_parsing(values_list_str):
                     # Apply parsing for single entry (legacy data detection)
@@ -265,12 +265,12 @@ class MetadataManager:
             if self.raw_mutagen_metadata is None:
                 self.raw_mutagen_metadata = self._extract_mutagen_metadata()
 
-            for app_metadata_key in list(app_metadata.keys()):
-                app_metadata_value = app_metadata[app_metadata_key]
-                if app_metadata_key not in self.metadata_keys_direct_map_write:
-                    raise MetadataNotSupportedError(f'{app_metadata_key} metadata not supported by this format')
+            for unified_metadata_key in list(app_metadata.keys()):
+                app_metadata_value = app_metadata[unified_metadata_key]
+                if unified_metadata_key not in self.metadata_keys_direct_map_write:
+                    raise MetadataNotSupportedError(f'{unified_metadata_key} metadata not supported by this format')
                 else:
-                    raw_metadata_key = self.metadata_keys_direct_map_write[app_metadata_key]
+                    raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
                     if raw_metadata_key:
                         self._update_formatted_value_in_raw_mutagen_metadata(
                             raw_mutagen_metadata=self.raw_mutagen_metadata, raw_metadata_key=raw_metadata_key,
@@ -278,7 +278,7 @@ class MetadataManager:
                     else:
                         self._update_undirectly_mapped_metadata(
                             raw_mutagen_metadata=self.raw_mutagen_metadata, app_metadata_value=app_metadata_value,
-                            app_metadata_key=app_metadata_key)
+                            unified_metadata_key=unified_metadata_key)
             self.raw_mutagen_metadata.save(self.audio_file.get_file_path_or_object())
 
     def delete_metadata(self) -> bool:
