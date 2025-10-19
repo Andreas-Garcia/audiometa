@@ -497,9 +497,6 @@ class TempFileWithMetadata:
     def verify_headers_removed(self, expected_removed: List[str] = None) -> Dict[str, bool]:
         return ComprehensiveMetadataVerifier.verify_headers_removed(self.test_file, expected_removed)
     
-    def check_metadata_with_external_tools(self) -> Dict[str, Any]:
-        return ComprehensiveMetadataVerifier.check_metadata_with_external_tools(self.test_file)
-    
     def verify_id3v2_multiple_entries_in_raw_data(self, tag_name: str, expected_count: int = None) -> Dict[str, Any]:
         return ID3v2MetadataVerifier.verify_multiple_entries_in_raw_data(self.test_file, tag_name, expected_count)
     

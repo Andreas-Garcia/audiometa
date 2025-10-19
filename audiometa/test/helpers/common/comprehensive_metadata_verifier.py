@@ -1,6 +1,5 @@
 """Comprehensive metadata verification utilities for testing audio file metadata."""
 
-import subprocess
 from pathlib import Path
 from typing import Dict, Any, List
 
@@ -29,64 +28,6 @@ class ComprehensiveMetadataVerifier:
             'vorbis': VorbisHeaderVerifier.has_vorbis_comments(file_path),
             'riff': RIFFHeaderVerifier.has_riff_info_chunk(file_path)
         }
-    
-    @staticmethod
-    def check_metadata_with_external_tools(file_path: Path) -> Dict[str, Any]:
-        """Check metadata using external tools for comprehensive verification.
-        
-        Args:
-            file_path: Path to the audio file
-            
-        Returns:
-            Dictionary with tool results
-        """
-        results = {}
-        
-        # Check with mid3v2
-        try:
-            result = subprocess.run(
-                ['mid3v2', '-l', str(file_path)],
-                capture_output=True, text=True, check=True
-            )
-            results['mid3v2'] = {
-                'success': True,
-                'output': result.stdout,
-                'has_id3v2': 'ID3v2 tag' in result.stdout and 'No ID3v2 tag found' not in result.stdout,
-                'has_id3v1': 'ID3v1 tag' in result.stdout and 'No ID3v1 tag found' not in result.stdout
-            }
-        except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            results['mid3v2'] = {'success': False, 'error': str(e)}
-        
-        # Check with mutagen-inspect
-        try:
-            result = subprocess.run(
-                ['mutagen-inspect', str(file_path)],
-                capture_output=True, text=True, check=True
-            )
-            results['mutagen_inspect'] = {
-                'success': True,
-                'output': result.stdout,
-                'has_metadata': 'No tags' not in result.stdout
-            }
-        except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            results['mutagen_inspect'] = {'success': False, 'error': str(e)}
-        
-        # Check with metaflac (for FLAC files)
-        if file_path.suffix.lower() == '.flac':
-            try:
-                result = subprocess.run(
-                    ['metaflac', '--list', str(file_path)],
-                    capture_output=True, text=True, check=True
-                )
-                results['metaflac'] = {
-                    'success': True,
-                    'output': result.stdout,
-                    'has_vorbis': 'VORBIS_COMMENT' in result.stdout
-                }
-            except (subprocess.CalledProcessError, FileNotFoundError) as e:
-                results['metaflac'] = {'success': False, 'error': str(e)}
-        
-        return results
     
     @staticmethod
     def verify_headers_removed(file_path: Path, expected_removed: List[str] = None) -> Dict[str, bool]:
