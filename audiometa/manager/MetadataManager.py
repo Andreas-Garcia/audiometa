@@ -37,6 +37,26 @@ class MetadataManager:
         self.metadata_keys_direct_map_write = metadata_keys_direct_map_write
         self.update_using_mutagen_metadata = update_using_mutagen_metadata
 
+    @staticmethod
+    def find_safe_separator(values: list[str]) -> str:
+        """
+        Find a separator that doesn't appear in any of the provided values.
+        
+        Args:
+            values: List of string values to check for separator conflicts
+            
+        Returns:
+            A separator string that doesn't appear in any value, or the last 
+            separator (comma) as fallback if no separator is safe
+        """
+        # Find a separator that doesn't appear in any of the values
+        for sep in METADATA_MULTI_VALUE_SEPARATORS:
+            if not any(sep in value for value in values):
+                return sep
+        
+        # If no separator is safe, use the last one (comma)
+        return METADATA_MULTI_VALUE_SEPARATORS[-1]
+
     @abstractmethod
     def _extract_mutagen_metadata(self) -> MutagenMetadata:
         raise NotImplementedError()

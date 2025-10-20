@@ -382,38 +382,18 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                     return
                 
                 # For ID3v2.3, use concatenation with separators (ID3v2.3 doesn't support null-separated values)
-                from ..MetadataManager import METADATA_MULTI_VALUE_SEPARATORS
+                from ..MetadataManager import MetadataManager
                 
-                # Find a separator that doesn't appear in any of the values
-                separator = None
-                for sep in METADATA_MULTI_VALUE_SEPARATORS:
-                    if not any(sep in value for value in app_metadata_value):
-                        separator = sep
-                        break
-                
-                # If no separator is safe, use the last one (comma)
-                if separator is None:
-                    separator = METADATA_MULTI_VALUE_SEPARATORS[-1]
-                
-                # Concatenate values
+                # Find a separator that doesn't appear in any of the values and concatenate
+                separator = MetadataManager.find_safe_separator(app_metadata_value)
                 app_metadata_value = separator.join(app_metadata_value)
                 # Continue to handle as single value
             else:
                 # For non-multi-value fields, concatenate with separators as fallback
-                from ..MetadataManager import METADATA_MULTI_VALUE_SEPARATORS
+                from ..MetadataManager import MetadataManager
                 
-                # Find a separator that doesn't appear in any of the values
-                separator = None
-                for sep in METADATA_MULTI_VALUE_SEPARATORS:
-                    if not any(sep in value for value in app_metadata_value):
-                        separator = sep
-                        break
-                
-                # If no separator is safe, use the last one (comma)
-                if separator is None:
-                    separator = METADATA_MULTI_VALUE_SEPARATORS[-1]
-                
-                # Concatenate values
+                # Find a separator that doesn't appear in any of the values and concatenate
+                separator = MetadataManager.find_safe_separator(app_metadata_value)
                 app_metadata_value = separator.join(app_metadata_value)
         
         # Handle single values
