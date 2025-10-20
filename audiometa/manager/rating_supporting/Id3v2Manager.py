@@ -162,18 +162,6 @@ class Id3v2Manager(RatingSupportingMetadataManager):
 
     ID3_RATING_APP_EMAIL = "audiometa-python@audiometa.dev"
 
-    # ID3v2.4 fields that officially support multiple frames (exhaustive list from README)
-    # Note: Genre (TCON) is intentionally NOT included as it's not officially supported for multiple frames
-    ID3V2_4_MULTI_FRAME_SUPPORTED_FIELDS = {
-        'TPE1',  # Artists - Multiple artist names for the track
-        'TPE2',  # Album Artists - Multiple album artist names
-        'TCOM',  # Composers - Multiple composer names
-        'TEXT',  # Lyricists - Multiple lyricist names (ID3v2.4 only)
-        'TPE3',  # Conductors - Multiple conductor names (ID3v2.4 only)
-        'TMCL',  # Musicians - Multiple musician credits (ID3v2.4 only)
-        'TIPL',  # Involved People - Multiple involved people credits (ID3v2.4 only)
-        'COMM',  # Comments - Multiple comment entries (with different descriptions)
-    }
 
     class Id3TextFrame(RawMetadataKey):
         TITLE = 'TIT2'
@@ -378,18 +366,19 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                     
             if unified_metadata_key and unified_metadata_key.can_semantically_have_multiple_values():
                 # Check ID3v2 version to determine handling
-                id3v2_version = getattr(raw_mutagen_metadata_id3, 'version', (2, 4, 0))
+                # Use self.id3v2_version instead of trying to get it from the mutagen object
+                # as the object might not have the version set yet during writing
+                id3v2_version = self.id3v2_version
                 
-                # ID3v2.4 supports multiple frames for certain fields
+                # ID3v2.4 supports multi-value text frames (single frame with null-separated values per spec)
                 if id3v2_version[1] >= 4:
-                    if raw_metadata_key in self.ID3V2_4_MULTI_FRAME_SUPPORTED_FIELDS:
-                        # Create single frame with multiple text values (ID3v2.4 native multi-entry support)
-                        text_frame_class = self.ID3_TEXT_FRAME_CLASS_MAP[raw_metadata_key]
-                        # Filter out None and empty values
-                        valid_values = [value for value in app_metadata_value if value is not None and value != ""]
-                        if valid_values:
-                            self._add_id3_frame_multi_value(raw_mutagen_metadata_id3, text_frame_class, raw_metadata_key, valid_values)
-                        return
+                    # Create single frame with multiple text values (ID3v2.4 spec: null-separated values in one frame)
+                    text_frame_class = self.ID3_TEXT_FRAME_CLASS_MAP[raw_metadata_key]
+                    # Filter out None and empty values
+                    valid_values = [value for value in app_metadata_value if value is not None and value != ""]
+                    if valid_values:
+                        self._add_id3_frame_multi_value(raw_mutagen_metadata_id3, text_frame_class, raw_metadata_key, valid_values)
+                    return
                 
                 # For ID3v2.3 or non-officially-supported fields in ID3v2.4, use concatenation with separators
                 from ..MetadataManager import METADATA_MULTI_VALUE_SEPARATORS
@@ -452,17 +441,16 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         else:
             raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=app_metadata_value))
 
+
+
     def _add_id3_frame_multi_value(self, raw_mutagen_metadata_id3: ID3, text_frame_class, raw_metadata_key: RawMetadataKey, values: list[str]):
-        """Add a single ID3 frame with multiple text values (for ID3v2.4)."""
-        if raw_metadata_key == self.Id3TextFrame.ARTISTS_NAMES:  # TPE1
-            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=values))
-        elif raw_metadata_key == self.Id3TextFrame.ALBUM_ARTISTS_NAMES:  # TPE2
-            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=values))
-        elif raw_metadata_key == self.Id3TextFrame.COMPOSERS:  # TCOM
-            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=values))
-        else:
-            # For other frame types, just use the first value as fallback
-            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=values[0]))
+        """Add a single ID3 frame with multiple text values (ID3v2.4 specification compliant).
+        
+        Per ID3v2.4 spec § 4.2: Text frames can contain multiple strings separated by null terminators.
+        This creates one frame with multiple null-separated values, which is the correct ID3v2.4 behavior.
+        """
+        # Add all frames with multiple text values (mutagen handles null separation automatically)
+        raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=values))
 
     def _preserve_id3v1_metadata(self, file_path: str) -> bytes | None:
         """Read and preserve existing ID3v1 metadata from the end of the file.
