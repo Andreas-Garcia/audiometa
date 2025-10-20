@@ -1,8 +1,9 @@
 from pathlib import Path
 
-from audiometa import update_file_metadata, get_merged_unified_metadata, get_single_format_app_metadata
+from audiometa import update_file_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.test.helpers.id3v2.id3v2_metadata_inspector import ID3v2MetadataInspector
 
 
 class TestMultipleEntriesId3v2_3:
@@ -13,11 +14,7 @@ class TestMultipleEntriesId3v2_3:
         
         update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-        
-        assert isinstance(artists, list)
-        assert len(artists) == 3
-        assert "Artist One" in artists
-        assert "Artist Two" in artists
-        assert "Artist Three" in artists
+        # Use helper to check the created ID3v2 frame directly
+        verification = ID3v2MetadataInspector.inspect_multiple_entries_in_raw_data(temp_audio_file, "TPE1")
+        assert verification['success']
+        assert "TPE1=Artist One;Artist Two;Artist Three" in verification['raw_output']
