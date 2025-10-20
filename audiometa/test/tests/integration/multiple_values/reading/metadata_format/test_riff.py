@@ -12,11 +12,12 @@ class TestRiff:
     def test_semicolon_separated_artists(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             RIFFMetadataSetter.set_artists(test_file.path, ["Artist One;Artist Two;Artist Three"], in_separate_frames=False)
-            
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.RIFF)
+                        
             verification = RIFFMetadataVerifier.verify_multiple_entries_in_raw_data(test_file.path, "IART", expected_count=1)
             assert verification["success"], f"Verification failed: {verification.get('error', 'Unknown error')}"
             assert "Artist                          : Artist One;Artist Two;Artist Three" in verification['raw_output']
+            
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.RIFF)
             
             assert isinstance(artists, list)
             assert len(artists) == 3
