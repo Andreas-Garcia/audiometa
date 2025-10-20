@@ -72,6 +72,8 @@ class TestId3v2_4Mixed:
             verification = ID3v2MetadataVerifier.verify_multiple_entries_in_raw_data(test_file.path, "TIT2", expected_count=3)
             assert verification["success"], f"Verification failed: {verification.get('error', 'Unknown error')}"
             
+            assert "TIT2=Title One / Title Two / Title Three" in verification['raw_output']
+            
             title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V2)
             
             assert isinstance(title, str)
