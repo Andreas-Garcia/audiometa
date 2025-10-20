@@ -50,12 +50,14 @@ class TestMultipleEntriesId3v2_3:
             ID3v2MetadataSetter.set_artist(test_file.path, "Existing 1; Existing 2", version="2.3")
             verification = ID3v2MetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "TPE1")
             assert verification['success']
+            assert "Existing 1" in verification['raw_output']
+            assert "Existing 2" in verification['raw_output']
             
-            # Now update with multiple artists
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Existing 1", "New 2"]
             }
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
+            
             verification = ID3v2MetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "TPE1")
             assert verification['success']
             raw_output = verification['raw_output']
