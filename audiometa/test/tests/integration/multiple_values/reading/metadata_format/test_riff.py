@@ -1,16 +1,12 @@
 import pytest
 
-from audiometa import (
-    get_merged_unified_metadata,
-    get_single_format_app_metadata,
-    get_specific_metadata
-)
+from audiometa import get_merged_unified_metadata, get_single_format_app_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
-class TestRiffMixed:
+class TestRiff:
     def test_mixed_separators_and_multiple_entries(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             test_file.set_riff_multiple_artists(["Artist 1;Artist 2", "Artist 3", "Artist 4"], in_separate_frames=True)

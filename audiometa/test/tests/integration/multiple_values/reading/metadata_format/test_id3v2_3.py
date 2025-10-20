@@ -11,7 +11,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
-class TestId3v23Mixed:
+class TestId3v23:
     def test_mixed_single_and_multiple_values(self):
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.3") as test_file:
             test_file.set_id3v2_multiple_artists(["Artist 1;Artist 2", "Artist 3", "Artist 4"])

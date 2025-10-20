@@ -5,7 +5,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
-class TestId3v1Separators:
+class TestId3v1:
     def test_semicolon_separated_artists(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             test_file.set_id3v1_artist("Artist One;Artist Two")

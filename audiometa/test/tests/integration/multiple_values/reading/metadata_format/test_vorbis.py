@@ -11,7 +11,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
-class TestVorbisMixed:
+class TestVorbis:
     def test_mixed_single_and_multiple_values(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             test_file.set_vorbis_multiple_artists(["Artist 1;Artist 2", "Artist 3", "Artist 4"])
