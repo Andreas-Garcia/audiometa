@@ -190,20 +190,11 @@ class TempFileWithMetadata:
     def set_id3v2_genre(self, genre: str):
         ID3v2MetadataSetter.set_genre(self.test_file, genre)
     
-    def set_id3v2_multiple_genres(self, genres: List[str], in_separate_frames: bool = False):
-        ID3v2MetadataSetter.set_multiple_genres(self.test_file, genres, in_separate_frames)
-    
-    def set_id3v2_multiple_artists(self, artists: List[str], in_separate_frames: bool = False):
-        ID3v2MetadataSetter.set_multiple_artists(self.test_file, artists, in_separate_frames)
+
     
     def set_id3v2_3_multiple_artists(self, artists: list[str]):
-        # Try to delete existing TPE1 tags, but don't fail if they don't exist
-        try:
-            command = ["mid3v2", "--delete", "TPE1", str(self.test_file)]
-            run_external_tool(command, "mid3v2")
-        except Exception:
-            # Ignore if TPE1 tags don't exist
-            pass
+        command = ["mid3v2", "--delete", "TPE1", str(self.test_file)]
+        run_external_tool(command, "mid3v2")
         
         # Set all artists in a single command
         command = ["mid3v2"]
@@ -213,13 +204,8 @@ class TempFileWithMetadata:
         run_external_tool(command, "mid3v2")
     
     def set_id3v2_4_multiple_artists(self, artists: list[str]):
-        # Try to delete existing TPE1 tags, but don't fail if they don't exist
-        try:
-            command = ["mid3v2", "--delete", "TPE1", str(self.test_file)]
-            run_external_tool(command, "mid3v2")
-        except Exception:
-            # Ignore if TPE1 tags don't exist
-            pass
+        command = ["mid3v2", "--delete", "TPE1", str(self.test_file)]
+        run_external_tool(command, "mid3v2")
         
         # Set all artists in a single command
         command = ["mid3v2"]
@@ -229,13 +215,8 @@ class TempFileWithMetadata:
         run_external_tool(command, "mid3v2")
         
     def set_id3v2_4_single_artist(self, artist: str):
-        # Try to delete existing TPE1 tags, but don't fail if they don't exist
-        try:
-            command = ["mid3v2", "--delete", "TPE1", str(self.test_file)]
-            run_external_tool(command, "mid3v2")
-        except Exception:
-            # Ignore if TPE1 tags don't exist
-            pass
+        command = ["mid3v2", "--delete", "TPE1", str(self.test_file)]
+        run_external_tool(command, "mid3v2")
         
         command = ["mid3v2"]
         command.extend(["--TPE1", artist])
@@ -245,12 +226,6 @@ class TempFileWithMetadata:
     def get_id3v2_4_all_raw_data(self) -> str:
         command = ["mid3v2", "--list", str(self.test_file)]
         return run_external_tool(command, "mid3v2").stdout
-    
-    def set_id3v2_multiple_album_artists(self, album_artists: List[str], in_separate_frames: bool = False):
-        ID3v2MetadataSetter.set_multiple_album_artists(self.test_file, album_artists, in_separate_frames)
-    
-    def set_id3v2_multiple_composers(self, composers: List[str], in_separate_frames: bool = False):
-        ID3v2MetadataSetter.set_multiple_composers(self.test_file, composers, in_separate_frames)
     
     def set_id3v2_max_metadata(self):
         ID3v2MetadataSetter.set_max_metadata(self.test_file)
@@ -294,191 +269,23 @@ class TempFileWithMetadata:
     # Individual Metadata Field Operations
     # =============================================================================
     
-    def set_id3v2_comment(self, comment: str):
-        ID3v2MetadataSetter.set_comment(self.test_file, comment)
+
     
-    def delete_id3v2_comment(self):
-        ID3v2MetadataDeleter.delete_comment(self.test_file)
+
     
-    def set_id3v1_comment(self, comment: str):
-        ID3v1MetadataSetter.set_comment(self.test_file, comment)
+
     
-    def delete_id3v1_comment(self):
-        ID3v1MetadataDeleter.delete_comment(self.test_file)
-    
-    def set_riff_comment(self, comment: str):
-        RIFFMetadataSetter.set_comment(self.test_file, comment)
-    
-    def delete_riff_comment(self):
-        RIFFMetadataDeleter.delete_comment(self.test_file)
-    
-    def set_vorbis_comment(self, comment: str):
-        VorbisMetadataSetter.set_comment(self.test_file, comment)
-    
-    def delete_vorbis_comment(self):
-        VorbisMetadataDeleter.delete_comment(self.test_file)
-    
-    def set_id3v2_title(self, title: str):
-        ID3v2MetadataSetter.set_title(self.test_file, title)
-    
-    def delete_id3v2_title(self):
-        ID3v2MetadataDeleter.delete_title(self.test_file)
-    
-    def set_id3v1_title(self, title: str):
-        ID3v1MetadataSetter.set_title(self.test_file, title)
-    
-    def delete_id3v1_title(self):
-        ID3v1MetadataDeleter.delete_title(self.test_file)
-    
-    def set_riff_title(self, title: str):
-        RIFFMetadataSetter.set_title(self.test_file, title)
-    
-    def delete_riff_title(self):
-        RIFFMetadataDeleter.delete_title(self.test_file)
-    
-    def set_vorbis_title(self, title: str):
-        VorbisMetadataSetter.set_title(self.test_file, title)
-    
-    def delete_vorbis_title(self):
-        VorbisMetadataDeleter.delete_title(self.test_file)
-    
-    def set_id3v2_artist(self, artist: str):
-        ID3v2MetadataSetter.set_artist(self.test_file, artist)
-    
-    def delete_id3v2_artist(self):
-        ID3v2MetadataDeleter.delete_artist(self.test_file)
-    
-    def set_id3v1_artist(self, artist: str):
-        ID3v1MetadataSetter.set_artist(self.test_file, artist)
-    
-    def delete_id3v1_artist(self):
-        ID3v1MetadataDeleter.delete_artist(self.test_file)
-    
-    def set_riff_artist(self, artist: str):
-        RIFFMetadataSetter.set_artist(self.test_file, artist)
-    
-    def delete_riff_artist(self):
-        RIFFMetadataDeleter.delete_artist(self.test_file)
-    
-    def set_vorbis_artist(self, artist: str):
-        VorbisMetadataSetter.set_artist(self.test_file, artist)
-    
-    def delete_vorbis_artist(self):
-        VorbisMetadataDeleter.delete_artist(self.test_file)
-    
-    def set_id3v2_album(self, album: str):
-        ID3v2MetadataSetter.set_album(self.test_file, album)
-    
-    def delete_id3v2_album(self):
-        ID3v2MetadataDeleter.delete_album(self.test_file)
-    
-    def set_id3v1_album(self, album: str):
-        ID3v1MetadataSetter.set_album(self.test_file, album)
-    
-    def delete_id3v1_album(self):
-        ID3v1MetadataDeleter.delete_album(self.test_file)
-    
-    def set_riff_album(self, album: str):
-        RIFFMetadataSetter.set_album(self.test_file, album)
-    
-    def delete_riff_album(self):
-        RIFFMetadataDeleter.delete_album(self.test_file)
-    
-    def set_vorbis_album(self, album: str):
-        VorbisMetadataSetter.set_album(self.test_file, album)
-    
-    def delete_vorbis_album(self):
-        VorbisMetadataDeleter.delete_album(self.test_file)
+
     
     def set_id3v2_genre(self, genre: str):
         ID3v2MetadataSetter.set_genre(self.test_file, genre)
     
-    def delete_id3v2_genre(self):
-        ID3v2MetadataDeleter.delete_genre(self.test_file)
-    
-    def set_id3v1_genre(self, genre: str):
-        ID3v1MetadataSetter.set_genre(self.test_file, genre)
-    
-    def delete_id3v1_genre(self):
-        ID3v1MetadataDeleter.delete_genre(self.test_file)
-    
-    def set_riff_genre(self, genre: str):
-        RIFFMetadataSetter.set_genre(self.test_file, genre)
-    
-    def delete_riff_genre(self):
-        RIFFMetadataDeleter.delete_genre(self.test_file)
-    
-    def set_vorbis_genre(self, genre: str):
-        VorbisMetadataSetter.set_genre(self.test_file, genre)
-    
-    def set_vorbis_multiple_artists(self, artists: List[str]):
-        VorbisMetadataSetter.set_multiple_artists(self.test_file, artists)
-    
-    def set_vorbis_multiple_album_artists(self, album_artists: List[str]):
-        VorbisMetadataSetter.set_multiple_album_artists(self.test_file, album_artists)
-    
-    def set_vorbis_multiple_composers(self, composers: List[str]):
-        VorbisMetadataSetter.set_multiple_composers(self.test_file, composers)
-    
-    def set_vorbis_multiple_genres(self, genres: List[str]):
-        VorbisMetadataSetter.set_multiple_genres(self.test_file, genres)
-    
-    def set_vorbis_multiple_performers(self, performers: List[str]):
-        VorbisMetadataSetter.set_multiple_performers(self.test_file, performers)
-    
-    def set_vorbis_multiple_comments(self, comments: List[str]):
-        VorbisMetadataSetter.set_multiple_comments(self.test_file, comments)
-    
     def delete_vorbis_genre(self):
         VorbisMetadataDeleter.delete_genre(self.test_file)
     
-    def set_id3v2_lyrics(self, lyrics: str):
-        ID3v2MetadataSetter.set_lyrics(self.test_file, lyrics)
+
     
-    def delete_id3v2_lyrics(self):
-        ID3v2MetadataDeleter.delete_lyrics(self.test_file)
-    
-    def set_riff_lyrics(self, lyrics: str):
-        RIFFMetadataSetter.set_lyrics(self.test_file, lyrics)
-    
-    def delete_riff_lyrics(self):
-        RIFFMetadataDeleter.delete_lyrics(self.test_file)
-    
-    def set_vorbis_lyrics(self, lyrics: str):
-        VorbisMetadataSetter.set_lyrics(self.test_file, lyrics)
-    
-    def delete_vorbis_lyrics(self):
-        VorbisMetadataDeleter.delete_lyrics(self.test_file)
-    
-    def set_id3v2_language(self, language: str):
-        ID3v2MetadataSetter.set_language(self.test_file, language)
-    
-    def delete_id3v2_language(self):
-        ID3v2MetadataDeleter.delete_language(self.test_file)
-    
-    def set_riff_language(self, language: str):
-        RIFFMetadataSetter.set_language(self.test_file, language)
-    
-    def delete_riff_language(self):
-        RIFFMetadataDeleter.delete_language(self.test_file)
-    
-    def set_vorbis_language(self, language: str):
-        VorbisMetadataSetter.set_language(self.test_file, language)
-    
-    def delete_vorbis_language(self):
-        VorbisMetadataDeleter.delete_language(self.test_file)
-    
-    def set_id3v2_bpm(self, bpm: int):
-        ID3v2MetadataSetter.set_bpm(self.test_file, bpm)
-    
-    def delete_id3v2_bpm(self):
-        ID3v2MetadataDeleter.delete_bpm(self.test_file)
-    
-    def set_vorbis_bpm(self, bpm: int):
-        VorbisMetadataSetter.set_bpm(self.test_file, bpm)
-    
-    def delete_vorbis_bpm(self):
-        VorbisMetadataDeleter.delete_bpm(self.test_file)
+
 
     def has_id3v2_header(self) -> bool:
         return ID3HeaderVerifier.has_id3v2_header(self.test_file)
@@ -510,45 +317,6 @@ class TempFileWithMetadata:
     def verify_riff_multiple_entries_in_raw_data(self, tag_name: str, expected_count: int = None) -> Dict[str, Any]:
         return RIFFMetadataVerifier.verify_multiple_entries_in_raw_data(self.test_file, tag_name, expected_count)
     
-    # =============================================================================
-    # Separator-based metadata methods (for testing single-field separator parsing)
-    # =============================================================================
+
     
-    def set_id3v2_separator_artists(self, artists_string: str, version: str = "2.3"):
-        ID3v2MetadataSetter.set_separator_artists(self.test_file, artists_string, version)
-    
-    def set_id3v2_separator_genres(self, genres_string: str, version: str = "2.3"):
-        ID3v2MetadataSetter.set_separator_genres(self.test_file, genres_string, version)
-    
-    def set_id3v2_separator_composers(self, composers_string: str, version: str = "2.3"):
-        ID3v2MetadataSetter.set_separator_composers(self.test_file, composers_string, version)
-    
-    def set_riff_separator_artists(self, artists_string: str):
-        RIFFMetadataSetter.set_separator_artists(self.test_file, artists_string)
-    
-    def set_riff_separator_genres(self, genres_string: str):
-        RIFFMetadataSetter.set_separator_genres(self.test_file, genres_string)
-    
-    def set_riff_separator_composers(self, composers_string: str):
-        RIFFMetadataSetter.set_separator_composers(self.test_file, composers_string)
-    
-    def set_riff_separator_album_artists(self, album_artists_string: str):
-        RIFFMetadataSetter.set_separator_album_artists(self.test_file, album_artists_string)
-    
-    def set_riff_multiple_artists(self, artists: List[str], in_separate_frames: bool = False):
-        RIFFMetadataSetter.set_multiple_artists(self.test_file, artists, in_separate_frames)
-    
-    def set_riff_multiple_genres(self, genres: List[str], in_separate_frames: bool = False):
-        RIFFMetadataSetter.set_multiple_genres(self.test_file, genres, in_separate_frames)
-    
-    def set_riff_multiple_composers(self, composers: List[str], in_separate_frames: bool = False):
-        RIFFMetadataSetter.set_multiple_composers(self.test_file, composers, in_separate_frames)
-    
-    def set_riff_multiple_album_artists(self, album_artists: List[str], in_separate_frames: bool = False):
-        RIFFMetadataSetter.set_multiple_album_artists(self.test_file, album_artists, in_separate_frames)
-    
-    def set_riff_multiple_comments(self, comments: List[str], in_separate_frames: bool = False):
-        RIFFMetadataSetter.set_multiple_comments(self.test_file, comments, in_separate_frames)
-    
-    def set_id3v2_multiple_comments(self, comments: List[str], in_separate_frames: bool = False):
-        ID3v2MetadataSetter.set_multiple_comments(self.test_file, comments, in_separate_frames)
+
