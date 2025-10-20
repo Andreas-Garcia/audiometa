@@ -188,7 +188,8 @@ class RiffManager(RatingSupportingMetadataManager):
                                 field_value = field_data.decode('utf-8', errors='ignore')
                                 # Split on null byte and take first part if exists
                                 field_value = field_value.split('\x00')[0].strip()
-                                if field_id in self.RiffTagKey and field_value:
+                                # Compare field_id with enum member values (FourCC strings)
+                                if any(field_id == member.value for member in self.RiffTagKey) and field_value:
                                     if field_id not in info_tags:
                                         info_tags[field_id] = []
                                     info_tags[field_id].append(field_value)
@@ -257,17 +258,19 @@ class RiffManager(RatingSupportingMetadataManager):
         if hasattr(raw_mutagen_metadata_wav, 'info'):
             info_tags = getattr(raw_mutagen_metadata_wav, 'info')
             for key, value in info_tags.items():
-                if key in self.RiffTagKey:
+                # key is a FourCC string; check against enum member values
+                if any(key == member.value for member in self.RiffTagKey):
                     # info_tags now contains lists of values, so we can pass them directly
                     raw_metadata_dict[key] = value
 
         return raw_metadata_dict
 
     def _get_raw_rating_by_traktor_or_not(self, raw_clean_metadata: RawMetadataDict) -> tuple[int | None, bool]:
-        if not self.RiffTagKey.RATING in raw_clean_metadata:
+        # raw_clean_metadata uses FourCC string keys; compare using enum .value
+        if self.RiffTagKey.RATING.value not in raw_clean_metadata:
             return None, False
 
-        raw_ratings = raw_clean_metadata.get(self.RiffTagKey.RATING)
+        raw_ratings = raw_clean_metadata.get(self.RiffTagKey.RATING.value)
         if not raw_ratings or len(raw_ratings) == 0:
             return None, False
 
