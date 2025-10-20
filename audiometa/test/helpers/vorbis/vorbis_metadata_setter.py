@@ -103,7 +103,7 @@ class VorbisMetadataSetter:
         run_script("set-artists-One-Two-Three-vorbis.sh", file_path, scripts_dir)
     
     @staticmethod
-    def set_multiple_artists(file_path: Path, artists: List[str]):
+    def set_artists(file_path: Path, artists: List[str]):
         """Set multiple Vorbis artists using external metaflac tool."""
         VorbisMetadataSetter.set_multiple_tags(file_path, "ARTIST", artists)
     

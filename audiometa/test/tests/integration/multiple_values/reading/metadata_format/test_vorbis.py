@@ -11,7 +11,7 @@ class TestVorbis:
 
     def test_semicolon_separated_artists(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            VorbisMetadataSetter.set_multiple_artists(test_file.path, ["Artist One;Artist Two;Artist Three"])
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist One;Artist Two;Artist Three"])
             
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.VORBIS)
             assert isinstance(artists, list)
@@ -22,7 +22,7 @@ class TestVorbis:
             
     def test_multiple_artists_in_multiple_entries(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            VorbisMetadataSetter.set_multiple_artists(test_file.path, ["One", "Two", "Three"], in_separate_frames=True)
+            VorbisMetadataSetter.set_artists(test_file.path, ["One", "Two", "Three"])
             
             verification = VorbisMetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "ARTIST")
             assert verification["actual_count"] == 3, f"Expected 3 separate ARTIST entries, found {verification['actual_count']}"
@@ -37,7 +37,7 @@ class TestVorbis:
     
     def test_mixed_single_and_multiple_entries(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            VorbisMetadataSetter.set_multiple_artists(test_file.path, ["Artist 1;Artist 2", "Artist 3", "Artist 4"])
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist 1;Artist 2", "Artist 3", "Artist 4"])
             
             verification = VorbisMetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "ARTIST")
             
