@@ -211,9 +211,9 @@ from audiometa import get_merged_unified_metadata
 
 # Read all metadata from a file
 metadata = get_merged_unified_metadata("path/to/your/audio.mp3")
-print(f"Title: {metadata.get('title', 'Unknown')}")
-print(f"Artist: {metadata.get('artists_names', ['Unknown'])}")
-print(f"Album: {metadata.get('album_name', 'Unknown')}")
+print(f"Title: {metadata.get(UnifiedMetadataKey.TITLE.value, 'Unknown')}")
+print(f"Artist: {metadata.get(UnifiedMetadataKey.ARTISTS_NAMES.value, ['Unknown'])}")
+print(f"Album: {metadata.get(UnifiedMetadataKey.ALBUM_NAME.value, 'Unknown')}")
 ```
 
 ### Writing Metadata
@@ -221,12 +221,14 @@ print(f"Album: {metadata.get('album_name', 'Unknown')}")
 ```python
 from audiometa import update_file_metadata
 
-# Update metadata
+# Update metadata (use UnifiedMetadataKey for explicit typing)
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+
 new_metadata = {
-    'title': 'New Song Title',
-    'artists_names': ['Artist Name'],
-    'album_name': 'Album Name',
-    'rating': 85
+    UnifiedMetadataKey.TITLE: 'New Song Title',
+    UnifiedMetadataKey.ARTISTS_NAMES: ['Artist Name'],
+    UnifiedMetadataKey.ALBUM_NAME: 'Album Name',
+    UnifiedMetadataKey.RATING: 85,
 }
 update_file_metadata("path/to/your/audio.mp3", new_metadata)
 ```
@@ -706,7 +708,7 @@ metadata = {
     UnifiedMetadataKey.GENRES_NAMES: ['Rock'],
     UnifiedMetadataKey.RATING: 85,
     UnifiedMetadataKey.BPM: 120,
-    UnifiedMetadataKey.COMMENTS: 'Some comments here',
+    UnifiedMetadataKey.COMMENT: 'Some comments here',
 }
 ```
 
@@ -722,8 +724,18 @@ The library performs type checking on metadata values to ensure they conform to 
 - `UnifiedMetadataKey.GENRES_NAMES`: `list[str]`
 - `UnifiedMetadataKey.RATING`: `int`
 - `UnifiedMetadataKey.BPM`: `int`
-- `UnifiedMetadataKey.COMMENTS`: `str`
-  If a value does not match the expected type, a `InvalidMetadataTypeError` will be raised.
+- `UnifiedMetadataKey.COMMENT`: `str`
+
+## Validation behavior
+
+The library validates metadata value types passed to `update_file_metadata` when keys are provided as `UnifiedMetadataKey` instances. Rules:
+
+- `None` values are allowed and indicate field removal.
+- For fields whose expected type is `list[...]` (for example `ARTISTS_NAMES` or `GENRES_NAMES`) the validator accepts either a `list` of the inner type or a single shorthand value of the inner type (e.g., a single `str`) for convenience; read operations will normalize to lists for multi-valued fields.
+- For plain types (`str`, `int`, etc.) the value must be an instance of that type.
+- On type mismatch the library raises `InvalidMetadataTypeError` (a subclass of `TypeError`).
+
+Note: the validator currently uses the `UnifiedMetadataKey` enum to determine expected types. Calls that use plain string keys (the older examples in this README) are accepted by the API but are not validated by this mechanism unless you pass `UnifiedMetadataKey` instances. You can continue using string keys, or prefer `UnifiedMetadataKey` for explicit validation and IDE-friendly code.
 
 #### `update_file_metadata(file_path, metadata, **options)`
 
@@ -732,11 +744,13 @@ Updates metadata in a file.
 ```python
 from audiometa import update_file_metadata
 
-# Basic writing
+# Basic writing (recommended: use UnifiedMetadataKey constants)
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+
 update_file_metadata("song.mp3", {
-    'title': 'New Title',
-    'artists_names': ['Artist Name'],
-    'rating': 85
+    UnifiedMetadataKey.TITLE: 'New Title',
+    UnifiedMetadataKey.ARTISTS_NAMES: ['Artist Name'],
+    UnifiedMetadataKey.RATING: 85
 })
 
 # Format-specific writing
