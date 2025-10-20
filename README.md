@@ -693,6 +693,37 @@ print(f"Audio data ratio: {(full_info['technical_info']['file_size_bytes'] - ful
 
 ### Writing Metadata
 
+#### Metadata Dictionary Structure
+
+When writing, metadata should be provided as a dictionary with keys corresponding to unified metadata fields defined in `UnifiedMetadataKey`.
+
+```python
+metadata = {
+    UnifiedMetadataKey.TITLE: 'Song Title',
+    UnifiedMetadataKey.ARTISTS_NAMES: ['Artist 1', 'Artist 2'],
+    UnifiedMetadataKey.ALBUM_NAME: 'Album Name',
+    UnifiedMetadataKey.YEAR: 2024,
+    UnifiedMetadataKey.GENRES_NAMES: ['Rock'],
+    UnifiedMetadataKey.RATING: 85,
+    UnifiedMetadataKey.BPM: 120,
+    UnifiedMetadataKey.COMMENTS: 'Some comments here',
+}
+```
+
+#### Metadata Types Checking
+
+The library performs type checking on metadata values to ensure they conform to expected types. Below are the expected types for common fields:
+
+- `UnifiedMetadataKey.TITLE`: `str`
+- `UnifiedMetadataKey.ARTISTS_NAMES`: `list[str]`
+- `UnifiedMetadataKey.ALBUM_NAME`: `str`
+- `UnifiedMetadataKey.YEAR`: `int`
+- `UnifiedMetadataKey.GENRES_NAMES`: `list[str]`
+- `UnifiedMetadataKey.RATING`: `int`
+- `UnifiedMetadataKey.BPM`: `int`
+- `UnifiedMetadataKey.COMMENTS`: `str`
+  If a value does not match the expected type, a `TypeError` will be raised.
+
 #### `update_file_metadata(file_path, metadata, **options)`
 
 Updates metadata in a file.
