@@ -26,13 +26,31 @@ class TestId3v2_4Mixed:
             assert "Artist Three" in artists
         
 
-    def test_multiple_artists_in_multiple_entries(self):
+    def test_multiple_artists_in_multiple_entries_semicolon_separator(self):
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
-            ID3v2MetadataSetter.set_artists(test_file.path, ["Artist One", "Artist Two", "Artist Three"], in_separate_frames=False, version="2.4")
+            ID3v2MetadataSetter.set_artists(test_file.path, ["Artist One", "Artist Two", "Artist Three"], in_separate_frames=False, version="2.4", separator=" / ")
             
             assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             
             verification = ID3v2MetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "TPE1")
+            assert "TPE1=Artist One / Artist Two / Artist Three" in verification['raw_output']
+            
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
+            
+            assert isinstance(artists, list)
+            assert len(artists) == 3
+            assert "Artist One" in artists
+            assert "Artist Two" in artists
+            assert "Artist Three" in artists
+    
+    def test_multiple_artists_in_multiple_entries_null_separator(self):
+        with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
+            ID3v2MetadataSetter.set_artists(test_file.path, ["Artist One", "Artist Two", "Artist Three"], in_separate_frames=False, version="2.4", separator="\x00")
+            
+            assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
+            
+            verification = ID3v2MetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "TPE1")
+            # mid3v2 displays null-separated values with " / " for readability, but the data is correctly stored with null bytes
             assert "TPE1=Artist One / Artist Two / Artist Three" in verification['raw_output']
             
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
