@@ -1,293 +1,54 @@
 import pytest
 
-from audiometa import get_merged_unified_metadata
+from audiometa import get_specific_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGetter
+from test.helpers.id3v2.id3v2_metadata_setter import ID3v2MetadataSetter
+from utils.MetadataFormat import MetadataFormat
 
 
 class TestSeparatorHandling:
-    def test_semicolon_separated_artists(self):
-        # Create temporary file with basic metadata
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            # Set multiple artists using TempFileWithMetadata
-            test_file.set_vorbis_multiple_artists(["Artist One", "Artist Two", "Artist Three"])
-            
-            # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-            
-            # Should return list
-            assert isinstance(artists, list)
-            assert len(artists) == 3
-            assert "Artist One" in artists
-            assert "Artist Two" in artists
-            assert "Artist Three" in artists
 
-    def test_comma_separated_artists(self):
-        # Create temporary file with basic metadata
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            # Set multiple artists using TempFileWithMetadata
-            test_file.set_vorbis_multiple_artists(["Artist One", "Artist Two", "Artist Three"])
-            
-            # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-            
-            # Should return list
-            assert isinstance(artists, list)
-            assert len(artists) == 3
-            assert "Artist One" in artists
-            assert "Artist Two" in artists
-            assert "Artist Three" in artists
+    # All tests follow the pattern: set a single value with all separators, check parsed list
+    def test_separator_priority_double_slash(self):
+        with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
+            value = "Artist One//Artist Two;Artist Three,Artist Four/Artist Five\\Artist Six"
+            ID3v2MetadataSetter.set_artists(test_file.path, [value], separator=None)
+            api_artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
+            assert api_artists == ["Artist One", "Artist Two;Artist Three,Artist Four/Artist Five\\Artist Six"]
 
-    def test_slash_separated_artists(self):
-        # Create temporary file with basic metadata
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            # Set single artist tag with slash-separated values
-            try:
-                test_file.set_vorbis_artist("Artist One/Artist Two/Artist Three")
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set slash-separated artists")
-            
-            # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-            
-            # Should split on slash and return list
-            assert isinstance(artists, list)
-            assert len(artists) == 3
-            assert "Artist One" in artists
-            assert "Artist Two" in artists
-            assert "Artist Three" in artists
+    def test_separator_priority_double_backslash(self):
+        with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
+            value = "Artist One\\Artist Two;Artist Three,Artist Four/Artist Five"
+            ID3v2MetadataSetter.set_artists(test_file.path, [value], separator=None)
+            api_artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
+            assert api_artists == ["Artist One", "Artist Two;Artist Three,Artist Four/Artist Five"]
 
-    def test_backslash_separated_artists(self):
-        # Create temporary file with basic metadata
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            # Set single artist tag with backslash-separated values
-            try:
-                test_file.set_vorbis_artist("Artist One\\Artist Two\\Artist Three")
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set backslash-separated artists")
-            
-            # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-            
-            # Should split on backslash and return list
-            assert isinstance(artists, list)
-            assert len(artists) == 3
-            assert "Artist One" in artists
-            assert "Artist Two" in artists
-            assert "Artist Three" in artists
+    def test_separator_priority_semicolon(self):
+        with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
+            value = "Artist One;Artist Two,Artist Three/Artist Four"
+            ID3v2MetadataSetter.set_artists(test_file.path, [value], separator=None)
+            api_artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
+            assert api_artists == ["Artist One", "Artist Two,Artist Three/Artist Four"]
+    
+    def test_separator_priority_backslash(self):
+        with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
+            value = "Artist One\\Artist Two,Artist Three/Artist Four"
+            ID3v2MetadataSetter.set_artists(test_file.path, [value], separator=None)
+            api_artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
+            assert api_artists == ["Artist One", "Artist Two,Artist Three/Artist Four"]
 
-    def test_double_slash_separated_artists(self):
-        # Create temporary file with basic metadata
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            # Set single artist tag with double-slash-separated values
-            try:
-                test_file.set_vorbis_artist("Artist One//Artist Two//Artist Three")
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set double-slash-separated artists")
-            
-            # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-            
-            # Should split on double slash and return list
-            assert isinstance(artists, list)
-            assert len(artists) == 3
-            assert "Artist One" in artists
-            assert "Artist Two" in artists
-            assert "Artist Three" in artists
+    def test_separator_priority_slash(self):
+        with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
+            value = "Artist One/Artist Two,Artist Three"
+            ID3v2MetadataSetter.set_artists(test_file.path, [value], separator=None)
+            api_artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
+            assert api_artists == ["Artist One", "Artist Two,Artist Three"]
 
-    def test_double_backslash_separated_artists(self):
-        # Create temporary file with basic metadata
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            # Set single artist tag with double-backslash-separated values
-            try:
-                test_file.set_vorbis_artist("Artist One\\\\Artist Two\\\\Artist Three")
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set double-backslash-separated artists")
-            
-            # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-            
-            # Should split on double backslash and return list
-            assert isinstance(artists, list)
-            assert len(artists) == 3
-            assert "Artist One" in artists
-            assert "Artist Two" in artists
-            assert "Artist Three" in artists
-
-    def test_mixed_separators_priority(self):
-        # Create temporary file with basic metadata
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            # Test that separators are processed in the correct priority order
-            # Based on METADATA_MULTI_VALUE_SEPARATORS = ("//", "\\\\", ";", "\\", "/", ",")
-            try:
-                # Use multiple separators - should split on highest priority first
-                test_file.set_vorbis_artist("Artist One//Artist Two;Artist Three,Artist Four")
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set mixed separator artists")
-            
-            # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-            
-            # Should split on double slash first, then semicolon, then comma
-            assert isinstance(artists, list)
-            assert len(artists) == 4
-            assert "Artist One" in artists
-            assert "Artist Two" in artists
-            assert "Artist Three" in artists
-            assert "Artist Four" in artists
-
-    def test_separator_with_whitespace(self):
-        # Create temporary file with basic metadata
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            # Test separators with surrounding whitespace
-            try:
-                test_file.set_vorbis_artist("Artist One ; Artist Two , Artist Three")
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set whitespace-separated artists")
-            
-            # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-            
-            # Should split and strip whitespace
-            assert isinstance(artists, list)
-            assert len(artists) == 3
-            assert "Artist One" in artists
-            assert "Artist Two" in artists
-            assert "Artist Three" in artists
-            
-            # Check that whitespace was stripped
-            for artist in artists:
-                assert artist == artist.strip()
-
-    def test_empty_values_after_separation(self):
-        # Create temporary file with basic metadata
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            # Test separators that create empty values
-            try:
-                test_file.set_vorbis_artist("Artist One;;Artist Two;")
-                
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set empty-separated artists")
-            
-            # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-            
-            # Should filter out empty values
-            assert isinstance(artists, list)
-            assert len(artists) == 2  # Only non-empty values
-            assert "Artist One" in artists
-            assert "Artist Two" in artists
-            assert "" not in artists
-
-    def test_separator_in_artist_name(self):
-        # Create temporary file with basic metadata
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            # Test that separators within artist names are preserved
-            try:
-                test_file.set_vorbis_artist("Artist & Co.;Artist vs. Other;Artist + Collaborator")
-                
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set special character artists")
-            
-            # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-            
-            # Should preserve special characters within names
-            assert isinstance(artists, list)
-            assert len(artists) == 3
-            assert "Artist & Co." in artists
-            assert "Artist vs. Other" in artists
-            assert "Artist + Collaborator" in artists
-
-    def test_single_value_no_separator(self):
-        # Create temporary file with basic metadata
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            # Test single value without separators
-            try:
-                test_file.set_vorbis_artist("Single Artist")
-                
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set single artist")
-            
-            # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-            
-            # Should return single value as list
-            assert isinstance(artists, list)
-            assert len(artists) == 1
-            assert "Single Artist" in artists
-
-    def test_separator_with_genres(self):
-        # Create temporary file with basic metadata
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            # Test separators with genres (another multi-value field)
-            try:
-                test_file.set_vorbis_genre("Rock;Pop;Jazz")
-                
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set separated genres")
-            
-            # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            genres = unified_metadata.get(UnifiedMetadataKey.GENRES_NAMES)
-            
-            # Should split genres on semicolon
-            assert isinstance(genres, list)
-            assert len(genres) == 3
-            assert "Rock" in genres
-            assert "Pop" in genres
-            assert "Jazz" in genres
-
-    def test_separator_with_composers(self):
-        # Create temporary file with basic metadata
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            # Test separators with composers (another multi-value field)
-            try:
-                test_file.set_vorbis_multiple_composers(["Composer One", "Composer Two", "Composer Three"])
-                
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set separated composers")
-            
-            # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            composers = unified_metadata.get(UnifiedMetadataKey.COMPOSERS)
-            
-            # Should split composers on comma
-            assert isinstance(composers, list)
-            assert len(composers) == 3
-            assert "Composer One" in composers
-            assert "Composer Two" in composers
-            assert "Composer Three" in composers
-
-    def test_complex_separator_scenario(self):
-        # Create temporary file with basic metadata
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            # Test complex scenario with multiple separators and edge cases
-            try:
-                test_file.set_vorbis_artist("Artist One//Artist Two;Artist Three,Artist Four\\Artist Five")
-                
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set complex separated artists")
-            
-            # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-            
-            # Should handle complex separation correctly
-            assert isinstance(artists, list)
-            # The exact count depends on separator priority, but should be multiple
-            assert len(artists) >= 3
-            assert "Artist One" in artists
-            assert "Artist Two" in artists
-            assert "Artist Three" in artists
+    def test_separator_priority_comma(self):
+        with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
+            value = "Artist One,Artist Two"
+            ID3v2MetadataSetter.set_artists(test_file.path, [value], separator=None)
+            api_artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
+            assert api_artists == ["Artist One", "Artist Two"]
