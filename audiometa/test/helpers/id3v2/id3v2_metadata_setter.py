@@ -120,23 +120,14 @@ class ID3v2MetadataSetter:
             # Use manual binary construction to create truly separate TIT2 frames
             ID3v2MetadataSetter._create_multiple_id3v2_frames(file_path, 'TIT2', titles, version)
         else:
-            # For version-specific creation, use mutagen directly for proper version handling
-            if version == "2.3":
-                # Create a single frame with all titles as one value using mutagen
-                combined_titles = ';'.join(titles) if len(titles) > 1 else titles[0] if titles else ""
-                ID3v2MetadataSetter._set_single_frame_with_mutagen(file_path, 'TIT2', combined_titles, version)
-            else:
-                # Set all titles in a single command (creates one frame with multiple values)
-                ID3v2MetadataSetter.set_multiple_values_single_frame(file_path, "TIT2", titles)
+            # Create a single frame with multiple values (version-specific handling)
+            ID3v2MetadataSetter._set_multiple_values_single_frame(file_path, "TIT2", titles, version)
     
     @staticmethod
     def set_artist(file_path: Path, artist: str, version: str = "2.4") -> None:
         """Set ID3v2 artist using version-specific method."""
-        if version == "2.3":
-            ID3v2MetadataSetter._set_single_frame_with_mutagen(file_path, 'TPE1', artist, version)
-        else:
-            # For ID3v2.4, use mutagen to ensure proper version
-            ID3v2MetadataSetter._set_single_frame_with_mutagen(file_path, 'TPE1', artist, "2.4")
+        # Use consolidated function with single artist value
+        ID3v2MetadataSetter._set_multiple_values_single_frame(file_path, 'TPE1', [artist], version)
     
     @staticmethod
     def set_album(file_path: Path, album: str) -> None:
@@ -171,13 +162,26 @@ class ID3v2MetadataSetter:
         run_script("set-id3v2-max-metadata.sh", file_path, scripts_dir)
 
     @staticmethod
-    def set_multiple_values_single_frame(file_path: Path, frame_id: str, values: List[str]) -> None:
-        """Set multiple values in a single ID3v2 frame using mid3v2."""
-        command = ["mid3v2"]
-        for value in values:
-            command.extend([f"--{frame_id}", value])
-        command.append(str(file_path))
-        run_external_tool(command, "mid3v2")
+    def _set_multiple_values_single_frame(file_path: Path, frame_id: str, values: List[str], version: str = "2.4") -> None:
+        """Set multiple values in a single ID3v2 frame with version-specific handling.
+        
+        Args:
+            file_path: Path to the audio file
+            frame_id: The ID3v2 frame identifier (e.g., 'TPE1', 'TCON', 'TCOM', 'TIT2')
+            values: List of values to set in the frame
+            version: ID3v2 version to use (e.g., "2.3", "2.4")
+        """
+        if version == "2.3":
+            # ID3v2.3 doesn't support multiple values natively, so combine with semicolons
+            combined_text = ';'.join(values) if len(values) > 1 else values[0] if values else ""
+            ID3v2MetadataSetter._set_single_frame_with_mutagen(file_path, frame_id, combined_text, version)
+        else:
+            # ID3v2.4 supports multiple values natively using mid3v2
+            command = ["mid3v2"]
+            for value in values:
+                command.extend([f"--{frame_id}", value])
+            command.append(str(file_path))
+            run_external_tool(command, "mid3v2")
     
     @staticmethod
     def set_artists(file_path: Path, artists: List[str], in_separate_frames: bool = False, version: str = "2.4"):
@@ -199,14 +203,8 @@ class ID3v2MetadataSetter:
             # Use manual binary construction to create truly separate TPE1 frames
             ID3v2MetadataSetter._create_multiple_id3v2_frames(file_path, 'TPE1', artists, version)
         else:
-            # For version-specific creation, use mutagen directly for proper version handling
-            if version == "2.3":
-                # Create a single frame with all artists as one value using mutagen
-                combined_artists = ';'.join(artists) if len(artists) > 1 else artists[0] if artists else ""
-                ID3v2MetadataSetter._set_single_frame_with_mutagen(file_path, 'TPE1', combined_artists, version)
-            else:
-                # Set all artists in a single command (creates one frame with multiple values)
-                ID3v2MetadataSetter.set_multiple_values_single_frame(file_path, "TPE1", artists)
+            # Create a single frame with multiple values (version-specific handling)
+            ID3v2MetadataSetter._set_multiple_values_single_frame(file_path, "TPE1", artists, version)
     
     @staticmethod
     def set_genres(file_path: Path, genres: List[str], in_separate_frames: bool = False, version: str = "2.4"):
@@ -228,14 +226,8 @@ class ID3v2MetadataSetter:
             # Use manual binary construction to create truly separate TCON frames
             ID3v2MetadataSetter._create_multiple_id3v2_frames(file_path, 'TCON', genres, version)
         else:
-            # For version-specific creation, use mutagen directly for proper version handling
-            if version == "2.3":
-                # Create a single frame with all genres as one value using mutagen
-                combined_genres = ';'.join(genres) if len(genres) > 1 else genres[0] if genres else ""
-                ID3v2MetadataSetter._set_single_frame_with_mutagen(file_path, 'TCON', combined_genres, version)
-            else:
-                # Set all genres in a single command (creates one frame with multiple values)
-                ID3v2MetadataSetter.set_multiple_values_single_frame(file_path, "TCON", genres)
+            # Create a single frame with multiple values (version-specific handling)
+            ID3v2MetadataSetter._set_multiple_values_single_frame(file_path, "TCON", genres, version)
     
     @staticmethod
     def set_album_artists(file_path: Path, album_artists: List[str], in_separate_frames: bool = False):
@@ -257,7 +249,7 @@ class ID3v2MetadataSetter:
             ID3v2MetadataSetter._create_multiple_id3v2_frames(file_path, 'TPE2', album_artists)
         else:
             # Set all album artists in a single command (creates one frame with multiple values)
-            ID3v2MetadataSetter.set_multiple_values_single_frame(file_path, "TPE2", album_artists)
+            ID3v2MetadataSetter._set_multiple_values_single_frame(file_path, "TPE2", album_artists)
     
     @staticmethod
     def set_composers(file_path: Path, composers: List[str], in_separate_frames: bool = False, version: str = "2.4"):
@@ -279,14 +271,8 @@ class ID3v2MetadataSetter:
             # Use manual binary construction to create truly separate TCOM frames
             ID3v2MetadataSetter._create_multiple_id3v2_frames(file_path, 'TCOM', composers, version)
         else:
-            # For version-specific creation, use mutagen directly for proper version handling
-            if version == "2.3":
-                # Create a single frame with all composers as one value using mutagen
-                combined_composers = ';'.join(composers) if len(composers) > 1 else composers[0] if composers else ""
-                ID3v2MetadataSetter._set_single_frame_with_mutagen(file_path, 'TCOM', combined_composers, version)
-            else:
-                # Set all composers in a single command (creates one frame with multiple values)
-                ID3v2MetadataSetter.set_multiple_values_single_frame(file_path, "TCOM", composers)
+            # Create a single frame with multiple values (version-specific handling)
+            ID3v2MetadataSetter._set_multiple_values_single_frame(file_path, "TCOM", composers, version)
     
     @staticmethod
     def set_comments(file_path: Path, comments: List[str], in_separate_frames: bool = False):
@@ -350,15 +336,15 @@ class ID3v2MetadataSetter:
     
     @staticmethod
     def _set_single_frame_with_mutagen(file_path: Path, frame_id: str, text: str, version: str) -> None:
-        """Create a single ID3v2 frame with specified version using mutagen library.
+        """Internal helper: Create a single ID3v2 frame with specified version using mutagen library.
         
-        This provides proper version handling for ID3v2.3 vs ID3v2.4 without
-        the complexity of manual binary construction when only one frame is needed.
+        This is used internally by set_multiple_values_single_frame for ID3v2.3 compatibility
+        where multiple values need to be semicolon-separated in a single text field.
         
         Args:
             file_path: Path to the audio file
             frame_id: The ID3v2 frame identifier (e.g., 'TPE1', 'TCON', 'TCOM', 'TIT2')
-            text: Text value for the frame
+            text: Text value for the frame (may contain semicolon-separated values for ID3v2.3)
             version: ID3v2 version to use (e.g., "2.3", "2.4")
         """
         from mutagen.id3 import ID3, TPE1, TPE2, TCON, TCOM, TIT2
