@@ -1,4 +1,3 @@
-import pytest
 
 from audiometa import get_specific_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
