@@ -41,3 +41,11 @@ class TestArtistsWriting:
             update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
             metadata = get_merged_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == test_artists
+
+    def test_invalid_type_raises(self):
+        from audiometa.exceptions import InvalidMetadataTypeError
+
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            bad_metadata = {UnifiedMetadataKey.ARTISTS_NAMES: "not-a-list"}
+            with pytest.raises(InvalidMetadataTypeError):
+                update_file_metadata(test_file.path, bad_metadata)

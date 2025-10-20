@@ -45,3 +45,11 @@ class TestBpmWriting:
             # ID3v1 format raises exception for unsupported metadata when format is forced
             with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.BPM metadata not supported by this format"):
                 update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
+
+    def test_invalid_type_raises(self):
+        from audiometa.exceptions import InvalidMetadataTypeError
+
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            bad_metadata = {UnifiedMetadataKey.BPM: "not-an-int"}
+            with pytest.raises(InvalidMetadataTypeError):
+                update_file_metadata(test_file.path, bad_metadata)

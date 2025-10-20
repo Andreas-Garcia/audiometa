@@ -5,6 +5,7 @@ import pytest
 from audiometa import get_specific_metadata, update_file_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
 @pytest.mark.integration
@@ -32,3 +33,11 @@ class TestCopyrightWriting:
             update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
             copyright_info = get_specific_metadata(test_file.path, UnifiedMetadataKey.COPYRIGHT)
             assert copyright_info == test_copyright
+
+    def test_invalid_type_raises(self):
+        from audiometa.exceptions import InvalidMetadataTypeError
+
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            bad_metadata = {UnifiedMetadataKey.COPYRIGHT: 123}
+            with pytest.raises(InvalidMetadataTypeError):
+                update_file_metadata(test_file.path, bad_metadata)

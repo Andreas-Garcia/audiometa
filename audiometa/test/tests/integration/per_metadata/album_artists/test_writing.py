@@ -41,3 +41,11 @@ class TestAlbumArtistsWriting:
             # ID3v1 format raises exception for unsupported metadata
             with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.ALBUM_ARTISTS_NAMES metadata not supported by this format"):
                 update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
+
+    def test_invalid_type_raises(self):
+        from audiometa.exceptions import InvalidMetadataTypeError
+
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            bad_metadata = {UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: "not-a-list"}
+            with pytest.raises(InvalidMetadataTypeError):
+                update_file_metadata(test_file.path, bad_metadata)
