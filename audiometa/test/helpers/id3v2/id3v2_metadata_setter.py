@@ -162,7 +162,7 @@ class ID3v2MetadataSetter:
         run_script("set-id3v2-max-metadata.sh", file_path, scripts_dir)
 
     @staticmethod
-    def _set_multiple_values_single_frame(file_path: Path, frame_id: str, values: List[str], version: str = "2.4") -> None:
+    def _set_multiple_values_single_frame(file_path: Path, frame_id: str, values: List[str], version: str = "2.4", separator: str = None) -> None:
         """Set multiple values in a single ID3v2 frame with version-specific handling.
         
         Args:
@@ -170,21 +170,21 @@ class ID3v2MetadataSetter:
             frame_id: The ID3v2 frame identifier (e.g., 'TPE1', 'TCON', 'TCOM', 'TIT2')
             values: List of values to set in the frame
             version: ID3v2 version to use (e.g., "2.3", "2.4")
+            separator: Separator to use between values. If None, uses default behavior
+                      (semicolon for ID3v2.3, null byte for ID3v2.4)
         """
-        if version == "2.3":
-            # ID3v2.3 doesn't support multiple values natively, so combine with semicolons
-            combined_text = ';'.join(values) if len(values) > 1 else values[0] if values else ""
-            ID3v2MetadataSetter._set_single_frame_with_mutagen(file_path, frame_id, combined_text, version)
-        else:
-            # ID3v2.4 supports multiple values natively using mid3v2
-            command = ["mid3v2"]
-            for value in values:
-                command.extend([f"--{frame_id}", value])
-            command.append(str(file_path))
-            run_external_tool(command, "mid3v2")
+        # Determine separator if not provided
+        if separator is None:
+            separator = ";" if version == "2.3" else "\x00"
+        
+        # Combine values with the appropriate separator
+        combined_text = separator.join(values) if len(values) > 1 else values[0] if values else ""
+        
+        # Use mutagen for all cases
+        ID3v2MetadataSetter._set_single_frame_with_mutagen(file_path, frame_id, combined_text, version)
     
     @staticmethod
-    def set_artists(file_path: Path, artists: List[str], in_separate_frames: bool = False, version: str = "2.4"):
+    def set_artists(file_path: Path, artists: List[str], in_separate_frames: bool = False, version: str = "2.4", separator: str = None):
         """Set ID3v2 multiple artists using external mid3v2 tool or manual frame creation.
         
         Args:
@@ -193,6 +193,8 @@ class ID3v2MetadataSetter:
             in_separate_frames: If True, creates multiple separate TPE1 frames (one per artist) using manual binary construction.
                               If False (default), creates a single TPE1 frame with multiple values using mid3v2.
             version: ID3v2 version to use (e.g., "2.3", "2.4")
+            separator: Separator to use between values when in_separate_frames=False. If None, uses default behavior
+                      (semicolon for ID3v2.3, null byte for ID3v2.4). Use ";" for semicolon, " / " for slash, "\x00" for null byte.
         """
         from .id3v2_metadata_deleter import ID3v2MetadataDeleter
         
@@ -204,7 +206,7 @@ class ID3v2MetadataSetter:
             ID3v2MetadataSetter._create_multiple_id3v2_frames(file_path, 'TPE1', artists, version)
         else:
             # Create a single frame with multiple values (version-specific handling)
-            ID3v2MetadataSetter._set_multiple_values_single_frame(file_path, "TPE1", artists, version)
+            ID3v2MetadataSetter._set_multiple_values_single_frame(file_path, "TPE1", artists, version, separator)
     
     @staticmethod
     def set_genres(file_path: Path, genres: List[str], in_separate_frames: bool = False, version: str = "2.4"):
