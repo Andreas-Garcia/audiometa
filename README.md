@@ -1019,24 +1019,13 @@ print(result[UnifiedMetadataKey.GENRES_NAMES])
 
 The library uses a **smart writing strategy** that adapts to format capabilities and data characteristics. For each semantically multi-value field, different formats use different approaches:
 
-| Multi-Value Field       | ID3v1           | ID3v2.3         | ID3v2.4                     | RIFF            | Vorbis              |
-| ----------------------- | --------------- | --------------- | --------------------------- | --------------- | ------------------- |
-| **Artists Names**       | Smart separator | Smart separator | ✅ Multiple frames (`TPE1`) | Smart separator | ✅ Multiple entries |
-| **Album Artists Names** | Smart separator | Smart separator | ✅ Multiple frames (`TPE2`) | Smart separator | ✅ Multiple entries |
-| **Genres Names**        | Smart separator | Smart separator | Smart separator             | Smart separator | ✅ Multiple entries |
-| **Composers**           | Smart separator | Smart separator | ✅ Multiple frames (`TCOM`) | Smart separator | ✅ Multiple entries |
-| **Lyricists**           | Smart separator | Smart separator | ✅ Multiple frames (`TEXT`) | Smart separator | ✅ Multiple entries |
-| **Conductors**          | Smart separator | Smart separator | ✅ Multiple frames (`TPE3`) | Smart separator | ✅ Multiple entries |
-| **Musicians**           | Smart separator | Smart separator | ✅ Multiple frames (`TMCL`) | Smart separator | ✅ Multiple entries |
-| **Involved People**     | Smart separator | Smart separator | ✅ Multiple frames (`TIPL`) | Smart separator | ✅ Multiple entries |
-| **Performers**          | Smart separator | Smart separator | Smart separator             | Smart separator | ✅ Multiple entries |
-| **Comments**            | Smart separator | Smart separator | Smart separator             | Smart separator | ✅ Multiple entries |
-| **Arranger**            | Smart separator | Smart separator | Smart separator             | Smart separator | ✅ Multiple entries |
-
-**Legend:**
-
-- **✅ Multiple frames/entries**: Uses separate instances for each value (best practice)
-- **Smart separator**: Uses intelligent separator selection with single field concatenation
+| Format  | Multi-value Writing Method |
+| ------- | -------------------------- |
+| ID3v1   | Restricted smart separator |
+| ID3v2.3 | Smart separator            |
+| ID3v2.4 | Null-separated values      |
+| RIFF    | Smart separator            |
+| Vorbis  | Multiple entries           |
 
 **Key Points:**
 
