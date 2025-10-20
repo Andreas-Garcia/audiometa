@@ -163,7 +163,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
     ID3_RATING_APP_EMAIL = "audiometa-python@audiometa.dev"
 
     # ID3v2.4 fields that officially support multiple frames (exhaustive list from README)
-    # Note: Genre (TCON) is intentionally NOT included as it's not practically supported for multiple frames
+    # Note: Genre (TCON) is intentionally NOT included as it's not officially supported for multiple frames
     ID3V2_4_MULTI_FRAME_SUPPORTED_FIELDS = {
         'TPE1',  # Artists - Multiple artist names for the track
         'TPE2',  # Album Artists - Multiple album artist names
@@ -173,7 +173,6 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         'TMCL',  # Musicians - Multiple musician credits (ID3v2.4 only)
         'TIPL',  # Involved People - Multiple involved people credits (ID3v2.4 only)
         'COMM',  # Comments - Multiple comment entries (with different descriptions)
-        # Note: TCON (Genres) is listed in README but excluded here due to practical limitations
     }
 
     class Id3TextFrame(RawMetadataKey):
