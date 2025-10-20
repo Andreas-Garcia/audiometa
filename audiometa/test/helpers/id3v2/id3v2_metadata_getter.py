@@ -9,7 +9,7 @@ from audiometa.test.helpers.common.external_tool_runner import run_external_tool
 
 
 
-class Id3v2MetadataGetter:
+class ID3v2MetadataGetter:
     """
     Static helper for getting ID3v2 metadata fields from an audio file using external tools.
     """
@@ -26,7 +26,7 @@ class Id3v2MetadataGetter:
         """
         Returns a dictionary of ID3v2 metadata fields using id3v2 tool output.
         """
-        output = Id3v2MetadataGetter._get_id3v2_output(file_path)
+        output = ID3v2MetadataGetter._get_id3v2_output(file_path)
         metadata = {}
         for line in output.splitlines():
             if line.startswith("TIT2 (Title):"):
@@ -47,35 +47,35 @@ class Id3v2MetadataGetter:
 
     @staticmethod
     def get_artists(file_path):
-        metadata = Id3v2MetadataGetter.get_metadata(file_path)
+        metadata = ID3v2MetadataGetter.get_metadata(file_path)
         return metadata.get('artists', [])
 
     @staticmethod
     def get_title(file_path):
-        metadata = Id3v2MetadataGetter.get_metadata(file_path)
+        metadata = ID3v2MetadataGetter.get_metadata(file_path)
         return metadata.get('title')
 
     @staticmethod
     def get_album(file_path):
-        metadata = Id3v2MetadataGetter.get_metadata(file_path)
+        metadata = ID3v2MetadataGetter.get_metadata(file_path)
         return metadata.get('album')
 
     @staticmethod
     def get_year(file_path):
-        metadata = Id3v2MetadataGetter.get_metadata(file_path)
+        metadata = ID3v2MetadataGetter.get_metadata(file_path)
         return metadata.get('year')
 
     @staticmethod
     def get_genre(file_path):
-        metadata = Id3v2MetadataGetter.get_metadata(file_path)
+        metadata = ID3v2MetadataGetter.get_metadata(file_path)
         return metadata.get('genre')
 
     @staticmethod
     def get_comment(file_path):
-        metadata = Id3v2MetadataGetter.get_metadata(file_path)
+        metadata = ID3v2MetadataGetter.get_metadata(file_path)
         return metadata.get('comment')
 
     @staticmethod
     def get_track(file_path):
-        metadata = Id3v2MetadataGetter.get_metadata(file_path)
+        metadata = ID3v2MetadataGetter.get_metadata(file_path)
         return metadata.get('track')
