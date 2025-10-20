@@ -15,3 +15,22 @@ class ID3HeaderVerifier:
                 return header[:3] == b'ID3'
         except (IOError, OSError):
             return False
+    
+    @staticmethod
+    def get_id3v2_version(file_path: Path) -> tuple[int, int, int] | None:
+        """Get the ID3v2 version of the file.
+        
+        Args:
+            file_path: Path to the audio file
+            
+        Returns:
+            Version tuple (major, minor, revision) or None if no ID3v2 header found
+        """
+        try:
+            from mutagen.id3 import ID3, ID3NoHeaderError
+            id3_tags = ID3(file_path)
+            return id3_tags.version
+        except ID3NoHeaderError:
+            return None
+        except Exception:
+            return None
