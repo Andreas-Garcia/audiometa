@@ -1064,8 +1064,15 @@ When writing to legacy formats that require concatenated values, the library use
 6. `,` (comma) - lowest priority
 
 **ID3v1 Restricted Separator Selection:**
-ID3v1 only allows a single separator character (not multi-character like `//` or `\\`). The library will select the first available single-character separator from the priority list that does not appear in any value (e.g., `;`, `/`, `,`, `\`).
-If all common separators are present in the values, a comma (`,`) is used as a last resort.
+ID3v1 only allows a single separator character (not multi-character like `//` or `\\`). The library will select the first available single-character separator from the priority list that does not appear in any value:
+
+1. `,` (comma) - Standard, readable
+2. `;` (semicolon) - Common alternative
+3. `|` (pipe) - Less common
+4. `·` (middle dot) - Unicode but Latin-1 safe
+5. `/` (slash) - Last resort, may be confusing
+
+If all these separators are present in the values, a comma (`,`) is used as a last resort.
 
 **Selection Logic:**
 
