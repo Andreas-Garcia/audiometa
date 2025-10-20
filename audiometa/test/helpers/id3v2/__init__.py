@@ -4,7 +4,7 @@
 from .id3v2_header_verifier import ID3V2HeaderVerifier
 from .id3v2_metadata_deleter import ID3v2MetadataDeleter
 from .id3v2_metadata_setter import ID3v2MetadataSetter, ID3v1MetadataSetter
-from .id3v2_metadata_verifier import ID3v2MetadataVerifier
+from .id3v2_metadata_inspector import ID3v2MetadataInspector
 
 # Specialized managers (moved to ID3v2MetadataSetter)
 
@@ -20,7 +20,7 @@ __all__ = [
     "ID3v2MetadataDeleter",
     "ID3v2MetadataSetter",
     "ID3v1MetadataSetter",
-    "ID3v2MetadataVerifier",
+    "ID3v2MetadataInspector",
     
     # Specialized managers (moved to ID3v2MetadataSetter)
     

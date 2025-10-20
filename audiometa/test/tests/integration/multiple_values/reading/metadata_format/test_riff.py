@@ -4,7 +4,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.riff.riff_metadata_setter import RIFFMetadataSetter
-from audiometa.test.helpers.riff.riff_metadata_verifier import RIFFMetadataVerifier
+from audiometa.test.helpers.riff.riff_metadata_inspector import RIFFMetadataInspector
 
 
 class TestRiff:
@@ -13,7 +13,7 @@ class TestRiff:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             RIFFMetadataSetter.set_artists(test_file.path, ["Artist One;Artist Two;Artist Three"], in_separate_frames=False)
                         
-            verification = RIFFMetadataVerifier.verify_multiple_entries_in_raw_data(test_file.path, "IART", expected_count=1)
+            verification = RIFFMetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "IART")
             assert verification["success"], f"Verification failed: {verification.get('error', 'Unknown error')}"
             assert "Artist                          : Artist One;Artist Two;Artist Three" in verification['raw_output']
             
@@ -25,12 +25,11 @@ class TestRiff:
             assert "Artist Two" in artists
             assert "Artist Three" in artists
 
-    def test_multiple_artists_unified_reading(self):
+    def test_multiple_artists_in_multiple_entries(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             RIFFMetadataSetter.set_artists(test_file.path, ["One", "Two", "Three"], in_separate_frames=True)
             
-            # Verify that artists are actually stored in separate RIFF frames
-            verification_result = RIFFMetadataVerifier.verify_multiple_entries_in_raw_data(test_file.path, "IART", expected_count=3)
+            verification_result = RIFFMetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "IART")
             
             assert verification_result["success"], f"Verification failed: {verification_result.get('error', 'Unknown error')}"
             assert verification_result["actual_count"] == 3, f"Expected 3 separate IART frames, found {verification_result['actual_count']}"
@@ -48,7 +47,7 @@ class TestRiff:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             RIFFMetadataSetter.set_artists(test_file.path, ["Artist 1;Artist 2", "Artist 3", "Artist 4"], in_separate_frames=True)
 
-            verification = RIFFMetadataVerifier.verify_multiple_entries_in_raw_data(test_file.path, "IART", expected_count=3)
+            verification = RIFFMetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "IART")
 
             # Verify the raw data creation - exiftool shows RIFF tags as "Artist" not "IART"
             assert verification["success"], f"Verification failed: {verification.get('error', 'Unknown error')}"
@@ -74,7 +73,7 @@ class TestRiff:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             RIFFMetadataSetter.set_multiple_titles(test_file.path, ["Title One", "Title Two", "Title Three"], in_separate_frames=True)
             
-            verification = RIFFMetadataVerifier.verify_multiple_entries_in_raw_data(test_file.path, "INAM", expected_count=3)
+            verification = RIFFMetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "INAM")
 
             assert verification["success"], f"Verification failed: {verification.get('error', 'Unknown error')}"
             assert verification["actual_count"] == 3, f"Expected 3 separate INAM frames, found {verification['actual_count']}"
