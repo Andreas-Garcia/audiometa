@@ -19,6 +19,22 @@ class TestVorbis:
             assert "Artist One" in artists
             assert "Artist Two" in artists
             assert "Artist Three" in artists
+            
+    def test_multiple_artists_in_multiple_entries(self):
+        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
+            VorbisMetadataSetter.set_multiple_artists(test_file.path, ["One", "Two", "Three"], in_separate_frames=True)
+            
+            verification = VorbisMetadataVerifier.verify_multiple_entries_in_raw_data(test_file.path, "ARTIST", expected_count=3)
+            assert verification["success"], f"Verification failed: {verification.get('error', 'Unknown error')}"
+            assert verification["actual_count"] == 3, f"Expected 3 separate ARTIST entries, found {verification['actual_count']}"
+            
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.VORBIS)
+            
+            assert isinstance(artists, list)
+            assert len(artists) == 3
+            assert "One" in artists
+            assert "Two" in artists
+            assert "Three" in artists
     
     def test_mixed_single_and_multiple_entries(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
