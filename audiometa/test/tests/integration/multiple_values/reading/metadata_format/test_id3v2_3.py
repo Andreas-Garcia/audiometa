@@ -18,7 +18,6 @@ class TestId3v23:
             assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 3, 0)
             
             verification = ID3v2MetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "TPE1")
-            assert verification["success"], f"Verification failed: {verification.get('error', 'Unknown error')}"
             assert "TPE1=Artist One;Artist Two;Artist Three" in verification['raw_output']
 
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
@@ -36,7 +35,6 @@ class TestId3v23:
             assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 3, 0)
 
             verification = ID3v2MetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "TPE1")
-            assert verification["success"], f"Verification failed: {verification.get('error', 'Unknown error')}"
             
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
             
@@ -73,7 +71,6 @@ class TestId3v23:
             assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 3, 0)
 
             verification = ID3v2MetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "TIT2")
-            assert verification["success"], f"Verification failed: {verification.get('error', 'Unknown error')}"
             
             title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V2)
             

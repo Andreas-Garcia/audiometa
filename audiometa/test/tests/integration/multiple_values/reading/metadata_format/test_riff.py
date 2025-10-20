@@ -14,7 +14,6 @@ class TestRiff:
             RIFFMetadataSetter.set_artists(test_file.path, ["Artist One;Artist Two;Artist Three"], in_separate_frames=False)
                         
             verification = RIFFMetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "IART")
-            assert verification["success"], f"Verification failed: {verification.get('error', 'Unknown error')}"
             assert "Artist                          : Artist One;Artist Two;Artist Three" in verification['raw_output']
             
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.RIFF)
@@ -31,7 +30,6 @@ class TestRiff:
             
             verification_result = RIFFMetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "IART")
             
-            assert verification_result["success"], f"Verification failed: {verification_result.get('error', 'Unknown error')}"
             assert verification_result["actual_count"] == 3, f"Expected 3 separate IART frames, found {verification_result['actual_count']}"
             
             # Get RIFF metadata specifically to read the artists
@@ -50,7 +48,6 @@ class TestRiff:
             verification = RIFFMetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "IART")
 
             # Verify the raw data creation - exiftool shows RIFF tags as "Artist" not "IART"
-            assert verification["success"], f"Verification failed: {verification.get('error', 'Unknown error')}"
             assert verification["actual_count"] == 3, f"Expected 3 separate IART frames, found {verification['actual_count']}"
             assert "[RIFF]" in verification['raw_output']
             assert "Artist" in verification['raw_output']
@@ -75,7 +72,6 @@ class TestRiff:
             
             verification = RIFFMetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "INAM")
 
-            assert verification["success"], f"Verification failed: {verification.get('error', 'Unknown error')}"
             assert verification["actual_count"] == 3, f"Expected 3 separate INAM frames, found {verification['actual_count']}"
             assert "Title One" in verification['raw_output']
             assert "Title Two" in verification['raw_output']

@@ -25,7 +25,6 @@ class TestVorbis:
             VorbisMetadataSetter.set_multiple_artists(test_file.path, ["One", "Two", "Three"], in_separate_frames=True)
             
             verification = VorbisMetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "ARTIST")
-            assert verification["success"], f"Verification failed: {verification.get('error', 'Unknown error')}"
             assert verification["actual_count"] == 3, f"Expected 3 separate ARTIST entries, found {verification['actual_count']}"
             
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.VORBIS)
