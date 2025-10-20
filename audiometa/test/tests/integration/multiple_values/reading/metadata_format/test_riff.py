@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import get_merged_unified_metadata, get_single_format_app_metadata
+from audiometa import get_specific_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -22,8 +22,7 @@ class TestRiff:
             assert "Artist 4" in verification['raw_output']
             
             # Get RIFF metadata specifically to read the artists
-            riff_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
-            artists = riff_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.RIFF)
             assert isinstance(artists, list)
             
             # We created 3 separate RIFF frames, so we should get 3 entries 
@@ -46,8 +45,7 @@ class TestRiffMultipleEntries:
             assert verification_result["actual_count"] == 3, f"Expected 3 separate IART frames, found {verification_result['actual_count']}"
             
             # Get RIFF metadata specifically to read the artists
-            riff_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
-            artists = riff_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.RIFF)
 
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -59,13 +57,9 @@ class TestRiffMultipleEntries:
 class TestRiffSeparators:
     def test_semicolon_separated_artists(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            try:
-                test_file.set_riff_separator_artists("Artist One;Artist Two;Artist Three")
-            except RuntimeError:
-                pytest.skip("bwfmetaedit not available or failed to set semicolon-separated artists")
+            test_file.set_riff_separator_artists("Artist One;Artist Two;Artist Three")
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.RIFF)
             
             assert isinstance(artists, list)
             assert len(artists) == 3
