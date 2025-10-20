@@ -10,27 +10,84 @@ class ID3v2MetadataSetter:
     """Static utility class for ID3v2 metadata setting using external tools."""
     
     @staticmethod
-    def set_mp3_metadata(file_path: Path, metadata: Dict[str, Any]) -> None:
-        """Set MP3 metadata using mid3v2 tool."""
-        cmd = ["mid3v2"]
+    def set_metadata(file_path: Path, metadata: Dict[str, Any], version: str = None) -> None:
+        """Set MP3 metadata with optional ID3v2 version specification.
         
-        # Map common metadata keys to mid3v2 arguments
-        key_mapping = {
-            'title': '--song',
-            'artist': '--artist', 
-            'album': '--album',
-            'year': '--year',
-            'genre': '--genre',
-            'comment': '--comment',
-            'track': '--track'
-        }
-        
-        for key, value in metadata.items():
-            if key.lower() in key_mapping:
-                cmd.extend([key_mapping[key.lower()], str(value)])
-        
-        cmd.append(str(file_path))
-        run_external_tool(cmd, "mid3v2")
+        Args:
+            file_path: Path to the MP3 file
+            metadata: Dictionary of metadata to set
+            version: Optional ID3v2 version ("2.3" or "2.4"). If None, uses mid3v2 default.
+        """
+        if version:
+            # Use mutagen for version-specific creation
+            from mutagen.id3 import ID3, TIT2, TPE1, TALB, TDRC, TCON, COMM, TRCK
+            from mutagen.id3._util import ID3NoHeaderError
+            
+            # Map metadata keys to mutagen frame classes
+            frame_mapping = {
+                'title': TIT2,
+                'artist': TPE1,
+                'album': TALB,
+                'year': TDRC,
+                'genre': TCON,
+                'track': TRCK
+            }
+            
+            try:
+                # Load existing ID3 tag or create new one
+                id3 = ID3(file_path)
+            except ID3NoHeaderError:
+                id3 = ID3()
+            
+            # Set version
+            version_tuple = (2, 3, 0) if version == "2.3" else (2, 4, 0)
+            id3.version = version_tuple
+            
+            # Clear existing frames that we'll be setting
+            for key in metadata.keys():
+                if key.lower() in frame_mapping:
+                    frame_class = frame_mapping[key.lower()]
+                    frame_id = frame_class._framespec[0].name if hasattr(frame_class, '_framespec') else frame_class.__name__
+                    if hasattr(id3, 'delall'):
+                        id3.delall(frame_id)
+            
+            # Set encoding based on version
+            encoding = 1 if version == "2.3" else 3  # UTF-16 for 2.3, UTF-8 for 2.4
+            
+            # Add metadata frames
+            for key, value in metadata.items():
+                if key.lower() in frame_mapping:
+                    frame_class = frame_mapping[key.lower()]
+                    if key.lower() == 'comment':
+                        # Comments need special handling
+                        id3.add(COMM(encoding=encoding, lang='eng', desc='', text=str(value)))
+                    else:
+                        id3.add(frame_class(encoding=encoding, text=str(value)))
+            
+            # Save with specified version
+            version_major = 3 if version == "2.3" else 4
+            id3.save(file_path, v2_version=version_major)
+        else:
+            # Use mid3v2 for default behavior
+            cmd = ["mid3v2"]
+            
+            # Map common metadata keys to mid3v2 arguments
+            key_mapping = {
+                'title': '--song',
+                'artist': '--artist', 
+                'album': '--album',
+                'year': '--year',
+                'genre': '--genre',
+                'comment': '--comment',
+                'track': '--track'
+            }
+            
+            for key, value in metadata.items():
+                if key.lower() in key_mapping:
+                    cmd.extend([key_mapping[key.lower()], str(value)])
+            
+            cmd.append(str(file_path))
+            run_external_tool(cmd, "mid3v2")
     
     @staticmethod
     def set_comment(file_path: Path, comment: str) -> None:
@@ -73,9 +130,13 @@ class ID3v2MetadataSetter:
                 ID3v2MetadataDeleter.set_multiple_values_single_frame(file_path, "TIT2", titles)
     
     @staticmethod
-    def set_artist(file_path: Path, artist: str) -> None:
-        command = ["id3v2", "--id3v2-only", "--artist", artist, str(file_path)]
-        run_external_tool(command, "id3v2")
+    def set_artist(file_path: Path, artist: str, version: str = "2.4") -> None:
+        """Set ID3v2 artist using version-specific method."""
+        if version == "2.3":
+            ID3v2MetadataSetter._set_single_frame_with_mutagen(file_path, 'TPE1', artist, version)
+        else:
+            # For ID3v2.4, use mutagen to ensure proper version
+            ID3v2MetadataSetter._set_single_frame_with_mutagen(file_path, 'TPE1', artist, "2.4")
     
     @staticmethod
     def set_album(file_path: Path, album: str) -> None:

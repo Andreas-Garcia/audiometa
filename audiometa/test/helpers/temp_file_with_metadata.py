@@ -103,34 +103,26 @@ class TempFileWithMetadata:
         with tempfile.NamedTemporaryFile(suffix=f'.{actual_extension}', delete=False) as tmp_file:
             target_file = Path(tmp_file.name)
         
-        # Create minimal audio file based on format
         self._create_minimal_audio_file(target_file, format_type)
         
-        # Use appropriate external tool based on format
         if format_type.lower() == 'mp3':
-            # Use mid3v2 for MP3 files
-            self._set_mp3_metadata_with_mid3v2(target_file, metadata)
+            ID3v2MetadataSetter.set_metadata(target_file, metadata)
         elif format_type.lower() == 'id3v1':
-            # Use id3v2 --id3v1-only for ID3v1 metadata
-            self._set_mp3_metadata_with_id3v1(target_file, metadata)
+            self._set_mp3_metadata_id3v1(target_file, metadata)
         elif format_type.lower() in ['id3v2.3', 'id3v2.4']:
-            # Use mid3v2 for ID3v2.3 and ID3v2.4 metadata
-            self._set_mp3_metadata_with_mid3v2(target_file, metadata)
+            # Use version-specific ID3v2 metadata setting
+            version = format_type.lower().replace('id3v2.', '2.')
+            ID3v2MetadataSetter.set_metadata(target_file, metadata, version)
         elif format_type.lower() == 'flac':
-            # Use metaflac for FLAC files
             self._set_flac_metadata_with_metaflac(target_file, metadata)
         elif format_type.lower() == 'wav':
-            # Use bwfmetaedit for WAV files
             self._set_wav_metadata_with_bwfmetaedit(target_file, metadata)
         else:
             raise ValueError(f"Unsupported format type: {format_type}")
         
         return target_file
     
-    def _set_mp3_metadata_with_mid3v2(self, file_path: Path, metadata: dict) -> None:
-        ID3v2MetadataSetter.set_mp3_metadata(file_path, metadata)
-    
-    def _set_mp3_metadata_with_id3v1(self, file_path: Path, metadata: dict) -> None:
+    def _set_mp3_metadata_id3v1(self, file_path: Path, metadata: dict) -> None:
         ID3v1MetadataSetter.set_metadata(file_path, metadata)
     
     def _set_flac_metadata_with_metaflac(self, file_path: Path, metadata: dict) -> None:
