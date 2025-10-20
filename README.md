@@ -862,36 +862,32 @@ ARTIST=Artist 2
 ARTIST=Artist 3
 ```
 
-- **Officially supported**: Vorbis Comments (FLAC), ID3v2.4 (MP3/WAV/FLAC)
-- **Technically possible**: ID3v2.3 (MP3/WAV/FLAC), RIFF INFO (WAV)
+- **Officially supported**: Vorbis Comments (FLAC)
+- **Technically possible**: ID3v2.3 (MP3/WAV/FLAC), ID3v2.4 (uses null-separated values in single frames), RIFF INFO (WAV)
 - **Not supported**: ID3v1 (single field per tag only)
 - **Advantage**: Clean separation, no parsing ambiguity
-- **Note**: Multiple field instances can occur in most formats, even when not formally standardized
+- **Note**: Multiple field instances can occur in some formats, even when not formally standardized
 
-| Format  | Support | Official Fields         | Unofficial Fields | Notes                                                                           |
-| ------- | ------- | ----------------------- | ----------------- | ------------------------------------------------------------------------------- |
-| ID3v1   | ❌ No   | None                    | None              | Only one field per tag; repeated fields not allowed                             |
-| ID3v2.3 | ✅ Yes  | None                    | All fields        | Multiple frames allowed technically, but not officially defined for text values |
-| ID3v2.4 | ✅ Yes  | Multi-value text fields | All other fields  | Supports multiple frames for the same field type                                |
-| RIFF    | ✅ Yes  | None                    | All fields        | Duplicate chunks supported; all fields can have multiple instances              |
-| Vorbis  | ✅ Yes  | Multi-value text fields | All fields        | Allows repeated field names; semantically meaningful for multi-value fields     |
+| Format  | Official Support | Unofficial Support | Notes                                                                           |
+| ------- | ---------------- | ------------------ | ------------------------------------------------------------------------------- |
+| ID3v1   | ❌ No            | ❌ No              | Only one field per tag; repeated fields not allowed                             |
+| ID3v2.3 | ❌ No            | ✅ Yes             | Multiple frames allowed technically, but not officially defined for text values |
+| ID3v2.4 | ❌ No            | ✅ Yes             | Uses single frames with null-separated values for multi-value text fields       |
+| RIFF    | ❌ No            | ✅ Yes             | Duplicate chunks supported; all fields can have multiple instances              |
+| Vorbis  | ✅ Yes           | ✅ Yes             | Allows repeated field names; semantically meaningful for multi-value fields     |
 
 **Officially Supported Multi-Value Text Fields:**
 
-Both ID3v2.4 and Vorbis Comments specifications officially define semantic meaning for multiple instances of these fields:
+The Vorbis Comments specification officially defines semantic meaning for multi-value text fields using multiple separate field instances (e.g., multiple ARTIST= entries).
 
-| Field Name          | ID3v2.4 Frame | Vorbis Field  | Semantic Meaning                                  |
-| ------------------- | ------------- | ------------- | ------------------------------------------------- |
-| **Artists**         | `TPE1`        | `ARTIST`      | Artists names for the track                       |
-| **Album Artists**   | `TPE2`        | `ALBUMARTIST` | Album artist names                                |
-| **Composers**       | `TCOM`        | `COMPOSER`    | Composers names                                   |
-| **Lyricists**       | `TEXT`        | -             | Lyricist names (ID3v2.4 only)                     |
-| **Conductors**      | `TPE3`        | -             | Conductor names (ID3v2.4 only)                    |
-| **Musicians**       | `TMCL`        | -             | Musician credits (ID3v2.4 only)                   |
-| **Involved People** | `TIPL`        | -             | Involved people credits (ID3v2.4 only)            |
-| **Performers**      | -             | `PERFORMER`   | Performer names (Vorbis only)                     |
-| **Genres**          | `TCON`        | `GENRE`       | Genres (separators in ID3v2.4, entries in Vorbis) |
-| **Comments**        | `COMM`        | `COMMENT`     | Comment entries (with different descriptions)     |
+| Field Name        | Vorbis Field  | Semantic Meaning            |
+| ----------------- | ------------- | --------------------------- |
+| **Artists**       | `ARTIST`      | Artists names for the track |
+| **Album Artists** | `ALBUMARTIST` | Album artist names          |
+| **Composers**     | `COMPOSER`    | Composers names             |
+| **Performers**    | `PERFORMER`   | Performer names             |
+| **Genres**        | `GENRE`       | Genre classifications       |
+| **Comments**      | `COMMENT`     | Comment entries             |
 
 - **Comments** (COMM): Multiple comment entries (with different descriptions)
 
@@ -910,13 +906,13 @@ ARTIST=Artist 1; Artist 2
 - Used when repeated fields aren’t officially supported, though repeated fields could still occur in these formats.
 - In ID3v2.4, the official separator is a null byte (\0).
 
-| Format  | Separator(s)  | Notes                                                                          |
-| ------- | ------------- | ------------------------------------------------------------------------------ |
-| ID3v1   | `/`, `;`, `,` | Single field only; multi-values concatenated with separator                    |
-| ID3v2.3 | `/`, `;`      | Uses single frame with separators (spec limitation)                            |
-| ID3v2.4 | `/`, `;`      | Null-separated values preferred; separators allowed for backward compatibility |
-| RIFF    | `/`, `;`      | Not standardized; concatenation varies by implementation                       |
-| Vorbis  | rarely needed | Native repeated fields make separators mostly unnecessary                      |
+| Format  | Separator(s)  | Notes                                                       |
+| ------- | ------------- | ----------------------------------------------------------- |
+| ID3v1   | `/`, `;`, `,` | Single field only; multi-values concatenated with separator |
+| ID3v2.3 | `/`, `;`      | Uses single frame with separators                           |
+| ID3v2.4 | `/`, `;`      | Null-separated values preferred;                            |
+| RIFF    | `/`, `;`      | Not standardized; concatenation varies by implementation    |
+| Vorbis  | rarely needed | Native repeated fields make separators mostly unnecessary   |
 
 #### Reading Multiple Values
 
@@ -1817,34 +1813,34 @@ The ID3v2 specification has different rules for handling multiple values dependi
 
 #### ID3v2.4 (Modern Features)
 
-- **Multiple Frames**: ✅ **Supported** - Multiple frames of the same type allowed
-- **Multiple Values**: Uses separate frames for each value
-- **Example**: Three separate `TPE1` frames: `"Artist One"`, `"Artist Two"`, `"Artist Three"`
-- **Why**: ID3v2.4 specification explicitly allows multiple instances of the same frame type
-- **Compatibility**: Modern players and applications that support ID3v2.4
+- **Multiple Values**: ✅ **Supported** - Single frame with null-separated values (per specification)
+- **Multiple Frames**: Uses single frame with multiple text strings
+- **Example**: One `TPE1` frame containing: `"Artist One\0Artist Two\0Artist Three"`
+- **Why**: ID3v2.4 specification § 4.2 allows multiple strings in text frames separated by null terminators
+- **Compatibility**: Spec-compliant ID3v2.4 behavior, supported by modern players
 
 #### Library Behavior
 
 The library automatically adapts based on the ID3v2 version:
 
 - **ID3v2.3 (default)**: Uses concatenation with smart separator selection
-- **ID3v2.4**: Uses multiple separate frames when `id3v2_version=(2, 4, 0)` is specified
+- **ID3v2.4**: Uses single frame with null-separated values when `id3v2_version=(2, 4, 0)` is specified
 
 ```python
 from audiometa import update_file_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
-# ID3v2.3 (default) - uses concatenation
+# ID3v2.3 (default) - uses concatenation with separators
 update_file_metadata("song.mp3", {
     UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"]
 })
 # Result: Single TPE1 frame with "Artist One;Artist Two"
 
-# ID3v2.4 - uses multiple frames
+# ID3v2.4 - uses null-separated values in single frame
 update_file_metadata("song.mp3", {
     UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"]
 }, id3v2_version=(2, 4, 0))
-# Result: Two separate TPE1 frames: "Artist One" and "Artist Two"
+# Result: Single TPE1 frame with "Artist One\0Artist Two" (null-separated per spec)
 ```
 
 ### Legend
