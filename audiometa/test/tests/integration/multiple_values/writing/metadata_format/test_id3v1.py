@@ -1,4 +1,3 @@
-
 from audiometa import update_file_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -47,3 +46,29 @@ class TestMultipleEntriesId3v1:
             assert "Existing 1" in artist_value
             assert "New 2" in artist_value
             assert inspection['contains_separators']
+    
+    def test_id3v1_separator_priority(self):
+        # Each test case: values, expected separator
+        test_cases = [
+            (['A1', 'A2', 'A3'], ','),
+            (['A,1', 'A2', 'A3'], ';'),
+            (['A,1', 'A;2', 'A3'], '|'),
+            (['A,1', 'A;2', 'A|3'], '·'),
+            (['A,1', 'A;2', 'A|3', 'A·4'], '/'),
+            (['A,1', 'A;2', 'A|3', 'A·4', 'A/5'], ','),
+        ]
+        for values, expected_sep in test_cases:
+            initial_metadata = {"title": "Test Song"}
+            with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
+                metadata = {
+                    UnifiedMetadataKey.ARTISTS_NAMES: values
+                }
+                update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
+                inspection = ID3v1MetadataInspector.inspect_artist_field(test_file.path)
+                assert inspection['has_data']
+                artist_value = inspection['artist_value']
+                # Check that the expected separator is used
+                assert expected_sep in artist_value
+                # Check that all values are present as substrings
+                for v in values:
+                    assert v in artist_value

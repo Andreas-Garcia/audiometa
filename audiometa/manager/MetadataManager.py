@@ -37,7 +37,7 @@ class MetadataManager:
         self.metadata_keys_direct_map_write = metadata_keys_direct_map_write
         self.update_using_mutagen_metadata = update_using_mutagen_metadata
 
-    @staticmethod
+    @staticmethod 
     def find_safe_separator(values: list[str]) -> str:
         """
         Find a separator that doesn't appear in any of the provided values.

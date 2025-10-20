@@ -746,6 +746,35 @@ from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 update_file_metadata("song.mp3", metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
 ```
 
+#### Writing Strategies
+
+The library provides flexible control over how metadata is written to files that may already contain metadata in other formats.
+
+##### Available Strategies
+
+1. **`SYNC` (Default)**: Write to native format and synchronize other metadata formats that are already present
+2. **`PRESERVE`**: Write to native format only, preserve existing metadata in other formats
+3. **`CLEANUP`**: Write to native format and remove all non-native metadata formats
+
+##### Usage Examples
+
+```python
+from audiometa import update_file_metadata
+from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
+
+# SYNC strategy (default) - synchronize all existing formats
+update_file_metadata("song.wav", {"title": "New Title"},
+                    metadata_strategy=MetadataWritingStrategy.SYNC)
+
+# CLEANUP strategy - remove non-native formats
+update_file_metadata("song.wav", {"title": "New Title"},
+                    metadata_strategy=MetadataWritingStrategy.CLEANUP)
+
+# PRESERVE strategy - keep other formats unchanged
+update_file_metadata("song.wav", {"title": "New Title"},
+                    metadata_strategy=MetadataWritingStrategy.PRESERVE)
+```
+
 ### Deleting Metadata
 
 #### `delete_all_metadata(file_path, tag_format=None)`
@@ -793,7 +822,7 @@ update_file_metadata("song.mp3", {"title": None, "artists_names": None})
 
 ### AudioFile Class
 
-#### Object-oriented approach for working with audio files
+Object-oriented approach for working with audio files
 
 ```python
 from audiometa import AudioFile
@@ -819,67 +848,6 @@ print(f"Title: {metadata.get('title', 'Unknown')}")
 ```
 
 ## Advanced Features
-
-### Format-Specific Operations
-
-#### Reading from Specific Formats
-
-```python
-from audiometa import get_single_format_app_metadata, get_specific_metadata, UnifiedMetadataKey
-from audiometa.utils.MetadataFormat import MetadataFormat
-
-# Get complete metadata from specific format
-id3v2_metadata = get_single_format_app_metadata("song.mp3", MetadataFormat.ID3V2)
-vorbis_metadata = get_single_format_app_metadata("song.flac", MetadataFormat.VORBIS)
-riff_metadata = get_single_format_app_metadata("song.wav", MetadataFormat.RIFF)
-
-# Get specific field from specific format
-id3v2_title = get_specific_metadata("song.mp3", UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V2)
-vorbis_artist = get_specific_metadata("song.flac", UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.VORBIS)
-riff_rating = get_specific_metadata("song.wav", UnifiedMetadataKey.RATING, metadata_format=MetadataFormat.RIFF)
-```
-
-#### Writing to Specific Formats
-
-```python
-from audiometa import update_file_metadata
-from audiometa.utils.MetadataFormat import MetadataFormat
-
-# Write specifically to ID3v2 format (even for WAV files)
-update_file_metadata("song.wav", {"title": "New Title"}, metadata_format=MetadataFormat.ID3V2)
-
-# Write specifically to RIFF format
-update_file_metadata("song.wav", {"title": "New Title"}, metadata_format=MetadataFormat.RIFF)
-```
-
-### Writing Strategies
-
-The library provides flexible control over how metadata is written to files that may already contain metadata in other formats.
-
-#### Available Strategies
-
-1. **`SYNC` (Default)**: Write to native format and synchronize other metadata formats that are already present
-2. **`PRESERVE`**: Write to native format only, preserve existing metadata in other formats
-3. **`CLEANUP`**: Write to native format and remove all non-native metadata formats
-
-#### Usage Examples
-
-```python
-from audiometa import update_file_metadata
-from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
-
-# SYNC strategy (default) - synchronize all existing formats
-update_file_metadata("song.wav", {"title": "New Title"},
-                    metadata_strategy=MetadataWritingStrategy.SYNC)
-
-# CLEANUP strategy - remove non-native formats
-update_file_metadata("song.wav", {"title": "New Title"},
-                    metadata_strategy=MetadataWritingStrategy.CLEANUP)
-
-# PRESERVE strategy - keep other formats unchanged
-update_file_metadata("song.wav", {"title": "New Title"},
-                    metadata_strategy=MetadataWritingStrategy.PRESERVE)
-```
 
 ### Multiple Values
 
@@ -912,23 +880,6 @@ ARTIST=Artist 3
 | ID3v2.4 | ❌ No            | ✅ Yes             | Uses single frames with null-separated values for multi-value text fields       |
 | RIFF    | ❌ No            | ✅ Yes             | Duplicate chunks supported; all fields can have multiple instances              |
 | Vorbis  | ✅ Yes           | ✅ Yes             | Allows repeated field names; semantically meaningful for multi-value fields     |
-
-**Officially Supported Multi-Value Text Fields:**
-
-The Vorbis Comments specification officially defines semantic meaning for multi-value text fields using multiple separate field instances (e.g., multiple ARTIST= entries).
-
-| Field Name        | Vorbis Field  | Semantic Meaning            |
-| ----------------- | ------------- | --------------------------- |
-| **Artists**       | `ARTIST`      | Artists names for the track |
-| **Album Artists** | `ALBUMARTIST` | Album artist names          |
-| **Composers**     | `COMPOSER`    | Composers names             |
-| **Performers**    | `PERFORMER`   | Performer names             |
-| **Genres**        | `GENRE`       | Genre classifications       |
-| **Comments**      | `COMMENT`     | Comment entries             |
-
-- **Comments** (COMM): Multiple comment entries (with different descriptions)
-
-For other field types (track numbers, ratings, titles, etc.), while ID3v2.4 technically allows multiple frames, the specification doesn't define the expected behavior when multiple instances exist.
 
 ##### Single field with separated values (separator-based)
 
@@ -1111,6 +1062,10 @@ When writing to legacy formats that require concatenated values, the library use
 4. `\` (backslash)
 5. `/` (forward slash)
 6. `,` (comma) - lowest priority
+
+**ID3v1 Restricted Separator Selection:**
+ID3v1 only allows a single separator character (not multi-character like `//` or `\\`). The library will select the first available single-character separator from the priority list that does not appear in any value (e.g., `;`, `/`, `,`, `\`).
+If all common separators are present in the values, a comma (`,`) is used as a last resort.
 
 **Selection Logic:**
 

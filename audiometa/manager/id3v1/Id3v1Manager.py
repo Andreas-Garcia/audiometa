@@ -83,6 +83,38 @@ class Id3v1Manager(MetadataManager):
             update_using_mutagen_metadata=False  # Use direct file manipulation for ID3v1
         )
 
+    @staticmethod
+    def find_safe_separator(values: list[str]) -> str:
+        """
+        ID3v1-specific separator logic optimized for legacy format constraints.
+
+        Only single-character separators are used to maximize space efficiency in 30-char fields.
+        Tries to use the safest available single-character separator that does not appear in any value.
+
+        Separator priority for ID3v1 (all single-character, Latin-1 compatible):
+        1. ',' (comma) - Standard, readable
+        2. ';' (semicolon) - Common alternative
+        3. '|' (pipe) - Less common
+        4. '·' (middle dot) - Unicode but Latin-1 safe
+        5. '/' (slash) - Last resort, may be confusing
+
+        Args:
+            values: List of string values to check for separator conflicts
+
+        Returns:
+            The safest available single-character separator, prioritizing readability and space efficiency
+        """
+        # ID3v1 compatible single-character separators in order of preference
+        id3v1_separators = [",", ";", "|", "·", "/"]
+
+        # Find the first separator that doesn't appear in any value
+        for sep in id3v1_separators:
+            if not any(sep in value for value in values):
+                return sep
+
+        # If all separators conflict, use comma as fallback (established convention)
+        return ","
+
     def _extract_mutagen_metadata(self) -> Id3v1RawMetadata:
         try:
             return Id3v1RawMetadata(fileobj=self.audio_file.get_file_path_or_object())
@@ -148,8 +180,12 @@ class Id3v1Manager(MetadataManager):
         if raw_metadata_key == Id3v1RawMetadataKey.TITLE:
             value = self._truncate_string(str(app_metadata_value), 30)
         elif raw_metadata_key == Id3v1RawMetadataKey.ARTISTS_NAMES_STR:
-            # Convert list to string and truncate
-            artists_str = ", ".join(app_metadata_value) if isinstance(app_metadata_value, list) else str(app_metadata_value)
+            # Convert list to string using smart separator logic and truncate
+            if isinstance(app_metadata_value, list):
+                separator = self.find_safe_separator(app_metadata_value)
+                artists_str = separator.join(app_metadata_value)
+            else:
+                artists_str = str(app_metadata_value)
             value = self._truncate_string(artists_str, 30)
         elif raw_metadata_key == Id3v1RawMetadataKey.ALBUM_NAME:
             value = self._truncate_string(str(app_metadata_value), 30)
@@ -206,7 +242,11 @@ class Id3v1Manager(MetadataManager):
         # Artist (bytes 33-62, 30 chars max)
         artists = app_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
         if artists is not None:
-            artist_str = ", ".join(artists) if isinstance(artists, list) else str(artists)
+            if isinstance(artists, list):
+                separator = self.find_safe_separator(artists)
+                artist_str = separator.join(artists)
+            else:
+                artist_str = str(artists)
             artist_bytes = self._truncate_string(artist_str, 30).encode('latin-1', errors='ignore')
             tag_data[33:33+len(artist_bytes)] = artist_bytes
         
