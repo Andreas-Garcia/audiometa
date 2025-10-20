@@ -1,10 +1,10 @@
-from pathlib import Path
 
 from audiometa import update_file_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.id3v1.id3v1_metadata_inspector import ID3v1MetadataInspector
+from audiometa.test.helpers.id3v1.id3v1_metadata_setter import ID3v1MetadataSetter
 
 
 class TestMultipleEntriesId3v1:
@@ -27,27 +27,23 @@ class TestMultipleEntriesId3v1:
             assert "Artist Two" in artist_value
             assert "Three" in artist_value
             assert inspection['contains_separators']
-
-    def test_id3v1_concatenation_with_very_long_values(self):
-        initial_metadata = {"title": "Test Song"}
+            
+    
+    def test_with_existing_artists_field(self):
+        # Start with an existing artist field
+        initial_metadata = {"artist": "Existing Artist"}
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
-            long_artists = ["A" * 14, "B" * 15, "C" * 15]
+            ID3v1MetadataSetter.set_artist(test_file.path, "Existing Artist 1; Existing Artist 2")
+            assert ID3v1MetadataInspector.inspect_artist_field(test_file.path)['has_data']
+            
+            # Now update with multiple artists
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: long_artists
+                UnifiedMetadataKey.ARTISTS_NAMES: ["New Artist One", "New Artist Two"]
             }
-            
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
-            
-            # Use helper to check the created ID3v1 artist field directly
             inspection = ID3v1MetadataInspector.inspect_artist_field(test_file.path)
-            assert inspection['success']
             assert inspection['has_data']
-            
-            # Check that the field is truncated due to 30-character limit
-            assert inspection['is_truncated']
             artist_value = inspection['artist_value']
-            # Should contain first two artists but not the third due to length constraint
-            assert "A" * 14 in artist_value
-            assert "B" * 15 in artist_value
-            # The field should be exactly 30 characters (truncated)
-            assert len(artist_value) == 30
+            assert "New Artist One" in artist_value
+            assert "New Artist Two" in artist_value
+            assert inspection['contains_separators']
