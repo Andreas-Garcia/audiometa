@@ -79,7 +79,7 @@ class RiffManager(RatingSupportingMetadataManager):
         ALBUM_ARTISTS_NAMES = 'IAAR'
         LANGUAGE = 'ILNG'
         RATING = 'IRTD'
-        COMMENTS = 'ICMT'
+        COMMENT = 'ICMT'
         ENGINEER = 'IENG'  # Engineer who worked on the track
         SOFTWARE = 'ISFT'  # Software used to create the file
         COPYRIGHT = 'ICOP'
@@ -101,7 +101,7 @@ class RiffManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.RELEASE_DATE: self.RiffTagKey.DATE,
             UnifiedMetadataKey.COMPOSERS: self.RiffTagKey.COMPOSERS,
             UnifiedMetadataKey.COPYRIGHT: self.RiffTagKey.COPYRIGHT,
-            UnifiedMetadataKey.COMMENT: self.RiffTagKey.COMMENTS,
+            UnifiedMetadataKey.COMMENT: self.RiffTagKey.COMMENT,
             # AppMetadataKey.TRACK_NUMBER: None,
         }
         metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] = {
@@ -115,7 +115,7 @@ class RiffManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.RELEASE_DATE: self.RiffTagKey.DATE,
             UnifiedMetadataKey.COMPOSERS: self.RiffTagKey.COMPOSERS,
             UnifiedMetadataKey.COPYRIGHT: self.RiffTagKey.COPYRIGHT,
-            UnifiedMetadataKey.COMMENT: self.RiffTagKey.COMMENTS,
+            UnifiedMetadataKey.COMMENT: self.RiffTagKey.COMMENT,
             # AppMetadataKey.TRACK_NUMBER: self.RiffTagKey.TRACK_NUMBER,
         }
         super().__init__(audio_file=audio_file,
