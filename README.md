@@ -717,12 +717,13 @@ The library performs type checking on metadata values to ensure they conform to 
 - `UnifiedMetadataKey.TITLE`: `str`
 - `UnifiedMetadataKey.ARTISTS_NAMES`: `list[str]`
 - `UnifiedMetadataKey.ALBUM_NAME`: `str`
+- `UnifiedMetadataKey.ALBUM_ARTISTS_NAMES`: `list[str]`
 - `UnifiedMetadataKey.YEAR`: `int`
 - `UnifiedMetadataKey.GENRES_NAMES`: `list[str]`
 - `UnifiedMetadataKey.RATING`: `int`
 - `UnifiedMetadataKey.BPM`: `int`
 - `UnifiedMetadataKey.COMMENTS`: `str`
-  If a value does not match the expected type, a `TypeError` will be raised.
+  If a value does not match the expected type, a `InvalidMetadataTypeError` will be raised.
 
 #### `update_file_metadata(file_path, metadata, **options)`
 
