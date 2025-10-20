@@ -11,9 +11,12 @@ class TestRiff:
     
     def test_semicolon_separated_artists(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            RIFFMetadataSetter.set_separator_artists(test_file.path, "Artist One;Artist Two;Artist Three")
+            RIFFMetadataSetter.set_artists(test_file.path, ["Artist One;Artist Two;Artist Three"], in_separate_frames=False)
             
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.RIFF)
+            verification = RIFFMetadataVerifier.verify_multiple_entries_in_raw_data(test_file.path, "IART", expected_count=1)
+            assert verification["success"], f"Verification failed: {verification.get('error', 'Unknown error')}"
+            assert "Artist                          : Artist One;Artist Two;Artist Three" in verification['raw_output']
             
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -23,10 +26,10 @@ class TestRiff:
 
     def test_multiple_artists_unified_reading(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            RIFFMetadataSetter.set_multiple_artists(test_file.path, ["One", "Two", "Three"], in_separate_frames=True)
+            RIFFMetadataSetter.set_artists(test_file.path, ["One", "Two", "Three"], in_separate_frames=True)
             
             # Verify that artists are actually stored in separate RIFF frames
-            verification_result = test_file.verify_riff_multiple_entries_in_raw_data("IART", expected_count=3)
+            verification_result = RIFFMetadataVerifier.verify_multiple_entries_in_raw_data(test_file.path, "IART", expected_count=3)
             
             assert verification_result["success"], f"Verification failed: {verification_result.get('error', 'Unknown error')}"
             assert verification_result["actual_count"] == 3, f"Expected 3 separate IART frames, found {verification_result['actual_count']}"
@@ -42,7 +45,7 @@ class TestRiff:
             
     def test_mixed_separators_and_multiple_entries(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            RIFFMetadataSetter.set_multiple_artists(test_file.path, ["Artist 1;Artist 2", "Artist 3", "Artist 4"], in_separate_frames=True)
+            RIFFMetadataSetter.set_artists(test_file.path, ["Artist 1;Artist 2", "Artist 3", "Artist 4"], in_separate_frames=True)
 
             verification = RIFFMetadataVerifier.verify_multiple_entries_in_raw_data(test_file.path, "IART", expected_count=3)
 

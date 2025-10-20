@@ -19,7 +19,7 @@ class TestId3v2GenreReading:
 
     def test_id3v2_multiple_genres_separate_frames(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            ID3v2MetadataSetter.set_multiple_genres(test_file.path, ["Rock", "Alternative", "Indie"])
+            ID3v2MetadataSetter.set_genres(test_file.path, ["Rock", "Alternative", "Indie"])
             
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             

@@ -15,6 +15,16 @@ class ManualRIFFMetadataCreator:
     """Creates RIFF INFO chunks with multiple separate fields by manual binary construction."""
     
     @staticmethod
+    def create_multiple_title_fields(file_path: Path, titles: List[str]) -> None:
+        """Create multiple separate INAM fields in the RIFF INFO chunk."""
+        fields = []
+        for title in titles:
+            field_data = ManualRIFFMetadataCreator._create_info_field('INAM', title)
+            fields.append(field_data)
+        
+        ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, fields)
+    
+    @staticmethod
     def create_multiple_artist_fields(file_path: Path, artists: List[str]) -> None:
         """Create multiple separate IART fields in the RIFF INFO chunk."""
         fields = []

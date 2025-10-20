@@ -29,7 +29,7 @@ class TestId3v2_4Mixed:
 
     def test_multiple_artists_in_multiple_entries(self):
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
-            ID3v2MetadataSetter.set_multiple_artists(test_file.path, ["Artist One", "Artist Two", "Artist Three"], in_separate_frames=False)
+            ID3v2MetadataSetter.set_artists(test_file.path, ["Artist One", "Artist Two", "Artist Three"], in_separate_frames=False)
             
             assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             
@@ -48,7 +48,7 @@ class TestId3v2_4Mixed:
             
     def test_mixed_separators_and_multiple_entries(self):
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
-            ID3v2MetadataSetter.set_multiple_artists(test_file.path, ["Artist 1;Artist 2", "Artist 3", "Artist 4"])
+            ID3v2MetadataSetter.set_artists(test_file.path, ["Artist 1;Artist 2", "Artist 3", "Artist 4"])
             
             assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             

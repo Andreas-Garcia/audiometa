@@ -102,7 +102,7 @@ class TestId3v24Reading:
         with TempFileWithMetadata({}, "id3v2.4") as test_file:
             # Set multiple artists
             artists = ["Artist One", "Artist Two", "Artist Three"]
-            ID3v2MetadataSetter.set_multiple_artists(test_file.path, artists)
+            ID3v2MetadataSetter.set_artists(test_file.path, artists)
             
             metadata = get_merged_unified_metadata(test_file.path)
             retrieved_artists = metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -115,7 +115,7 @@ class TestId3v24Reading:
         with TempFileWithMetadata({}, "id3v2.4") as test_file:
             # Set multiple artists for raw data verification
             artists = ["Raw Artist One", "Raw Artist Two"]
-            ID3v2MetadataSetter.set_multiple_artists(test_file.path, artists)
+            ID3v2MetadataSetter.set_artists(test_file.path, artists)
             
             # Test that multiple artists are preserved
             metadata = get_merged_unified_metadata(test_file.path)

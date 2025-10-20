@@ -42,6 +42,18 @@ class RIFFMetadataSetter:
         run_external_tool(command, "bwfmetaedit")
     
     @staticmethod
+    def set_multiple_titles(file_path: Path, titles: List[str], in_separate_frames: bool = False):
+        """Set multiple titles, optionally in separate INAM frames."""
+        if in_separate_frames:
+            from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
+            ManualRIFFMetadataCreator.create_multiple_title_fields(file_path, titles)
+        else:
+            # For now, just set the first title
+            if titles:
+                command = ["bwfmetaedit", f"--INAM={titles[0]}", str(file_path)]
+                run_external_tool(command, "bwfmetaedit")
+    
+    @staticmethod
     def set_artist(file_path: Path, artist: str) -> None:
         command = ["bwfmetaedit", f"--IART={artist}", str(file_path)]
         run_external_tool(command, "bwfmetaedit")
@@ -86,26 +98,7 @@ class RIFFMetadataSetter:
         scripts_dir = Path(__file__).parent.parent.parent.parent / "test" / "data" / "scripts"
         run_script("set-riff-max-metadata.sh", file_path, scripts_dir)
     
-    @staticmethod
-    def set_separator_artists(file_path: Path, artists_string: str):
-        command = ["bwfmetaedit", f"--IART={artists_string}", str(file_path)]
-        run_external_tool(command, "bwfmetaedit")
-    
-    @staticmethod
-    def set_separator_genres(file_path: Path, genres_string: str):
-        command = ["bwfmetaedit", f"--IGNR={genres_string}", str(file_path)]
-        run_external_tool(command, "bwfmetaedit")
-    
-    @staticmethod
-    def set_separator_composers(file_path: Path, composers_string: str):
-        command = ["bwfmetaedit", f"--ICMP={composers_string}", str(file_path)]
-        run_external_tool(command, "bwfmetaedit")
-    
-    @staticmethod
-    def set_separator_album_artists(file_path: Path, album_artists_string: str):
-        # RIFF doesn't have a standard album artist field, using a custom approach
-        command = ["bwfmetaedit", f"--IAAR={album_artists_string}", str(file_path)]
-        run_external_tool(command, "bwfmetaedit")
+
     
     @staticmethod
     def set_riff_genre(file_path: Path, genre: str) -> None:
@@ -117,7 +110,7 @@ class RIFFMetadataSetter:
         run_external_tool(command, "exiftool")
     
     @staticmethod
-    def set_multiple_artists(file_path: Path, artists: List[str], in_separate_frames: bool = False):
+    def set_artists(file_path: Path, artists: List[str], in_separate_frames: bool = False):
         """Set multiple artists, optionally in separate IART frames."""
         if in_separate_frames:
             from .riff_manual_metadata_creator import ManualRIFFMetadataCreator

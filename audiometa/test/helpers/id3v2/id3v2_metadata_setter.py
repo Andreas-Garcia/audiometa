@@ -44,6 +44,35 @@ class ID3v2MetadataSetter:
         run_external_tool(command, "id3v2")
     
     @staticmethod
+    def set_titles(file_path: Path, titles: List[str], in_separate_frames: bool = False, version: str = "2.4"):
+        """Set ID3v2 multiple titles using external mid3v2 tool or manual frame creation.
+        
+        Args:
+            file_path: Path to the audio file
+            titles: List of title strings to set
+            in_separate_frames: If True, creates multiple separate TIT2 frames (one per title) using manual binary construction.
+                              If False (default), creates a single TIT2 frame with multiple values using mid3v2.
+            version: ID3v2 version to use (e.g., "2.3", "2.4")
+        """
+        from .id3v2_metadata_deleter import ID3v2MetadataDeleter
+        
+        # Delete existing TIT2 tags
+        ID3v2MetadataDeleter.delete_frame(file_path, "TIT2")
+        
+        if in_separate_frames:
+            # Use manual binary construction to create truly separate TIT2 frames
+            ID3v2MetadataSetter._create_multiple_id3v2_frames(file_path, 'TIT2', titles, version)
+        else:
+            # For version-specific creation, use mutagen directly for proper version handling
+            if version == "2.3":
+                # Create a single frame with all titles as one value using mutagen
+                combined_titles = ';'.join(titles) if len(titles) > 1 else titles[0] if titles else ""
+                ID3v2MetadataSetter._set_single_frame_with_mutagen(file_path, 'TIT2', combined_titles, version)
+            else:
+                # Set all titles in a single command (creates one frame with multiple values)
+                ID3v2MetadataDeleter.set_multiple_values_single_frame(file_path, "TIT2", titles)
+    
+    @staticmethod
     def set_artist(file_path: Path, artist: str) -> None:
         command = ["id3v2", "--id3v2-only", "--artist", artist, str(file_path)]
         run_external_tool(command, "id3v2")
@@ -80,23 +109,10 @@ class ID3v2MetadataSetter:
         scripts_dir = Path(__file__).parent.parent.parent.parent / "test" / "data" / "scripts"
         run_script("set-id3v2-max-metadata.sh", file_path, scripts_dir)
 
-    @staticmethod
-    def set_separator_artists(file_path: Path, artists_string: str):
-        command = ["mid3v2", "--artist", artists_string, str(file_path)]
-        run_external_tool(command, "mid3v2")
 
-    @staticmethod
-    def set_separator_genres(file_path: Path, genres_string: str):
-        command = ["mid3v2", "--genre", genres_string, str(file_path)]
-        run_external_tool(command, "mid3v2")
-
-    @staticmethod
-    def set_separator_composers(file_path: Path, composers_string: str):
-        command = ["mid3v2", "--TCOM", composers_string, str(file_path)]
-        run_external_tool(command, "mid3v2")
     
     @staticmethod
-    def set_multiple_artists(file_path: Path, artists: List[str], in_separate_frames: bool = False):
+    def set_artists(file_path: Path, artists: List[str], in_separate_frames: bool = False, version: str = "2.4"):
         """Set ID3v2 multiple artists using external mid3v2 tool or manual frame creation.
         
         Args:
@@ -104,6 +120,7 @@ class ID3v2MetadataSetter:
             artists: List of artist strings to set
             in_separate_frames: If True, creates multiple separate TPE1 frames (one per artist) using manual binary construction.
                               If False (default), creates a single TPE1 frame with multiple values using mid3v2.
+            version: ID3v2 version to use (e.g., "2.3", "2.4")
         """
         from .id3v2_metadata_deleter import ID3v2MetadataDeleter
         
@@ -112,13 +129,19 @@ class ID3v2MetadataSetter:
         
         if in_separate_frames:
             # Use manual binary construction to create truly separate TPE1 frames
-            ID3v2MetadataSetter._create_multiple_id3v2_frames(file_path, 'TPE1', artists)
+            ID3v2MetadataSetter._create_multiple_id3v2_frames(file_path, 'TPE1', artists, version)
         else:
-            # Set all artists in a single command (creates one frame with multiple values)
-            ID3v2MetadataDeleter.set_multiple_values_single_frame(file_path, "TPE1", artists)
+            # For version-specific creation, use mutagen directly for proper version handling
+            if version == "2.3":
+                # Create a single frame with all artists as one value using mutagen
+                combined_artists = ';'.join(artists) if len(artists) > 1 else artists[0] if artists else ""
+                ID3v2MetadataSetter._set_single_frame_with_mutagen(file_path, 'TPE1', combined_artists, version)
+            else:
+                # Set all artists in a single command (creates one frame with multiple values)
+                ID3v2MetadataDeleter.set_multiple_values_single_frame(file_path, "TPE1", artists)
     
     @staticmethod
-    def set_multiple_genres(file_path: Path, genres: List[str], in_separate_frames: bool = False):
+    def set_genres(file_path: Path, genres: List[str], in_separate_frames: bool = False, version: str = "2.4"):
         """Set ID3v2 multiple genres using external mid3v2 tool or manual frame creation.
         
         Args:
@@ -126,6 +149,7 @@ class ID3v2MetadataSetter:
             genres: List of genre strings to set
             in_separate_frames: If True, creates multiple separate TCON frames (one per genre) using manual binary construction.
                               If False (default), creates a single TCON frame with multiple values using mid3v2.
+            version: ID3v2 version to use (e.g., "2.3", "2.4")
         """
         from .id3v2_metadata_deleter import ID3v2MetadataDeleter
         
@@ -134,13 +158,19 @@ class ID3v2MetadataSetter:
         
         if in_separate_frames:
             # Use manual binary construction to create truly separate TCON frames
-            ID3v2MetadataSetter._create_multiple_id3v2_frames(file_path, 'TCON', genres)
+            ID3v2MetadataSetter._create_multiple_id3v2_frames(file_path, 'TCON', genres, version)
         else:
-            # Set all genres in a single command (creates one frame with multiple values)
-            ID3v2MetadataDeleter.set_multiple_values_single_frame(file_path, "TCON", genres)
+            # For version-specific creation, use mutagen directly for proper version handling
+            if version == "2.3":
+                # Create a single frame with all genres as one value using mutagen
+                combined_genres = ';'.join(genres) if len(genres) > 1 else genres[0] if genres else ""
+                ID3v2MetadataSetter._set_single_frame_with_mutagen(file_path, 'TCON', combined_genres, version)
+            else:
+                # Set all genres in a single command (creates one frame with multiple values)
+                ID3v2MetadataDeleter.set_multiple_values_single_frame(file_path, "TCON", genres)
     
     @staticmethod
-    def set_multiple_album_artists(file_path: Path, album_artists: List[str], in_separate_frames: bool = False):
+    def set_album_artists(file_path: Path, album_artists: List[str], in_separate_frames: bool = False):
         """Set ID3v2 multiple album artists using external mid3v2 tool or manual frame creation.
         
         Args:
@@ -162,7 +192,7 @@ class ID3v2MetadataSetter:
             ID3v2MetadataDeleter.set_multiple_values_single_frame(file_path, "TPE2", album_artists)
     
     @staticmethod
-    def set_multiple_composers(file_path: Path, composers: List[str], in_separate_frames: bool = False):
+    def set_composers(file_path: Path, composers: List[str], in_separate_frames: bool = False, version: str = "2.4"):
         """Set ID3v2 multiple composers using external mid3v2 tool or manual frame creation.
         
         Args:
@@ -170,6 +200,7 @@ class ID3v2MetadataSetter:
             composers: List of composer strings to set
             in_separate_frames: If True, creates multiple separate TCOM frames (one per composer) using manual binary construction.
                               If False (default), creates a single TCOM frame with multiple values using mid3v2.
+            version: ID3v2 version to use (e.g., "2.3", "2.4")
         """
         from .id3v2_metadata_deleter import ID3v2MetadataDeleter
         
@@ -178,13 +209,19 @@ class ID3v2MetadataSetter:
         
         if in_separate_frames:
             # Use manual binary construction to create truly separate TCOM frames
-            ID3v2MetadataSetter._create_multiple_id3v2_frames(file_path, 'TCOM', composers)
+            ID3v2MetadataSetter._create_multiple_id3v2_frames(file_path, 'TCOM', composers, version)
         else:
-            # Set all composers in a single command (creates one frame with multiple values)
-            ID3v2MetadataDeleter.set_multiple_values_single_frame(file_path, "TCOM", composers)
+            # For version-specific creation, use mutagen directly for proper version handling
+            if version == "2.3":
+                # Create a single frame with all composers as one value using mutagen
+                combined_composers = ';'.join(composers) if len(composers) > 1 else composers[0] if composers else ""
+                ID3v2MetadataSetter._set_single_frame_with_mutagen(file_path, 'TCOM', combined_composers, version)
+            else:
+                # Set all composers in a single command (creates one frame with multiple values)
+                ID3v2MetadataDeleter.set_multiple_values_single_frame(file_path, "TCOM", composers)
     
     @staticmethod
-    def set_multiple_comments(file_path: Path, comments: List[str], in_separate_frames: bool = False):
+    def set_comments(file_path: Path, comments: List[str], in_separate_frames: bool = False):
         """Set ID3v2 multiple comments using external mid3v2 tool.
         
         Args:
@@ -210,7 +247,7 @@ class ID3v2MetadataSetter:
                 run_external_tool(command, "mid3v2")
     
     @staticmethod
-    def _create_multiple_id3v2_frames(file_path: Path, frame_id: str, texts: List[str]) -> None:
+    def _create_multiple_id3v2_frames(file_path: Path, frame_id: str, texts: List[str], version: str = "2.4") -> None:
         """Create multiple separate ID3v2 frames using manual binary construction.
         
         This uses the ManualID3v2FrameCreator to bypass standard tools that 
@@ -221,24 +258,74 @@ class ID3v2MetadataSetter:
             file_path: Path to the audio file
             frame_id: The ID3v2 frame identifier (e.g., 'TPE1', 'TPE2', 'TCON', 'TCOM')
             texts: List of text values, one per frame
+            version: ID3v2 version to use (e.g., "2.3", "2.4")
         """
         from .id3v2_frame_manual_creator import ManualID3v2FrameCreator
         
-        creator = ManualID3v2FrameCreator(file_path)
-        
         # Create frames based on the frame type
         if frame_id == 'TPE1':
-            creator.create_multiple_tpe1_frames(texts)
+            ManualID3v2FrameCreator.create_multiple_tpe1_frames(file_path, texts, version)
         elif frame_id == 'TPE2':
-            creator.create_multiple_tpe2_frames(texts)
+            ManualID3v2FrameCreator.create_multiple_tpe2_frames(file_path, texts, version)
         elif frame_id == 'TCON':
-            creator.create_multiple_tcon_frames(texts)
+            ManualID3v2FrameCreator.create_multiple_tcon_frames(file_path, texts, version)
         elif frame_id == 'TCOM':
-            creator.create_multiple_tcom_frames(texts)
+            ManualID3v2FrameCreator.create_multiple_tcom_frames(file_path, texts, version)
         else:
-            # Generic frame creation for other frame types
+            # Generic frame creation for other frame types (including TIT2)
+            creator = ManualID3v2FrameCreator()
             frames = []
             for text in texts:
-                frame_data = creator._create_text_frame(frame_id, text)
+                frame_data = creator._create_text_frame(frame_id, text, version)
                 frames.append(frame_data)
-            creator._write_id3v2_tag(frames)
+            creator._write_id3v2_tag(file_path, frames, version)
+    
+    @staticmethod
+    def _set_single_frame_with_mutagen(file_path: Path, frame_id: str, text: str, version: str) -> None:
+        """Create a single ID3v2 frame with specified version using mutagen library.
+        
+        This provides proper version handling for ID3v2.3 vs ID3v2.4 without
+        the complexity of manual binary construction when only one frame is needed.
+        
+        Args:
+            file_path: Path to the audio file
+            frame_id: The ID3v2 frame identifier (e.g., 'TPE1', 'TCON', 'TCOM', 'TIT2')
+            text: Text value for the frame
+            version: ID3v2 version to use (e.g., "2.3", "2.4")
+        """
+        from mutagen.id3 import ID3, TPE1, TPE2, TCON, TCOM, TIT2
+        from mutagen.id3._util import ID3NoHeaderError
+        
+        # Map frame IDs to mutagen classes
+        frame_classes = {
+            'TPE1': TPE1,
+            'TPE2': TPE2, 
+            'TCON': TCON,
+            'TCOM': TCOM,
+            'TIT2': TIT2
+        }
+        
+        if frame_id not in frame_classes:
+            raise ValueError(f"Unsupported frame ID: {frame_id}")
+        
+        try:
+            # Load existing ID3 tag or create new one
+            id3 = ID3(file_path)
+        except ID3NoHeaderError:
+            id3 = ID3()
+        
+        # Set version
+        version_tuple = (2, 3, 0) if version == "2.3" else (2, 4, 0)
+        id3.version = version_tuple
+        
+        # Remove existing frames of this type
+        id3.delall(frame_id)
+        
+        # Add new frame with proper encoding
+        frame_class = frame_classes[frame_id]
+        encoding = 1 if version == "2.3" else 3  # UTF-16 for 2.3, UTF-8 for 2.4
+        id3.add(frame_class(encoding=encoding, text=text))
+        
+        # Save with specified version
+        version_major = 3 if version == "2.3" else 4
+        id3.save(file_path, v2_version=version_major)
