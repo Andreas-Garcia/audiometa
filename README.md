@@ -1029,10 +1029,13 @@ The library uses a **smart writing strategy** that adapts to format capabilities
 
 **Key Points:**
 
-- **ID3v2.4 & Vorbis**: Use native multiple entry support where officially defined
-- **ID3v1, ID3v2.3 & RIFF**: Use smart separator-based concatenation for all fields
-- **Smart separator selection**: Automatically chooses separators that won't conflict with actual values
-- **Complete replacement**: Writing new values completely replaces any existing entries for that field
+- Each format uses its own method for writing multiple values:
+  - **ID3v1**: Values are joined using a restricted smart separator (1 char only).
+  - **ID3v2.3 & RIFF**: Values are joined using a smart separator.
+  - **ID3v2.4**: Values are written as null-separated entries in a single field.
+  - **Vorbis**: Values are written as multiple separate entries.
+- The library automatically selects the best separator for legacy formats.
+- Writing new values always replaces any previous values for that field.
 
 **Basic Usage:**
 
