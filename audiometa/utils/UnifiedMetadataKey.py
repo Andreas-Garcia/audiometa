@@ -13,7 +13,7 @@ class UnifiedMetadataKey(str, Enum):
     RELEASE_DATE = 'release_date'
     TRACK_NUMBER = 'track_number'
     BPM = 'bpm'
-    COMPOSER = 'composer'
+    COMPOSERS = 'composer'
     PUBLISHER = 'publisher'
     COPYRIGHT = 'copyright'
     LYRICS = 'lyrics'
@@ -26,7 +26,7 @@ class UnifiedMetadataKey(str, Enum):
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES,
             # Only fields that semantically make sense to have multiple values
             UnifiedMetadataKey.GENRES_NAMES,  # Multiple genres make sense
-            UnifiedMetadataKey.COMPOSER,    # Multiple composers make sense
+            UnifiedMetadataKey.COMPOSERS,    # Multiple composers make sense
         }
         
         result = self in multi_value_fields
@@ -46,7 +46,7 @@ class UnifiedMetadataKey(str, Enum):
             UnifiedMetadataKey.RELEASE_DATE: str,
             UnifiedMetadataKey.TRACK_NUMBER: int,
             UnifiedMetadataKey.BPM: int,
-            UnifiedMetadataKey.COMPOSER: list[str],
+            UnifiedMetadataKey.COMPOSERS: list[str],
             UnifiedMetadataKey.PUBLISHER: str,
             UnifiedMetadataKey.COPYRIGHT: str,
             UnifiedMetadataKey.LYRICS: str,

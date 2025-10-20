@@ -14,7 +14,7 @@ class TestMultipleValuesBoundaryConditions:
         
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: large_artist_list,
-            UnifiedMetadataKey.COMPOSER: large_composer_list
+            UnifiedMetadataKey.COMPOSERS: large_composer_list
         }
         
         start_time = time.time()
@@ -24,7 +24,7 @@ class TestMultipleValuesBoundaryConditions:
         # Verify all values were written
         unified_metadata = get_merged_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-        composers = unified_metadata.get(UnifiedMetadataKey.COMPOSER)
+        composers = unified_metadata.get(UnifiedMetadataKey.COMPOSERS)
         
         assert isinstance(artists, list)
         assert len(artists) == max_values
@@ -166,7 +166,7 @@ class TestMultipleValuesBoundaryConditions:
         for i in range(100):
             large_metadata[UnifiedMetadataKey.ARTISTS_NAMES] = [f"Artist {i:04d}" for i in range(50)]
             large_metadata[UnifiedMetadataKey.ALBUM_ARTISTS_NAMES] = [f"Album Artist {i:04d}" for i in range(50)]
-            large_metadata[UnifiedMetadataKey.COMPOSER] = [f"Composer {i:04d}" for i in range(50)]
+            large_metadata[UnifiedMetadataKey.COMPOSERS] = [f"Composer {i:04d}" for i in range(50)]
             large_metadata[UnifiedMetadataKey.INVOLVED_PEOPLE] = [f"Person {i:04d}: Role {i:04d}" for i in range(50)]
             large_metadata[UnifiedMetadataKey.MUSICIANS] = [f"Musician {i:04d}: Instrument {i:04d}" for i in range(50)]
             large_metadata[UnifiedMetadataKey.KEYWORDS] = [f"keyword{i:04d}" for i in range(50)]
@@ -180,7 +180,7 @@ class TestMultipleValuesBoundaryConditions:
         
         # Check multiple value fields
         for field in [UnifiedMetadataKey.ARTISTS_NAMES, UnifiedMetadataKey.ALBUM_ARTISTS_NAMES, 
-                     UnifiedMetadataKey.COMPOSER, UnifiedMetadataKey.INVOLVED_PEOPLE,
+                     UnifiedMetadataKey.COMPOSERS, UnifiedMetadataKey.INVOLVED_PEOPLE,
                      UnifiedMetadataKey.MUSICIANS, UnifiedMetadataKey.KEYWORDS]:
             values = unified_metadata.get(field)
             assert isinstance(values, list)

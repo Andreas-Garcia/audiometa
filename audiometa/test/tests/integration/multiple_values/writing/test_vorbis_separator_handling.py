@@ -17,7 +17,7 @@ class TestVorbisMultipleEntriesWriting:
             # Write new multiple values - should create separate Vorbis entries
             new_metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["New Artist 1", "New Artist 2", "New Artist 3"],
-                UnifiedMetadataKey.COMPOSER: ["New Composer X", "New Composer Y"],
+                UnifiedMetadataKey.COMPOSERS: ["New Composer X", "New Composer Y"],
                 UnifiedMetadataKey.GENRES_NAMES: ["Jazz", "Fusion", "Experimental"]
             }
             
@@ -35,7 +35,7 @@ class TestVorbisMultipleEntriesWriting:
             assert "New Artist 3" in artists
             
             # Should see separate COMPOSER entries
-            composers = final_metadata.get(UnifiedMetadataKey.COMPOSER)
+            composers = final_metadata.get(UnifiedMetadataKey.COMPOSERS)
             assert isinstance(composers, list)
             assert len(composers) == 2
             assert "New Composer X" in composers

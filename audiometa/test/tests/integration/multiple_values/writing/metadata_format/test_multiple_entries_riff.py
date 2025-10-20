@@ -63,13 +63,13 @@ class TestMultipleEntriesRiff:
     def test_write_multiple_composers(self, temp_audio_file: Path):
         # Write multiple composers
         metadata = {
-            UnifiedMetadataKey.COMPOSER: ["Composer A", "Composer B", "Composer C"]
+            UnifiedMetadataKey.COMPOSERS: ["Composer A", "Composer B", "Composer C"]
         }
         
         update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.RIFF)
         
         unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        composers = unified_metadata.get(UnifiedMetadataKey.COMPOSER)
+        composers = unified_metadata.get(UnifiedMetadataKey.COMPOSERS)
         
         assert isinstance(composers, list)
         assert len(composers) == 3
@@ -136,7 +136,7 @@ class TestMultipleEntriesRiff:
             UnifiedMetadataKey.TITLE: "Single Title",  # Single value
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist 1", "Artist 2"],  # Multiple values
             UnifiedMetadataKey.ALBUM_NAME: "Single Album",  # Single value
-            UnifiedMetadataKey.COMPOSER: ["Composer 1", "Composer 2", "Composer 3"]  # Multiple values
+            UnifiedMetadataKey.COMPOSERS: ["Composer 1", "Composer 2", "Composer 3"]  # Multiple values
         }
         
         update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.RIFF)
@@ -154,7 +154,7 @@ class TestMultipleEntriesRiff:
         assert "Artist 1" in artists
         assert "Artist 2" in artists
         
-        composers = unified_metadata.get(UnifiedMetadataKey.COMPOSER)
+        composers = unified_metadata.get(UnifiedMetadataKey.COMPOSERS)
         assert isinstance(composers, list)
         assert len(composers) == 3
         assert "Composer 1" in composers

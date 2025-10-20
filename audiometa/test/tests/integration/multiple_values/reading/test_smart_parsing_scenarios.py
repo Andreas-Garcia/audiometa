@@ -225,7 +225,7 @@ class TestSmartParsingScenarios:
             # Set composers as single entry with separators (should parse)
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist; with; semicolons", "Artist Three"],
-                UnifiedMetadataKey.COMPOSER: ["Composer One;Composer Two;Composer Three"]
+                UnifiedMetadataKey.COMPOSERS: ["Composer One;Composer Two;Composer Three"]
             }
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2)
             
@@ -243,7 +243,7 @@ class TestSmartParsingScenarios:
             assert "Artist Three" in artists
             
             # Composers should parse separators (single entry)
-            composers = unified_metadata.get(UnifiedMetadataKey.COMPOSER)
+            composers = unified_metadata.get(UnifiedMetadataKey.COMPOSERS)
             assert isinstance(composers, list)
             assert len(composers) == 3
             assert "Composer One" in composers

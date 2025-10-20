@@ -70,10 +70,10 @@ class RiffManager(RatingSupportingMetadataManager):
         TITLE = 'INAM'
         ARTIST_NAME = 'IART'
         ALBUM_NAME = 'IPRD'
-        GENRE_NAME_OR_CODE = 'IGNR'
+        GENRES_NAMES_OR_CODES = 'IGNR'
         DATE = 'ICRD'  # Creation/Release date
         TRACK_NUMBER = 'IPRT'
-        COMPOSER = 'ICMP'  # Composer
+        COMPOSERS = 'ICMP'  # Composers
 
         # Non-standard
         ALBUM_ARTISTS_NAMES = 'IAAR'
@@ -99,7 +99,7 @@ class RiffManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.RATING: None,
             UnifiedMetadataKey.LANGUAGE: self.RiffTagKey.LANGUAGE,
             UnifiedMetadataKey.RELEASE_DATE: self.RiffTagKey.DATE,
-            UnifiedMetadataKey.COMPOSER: self.RiffTagKey.COMPOSER,
+            UnifiedMetadataKey.COMPOSERS: self.RiffTagKey.COMPOSERS,
             UnifiedMetadataKey.COPYRIGHT: self.RiffTagKey.COPYRIGHT,
             UnifiedMetadataKey.COMMENT: self.RiffTagKey.COMMENTS,
             # AppMetadataKey.TRACK_NUMBER: None,
@@ -113,7 +113,7 @@ class RiffManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.RATING: None,
             UnifiedMetadataKey.LANGUAGE: self.RiffTagKey.LANGUAGE,
             UnifiedMetadataKey.RELEASE_DATE: self.RiffTagKey.DATE,
-            UnifiedMetadataKey.COMPOSER: self.RiffTagKey.COMPOSER,
+            UnifiedMetadataKey.COMPOSERS: self.RiffTagKey.COMPOSERS,
             UnifiedMetadataKey.COPYRIGHT: self.RiffTagKey.COPYRIGHT,
             UnifiedMetadataKey.COMMENT: self.RiffTagKey.COMMENTS,
             # AppMetadataKey.TRACK_NUMBER: self.RiffTagKey.TRACK_NUMBER,
@@ -284,7 +284,7 @@ class RiffManager(RatingSupportingMetadataManager):
 
         if unified_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
             return self._get_genre_name_from_raw_clean_metadata_id3v1(
-                raw_clean_metadata=raw_clean_metadata, raw_metadata_ket=self.RiffTagKey.GENRE_NAME_OR_CODE)
+                raw_clean_metadata=raw_clean_metadata, raw_metadata_ket=self.RiffTagKey.GENRES_NAMES_OR_CODES)
         else:
             raise MetadataNotSupportedError(f'Metadata key not handled: {unified_metadata_key}')
 
@@ -484,7 +484,7 @@ class RiffManager(RatingSupportingMetadataManager):
         riff_key = self.metadata_keys_direct_map_write.get(app_key)
         if not riff_key:
             if app_key == UnifiedMetadataKey.GENRES_NAMES:
-                return self.RiffTagKey.GENRE_NAME_OR_CODE
+                return self.RiffTagKey.GENRES_NAMES_OR_CODES
             elif app_key == UnifiedMetadataKey.RATING:
                 return self.RiffTagKey.RATING
         return riff_key

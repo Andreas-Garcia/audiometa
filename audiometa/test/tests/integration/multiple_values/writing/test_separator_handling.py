@@ -56,7 +56,7 @@ class TestSeparatorHandling:
         # Test separator handling across different multi-value fields
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist; with; semicolons", "Artist, with, commas"],
-            UnifiedMetadataKey.COMPOSER: ["Composer / with / slashes", "Composer \\ with \\ backslashes"],
+            UnifiedMetadataKey.COMPOSERS: ["Composer / with / slashes", "Composer \\ with \\ backslashes"],
             UnifiedMetadataKey.MUSICIANS: ["Guitar; Lead: Alice", "Bass, Electric: Bob"],
             UnifiedMetadataKey.GENRES_NAMES: ["Rock; Alternative", "Jazz, Fusion"]
         }
@@ -71,7 +71,7 @@ class TestSeparatorHandling:
         assert "Artist; with; semicolons" in artists
         assert "Artist, with, commas" in artists
         
-        composers = unified_metadata.get(UnifiedMetadataKey.COMPOSER)
+        composers = unified_metadata.get(UnifiedMetadataKey.COMPOSERS)
         assert isinstance(composers, list)
         assert len(composers) == 2
         assert "Composer / with / slashes" in composers

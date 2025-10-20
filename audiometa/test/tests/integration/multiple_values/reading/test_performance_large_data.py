@@ -141,7 +141,7 @@ class TestPerformanceLargeData:
             assert isinstance(genres, list)
             assert len(genres) == 5
             
-            composers = unified_metadata.get(UnifiedMetadataKey.COMPOSER)
+            composers = unified_metadata.get(UnifiedMetadataKey.COMPOSERS)
             assert isinstance(composers, list)
             assert len(composers) == 8
             

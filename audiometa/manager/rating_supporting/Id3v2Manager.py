@@ -181,7 +181,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         BPM = 'TBPM'
         
         # Additional metadata fields
-        COMPOSER = 'TCOM'
+        COMPOSERS = 'TCOM'
         PUBLISHER = 'TPUB'
         COPYRIGHT = 'TCOP'
         LYRICS = 'USLT'  # Unsynchronized lyrics frame
@@ -206,7 +206,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         Id3TextFrame.TRACK_NUMBER: TRCK,
         Id3TextFrame.BPM: TBPM,
         Id3TextFrame.RATING: POPM,
-        Id3TextFrame.COMPOSER: TCOM,
+        Id3TextFrame.COMPOSERS: TCOM,
         Id3TextFrame.PUBLISHER: TPUB,
         Id3TextFrame.COPYRIGHT: TCOP,
         Id3TextFrame.LYRICS: USLT,
@@ -231,7 +231,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.RELEASE_DATE: self.Id3TextFrame.RELEASE_TIME,
             UnifiedMetadataKey.TRACK_NUMBER: self.Id3TextFrame.TRACK_NUMBER,
             UnifiedMetadataKey.BPM: self.Id3TextFrame.BPM,
-            UnifiedMetadataKey.COMPOSER: self.Id3TextFrame.COMPOSER,
+            UnifiedMetadataKey.COMPOSERS: self.Id3TextFrame.COMPOSERS,
             UnifiedMetadataKey.PUBLISHER: self.Id3TextFrame.PUBLISHER,
             UnifiedMetadataKey.COPYRIGHT: self.Id3TextFrame.COPYRIGHT,
             UnifiedMetadataKey.LYRICS: self.Id3TextFrame.LYRICS,
@@ -248,7 +248,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.RELEASE_DATE: self.Id3TextFrame.RELEASE_TIME,
             UnifiedMetadataKey.TRACK_NUMBER: self.Id3TextFrame.TRACK_NUMBER,
             UnifiedMetadataKey.BPM: self.Id3TextFrame.BPM,
-            UnifiedMetadataKey.COMPOSER: self.Id3TextFrame.COMPOSER,
+            UnifiedMetadataKey.COMPOSERS: self.Id3TextFrame.COMPOSERS,
             UnifiedMetadataKey.PUBLISHER: self.Id3TextFrame.PUBLISHER,
             UnifiedMetadataKey.COPYRIGHT: self.Id3TextFrame.COPYRIGHT,
             UnifiedMetadataKey.LYRICS: self.Id3TextFrame.LYRICS,

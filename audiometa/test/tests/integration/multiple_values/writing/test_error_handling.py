@@ -62,7 +62,7 @@ class TestMultipleValuesErrorHandling:
         # Create a very large list for each multi-value field
         for i in range(1000):
             large_metadata[UnifiedMetadataKey.ARTISTS_NAMES] = [f"Artist {i:04d}" for i in range(100)]
-            large_metadata[UnifiedMetadataKey.COMPOSER] = [f"Composer {i:04d}" for i in range(100)]
+            large_metadata[UnifiedMetadataKey.COMPOSERS] = [f"Composer {i:04d}" for i in range(100)]
             large_metadata[UnifiedMetadataKey.MUSICIANS] = [f"Musician {i:04d}" for i in range(100)]
         
         # Should handle large metadata gracefully

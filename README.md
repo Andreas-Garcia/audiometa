@@ -940,7 +940,7 @@ The library then processes each field based on its semantic classification:
 - **Always takes the first value only**, regardless of format or number of instances
 - Example: `["Main Title", "Alternative Title"]` → Returns: `"Main Title"`
 
-**For Semantic Multi-Value Fields** (semantically multi-value: `ARTISTS_NAMES`, `ALBUM_ARTISTS_NAMES`, `GENRES_NAMES`, `COMPOSER`, `MUSICIANS`, `CONDUCTOR`, `ARRANGER`, `LYRICIST`, `INVOLVED_PEOPLE`, `PERFORMERS`):
+**For Semantic Multi-Value Fields** (semantically multi-value: `ARTISTS_NAMES`, `ALBUM_ARTISTS_NAMES`, `GENRES_NAMES`, `COMPOSER`, `MUSICIANS`, `CONDUCTOR`, `ARRANGER`, `LYRICISTS`, `INVOLVED_PEOPLE`, `PERFORMERS`):
 
 - **Multiple instances found**: Uses all instances as-is (no separator parsing)
 
@@ -958,12 +958,6 @@ The library then processes each field based on its semantic classification:
   - Raw data: `["Artist One", "Artist Two;Artist Three", "Artist Four"]`
   - Result: `["Artist One", "Artist Two;Artist Three", "Artist Four"]`
   - ✅ Preserves all entries exactly as found, including separators within values
-
-**Format-Specific Behavior:**
-
-- **Modern formats (Vorbis, ID3v2.4)**: Often have multiple instances → No parsing needed
-- **Legacy formats (RIFF, ID3v1)**: Always single instance → Always applies parsing
-- **Mixed scenarios (ID3v2.3)**: Can be either → Adapts automatically
 
 ```python
 from audiometa import get_merged_unified_metadata
@@ -1211,7 +1205,7 @@ The library automatically classifies fields based on their **semantic meaning**:
 - `MUSICIANS` - Multiple musician credits (ID3v2.4)
 - `CONDUCTOR` - Multiple conductor names (ID3v2.4)
 - `ARRANGER` - Multiple arranger names
-- `LYRICIST` - Multiple lyricist names (ID3v2.4)
+- `LYRICISTS` - Multiple lyricist names (ID3v2.4)
 - `INVOLVED_PEOPLE` - Multiple involved people credits (ID3v2.4)
 - `PERFORMERS` - Multiple performer names (Vorbis)
 

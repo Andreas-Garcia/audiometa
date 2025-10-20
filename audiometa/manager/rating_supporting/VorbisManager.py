@@ -56,7 +56,7 @@ class VorbisManager(RatingSupportingMetadataManager):
         TRACK_NUMBER = 'tracknumber'
         BPM = 'bpm'
         COMMENT = 'comment'
-        COMPOSER = 'composer'
+        COMPOSERS = 'composer'
         PERFORMER = 'performer'
         COPYRIGHT = 'copyright'
         LICENSE = 'license'
@@ -78,7 +78,7 @@ class VorbisManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.LANGUAGE: self.VorbisKey.LANGUAGE,
             UnifiedMetadataKey.RELEASE_DATE: self.VorbisKey.DATE,
             UnifiedMetadataKey.BPM: self.VorbisKey.BPM,
-            UnifiedMetadataKey.COMPOSER: self.VorbisKey.COMPOSER,
+            UnifiedMetadataKey.COMPOSERS: self.VorbisKey.COMPOSERS,
             UnifiedMetadataKey.COPYRIGHT: self.VorbisKey.COPYRIGHT,
             UnifiedMetadataKey.COMMENT: self.VorbisKey.COMMENT,
         }
@@ -92,7 +92,7 @@ class VorbisManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.LANGUAGE: self.VorbisKey.LANGUAGE,
             UnifiedMetadataKey.RELEASE_DATE: self.VorbisKey.DATE,
             UnifiedMetadataKey.BPM: self.VorbisKey.BPM,
-            UnifiedMetadataKey.COMPOSER: self.VorbisKey.COMPOSER,
+            UnifiedMetadataKey.COMPOSERS: self.VorbisKey.COMPOSERS,
             UnifiedMetadataKey.COPYRIGHT: self.VorbisKey.COPYRIGHT,
             UnifiedMetadataKey.COMMENT: self.VorbisKey.COMMENT,
         }

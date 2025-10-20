@@ -261,7 +261,7 @@ class TestSeparatorHandling:
             
             # Read metadata
             unified_metadata = get_merged_unified_metadata(test_file.path)
-            composers = unified_metadata.get(UnifiedMetadataKey.COMPOSER)
+            composers = unified_metadata.get(UnifiedMetadataKey.COMPOSERS)
             
             # Should split composers on comma
             assert isinstance(composers, list)
