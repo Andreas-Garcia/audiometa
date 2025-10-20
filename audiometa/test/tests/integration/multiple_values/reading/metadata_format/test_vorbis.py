@@ -1,10 +1,5 @@
 
-from audiometa import (
-    get_merged_unified_metadata,
-    get_single_format_app_metadata,
-    get_full_metadata,
-    get_specific_metadata
-)
+from audiometa import get_specific_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataSetter
 from audiometa.test.helpers.vorbis.vorbis_metadata_verifier import VorbisMetadataVerifier

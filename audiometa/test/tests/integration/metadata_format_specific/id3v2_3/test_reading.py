@@ -12,6 +12,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
 
 
 @pytest.mark.integration
@@ -78,7 +79,7 @@ class TestId3v23Reading:
     def test_id3v2_3_multiple_artists_support(self):
         with TempFileWithMetadata({}, "id3v2.3") as test_file:
             artists = ["Artist One", "Artist Two", "Artist Three"]
-            test_file.set_id3v2_3_multiple_artists(artists)
+            ID3v2MetadataSetter.set_multiple_artists(test_file.path, artists)
             
             metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
             retrieved_artists = metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)

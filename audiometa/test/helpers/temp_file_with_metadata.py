@@ -8,13 +8,12 @@ in a single, clean API.
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Dict, Any, List
 
-from .id3v2 import ID3v2MetadataVerifier, ID3HeaderVerifier, ID3v2MetadataDeleter, ID3v2MetadataSetter
-from .id3v1 import ID3v1MetadataDeleter, ID3v1MetadataSetter
-from .vorbis import VorbisMetadataVerifier, VorbisHeaderVerifier, VorbisMetadataDeleter, VorbisMetadataSetter
-from .riff import RIFFMetadataVerifier, RIFFHeaderVerifier, RIFFMetadataDeleter, RIFFMetadataSetter
-from .common import AudioFileCreator, ComprehensiveMetadataVerifier
+from .id3v2 import ID3v2MetadataSetter
+from .id3v1 import ID3v1MetadataSetter
+from .vorbis import VorbisMetadataSetter
+from .riff import RIFFMetadataSetter
+from .common import AudioFileCreator
 from .common.external_tool_runner import run_external_tool, run_script
 
 
@@ -82,10 +81,6 @@ class TempFileWithMetadata:
         if self.test_file and self.test_file.exists():
             self.test_file.unlink()
     
-    # =============================================================================
-    # File Creation and Metadata Setting
-    # =============================================================================
-    
     def _create_test_file_with_metadata(self, metadata: dict, format_type: str) -> Path:
         """Create a test file with specific metadata values.
         
@@ -151,7 +146,7 @@ class TempFileWithMetadata:
     def _get_scripts_dir(self) -> Path:
         return Path(__file__).parent.parent.parent / "test" / "data" / "scripts"
     
-    def _run_script(self, script_name: str, check: bool = True) -> subprocess.CompletedProcess:
+    def _run_script(self, script_name: str) -> subprocess.CompletedProcess:
         """Run an external script with proper error handling."""
         scripts_dir = self._get_scripts_dir()
         # Use the unified run_script function for script execution
@@ -170,69 +165,5 @@ class TempFileWithMetadata:
         """
         ID3v2MetadataSetter._create_multiple_id3v2_frames(self.test_file, frame_id, texts)
     
-    # =============================================================================
-    # ID3v1 Format Operations
-    # =============================================================================
-    
 
-    
-    # =============================================================================
-    # ID3v2 Format Operations
-    # =============================================================================
-    
-    def set_id3v2_3_multiple_artists(self, artists: list[str]):
-        command = ["mid3v2", "--delete", "TPE1", str(self.test_file)]
-        run_external_tool(command, "mid3v2")
-        
-        # Set all artists in a single command
-        command = ["mid3v2"]
-        for artist in artists:
-            command.extend(["--TPE1", artist])
-        command.append(str(self.test_file))
-        run_external_tool(command, "mid3v2")
-    
-    def set_id3v2_4_multiple_artists(self, artists: list[str]):
-        command = ["mid3v2", "--delete", "TPE1", str(self.test_file)]
-        run_external_tool(command, "mid3v2")
-        
-        # Set all artists in a single command
-        command = ["mid3v2"]
-        for artist in artists:
-            command.extend(["--TPE1", artist])
-        command.append(str(self.test_file))
-        run_external_tool(command, "mid3v2")
-        
-    def set_id3v2_4_single_artist(self, artist: str):
-        command = ["mid3v2", "--delete", "TPE1", str(self.test_file)]
-        run_external_tool(command, "mid3v2")
-        
-        command = ["mid3v2"]
-        command.extend(["--TPE1", artist])
-        command.append(str(self.test_file))
-        run_external_tool(command, "mid3v2")
-        
-    def get_id3v2_4_all_raw_data(self) -> str:
-        command = ["mid3v2", "--list", str(self.test_file)]
-        return run_external_tool(command, "mid3v2").stdout
-    
-    def set_id3v2_max_metadata(self):
-        ID3v2MetadataSetter.set_max_metadata(self.test_file)
-    
-    def remove_id3v2_metadata(self):
-        return self._run_script("remove_id3.py")
-    
-    # =============================================================================
-    # Vorbis Format Operations
-    # =============================================================================
-    
 
-    
-    # =============================================================================
-    # RIFF Format Operations
-    # =============================================================================
-    
-
-    
-    def remove_riff_metadata(self):
-        return self._run_script("remove_riff.py")
-    
