@@ -2,9 +2,9 @@
 from audiometa import get_specific_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from test.helpers.temp_file_with_metadata import TempFileWithMetadata
-from test.helpers.riff.riff_metadata_setter import RIFFMetadataSetter
-from test.helpers.riff.riff_metadata_verifier import RIFFMetadataVerifier
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.riff.riff_metadata_setter import RIFFMetadataSetter
+from audiometa.test.helpers.riff.riff_metadata_verifier import RIFFMetadataVerifier
 
 
 class TestRiff:

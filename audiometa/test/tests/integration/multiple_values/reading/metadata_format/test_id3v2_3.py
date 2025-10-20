@@ -3,11 +3,10 @@
 from audiometa import get_specific_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from test.helpers.id3v2.id3v2_metadata_verifier import ID3v2MetadataVerifier
-from test.helpers.id3v2.id3v2_metadata_verifier import ID3v2MetadataVerifier
-from test.helpers.temp_file_with_metadata import TempFileWithMetadata
-from test.helpers.id3v2 import ID3V2HeaderVerifier
-from test.helpers.id3v2.id3v2_metadata_setter import ID3v2MetadataSetter
+from audiometa.test.helpers.id3v2.id3v2_metadata_verifier import ID3v2MetadataVerifier
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.id3v2 import ID3V2HeaderVerifier
+from audiometa.test.helpers.id3v2.id3v2_metadata_setter import ID3v2MetadataSetter
 
 
 class TestId3v23:
