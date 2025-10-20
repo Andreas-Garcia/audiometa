@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Dict, Any, List
 
 from ..id3v2 import ID3HeaderVerifier
+from ..id3v1 import ID3v1HeaderVerifier
 from ..vorbis import VorbisHeaderVerifier 
 from ..riff import RIFFHeaderVerifier
 
@@ -24,7 +25,7 @@ class ComprehensiveMetadataVerifier:
         """
         return {
             'id3v2': ID3HeaderVerifier.has_id3v2_header(file_path),
-            'id3v1': ID3HeaderVerifier.has_id3v1_header(file_path),
+            'id3v1': ID3v1HeaderVerifier.has_id3v1_header(file_path),
             'vorbis': VorbisHeaderVerifier.has_vorbis_comments(file_path),
             'riff': RIFFHeaderVerifier.has_riff_info_chunk(file_path)
         }

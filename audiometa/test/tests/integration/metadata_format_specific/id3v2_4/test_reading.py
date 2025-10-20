@@ -12,6 +12,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
 
 
 @pytest.mark.integration
@@ -20,7 +21,7 @@ class TestId3v24Reading:
     def test_id3v2_4_extended_metadata(self):
         with TempFileWithMetadata({}, "id3v2.4") as test_file:
             # Set maximum metadata using the script helper
-            test_file.set_id3v2_4_max_metadata()
+            ID3v2MetadataSetter.set_max_metadata(test_file.path)
             
             metadata = get_merged_unified_metadata(test_file.path)
             title = metadata.get(UnifiedMetadataKey.TITLE)
@@ -29,7 +30,7 @@ class TestId3v24Reading:
     def test_id3v2_4_metadata_reading_mp3(self):
         with TempFileWithMetadata({}, "id3v2.4") as test_file:
             # Set test metadata
-            test_file.set_id3v2_4_max_metadata()
+            ID3v2MetadataSetter.set_max_metadata(test_file.path)
             
             metadata = get_merged_unified_metadata(test_file.path)
             assert isinstance(metadata, dict)

@@ -174,23 +174,11 @@ class TempFileWithMetadata:
     # ID3v1 Format Operations
     # =============================================================================
     
-    def set_id3v1_genre(self, genre_code: str):
-        ID3v1MetadataSetter.set_genre(self.test_file, genre_code)
 
-    def set_id3v1_max_metadata(self):
-        ID3v1MetadataSetter.set_max_metadata(self.test_file)
-
-    def remove_id3v1_metadata(self):
-        ID3v1MetadataDeleter.delete_genre(self.test_file)
     
     # =============================================================================
     # ID3v2 Format Operations
     # =============================================================================
-    
-    def set_id3v2_genre(self, genre: str):
-        ID3v2MetadataSetter.set_genre(self.test_file, genre)
-    
-
     
     def set_id3v2_3_multiple_artists(self, artists: list[str]):
         command = ["mid3v2", "--delete", "TPE1", str(self.test_file)]
@@ -230,12 +218,6 @@ class TempFileWithMetadata:
     def set_id3v2_max_metadata(self):
         ID3v2MetadataSetter.set_max_metadata(self.test_file)
     
-    def set_id3v2_3_max_metadata(self):
-        ID3v2MetadataSetter.set_max_metadata(self.test_file)
-    
-    def set_id3v2_4_max_metadata(self):
-        ID3v2MetadataSetter.set_max_metadata(self.test_file)
-    
     def remove_id3v2_metadata(self):
         return self._run_script("remove_id3.py")
     
@@ -243,80 +225,14 @@ class TempFileWithMetadata:
     # Vorbis Format Operations
     # =============================================================================
     
-    def set_vorbis_max_metadata(self):
-        VorbisMetadataSetter.set_max_metadata(self.test_file)
-    
-    def set_vorbis_artists_one_two_three(self):
-        VorbisMetadataSetter.set_artists_one_two_three(self.test_file)
-    
-    def set_vorbis_genre(self, genre_text: str):
-        VorbisMetadataSetter.set_genre(self.test_file, genre_text)
+
     
     # =============================================================================
     # RIFF Format Operations
     # =============================================================================
     
-    def set_riff_max_metadata(self):
-        RIFFMetadataSetter.set_max_metadata(self.test_file)
-    
-    def set_riff_genre_text(self, genre_text: str):
-        RIFFMetadataSetter.set_genre_text(self.test_file, genre_text)
+
     
     def remove_riff_metadata(self):
         return self._run_script("remove_riff.py")
     
-    # =============================================================================
-    # Individual Metadata Field Operations
-    # =============================================================================
-    
-
-    
-
-    
-
-    
-
-    
-    def set_id3v2_genre(self, genre: str):
-        ID3v2MetadataSetter.set_genre(self.test_file, genre)
-    
-    def delete_vorbis_genre(self):
-        VorbisMetadataDeleter.delete_genre(self.test_file)
-    
-
-    
-
-
-    def has_id3v2_header(self) -> bool:
-        return ID3HeaderVerifier.has_id3v2_header(self.test_file)
-    
-    def has_id3v1_header(self) -> bool:
-        return ID3HeaderVerifier.has_id3v1_header(self.test_file)
-    
-    def has_vorbis_comments(self) -> bool:
-        return VorbisHeaderVerifier.has_vorbis_comments(self.test_file)
-    
-    def has_riff_info_chunk(self) -> bool:
-        return RIFFHeaderVerifier.has_riff_info_chunk(self.test_file)
-    
-    def get_metadata_headers_present(self) -> Dict[str, bool]:
-        return ComprehensiveMetadataVerifier.get_metadata_headers_present(self.test_file)
-    
-    def verify_headers_removed(self, expected_removed: List[str] = None) -> Dict[str, bool]:
-        return ComprehensiveMetadataVerifier.verify_headers_removed(self.test_file, expected_removed)
-    
-    def verify_id3v2_multiple_entries_in_raw_data(self, tag_name: str, expected_count: int = None) -> Dict[str, Any]:
-        return ID3v2MetadataVerifier.verify_multiple_entries_in_raw_data(self.test_file, tag_name, expected_count)
-    
-    def verify_id3v2_4_multiple_entries_in_raw_data(self, tag_name: str, expected_count: int = None) -> Dict[str, Any]:
-        return self.verify_id3v2_multiple_entries_in_raw_data(tag_name, expected_count)
-            
-    def verify_vorbis_multiple_entries_in_raw_data(self, tag_name: str, expected_count: int = None) -> Dict[str, Any]:
-        return VorbisMetadataVerifier.verify_multiple_entries_in_raw_data(self.test_file, tag_name, expected_count)
-    
-    def verify_riff_multiple_entries_in_raw_data(self, tag_name: str, expected_count: int = None) -> Dict[str, Any]:
-        return RIFFMetadataVerifier.verify_multiple_entries_in_raw_data(self.test_file, tag_name, expected_count)
-    
-
-    
-

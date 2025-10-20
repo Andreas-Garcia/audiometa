@@ -1,6 +1,6 @@
 
 
-from audiometa import get_single_format_app_metadata, get_specific_metadata
+from audiometa import get_specific_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.id3v2 import ID3HeaderVerifier
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -63,3 +63,20 @@ class TestId3v23:
             assert "Artist 1;Artist 2" in artists
             assert "Artist 3" in artists
             assert "Artist 4" in artists
+            
+    def test_multiple_title_entries_then_first_one(self):
+        with TempFileWithMetadata({"title": "Initial Title"}, "mp3") as test_file:
+            test_file.set_id3v2_multiple_titles(["Title One", "Title Two", "Title Three"], version="2.3", in_separate_frames=True)
+            
+            assert ID3HeaderVerifier.get_id3v2_version(test_file.path) == (2, 3, 0)
+            
+            verification = test_file.verify_id3v2_multiple_entries_in_raw_data("TIT2", expected_count=3)
+            assert verification["success"], f"Verification failed: {verification.get('error', 'Unknown error')}"
+            
+            titles = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V2)
+            
+            assert isinstance(titles, list)
+            assert len(titles) == 3
+            assert "Title One" in titles
+            assert "Title Two" in titles
+            assert "Title Three" in titles

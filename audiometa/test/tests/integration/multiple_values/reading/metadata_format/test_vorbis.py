@@ -1,4 +1,3 @@
-import pytest
 
 from audiometa import (
     get_merged_unified_metadata,
@@ -7,17 +6,17 @@ from audiometa import (
     get_specific_metadata
 )
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
-from audiometa.test.helpers.vorbis import VorbisMetadataSetter
+from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataSetter
+from audiometa.test.helpers.vorbis.vorbis_metadata_verifier import VorbisMetadataVerifier
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from test.tests.integration.per_metadata import artists
 
 
 class TestVorbis:
     def test_mixed_single_and_multiple_values(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             VorbisMetadataSetter.set_multiple_artists(test_file.path, ["Artist 1;Artist 2", "Artist 3", "Artist 4"])
-            verification = test_file.verify_vorbis_multiple_entries_in_raw_data("ARTIST", expected_count=3)
+            verification = VorbisMetadataVerifier.verify_multiple_entries_in_raw_data(test_file.path, "ARTIST", expected_count=3)
             
             assert "ARTIST=Artist 1;Artist" in verification['raw_output'] 
             assert "ARTIST=Artist 3" in verification['raw_output']
@@ -91,7 +90,7 @@ class TestVorbisMultipleEntries:
             assert "Artist Three" in artists
             
 
-    def test_comment_field_returns_first_value(self):
+    def test_multiple_comment_entries_returns_first_value(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             test_file.set_vorbis_multiple_comments(["First comment", "Second comment", "Third comment"])
 
