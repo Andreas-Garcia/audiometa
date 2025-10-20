@@ -297,14 +297,14 @@ class TestGetFullMetadata:
     def test_header_detection_for_different_formats(self):
         """Test header detection methods for different audio formats."""
         from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
-        from audiometa.test.helpers.id3v2 import ID3HeaderVerifier
+        from audiometa.test.helpers.id3v2 import ID3V2HeaderVerifier
         from audiometa.test.helpers.vorbis import VorbisHeaderVerifier
         from audiometa.test.helpers.riff import RIFFHeaderVerifier
         from audiometa.test.helpers.common import ComprehensiveMetadataVerifier
         
         # Test MP3 format
         with TempFileWithMetadata({"title": "MP3 Test"}, "mp3") as mp3_manager:
-            assert ID3HeaderVerifier.has_id3v2_header(mp3_manager.path), "MP3 should have ID3v2 header"
+            assert ID3V2HeaderVerifier.has_id3v2_header(mp3_manager.path), "MP3 should have ID3v2 header"
             assert not VorbisHeaderVerifier.has_vorbis_comments(mp3_manager.path), "MP3 should not have Vorbis comments"
             assert not RIFFHeaderVerifier.has_riff_info_chunk(mp3_manager.path), "MP3 should not have RIFF INFO chunk"
         

@@ -1,7 +1,7 @@
 """ID3v2 metadata format helpers."""
 
 # Core operations (following RIFF pattern)
-from .id3v2_header_verifier import ID3HeaderVerifier
+from .id3v2_header_verifier import ID3V2HeaderVerifier
 from .id3v2_metadata_deleter import ID3v2MetadataDeleter
 from .id3v2_metadata_setter import ID3v2MetadataSetter, ID3v1MetadataSetter
 from .id3v2_metadata_verifier import ID3v2MetadataVerifier
@@ -16,7 +16,7 @@ from ..common.external_tool_runner import ExternalMetadataToolError
 
 __all__ = [
     # Core operations
-    "ID3HeaderVerifier",
+    "ID3V2HeaderVerifier",
     "ID3v2MetadataDeleter",
     "ID3v2MetadataSetter",
     "ID3v1MetadataSetter",
