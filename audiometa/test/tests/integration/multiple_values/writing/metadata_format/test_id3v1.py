@@ -12,7 +12,7 @@ class TestMultipleEntriesId3v1:
         initial_metadata = {"title": "Test Song"}
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two", "Three"]
+                UnifiedMetadataKey.ARTISTS_NAMES: ["Artist 1", "Artist 2", "Artist 3"]
             }
             
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
@@ -23,9 +23,9 @@ class TestMultipleEntriesId3v1:
             
             # Check that all artists are concatenated with separators
             artist_value = inspection['artist_value']
-            assert "Artist One" in artist_value
-            assert "Artist Two" in artist_value
-            assert "Three" in artist_value
+            assert "Artist 1" in artist_value
+            assert "Artist 2" in artist_value
+            assert "Artist 3" in artist_value
             assert inspection['contains_separators']
             
     

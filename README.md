@@ -880,18 +880,18 @@ ARTIST=Artist 3
 
 Both ID3v2.4 and Vorbis Comments specifications officially define semantic meaning for multiple instances of these fields:
 
-| Field Name          | ID3v2.4 Frame | Vorbis Field  | Semantic Meaning                                       |
-| ------------------- | ------------- | ------------- | ------------------------------------------------------ |
-| **Artists**         | `TPE1`        | `ARTIST`      | Multiple artist names for the track                    |
-| **Album Artists**   | `TPE2`        | `ALBUMARTIST` | Multiple album artist names                            |
-| **Composers**       | `TCOM`        | `COMPOSER`    | Multiple composer names                                |
-| **Lyricists**       | `TEXT`        | -             | Multiple lyricist names (ID3v2.4 only)                 |
-| **Conductors**      | `TPE3`        | -             | Multiple conductor names (ID3v2.4 only)                |
-| **Musicians**       | `TMCL`        | -             | Multiple musician credits (ID3v2.4 only)               |
-| **Involved People** | `TIPL`        | -             | Multiple involved people credits (ID3v2.4 only)        |
-| **Performers**      | -             | `PERFORMER`   | Multiple performer names (Vorbis only)                 |
-| **Genres**          | `TCON`        | `GENRE`       | Multiple genre classifications                         |
-| **Comments**        | `COMM`        | `COMMENT`     | Multiple comment entries (with different descriptions) |
+| Field Name          | ID3v2.4 Frame | Vorbis Field  | Semantic Meaning                                  |
+| ------------------- | ------------- | ------------- | ------------------------------------------------- |
+| **Artists**         | `TPE1`        | `ARTIST`      | Artists names for the track                       |
+| **Album Artists**   | `TPE2`        | `ALBUMARTIST` | Album artist names                                |
+| **Composers**       | `TCOM`        | `COMPOSER`    | Composers names                                   |
+| **Lyricists**       | `TEXT`        | -             | Lyricist names (ID3v2.4 only)                     |
+| **Conductors**      | `TPE3`        | -             | Conductor names (ID3v2.4 only)                    |
+| **Musicians**       | `TMCL`        | -             | Musician credits (ID3v2.4 only)                   |
+| **Involved People** | `TIPL`        | -             | Involved people credits (ID3v2.4 only)            |
+| **Performers**      | -             | `PERFORMER`   | Performer names (Vorbis only)                     |
+| **Genres**          | `TCON`        | `GENRE`       | Genres (separators in ID3v2.4, entries in Vorbis) |
+| **Comments**        | `COMM`        | `COMMENT`     | Comment entries (with different descriptions)     |
 
 - **Comments** (COMM): Multiple comment entries (with different descriptions)
 
