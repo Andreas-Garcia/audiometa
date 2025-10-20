@@ -231,6 +231,13 @@ new_metadata = {
 update_file_metadata("path/to/your/audio.mp3", new_metadata)
 ```
 
+#### Format-specific writing
+
+from audiometa.utils.MetadataFormat import MetadataFormat
+update_file_metadata("song.wav", new_metadata, metadata_format=MetadataFormat.RIFF)
+
+````
+
 ### Deleting Metadata
 
 There are two ways to remove metadata from audio files:
@@ -248,7 +255,7 @@ print(f"All metadata deleted: {success}")
 from audiometa.utils.MetadataFormat import MetadataFormat
 success = delete_all_metadata("song.wav", tag_format=MetadataFormat.ID3V2)
 # This removes only ID3v2 tags, keeps RIFF metadata
-```
+````
 
 **Important**: This function removes the metadata headers/containers entirely from the file, not just the content. This means:
 
@@ -704,6 +711,36 @@ update_file_metadata("song.mp3", {
 from audiometa.utils.MetadataFormat import MetadataFormat
 update_file_metadata("song.wav", metadata, metadata_format=MetadataFormat.RIFF)
 
+# Advanced examples
+
+# Write to a specific ID3v2 version (e.g., ID3v2.4)
+from audiometa.utils.MetadataFormat import MetadataFormat
+update_file_metadata(
+    "song.mp3",
+    metadata,
+    metadata_format=MetadataFormat.ID3V2,
+    id3v2_version=(2, 4, 0)
+)
+
+# Write to ID3v2.3 (default)
+update_file_metadata(
+    "song.mp3",
+    metadata,
+    metadata_format=MetadataFormat.ID3V2
+)
+
+# Use writing strategy and specify ID3v2 version
+from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
+update_file_metadata(
+    "song.mp3",
+    metadata,
+    metadata_strategy=MetadataWritingStrategy.SYNC,
+    id3v2_version=(2, 4, 0)
+)
+
+"""
+Note: The `id3v2_version` parameter lets you choose which ID3v2 version to target (e.g., (2, 3, 0) for ID3v2.3, (2, 4, 0) for ID3v2.4). This affects how multi-value fields and certain metadata are written.
+"""
 # Strategy-based writing
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 update_file_metadata("song.mp3", metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
@@ -1050,17 +1087,6 @@ metadata = {
     UnifiedMetadataKey.GENRES_NAMES: ["Rock", "Alternative", "Indie"]
 }
 update_file_metadata("song.mp3", metadata)
-```
-
-**Format-Specific Writing:**
-
-```python
-from audiometa.utils.MetadataFormat import MetadataFormat
-
-# Force specific format for optimal results
-update_file_metadata("song.mp3", metadata, metadata_format=MetadataFormat.ID3V2)
-update_file_metadata("song.flac", metadata, metadata_format=MetadataFormat.VORBIS)
-update_file_metadata("song.wav", metadata, metadata_format=MetadataFormat.RIFF)
 ```
 
 **Format Limitations:**
