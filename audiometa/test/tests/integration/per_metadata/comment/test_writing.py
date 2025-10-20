@@ -44,6 +44,6 @@ class TestCommentWriting:
         from audiometa.exceptions import InvalidMetadataTypeError
 
         with TempFileWithMetadata({}, "mp3") as test_file:
-            bad_metadata = {UnifiedMetadataKey.COMMENTS: 12345}
+            bad_metadata = {UnifiedMetadataKey.COMMENT: 12345}
             with pytest.raises(InvalidMetadataTypeError):
                 update_file_metadata(test_file.path, bad_metadata)

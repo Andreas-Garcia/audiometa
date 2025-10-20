@@ -46,6 +46,8 @@ class TestArtistsWriting:
         from audiometa.exceptions import InvalidMetadataTypeError
 
         with TempFileWithMetadata({}, "mp3") as test_file:
-            bad_metadata = {UnifiedMetadataKey.ARTISTS_NAMES: "not-a-list"}
-            with pytest.raises(InvalidMetadataTypeError):
-                update_file_metadata(test_file.path, bad_metadata)
+            # Single-string shorthand should be accepted and normalized to a list on read
+            shorthand_metadata = {UnifiedMetadataKey.ARTISTS_NAMES: "Single Artist"}
+            update_file_metadata(test_file.path, shorthand_metadata)
+            metadata = get_merged_unified_metadata(test_file.path)
+            assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Single Artist"]
