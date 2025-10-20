@@ -1021,11 +1021,33 @@ print(result[UnifiedMetadataKey.GENRES_NAMES])
 
 **Strategy Overview:**
 
-The library uses a **smart writing strategy** that adapts to format capabilities and data characteristics:
+The library uses a **smart writing strategy** that adapts to format capabilities and data characteristics. For each semantically multi-value field, different formats use different approaches:
 
-1. **Modern formats (ID3v2, Vorbis)**: Uses multiple separate entries (best practice)
-2. **Legacy formats (RIFF, ID3v1)**: Uses smart separator-based concatenation
-3. **Smart separator selection**: Chooses the best separator that won't conflict with actual values
+| Multi-Value Field       | ID3v1           | ID3v2.3         | ID3v2.4                     | RIFF            | Vorbis              |
+| ----------------------- | --------------- | --------------- | --------------------------- | --------------- | ------------------- |
+| **Artists Names**       | Smart separator | Smart separator | ✅ Multiple frames (`TPE1`) | Smart separator | ✅ Multiple entries |
+| **Album Artists Names** | Smart separator | Smart separator | ✅ Multiple frames (`TPE2`) | Smart separator | ✅ Multiple entries |
+| **Genres Names**        | Smart separator | Smart separator | Smart separator             | Smart separator | ✅ Multiple entries |
+| **Composers**           | Smart separator | Smart separator | ✅ Multiple frames (`TCOM`) | Smart separator | ✅ Multiple entries |
+| **Lyricists**           | Smart separator | Smart separator | ✅ Multiple frames (`TEXT`) | Smart separator | ✅ Multiple entries |
+| **Conductors**          | Smart separator | Smart separator | ✅ Multiple frames (`TPE3`) | Smart separator | ✅ Multiple entries |
+| **Musicians**           | Smart separator | Smart separator | ✅ Multiple frames (`TMCL`) | Smart separator | ✅ Multiple entries |
+| **Involved People**     | Smart separator | Smart separator | ✅ Multiple frames (`TIPL`) | Smart separator | ✅ Multiple entries |
+| **Performers**          | Smart separator | Smart separator | Smart separator             | Smart separator | ✅ Multiple entries |
+| **Comments**            | Smart separator | Smart separator | Smart separator             | Smart separator | ✅ Multiple entries |
+| **Arranger**            | Smart separator | Smart separator | Smart separator             | Smart separator | ✅ Multiple entries |
+
+**Legend:**
+
+- **✅ Multiple frames/entries**: Uses separate instances for each value (best practice)
+- **Smart separator**: Uses intelligent separator selection with single field concatenation
+
+**Key Points:**
+
+- **ID3v2.4 & Vorbis**: Use native multiple entry support where officially defined
+- **ID3v1, ID3v2.3 & RIFF**: Use smart separator-based concatenation for all fields
+- **Smart separator selection**: Automatically chooses separators that won't conflict with actual values
+- **Complete replacement**: Writing new values completely replaces any existing entries for that field
 
 **Basic Usage:**
 
@@ -1036,12 +1058,9 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 # Write multiple values - library automatically uses best approach
 metadata = {
     UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two", "Artist Three"],
-    UnifiedMetadataKey.COMPOSER: ["Composer A", "Composer B"],
+    UnifiedMetadataKey.COMPOSERS: ["Composer A", "Composer B"],
     UnifiedMetadataKey.GENRES_NAMES: ["Rock", "Alternative", "Indie"]
 }
-
-# For FLAC: Creates separate entries (Vorbis supports multiple frames)
-# For MP3/WAV/ID3v1: Uses smart separator-based (single frame with separators)
 update_file_metadata("song.mp3", metadata)
 ```
 
@@ -1201,7 +1220,7 @@ The library automatically classifies fields based on their **semantic meaning**:
 - `ARTISTS_NAMES` - Multiple artist names for the track
 - `ALBUM_ARTISTS_NAMES` - Multiple album artist names
 - `GENRES_NAMES` - Multiple genre classifications
-- `COMPOSER` - Multiple composer names
+- `COMPOSERS` - Multiple composer names
 - `MUSICIANS` - Multiple musician credits (ID3v2.4)
 - `CONDUCTOR` - Multiple conductor names (ID3v2.4)
 - `ARRANGER` - Multiple arranger names
