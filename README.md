@@ -1055,7 +1055,6 @@ The library uses a **smart writing strategy** that adapts to format capabilities
 
 When writing to legacy formats that require concatenated values, the library uses **intelligent separator selection**. It scans the values to be written and selects a separator that does not appear in any of the values, prioritizing more distinctive separators first:
 
-0. null bytes (`\0`) - ID3v2.4 only
 1. `//` (double slash) - highest priority
 2. `\\` (double backslash)
 3. `;` (semicolon)
@@ -1073,6 +1072,9 @@ ID3v1 only allows a single separator character (not multi-character like `//` or
 3. `|` (pipe) - Less common
 4. `·` (middle dot) - Unicode but Latin-1 safe
 5. `/` (slash) - Last resort, may be confusing
+
+**ID3v2.4 Null Separator:**
+For ID3v2.4, the library uses null bytes (`\0`) as the separator for multi-value fields, as per the specification.
 
 ##### Examples of Smart Separator Selection:
 
