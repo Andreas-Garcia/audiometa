@@ -13,7 +13,7 @@ import warnings
 from mutagen.id3 import ID3
 
 from .audio_file import AudioFile
-from .exceptions import FileTypeNotSupportedError, MetadataNotSupportedError, MetadataWritingConflictParametersError
+from .exceptions import FileTypeNotSupportedError, MetadataNotSupportedError, MetadataWritingConflictParametersError, InvalidMetadataTypeError
 from .utils.types import AppMetadata, AppMetadataValue
 from .utils.MetadataFormat import MetadataFormat
 from .utils.MetadataWritingStrategy import MetadataWritingStrategy
@@ -281,6 +281,53 @@ def _check_unsupported_fields(app_metadata: AppMetadata, all_managers: dict[Meta
     return unsupported_fields
 
 
+def _validate_app_metadata_types(app_metadata: AppMetadata) -> None:
+    """Validate types of values in app_metadata against UnifiedMetadataKey.get_optional_type().
+
+    Raises InvalidMetadataTypeError when a value does not match the expected type.
+    None values are allowed (used to indicate removal of a field).
+    """
+    if not app_metadata:
+        return
+
+    # Lazy import for typing helpers to avoid top-level overhead
+    try:
+        from typing import get_origin, get_args
+    except Exception:
+        # Python <3.8 fallback (should not happen in supported environments)
+        def get_origin(x):
+            return getattr(x, '__origin__', None)
+        def get_args(x):
+            return getattr(x, '__args__', ())
+
+    for key, value in app_metadata.items():
+        # Allow None to mean "remove this field"
+        if value is None:
+            continue
+
+        try:
+            expected_type = key.get_optional_type()
+        except Exception:
+            # If no optional type defined for this key, skip validation here
+            continue
+
+        origin = get_origin(expected_type)
+        if origin == list:
+            # Expect a list of a particular type (e.g., list[str]). Do NOT allow
+            # single values of the inner type; callers must provide a list.
+            arg_types = get_args(expected_type)
+            item_type = arg_types[0] if arg_types else str
+            # Value must be a list and all items must be of the expected inner type
+            if not isinstance(value, list):
+                raise InvalidMetadataTypeError(key.value, f'list[{getattr(item_type, "__name__", str(item_type))}]', value)
+            if not all(isinstance(item, item_type) for item in value):
+                raise InvalidMetadataTypeError(key.value, f'list[{getattr(item_type, "__name__", str(item_type))}]', value)
+        else:
+            # expected_type is a plain type like str or int
+            if not isinstance(value, expected_type):
+                raise InvalidMetadataTypeError(key.value, getattr(expected_type, '__name__', str(expected_type)), value)
+
+
 def update_file_metadata(
         file: FILE_TYPE, app_metadata: AppMetadata, normalized_rating_max_value: int | None = None, 
         id3v2_version: tuple[int, int, int] | None = None, metadata_strategy: MetadataWritingStrategy | None = None,
@@ -371,6 +418,9 @@ def update_file_metadata(
         metadata_strategy = MetadataWritingStrategy.SYNC
     
     # Handle strategy-specific behavior before writing
+    # Validate provided app_metadata value types before attempting any writes
+    _validate_app_metadata_types(app_metadata)
+
     _handle_metadata_strategy(file, app_metadata, metadata_strategy, normalized_rating_max_value, id3v2_version, metadata_format, fail_on_unsupported_field)
 
 
