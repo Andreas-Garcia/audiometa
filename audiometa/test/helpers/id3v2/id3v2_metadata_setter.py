@@ -127,7 +127,7 @@ class ID3v2MetadataSetter:
                 ID3v2MetadataSetter._set_single_frame_with_mutagen(file_path, 'TIT2', combined_titles, version)
             else:
                 # Set all titles in a single command (creates one frame with multiple values)
-                ID3v2MetadataDeleter.set_multiple_values_single_frame(file_path, "TIT2", titles)
+                ID3v2MetadataSetter.set_multiple_values_single_frame(file_path, "TIT2", titles)
     
     @staticmethod
     def set_artist(file_path: Path, artist: str, version: str = "2.4") -> None:
@@ -170,7 +170,14 @@ class ID3v2MetadataSetter:
         scripts_dir = Path(__file__).parent.parent.parent.parent / "test" / "data" / "scripts"
         run_script("set-id3v2-max-metadata.sh", file_path, scripts_dir)
 
-
+    @staticmethod
+    def set_multiple_values_single_frame(file_path: Path, frame_id: str, values: List[str]) -> None:
+        """Set multiple values in a single ID3v2 frame using mid3v2."""
+        command = ["mid3v2"]
+        for value in values:
+            command.extend([f"--{frame_id}", value])
+        command.append(str(file_path))
+        run_external_tool(command, "mid3v2")
     
     @staticmethod
     def set_artists(file_path: Path, artists: List[str], in_separate_frames: bool = False, version: str = "2.4"):
@@ -199,7 +206,7 @@ class ID3v2MetadataSetter:
                 ID3v2MetadataSetter._set_single_frame_with_mutagen(file_path, 'TPE1', combined_artists, version)
             else:
                 # Set all artists in a single command (creates one frame with multiple values)
-                ID3v2MetadataDeleter.set_multiple_values_single_frame(file_path, "TPE1", artists)
+                ID3v2MetadataSetter.set_multiple_values_single_frame(file_path, "TPE1", artists)
     
     @staticmethod
     def set_genres(file_path: Path, genres: List[str], in_separate_frames: bool = False, version: str = "2.4"):
@@ -228,7 +235,7 @@ class ID3v2MetadataSetter:
                 ID3v2MetadataSetter._set_single_frame_with_mutagen(file_path, 'TCON', combined_genres, version)
             else:
                 # Set all genres in a single command (creates one frame with multiple values)
-                ID3v2MetadataDeleter.set_multiple_values_single_frame(file_path, "TCON", genres)
+                ID3v2MetadataSetter.set_multiple_values_single_frame(file_path, "TCON", genres)
     
     @staticmethod
     def set_album_artists(file_path: Path, album_artists: List[str], in_separate_frames: bool = False):
@@ -250,7 +257,7 @@ class ID3v2MetadataSetter:
             ID3v2MetadataSetter._create_multiple_id3v2_frames(file_path, 'TPE2', album_artists)
         else:
             # Set all album artists in a single command (creates one frame with multiple values)
-            ID3v2MetadataDeleter.set_multiple_values_single_frame(file_path, "TPE2", album_artists)
+            ID3v2MetadataSetter.set_multiple_values_single_frame(file_path, "TPE2", album_artists)
     
     @staticmethod
     def set_composers(file_path: Path, composers: List[str], in_separate_frames: bool = False, version: str = "2.4"):
@@ -279,7 +286,7 @@ class ID3v2MetadataSetter:
                 ID3v2MetadataSetter._set_single_frame_with_mutagen(file_path, 'TCOM', combined_composers, version)
             else:
                 # Set all composers in a single command (creates one frame with multiple values)
-                ID3v2MetadataDeleter.set_multiple_values_single_frame(file_path, "TCOM", composers)
+                ID3v2MetadataSetter.set_multiple_values_single_frame(file_path, "TCOM", composers)
     
     @staticmethod
     def set_comments(file_path: Path, comments: List[str], in_separate_frames: bool = False):

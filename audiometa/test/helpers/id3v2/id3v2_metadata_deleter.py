@@ -19,15 +19,6 @@ class ID3v2MetadataDeleter:
             pass
     
     @staticmethod
-    def set_multiple_values_single_frame(file_path: Path, frame_id: str, values: List[str]) -> None:
-        """Set multiple values in a single ID3v2 frame using mid3v2."""
-        command = ["mid3v2"]
-        for value in values:
-            command.extend([f"--{frame_id}", value])
-        command.append(str(file_path))
-        run_external_tool(command, "mid3v2")
-    
-    @staticmethod
     def delete_comment(file_path: Path) -> None:
         ID3v2MetadataDeleter.delete_frame(file_path, "COMM")
     
