@@ -1003,7 +1003,7 @@ print(result[UnifiedMetadataKey.GENRES_NAMES])
 
 #### Writing Multiple Values
 
-**Strategy Overview:**
+##### Strategy Overview
 
 The library uses a **smart writing strategy** that adapts to format capabilities and data characteristics. For each semantically multi-value field, different formats use different approaches:
 
@@ -1015,32 +1015,10 @@ The library uses a **smart writing strategy** that adapts to format capabilities
 | RIFF    | Smart separator            |
 | Vorbis  | Multiple entries           |
 
-**Key Points:**
-
-- Each format uses its own method for writing multiple values:
-  - **ID3v1**: Values are joined using a restricted smart separator (1 char only).
-  - **ID3v2.3 & RIFF**: Values are joined using a smart separator.
-  - **ID3v2.4**: Values are written as null-separated entries in a single field.
-  - **Vorbis**: Values are written as multiple separate entries.
 - The library automatically selects the best separator for legacy formats.
 - Writing new values always replaces any previous values for that field.
 
-**Basic Usage:**
-
-```python
-from audiometa import update_file_metadata
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-
-# Write multiple values - library automatically uses best approach
-metadata = {
-    UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two", "Artist Three"],
-    UnifiedMetadataKey.COMPOSERS: ["Composer A", "Composer B"],
-    UnifiedMetadataKey.GENRES_NAMES: ["Rock", "Alternative", "Indie"]
-}
-update_file_metadata("song.mp3", metadata)
-```
-
-**Format Limitations:**
+##### Format Limitations
 
 - **Vorbis (FLAC)**: Supports true multiple entries (separate frames) ✅
 - **ID3v2.4 (MP3)**: Supports true multiple entries (separate frames) ✅
@@ -1050,7 +1028,7 @@ update_file_metadata("song.mp3", metadata)
 
 > **Note**: ID3v2.3, RIFF, and ID3v1 formats do not support multiple separate frames for the same metadata field. Multiple values are stored as a single frame with separator characters. ID3v2.4 supports multiple separate frames, but the library uses ID3v2.3 by default for maximum compatibility.
 
-**Smart Separator Selection (Legacy Formats):**
+##### Smart Separator Selection
 
 When writing to legacy formats that require concatenated values, the library uses **intelligent separator selection**:
 
@@ -1073,6 +1051,9 @@ ID3v1 only allows a single separator character (not multi-character like `//` or
 5. `/` (slash) - Last resort, may be confusing
 
 If all these separators are present in the values, a comma (`,`) is used as a last resort.
+
+**ID3v2.4 null value Separation**
+ID3v2.4 uses null bytes (`\0`) as the official separator for multi-value fields. The library will use null bytes when writing to ID3v2.4.
 
 **Selection Logic:**
 
@@ -1099,73 +1080,6 @@ values = ["Artist//One", "Artist\\Two", "Artist Three"]
 values = ["Artist//One", "Artist\\Two", "Artist;Three", "Artist/Four"]
 # Result: "Artist//One,Artist\\Two,Artist;Three,Artist/Four" (uses ,)
 ```
-
-**Handling Separator Characters in Modern Formats:**
-
-```python
-# Values with separators are preserved correctly as separate entries
-metadata = {
-    UnifiedMetadataKey.ARTISTS_NAMES: [
-        "Artist; with; semicolons",      # Preserved as single value
-        "Another, Artist, with, commas", # Preserved as single value
-        "Artist | with | pipes"          # Preserved as single value
-    ]
-}
-
-update_file_metadata("song.mp3", metadata)
-# Result: Each value remains intact as separate entries
-# No incorrect splitting when reading back
-```
-
-**Mixed Format Scenarios:**
-
-```python
-# Writing to a file that already has concatenated values
-# Library detects existing format and handles appropriately
-
-# If file has: "Artist One;Artist Two" (concatenated)
-# And you write: ["Artist Three", "Artist Four"]
-# Result depends on format:
-# - Vorbis (FLAC): ["Artist One", "Artist Two", "Artist Three", "Artist Four"] (separate entries)
-# - ID3v2/RIFF/ID3v1: "Artist One;Artist Two;Artist Three;Artist Four" (concatenated)
-```
-
-**Removing Multiple Values:**
-
-```python
-# Remove field entirely
-update_file_metadata("song.mp3", {
-    UnifiedMetadataKey.ARTISTS_NAMES: None
-})
-
-# Remove field with empty list
-update_file_metadata("song.mp3", {
-    UnifiedMetadataKey.ARTISTS_NAMES: []
-})
-```
-
-#### Why This Approach Works
-
-**Reading Strategy:**
-
-1. **Respects format capabilities**: Uses separate entries when possible
-2. **Handles mixed scenarios**: Processes both modern and legacy data correctly
-3. **Preserves intentional separators**: Values containing separators stay intact
-4. **Backward compatible**: Works with legacy single-entry data
-5. **No false positives**: Won't incorrectly split values that contain separators intentionally
-
-**Writing Strategy:**
-
-1. **Format-appropriate approach**: Uses multiple entries for modern formats, smart concatenation for legacy
-2. **Intelligent separator selection**: Chooses separators that won't conflict with actual values
-3. **Consistent with reading**: Uses the same separator priority order for round-trip compatibility
-4. **Handles edge cases**: Gracefully manages values containing all common separators
-5. **Preserves data integrity**: Ensures values can be accurately read back without corruption
-6. **Automatic**: No configuration needed - the library chooses the best approach
-
-### Single-Value Fields Behavior
-
-For fields that semantically cannot have multiple values (like `TITLE`, `ALBUM_NAME`, `COMMENT`, etc.), the library ensures consistent single-value behavior:
 
 #### How Single-Value Fields Handle Multiple Values
 
