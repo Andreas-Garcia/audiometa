@@ -65,3 +65,25 @@ class InvalidRatingValueError(Exception):
         - None values when a rating is expected
     """
     pass
+
+
+class InvalidMetadataTypeError(TypeError):
+    """Raised when a metadata field value has an unexpected type.
+
+    Attributes:
+        field: str - the unified metadata field name (e.g. 'artists_names')
+        expected_type: str - human-readable expected type (e.g. 'list[str]')
+        actual_type: str - name of the actual type received
+        value: object - the actual value passed
+    """
+    def __init__(self, field: str, expected_type: str, actual_value):
+        actual_type = type(actual_value).__name__
+        message = (
+            f"Invalid type for metadata field '{field}': expected {expected_type}, "
+            f"got {actual_type} (value={actual_value!r})"
+        )
+        super().__init__(message)
+        self.field = field
+        self.expected_type = expected_type
+        self.actual_type = actual_type
+        self.value = actual_value
