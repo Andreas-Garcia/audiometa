@@ -105,7 +105,6 @@ A comprehensive Python library for reading and writing audio metadata across mul
     - [Advanced Rating Operations](#advanced-rating-operations)
       - [Normalized Rating Scale](#normalized-rating-scale)
       - [Format-Specific Rating Writing](#format-specific-rating-writing)
-    - [Why Rating Profiles Matter](#why-rating-profiles-matter)
   - [Track Number Formats](#track-number-formats)
   - [Unsupported Metadata Handling](#unsupported-metadata-handling)
     - [Format-Specific Limitations](#format-specific-limitations)
@@ -1753,20 +1752,6 @@ update_metadata("song.wav", {"rating": 6},
 update_metadata("song.wav", {"rating": 6},
                     metadata_format=MetadataFormat.RIFF)   # Uses Profile A
 ```
-
-#### Why Rating Profiles Matter
-
-Without AudioMeta's rating profile system:
-
-- **Incompatible ratings**: A file rated 3 stars in Windows Media Player might show as 1 star in a FLAC player
-- **Lost ratings**: Converting between formats could lose rating information
-- **Player lock-in**: Ratings created in one player wouldn't work in others
-
-With AudioMeta's system:
-
-- **Universal compatibility**: Ratings work the same regardless of source or destination
-- **Seamless conversion**: Converting between formats preserves rating meaning
-- **Player independence**: Use any player to rate, any player to read
 
 ### Track Number Formats
 
