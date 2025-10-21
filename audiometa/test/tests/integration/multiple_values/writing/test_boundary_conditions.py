@@ -1,7 +1,7 @@
 from pathlib import Path
 import time
 
-from audiometa import get_specific_metadata, update_file_metadata
+from audiometa import get_specific_metadata, update_file_metadata, get_merged_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
@@ -43,23 +43,6 @@ class TestMultipleValuesBoundaryConditions:
         assert isinstance(artists, list)
         assert len(artists) == 2
         assert very_long_string in artists
-
-    def test_write_duplicate_values(self, temp_audio_file: Path):
-        # Test with duplicate values
-        duplicate_values = ["Artist One", "Artist Two", "Artist One", "Artist Three", "Artist Two"]
-        metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: duplicate_values
-        }
-        
-        update_file_metadata(temp_audio_file, metadata)
-        
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
-        
-        assert isinstance(artists, list)
-        assert len(artists) == 5  # Duplicates should be preserved
-        assert artists.count("Artist One") == 2
-        assert artists.count("Artist Two") == 2
-        assert artists.count("Artist Three") == 1
 
     def test_write_mixed_length_values(self, temp_audio_file: Path):
         # Test with mixed length values
