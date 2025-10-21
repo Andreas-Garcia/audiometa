@@ -35,7 +35,7 @@ class TestMultipleFormatPreservation:
             # Update ID3v1 with PRESERVE strategy (specify ID3v1 format)
             id3v1_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v1 Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v1 Artist"]
+                UnifiedMetadataKey.ARTISTS: ["ID3v1 Artist"]
             }
             update_metadata(
                 test_file.path, 
@@ -59,7 +59,7 @@ class TestMultipleFormatPreservation:
             
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v2 Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Artist"]
+                UnifiedMetadataKey.ARTISTS: ["ID3v2 Artist"]
             }
             update_metadata(
                 test_file.path, 
@@ -86,7 +86,7 @@ class TestMultipleFormatPreservation:
             
             riff_metadata = {
                 UnifiedMetadataKey.TITLE: "RIFF Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Artist"]
+                UnifiedMetadataKey.ARTISTS: ["RIFF Artist"]
             }
             update_metadata(
                 test_file.path, 
@@ -111,7 +111,7 @@ class TestMultipleFormatPreservation:
             # Update ID3v1 with PRESERVE strategy (specify ID3v1 format)
             id3v1_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v1 Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v1 Artist"]
+                UnifiedMetadataKey.ARTISTS: ["ID3v1 Artist"]
             }
             update_metadata(
                 test_file.path, 
@@ -139,7 +139,7 @@ class TestMultipleFormatPreservation:
             # Update RIFF with PRESERVE strategy (specify RIFF format)
             riff_metadata = {
                 UnifiedMetadataKey.TITLE: "RIFF Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Artist"]
+                UnifiedMetadataKey.ARTISTS: ["RIFF Artist"]
             }
             update_metadata(
                 test_file.path, 
@@ -164,7 +164,7 @@ class TestMultipleFormatPreservation:
             # Update ID3v2 with PRESERVE strategy (specify ID3v2 format)
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v2 Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Artist"]
+                UnifiedMetadataKey.ARTISTS: ["ID3v2 Artist"]
             }
             update_metadata(
                 test_file.path, 
@@ -192,7 +192,7 @@ class TestMultipleFormatPreservation:
             # Update Vorbis with PRESERVE strategy (specify Vorbis format)
             vorbis_metadata = {
                 UnifiedMetadataKey.TITLE: "Vorbis Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Vorbis Artist"]
+                UnifiedMetadataKey.ARTISTS: ["Vorbis Artist"]
             }
             update_metadata(
                 test_file.path, 
@@ -217,7 +217,7 @@ class TestMultipleFormatPreservation:
             # Update ID3v2 with PRESERVE strategy (specify ID3v2 format)
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v2 Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Artist"]
+                UnifiedMetadataKey.ARTISTS: ["ID3v2 Artist"]
             }
             update_metadata(
                 test_file.path, 
@@ -247,7 +247,7 @@ class TestMultipleFormatPreservation:
             # Update only ID3v2 with multiple fields
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "Updated ID3v2 Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Updated ID3v2 Artist"],
+                UnifiedMetadataKey.ARTISTS: ["Updated ID3v2 Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "ID3v2 Album"
             }
             update_metadata(
@@ -260,9 +260,9 @@ class TestMultipleFormatPreservation:
             id3v1_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
             id3v2_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
             assert id3v1_after.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
-            assert id3v1_after.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["ID3v1 Artist"]
+            assert id3v1_after.get(UnifiedMetadataKey.ARTISTS) == ["ID3v1 Artist"]
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "Updated ID3v2 Title"
-            assert id3v2_after.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Updated ID3v2 Artist"]
+            assert id3v2_after.get(UnifiedMetadataKey.ARTISTS) == ["Updated ID3v2 Artist"]
             assert id3v2_after.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v2 Album"
 
     def test_preserve_strategy_with_none_values(self):
@@ -277,7 +277,7 @@ class TestMultipleFormatPreservation:
             # Update ID3v2 with None values (should not affect ID3v1)
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: None,  # This should not affect ID3v1
-                UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Artist"]
+                UnifiedMetadataKey.ARTISTS: ["ID3v2 Artist"]
             }
             update_metadata(
                 test_file.path, 
@@ -288,4 +288,4 @@ class TestMultipleFormatPreservation:
             # Verify ID3v1 was preserved
             id3v1_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
             assert id3v1_after.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
-            assert id3v1_after.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["ID3v1 Artist"]
+            assert id3v1_after.get(UnifiedMetadataKey.ARTISTS) == ["ID3v1 Artist"]

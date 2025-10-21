@@ -39,7 +39,7 @@ class TestPreserveStrategy:
             # This part still uses the app's function since we're testing the strategy
             riff_metadata = {
                 UnifiedMetadataKey.TITLE: "RIFF Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Artist"],
+                UnifiedMetadataKey.ARTISTS: ["RIFF Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "RIFF Album"
             }
             update_metadata(test_file, riff_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
@@ -72,7 +72,7 @@ class TestPreserveStrategy:
             # Now write ID3v2 metadata with PRESERVE strategy
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v2 Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Artist"],
+                UnifiedMetadataKey.ARTISTS: ["ID3v2 Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "ID3v2 Album"
             }
             update_metadata(test_file.path, id3v2_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)

@@ -21,11 +21,11 @@ class TestStrategySpecific:
         with TempFileWithMetadata(initial_metadata, "wav") as test_file:
             initial_read = get_unified_metadata(test_file)
             assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"
-            assert initial_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original WAV Artist"]
+            assert initial_read.get(UnifiedMetadataKey.ARTISTS) == ["Original WAV Artist"]
             
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "New WAV Title",  # Should NOT be written
-                UnifiedMetadataKey.ARTISTS_NAMES: ["New WAV Artist"],  # Should NOT be written
+                UnifiedMetadataKey.ARTISTS: ["New WAV Artist"],  # Should NOT be written
                 UnifiedMetadataKey.BPM: 120  # Not supported by RIFF format
             }
             
@@ -39,7 +39,7 @@ class TestStrategySpecific:
             
             final_read = get_unified_metadata(test_file)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"  # Should be unchanged
-            assert final_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original WAV Artist"]  # Should be unchanged
+            assert final_read.get(UnifiedMetadataKey.ARTISTS) == ["Original WAV Artist"]  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.BPM) is None  # Should not exist
 
     def test_fail_on_unsupported_field_cleanup_strategy(self):
@@ -50,11 +50,11 @@ class TestStrategySpecific:
         with TempFileWithMetadata(initial_metadata, "wav") as test_file:
             initial_read = get_unified_metadata(test_file)
             assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"
-            assert initial_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original WAV Artist"]
+            assert initial_read.get(UnifiedMetadataKey.ARTISTS) == ["Original WAV Artist"]
             
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "New WAV Title",  # Should NOT be written
-                UnifiedMetadataKey.ARTISTS_NAMES: ["New WAV Artist"],  # Should NOT be written
+                UnifiedMetadataKey.ARTISTS: ["New WAV Artist"],  # Should NOT be written
                 UnifiedMetadataKey.BPM: 120  # Not supported by RIFF format
             }
             
@@ -68,7 +68,7 @@ class TestStrategySpecific:
             
             final_read = get_unified_metadata(test_file)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"  # Should be unchanged
-            assert final_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original WAV Artist"]  # Should be unchanged
+            assert final_read.get(UnifiedMetadataKey.ARTISTS) == ["Original WAV Artist"]  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.BPM) is None  # Should not exist
 
     def test_fail_on_unsupported_field_sync_strategy(self):
@@ -79,11 +79,11 @@ class TestStrategySpecific:
         with TempFileWithMetadata(initial_metadata, "wav") as test_file:
             initial_read = get_unified_metadata(test_file)
             assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"
-            assert initial_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original WAV Artist"]
+            assert initial_read.get(UnifiedMetadataKey.ARTISTS) == ["Original WAV Artist"]
             
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "New WAV Title",  # Should be written to RIFF (supported)
-                UnifiedMetadataKey.ARTISTS_NAMES: ["New WAV Artist"],  # Should be written to RIFF (supported)
+                UnifiedMetadataKey.ARTISTS: ["New WAV Artist"],  # Should be written to RIFF (supported)
                 UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # Not supported by any format - should cause failure
             }
             
@@ -99,6 +99,6 @@ class TestStrategySpecific:
             # No writing should occur, so file should remain unchanged
             final_read = get_unified_metadata(test_file)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"  # Should be unchanged
-            assert final_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original WAV Artist"]  # Should be unchanged
+            assert final_read.get(UnifiedMetadataKey.ARTISTS) == ["Original WAV Artist"]  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist
 

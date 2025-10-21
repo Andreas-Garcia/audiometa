@@ -33,7 +33,7 @@ class TestRiffManager:
             
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "RIFF Test Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Test Artist"],
+                UnifiedMetadataKey.ARTISTS: ["RIFF Test Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "RIFF Test Album"
             }
             
@@ -42,7 +42,7 @@ class TestRiffManager:
             # Verify metadata was updated
             updated_metadata = manager.get_app_metadata()
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "RIFF Test Title"
-            assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["RIFF Test Artist"]
+            assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) == ["RIFF Test Artist"]
             assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "RIFF Test Album"
 
     def test_riff_manager_rating_supported(self):

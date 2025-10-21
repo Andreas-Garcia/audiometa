@@ -24,7 +24,7 @@ class TestDeleteAllMetadataFormatSpecific:
             
             id3v2_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) is None
-            assert id3v2_after.get(UnifiedMetadataKey.ARTISTS_NAMES) in [None, []]
+            assert id3v2_after.get(UnifiedMetadataKey.ARTISTS) in [None, []]
 
     def test_delete_all_metadata_format_specific_id3v1(self):
         with TempFileWithMetadata({"title": "Test ID3v1 Title", "artist": "Test ID3v1 Artist"}, "id3v1") as test_file:
@@ -36,7 +36,7 @@ class TestDeleteAllMetadataFormatSpecific:
             
             id3v1_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
             assert id3v1_after.get(UnifiedMetadataKey.TITLE) is None
-            assert id3v1_after.get(UnifiedMetadataKey.ARTISTS_NAMES) in [None, []]
+            assert id3v1_after.get(UnifiedMetadataKey.ARTISTS) in [None, []]
 
     def test_delete_all_metadata_format_specific_vorbis(self):
         """Test deleting only Vorbis metadata while preserving other formats."""

@@ -16,7 +16,7 @@ class TestRiff:
             verification = RIFFMetadataGetter.get_raw_metadata(test_file.path, "IART")
             assert "Artist                          : Artist One;Artist Two;Artist Three" in verification['raw_output']
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.RIFF)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF)
             
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -33,7 +33,7 @@ class TestRiff:
             assert verification_result["actual_count"] == 3, f"Expected 3 separate IART frames, found {verification_result['actual_count']}"
             
             # Get RIFF metadata specifically to read the artists
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.RIFF)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF)
 
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -56,7 +56,7 @@ class TestRiff:
             assert "Artist 4" in verification['raw_output']
             
             # Get RIFF metadata specifically to read the artists
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.RIFF)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF)
             assert isinstance(artists, list)
             
             # We created 3 separate RIFF frames, so we should get 3 entries 

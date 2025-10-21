@@ -11,7 +11,7 @@ class TestMultipleValuesEdgeCases:
             test_file.set_vorbis_multiple_artists(["Artist 1", "Artist 2", "123"])
             
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -29,7 +29,7 @@ class TestMultipleValuesEdgeCases:
             ])
             
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             assert isinstance(artists, list)
             assert len(artists) == 4
@@ -49,7 +49,7 @@ class TestMultipleValuesEdgeCases:
             ])
             
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             assert isinstance(artists, list)
             assert len(artists) == 5  # Including duplicates
@@ -67,7 +67,7 @@ class TestMultipleValuesEdgeCases:
             ])
             
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             assert isinstance(artists, list)
             assert len(artists) == 4
@@ -82,7 +82,7 @@ class TestMultipleValuesEdgeCases:
             test_file.set_vorbis_multiple_artists([long_artist])
             
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             assert isinstance(artists, list)
             assert len(artists) == 1
@@ -95,7 +95,7 @@ class TestMultipleValuesEdgeCases:
             
             unified_metadata = get_unified_metadata(test_file.path)
             
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             assert isinstance(artists, list)
             assert len(artists) == 2
             assert "Artist One" in artists
@@ -117,6 +117,6 @@ class TestMultipleValuesEdgeCases:
             
             assert isinstance(unified_metadata, dict)
             
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             if artists is not None:
                 assert isinstance(artists, list)

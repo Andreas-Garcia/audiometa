@@ -420,7 +420,7 @@ def test_read_metadata_from_pre_created_file(sample_mp3_file: Path):
     """Test reading metadata from a pre-created file with known metadata."""
     metadata = get_unified_metadata(sample_mp3_file)
     assert metadata.get(UnifiedMetadataKey.TITLE) == ["Sample Title"]
-    assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Sample Artist"]
+    assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Sample Artist"]
 ```
 
 #### Testing writing functionality (TempFileWithMetadata)
@@ -489,14 +489,14 @@ def test_basic_read_write_operations(temp_audio_file: Path):
     # Test writing metadata
     test_metadata = {
         UnifiedMetadataKey.TITLE: "Test Title",
-        UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"]
+        UnifiedMetadataKey.ARTISTS: ["Test Artist"]
     }
     update_metadata(temp_audio_file, test_metadata)
 
     # Test reading metadata
     metadata = get_unified_metadata(temp_audio_file)
     assert metadata.get(UnifiedMetadataKey.TITLE) == ["Test Title"]
-    assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
+    assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
 ```
 
 #### Regression testing (Pre-created files)

@@ -55,14 +55,14 @@ class TestRatingDeleting:
             update_metadata(test_file.path, {
                 UnifiedMetadataKey.RATING: 75,
                 UnifiedMetadataKey.TITLE: "Test Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"]
+                UnifiedMetadataKey.ARTISTS: ["Test Artist"]
             }, normalized_rating_max_value=100)
         
             update_metadata(test_file.path, {UnifiedMetadataKey.RATING: None})
         
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100) is None
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) == "Test Title"
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
+            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
 
     def test_delete_rating_already_none(self):
         with TempFileWithMetadata({}, "mp3") as test_file:

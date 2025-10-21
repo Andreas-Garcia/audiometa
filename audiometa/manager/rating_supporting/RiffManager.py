@@ -92,7 +92,7 @@ class RiffManager(RatingSupportingMetadataManager):
         
         metadata_keys_direct_map_read = {
             UnifiedMetadataKey.TITLE: self.RiffTagKey.TITLE,
-            UnifiedMetadataKey.ARTISTS_NAMES: self.RiffTagKey.ARTIST_NAME,
+            UnifiedMetadataKey.ARTISTS: self.RiffTagKey.ARTIST_NAME,
             UnifiedMetadataKey.ALBUM_NAME: self.RiffTagKey.ALBUM_NAME,
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.RiffTagKey.ALBUM_ARTISTS_NAMES,
             UnifiedMetadataKey.GENRES_NAMES: None,
@@ -106,7 +106,7 @@ class RiffManager(RatingSupportingMetadataManager):
         }
         metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] = {
             UnifiedMetadataKey.TITLE: self.RiffTagKey.TITLE,
-            UnifiedMetadataKey.ARTISTS_NAMES: self.RiffTagKey.ARTIST_NAME,
+            UnifiedMetadataKey.ARTISTS: self.RiffTagKey.ARTIST_NAME,
             UnifiedMetadataKey.ALBUM_NAME: self.RiffTagKey.ALBUM_NAME,
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.RiffTagKey.ALBUM_ARTISTS_NAMES,
             UnifiedMetadataKey.GENRES_NAMES: None,

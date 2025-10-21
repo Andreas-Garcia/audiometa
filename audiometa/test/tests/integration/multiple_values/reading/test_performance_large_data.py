@@ -16,7 +16,7 @@ class TestPerformanceLargeData:
             
             for _ in range(5):
                 unified_metadata = get_unified_metadata(test_file.path)
-                artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+                artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
                 
                 assert isinstance(artists, list)
                 assert len(artists) == 20
@@ -32,7 +32,7 @@ class TestPerformanceLargeData:
             unified_metadata = get_unified_metadata(test_file.path)
             end_time = time.time()
             
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             assert isinstance(artists, list)
             assert len(artists) == 50
@@ -59,7 +59,7 @@ class TestPerformanceLargeData:
             unified_metadata = get_unified_metadata(test_file.path)
             end_time = time.time()
             
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             assert isinstance(artists, list)
             # Should have many artists after complex separation
@@ -80,7 +80,7 @@ class TestPerformanceLargeData:
                 pytest.skip("metaflac not available or failed to set very long artist")
             
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             assert isinstance(artists, list)
             assert len(artists) == 1
@@ -100,7 +100,7 @@ class TestPerformanceLargeData:
             start_time = time.time()
             for _ in range(100):
                 unified_metadata = get_unified_metadata(test_file.path)
-                artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+                artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
                 assert isinstance(artists, list)
                 assert len(artists) == 10
             end_time = time.time()
@@ -133,7 +133,7 @@ class TestPerformanceLargeData:
             end_time = time.time()
             
             # Check all multi-value fields
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             assert isinstance(artists, list)
             assert len(artists) == 10
             
@@ -163,7 +163,7 @@ class TestPerformanceLargeData:
             unified_metadata = get_unified_metadata(test_file.path)
             end_time = time.time()
             
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             assert isinstance(artists, list)
             assert len(artists) == 3

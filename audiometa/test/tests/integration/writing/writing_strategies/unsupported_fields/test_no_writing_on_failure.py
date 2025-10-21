@@ -20,11 +20,11 @@ class TestNoWritingOnFailure:
         with TempFileWithMetadata(initial_metadata, "wav") as test_file:
             initial_read = get_unified_metadata(test_file)
             assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original Title"
-            assert initial_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original Artist"]
+            assert initial_read.get(UnifiedMetadataKey.ARTISTS) == ["Original Artist"]
             
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "New Title",  # This should NOT be written
-                UnifiedMetadataKey.ARTISTS_NAMES: ["New Artist"],  # This should NOT be written
+                UnifiedMetadataKey.ARTISTS: ["New Artist"],  # This should NOT be written
                 UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # REPLAYGAIN is not supported by any format
             }
             
@@ -33,7 +33,7 @@ class TestNoWritingOnFailure:
             
             final_read = get_unified_metadata(test_file)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original Title"  # Should be unchanged
-            assert final_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original Artist"]  # Should be unchanged
+            assert final_read.get(UnifiedMetadataKey.ARTISTS) == ["Original Artist"]  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist
 
     def test_fail_on_unsupported_field_no_changes_mp3_id3v2_only(self):
@@ -44,11 +44,11 @@ class TestNoWritingOnFailure:
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             initial_read = get_unified_metadata(test_file)
             assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original MP3 Title"
-            assert initial_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original MP3 Artist"]
+            assert initial_read.get(UnifiedMetadataKey.ARTISTS) == ["Original MP3 Artist"]
             
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "New MP3 Title",  # Should NOT be written
-                UnifiedMetadataKey.ARTISTS_NAMES: ["New MP3 Artist"],  # Should NOT be written
+                UnifiedMetadataKey.ARTISTS: ["New MP3 Artist"],  # Should NOT be written
                 UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # Not supported by any format
             }
             
@@ -57,7 +57,7 @@ class TestNoWritingOnFailure:
             
             final_read = get_unified_metadata(test_file)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original MP3 Title"  # Should be unchanged
-            assert final_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original MP3 Artist"]  # Should be unchanged
+            assert final_read.get(UnifiedMetadataKey.ARTISTS) == ["Original MP3 Artist"]  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist
 
     def test_fail_on_unsupported_field_no_changes_flac_vorbis_only(self):
@@ -68,11 +68,11 @@ class TestNoWritingOnFailure:
         with TempFileWithMetadata(initial_metadata, "flac") as test_file:
             initial_read = get_unified_metadata(test_file)
             assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original FLAC Title"
-            assert initial_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original FLAC Artist"]
+            assert initial_read.get(UnifiedMetadataKey.ARTISTS) == ["Original FLAC Artist"]
             
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "New FLAC Title",  # Should NOT be written
-                UnifiedMetadataKey.ARTISTS_NAMES: ["New FLAC Artist"],  # Should NOT be written
+                UnifiedMetadataKey.ARTISTS: ["New FLAC Artist"],  # Should NOT be written
                 UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # Not supported by any format
             }
             
@@ -81,7 +81,7 @@ class TestNoWritingOnFailure:
             
             final_read = get_unified_metadata(test_file)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original FLAC Title"  # Should be unchanged
-            assert final_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original FLAC Artist"]  # Should be unchanged
+            assert final_read.get(UnifiedMetadataKey.ARTISTS) == ["Original FLAC Artist"]  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist
 
     def test_fail_on_unsupported_field_no_changes_wav_riff_only(self):
@@ -92,11 +92,11 @@ class TestNoWritingOnFailure:
         with TempFileWithMetadata(initial_metadata, "wav") as test_file:
             initial_read = get_unified_metadata(test_file)
             assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"
-            assert initial_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original WAV Artist"]
+            assert initial_read.get(UnifiedMetadataKey.ARTISTS) == ["Original WAV Artist"]
             
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "New WAV Title",  # Should NOT be written
-                UnifiedMetadataKey.ARTISTS_NAMES: ["New WAV Artist"],  # Should NOT be written
+                UnifiedMetadataKey.ARTISTS: ["New WAV Artist"],  # Should NOT be written
                 UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # Not supported by any format
             }
             
@@ -105,5 +105,5 @@ class TestNoWritingOnFailure:
             
             final_read = get_unified_metadata(test_file)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"  # Should be unchanged
-            assert final_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original WAV Artist"]  # Should be unchanged
+            assert final_read.get(UnifiedMetadataKey.ARTISTS) == ["Original WAV Artist"]  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist

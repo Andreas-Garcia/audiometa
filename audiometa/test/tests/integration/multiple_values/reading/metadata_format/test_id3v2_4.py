@@ -18,7 +18,7 @@ class TestId3v2_4Mixed:
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
             assert "TPE1=Artist One / Artist Two / Artist Three" in verification['raw_output']
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -37,7 +37,7 @@ class TestId3v2_4Mixed:
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
             assert "TPE1=Artist One / Artist Two / Artist Three" in verification['raw_output']
 
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
 
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -56,7 +56,7 @@ class TestId3v2_4Mixed:
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
             assert "TPE1=Artist One / Artist Two / Artist Three" in verification['raw_output']
 
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
 
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -75,7 +75,7 @@ class TestId3v2_4Mixed:
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
             assert "TPE1=Artist One / Artist Two / Artist Three" in verification['raw_output']
 
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
 
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -94,7 +94,7 @@ class TestId3v2_4Mixed:
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
             assert "TPE1=Artist One / Artist Two / Artist Three" in verification['raw_output']
 
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
 
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -112,7 +112,7 @@ class TestId3v2_4Mixed:
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
             assert "TPE1=Artist One;Artist Two;Artist Three" in verification['raw_output']
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -131,7 +131,7 @@ class TestId3v2_4Mixed:
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
             assert "TPE1=Artist One / Artist Two / Artist Three" in verification['raw_output']
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -149,7 +149,7 @@ class TestId3v2_4Mixed:
             assert "TPE1=Artist One\0Artist Two" in verification['raw_output']
             assert "TPE1=Artist Three" in verification['raw_output']
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             
             assert isinstance(artists, list)
             assert len(artists) == 2
@@ -168,7 +168,7 @@ class TestId3v2_4Mixed:
             # raw_output replaces NUL bytes with slashes for display purposes
             assert "TPE1=Artist 1 / Artist 2;Artist 3" in verification['raw_output']
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             assert isinstance(artists, list)
             assert len(artists) == 3
             assert "Artist 1" in artists

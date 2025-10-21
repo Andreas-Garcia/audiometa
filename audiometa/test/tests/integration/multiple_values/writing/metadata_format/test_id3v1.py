@@ -11,7 +11,7 @@ class TestMultipleEntriesId3v1:
         initial_metadata = {"title": "Test Song"}
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Artist 1", "Artist 2"]
+                UnifiedMetadataKey.ARTISTS: ["Artist 1", "Artist 2"]
             }
             
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
@@ -30,7 +30,7 @@ class TestMultipleEntriesId3v1:
             
             # Now update with multiple artists
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Existing 1", "New 2"]
+                UnifiedMetadataKey.ARTISTS: ["Existing 1", "New 2"]
             }
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
             raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file.path)
@@ -53,7 +53,7 @@ class TestMultipleEntriesId3v1:
             initial_metadata = {"title": "Test Song"}
             with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
                 metadata = {
-                    UnifiedMetadataKey.ARTISTS_NAMES: values
+                    UnifiedMetadataKey.ARTISTS: values
                 }
                 update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
                 raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file.path)

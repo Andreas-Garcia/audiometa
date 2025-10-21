@@ -7,13 +7,13 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 class TestSpecialCharactersEdgeCases:
     def test_write_unicode_characters(self, temp_audio_file: Path):
         metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: ["François", "José", "Müller", "北京"],
+            UnifiedMetadataKey.ARTISTS: ["François", "José", "Müller", "北京"],
             UnifiedMetadataKey.TITLE: "Café Music 音乐"
         }
         update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
         assert isinstance(artists, list)
@@ -28,13 +28,13 @@ class TestSpecialCharactersEdgeCases:
 
     def test_write_special_punctuation(self, temp_audio_file: Path):
         metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: ["Artist & Co.", "Band (feat. Singer)", "Group - The Band"],
+            UnifiedMetadataKey.ARTISTS: ["Artist & Co.", "Band (feat. Singer)", "Group - The Band"],
             UnifiedMetadataKey.TITLE: "Song (Remix) - Special Edition"
         }
         update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
         assert isinstance(artists, list)
@@ -48,13 +48,13 @@ class TestSpecialCharactersEdgeCases:
 
     def test_write_quotes_and_apostrophes(self, temp_audio_file: Path):
         metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: ["Artist's Band", "The \"Quoted\" Band", "It's a Band"],
+            UnifiedMetadataKey.ARTISTS: ["Artist's Band", "The \"Quoted\" Band", "It's a Band"],
             UnifiedMetadataKey.TITLE: "Don't Stop \"Believing\""
         }
         update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
         assert isinstance(artists, list)
@@ -68,13 +68,13 @@ class TestSpecialCharactersEdgeCases:
 
     def test_write_control_characters(self, temp_audio_file: Path):
         metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: ["Artist\twith\ttabs", "Band\nwith\nnewlines", "Group\rwith\rcarriage"],
+            UnifiedMetadataKey.ARTISTS: ["Artist\twith\ttabs", "Band\nwith\nnewlines", "Group\rwith\rcarriage"],
             UnifiedMetadataKey.TITLE: "Song\twith\ttabs"
         }
         update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
         assert isinstance(artists, list)
@@ -89,13 +89,13 @@ class TestSpecialCharactersEdgeCases:
     def test_write_very_long_strings(self, temp_audio_file: Path):
         long_string = "A" * 1000
         metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: [long_string, "Short Artist"],
+            UnifiedMetadataKey.ARTISTS: [long_string, "Short Artist"],
             UnifiedMetadataKey.TITLE: "B" * 500
         }
         update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
         assert isinstance(artists, list)
@@ -108,13 +108,13 @@ class TestSpecialCharactersEdgeCases:
 
     def test_write_mixed_encodings(self, temp_audio_file: Path):
         metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: ["ASCII Artist", "Français", "Русский", "العربية", "中文"],
+            UnifiedMetadataKey.ARTISTS: ["ASCII Artist", "Français", "Русский", "العربية", "中文"],
             UnifiedMetadataKey.TITLE: "Mixed 编码 Title"
         }
         update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
         assert isinstance(artists, list)
@@ -130,13 +130,13 @@ class TestSpecialCharactersEdgeCases:
 
     def test_write_special_separator_characters(self, temp_audio_file: Path):
         metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: ["Artist; with; semicolons", "Band, with, commas", "Group|with|pipes"],
+            UnifiedMetadataKey.ARTISTS: ["Artist; with; semicolons", "Band, with, commas", "Group|with|pipes"],
             UnifiedMetadataKey.TITLE: "Song; with; separators"
         }
         update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
         assert isinstance(artists, list)
@@ -150,13 +150,13 @@ class TestSpecialCharactersEdgeCases:
 
     def test_write_html_xml_characters(self, temp_audio_file: Path):
         metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: ["Artist <tag>", "Band &amp; Co.", "Group &lt;test&gt;"],
+            UnifiedMetadataKey.ARTISTS: ["Artist <tag>", "Band &amp; Co.", "Group &lt;test&gt;"],
             UnifiedMetadataKey.TITLE: "Song &amp; Title"
         }
         update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
         assert isinstance(artists, list)
@@ -170,13 +170,13 @@ class TestSpecialCharactersEdgeCases:
 
     def test_write_emoji_characters(self, temp_audio_file: Path):
         metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: ["Artist 🎵", "Band 🎸", "Group 🎤"],
+            UnifiedMetadataKey.ARTISTS: ["Artist 🎵", "Band 🎸", "Group 🎤"],
             UnifiedMetadataKey.TITLE: "Song 🎶 with 🎵 emojis"
         }
         update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
         assert isinstance(artists, list)
@@ -190,13 +190,13 @@ class TestSpecialCharactersEdgeCases:
 
     def test_write_null_bytes(self, temp_audio_file: Path):
         metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: ["Artist\x00with\x00nulls", "Normal Artist"],
+            UnifiedMetadataKey.ARTISTS: ["Artist\x00with\x00nulls", "Normal Artist"],
             UnifiedMetadataKey.TITLE: "Normal Title"
         }
         update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
         assert isinstance(artists, list)
@@ -209,7 +209,7 @@ class TestSpecialCharactersEdgeCases:
 
     def test_write_mixed_special_characters(self, temp_audio_file: Path):
         metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: [
+            UnifiedMetadataKey.ARTISTS: [
                 "François & Co. (feat. Müller) 🎵",
                 "The \"Quoted\" Band - Special Characters",
                 "Artist with\nnewlines\tand\ttabs"
@@ -219,7 +219,7 @@ class TestSpecialCharactersEdgeCases:
         update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
         assert isinstance(artists, list)

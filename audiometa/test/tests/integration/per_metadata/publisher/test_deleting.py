@@ -52,14 +52,14 @@ class TestPublisherDeleting:
             update_metadata(test_file.path, {
                 UnifiedMetadataKey.PUBLISHER: "Test Publisher",
                 UnifiedMetadataKey.TITLE: "Test Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"]
+                UnifiedMetadataKey.ARTISTS: ["Test Artist"]
             })
         
             update_metadata(test_file.path, {UnifiedMetadataKey.PUBLISHER: None})
         
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.PUBLISHER) is None
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) == "Test Title"
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
+            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
 
     def test_delete_publisher_already_none(self):
         with TempFileWithMetadata({}, "mp3") as test_file:

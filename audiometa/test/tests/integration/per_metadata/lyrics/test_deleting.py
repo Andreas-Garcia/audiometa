@@ -62,7 +62,7 @@ class TestLyricsDeleting:
         
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LYRICS) is None
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) == "Test Title"
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
+            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
 
     def test_delete_lyrics_already_none(self):
         with TempFileWithMetadata({}, "mp3") as test_file:

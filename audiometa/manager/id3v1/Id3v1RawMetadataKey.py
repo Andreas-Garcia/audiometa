@@ -5,7 +5,7 @@ from ...utils.types import RawMetadataKey
 
 class Id3v1RawMetadataKey(RawMetadataKey):
     TITLE = UnifiedMetadataKey.TITLE
-    ARTISTS_NAMES_STR = UnifiedMetadataKey.ARTISTS_NAMES
+    ARTISTS_NAMES_STR = UnifiedMetadataKey.ARTISTS
     ALBUM_NAME = UnifiedMetadataKey.ALBUM_NAME
     GENRE_CODE_OR_NAME = 'genre_code'
     YEAR = 'year'

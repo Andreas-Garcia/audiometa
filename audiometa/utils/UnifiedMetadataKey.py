@@ -4,7 +4,7 @@ from enum import Enum
 
 class UnifiedMetadataKey(str, Enum):
     TITLE = 'title'
-    ARTISTS_NAMES = 'artists_names'
+    ARTISTS = 'artists_names'
     ALBUM_NAME = 'album_name'
     ALBUM_ARTISTS_NAMES = 'album_artists_names'
     GENRES_NAMES = 'genre_name'
@@ -22,7 +22,7 @@ class UnifiedMetadataKey(str, Enum):
     def can_semantically_have_multiple_values(self) -> bool:
         # Fields that can contain multiple values (lists) - only semantically meaningful ones
         multi_value_fields = {
-            UnifiedMetadataKey.ARTISTS_NAMES,
+            UnifiedMetadataKey.ARTISTS,
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES,
             UnifiedMetadataKey.GENRES_NAMES,
             UnifiedMetadataKey.COMPOSERS,
@@ -36,7 +36,7 @@ class UnifiedMetadataKey(str, Enum):
     def get_optional_type(self) -> type:
         APP_METADATA_KEYS_OPTIONAL_TYPES_MAP = {
             UnifiedMetadataKey.TITLE: str,
-            UnifiedMetadataKey.ARTISTS_NAMES: list[str],
+            UnifiedMetadataKey.ARTISTS: list[str],
             UnifiedMetadataKey.ALBUM_NAME: str,
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: list[str],
             UnifiedMetadataKey.GENRES_NAMES: list[str],

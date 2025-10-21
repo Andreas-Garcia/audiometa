@@ -11,7 +11,7 @@ class TestMultipleValuesErrorHandling:
     def test_write_invalid_data_types_in_list(self, temp_audio_file: Path):
         # Test with invalid data types in multiple value lists
         metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: [1, 2, 3]  # Numbers instead of strings
+            UnifiedMetadataKey.ARTISTS: [1, 2, 3]  # Numbers instead of strings
         }
         with pytest.raises(InvalidMetadataTypeError):
             update_metadata(temp_audio_file, metadata)
@@ -19,14 +19,14 @@ class TestMultipleValuesErrorHandling:
     def test_write_mixed_data_types_in_list(self, temp_audio_file: Path):
         # Test with mixed data types in multiple value lists
         metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", 123, None, "Artist Two"]
+            UnifiedMetadataKey.ARTISTS: ["Artist One", 123, None, "Artist Two"]
         }
         with pytest.raises(InvalidMetadataTypeError):
             update_metadata(temp_audio_file, metadata)
             
     def test_write_list_with_none_removes_raises_error(self, temp_audio_file: Path):
         metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: [None, None]
+            UnifiedMetadataKey.ARTISTS: [None, None]
         }
         with pytest.raises(InvalidMetadataTypeError):   
             update_metadata(temp_audio_file, metadata)

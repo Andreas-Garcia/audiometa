@@ -70,7 +70,7 @@ class VorbisManager(RatingSupportingMetadataManager):
     def __init__(self, audio_file: AudioFile, normalized_rating_max_value: int | None = None):
         metadata_keys_direct_map_read = {
             UnifiedMetadataKey.TITLE: self.VorbisKey.TITLE,
-            UnifiedMetadataKey.ARTISTS_NAMES: self.VorbisKey.ARTIST_NAME,
+            UnifiedMetadataKey.ARTISTS: self.VorbisKey.ARTIST_NAME,
             UnifiedMetadataKey.ALBUM_NAME: self.VorbisKey.ALBUM_NAME,
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.VorbisKey.ALBUM_ARTISTS_NAMES,
             UnifiedMetadataKey.GENRES_NAMES: self.VorbisKey.GENRES_NAMES,
@@ -84,7 +84,7 @@ class VorbisManager(RatingSupportingMetadataManager):
         }
         metadata_keys_direct_map_write = {
             UnifiedMetadataKey.TITLE: self.VorbisKey.TITLE,
-            UnifiedMetadataKey.ARTISTS_NAMES: self.VorbisKey.ARTIST_NAME,
+            UnifiedMetadataKey.ARTISTS: self.VorbisKey.ARTIST_NAME,
             UnifiedMetadataKey.ALBUM_NAME: self.VorbisKey.ALBUM_NAME,
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.VorbisKey.ALBUM_ARTISTS_NAMES,
             UnifiedMetadataKey.GENRES_NAMES: self.VorbisKey.GENRES_NAMES,

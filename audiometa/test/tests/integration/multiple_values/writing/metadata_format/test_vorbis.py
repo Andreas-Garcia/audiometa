@@ -12,7 +12,7 @@ class TestMultipleEntriesVorbis:
         with TempFileWithMetadata({}, "flac") as test_file:
             # Write multiple artists using update_metadata
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two", "Artist Three"]
+                UnifiedMetadataKey.ARTISTS: ["Artist One", "Artist Two", "Artist Three"]
             }
             
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
@@ -36,7 +36,7 @@ class TestMultipleEntriesVorbis:
             raw_output = verification['raw_output']
             assert "Existing 1; Existing 2" in raw_output
 
-            metadata = {UnifiedMetadataKey.ARTISTS_NAMES: ["Existing 1", "New 2"]}
+            metadata = {UnifiedMetadataKey.ARTISTS: ["Existing 1", "New 2"]}
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
 
             verification = VorbisMetadataGetter.get_raw_metadata(test_file.path, "ARTIST")

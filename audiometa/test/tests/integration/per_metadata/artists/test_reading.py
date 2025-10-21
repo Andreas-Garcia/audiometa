@@ -12,23 +12,23 @@ class TestArtistsReading:
     def test_id3v1(self):
         with TempFileWithMetadata({"title": "Test Song"}, "id3v1") as test_file:
             test_file.set_id3v1_max_metadata()
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS)
             assert artists == ["a" * 30]
 
     def test_id3v2(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             test_file.set_id3v2_max_metadata()
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS)
             assert artists == ["a" * 1000]
 
     def test_vorbis(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             test_file.set_vorbis_max_metadata()
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS)
             assert artists == ["a" * 1000]
 
     def test_riff(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             test_file.set_riff_max_metadata()
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS)
             assert artists == ["a" * 1000]

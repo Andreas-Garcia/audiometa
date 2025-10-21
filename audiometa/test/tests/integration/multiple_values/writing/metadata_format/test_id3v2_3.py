@@ -14,7 +14,7 @@ class TestMultipleEntriesId3v2_3:
         initial_metadata = {"title": "Test Song"}
         with TempFileWithMetadata(initial_metadata, "id3v2.3") as test_file:
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Artist 1", "Artist 2", "Artist 3"]
+                UnifiedMetadataKey.ARTISTS: ["Artist 1", "Artist 2", "Artist 3"]
             }
             
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
@@ -36,7 +36,7 @@ class TestMultipleEntriesId3v2_3:
             assert "TPE1=Existing 1; Existing 2" in raw_output
             
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Existing 1", "New 2"]
+                UnifiedMetadataKey.ARTISTS: ["Existing 1", "New 2"]
             }
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             

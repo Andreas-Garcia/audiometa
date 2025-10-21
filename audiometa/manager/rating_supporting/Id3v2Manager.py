@@ -166,7 +166,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
 
     class Id3TextFrame(RawMetadataKey):
         TITLE = 'TIT2'
-        ARTISTS_NAMES = 'TPE1'
+        ARTISTS = 'TPE1'
         ALBUM_NAME = 'TALB'
         ALBUM_ARTISTS_NAMES = 'TPE2'
         GENRES_NAMES = 'TCON'
@@ -196,7 +196,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
 
     ID3_TEXT_FRAME_CLASS_MAP: dict[RawMetadataKey, Type] = {
         Id3TextFrame.TITLE: TIT2,
-        Id3TextFrame.ARTISTS_NAMES: TPE1,
+        Id3TextFrame.ARTISTS: TPE1,
         Id3TextFrame.ALBUM_NAME: TALB,
         Id3TextFrame.ALBUM_ARTISTS_NAMES: TPE2,
         Id3TextFrame.GENRES_NAMES: TCON,
@@ -224,7 +224,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         self.id3v2_version = id3v2_version
         metadata_keys_direct_map_read = {
             UnifiedMetadataKey.TITLE: self.Id3TextFrame.TITLE,
-            UnifiedMetadataKey.ARTISTS_NAMES: self.Id3TextFrame.ARTISTS_NAMES,
+            UnifiedMetadataKey.ARTISTS: self.Id3TextFrame.ARTISTS,
             UnifiedMetadataKey.ALBUM_NAME: self.Id3TextFrame.ALBUM_NAME,
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.Id3TextFrame.ALBUM_ARTISTS_NAMES,
             UnifiedMetadataKey.GENRES_NAMES: self.Id3TextFrame.GENRES_NAMES,
@@ -241,7 +241,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         }
         metadata_keys_direct_map_write: dict = {
             UnifiedMetadataKey.TITLE: self.Id3TextFrame.TITLE,
-            UnifiedMetadataKey.ARTISTS_NAMES: self.Id3TextFrame.ARTISTS_NAMES,
+            UnifiedMetadataKey.ARTISTS: self.Id3TextFrame.ARTISTS,
             UnifiedMetadataKey.ALBUM_NAME: self.Id3TextFrame.ALBUM_NAME,
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.Id3TextFrame.ALBUM_ARTISTS_NAMES,
             UnifiedMetadataKey.GENRES_NAMES: self.Id3TextFrame.GENRES_NAMES,

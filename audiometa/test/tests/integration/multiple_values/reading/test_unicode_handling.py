@@ -15,7 +15,7 @@ class TestUnicodeHandling:
             ])
             
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             assert isinstance(artists, list)
             assert len(artists) == 3

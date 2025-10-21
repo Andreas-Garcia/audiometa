@@ -19,7 +19,7 @@ class TestId3v1Writing:
             test_metadata = {
                 # Basic metadata commonly supported across formats
                 UnifiedMetadataKey.TITLE: "Test Song Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"],
+                UnifiedMetadataKey.ARTISTS: ["Test Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "Test Album",
                 UnifiedMetadataKey.GENRES_NAMES: "Test Genre",
                 UnifiedMetadataKey.RATING: 8
@@ -32,7 +32,7 @@ class TestId3v1Writing:
             
             # Basic metadata assertions
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Song Title"
-            assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
+            assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
             assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Test Genre"]
             assert metadata.get(UnifiedMetadataKey.RATING) == 0
@@ -42,7 +42,7 @@ class TestId3v1Writing:
             test_metadata = {
                 # Basic metadata commonly supported across formats
                 UnifiedMetadataKey.TITLE: "Written Song Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Written Artist"],
+                UnifiedMetadataKey.ARTISTS: ["Written Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "Written Album",
                 UnifiedMetadataKey.GENRES_NAMES: ["Written Genre"],
                 UnifiedMetadataKey.RATING: 9
@@ -55,7 +55,7 @@ class TestId3v1Writing:
             
             # Basic metadata assertions
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Written Song Title"
-            assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Written Artist"]
+            assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Written Artist"]
             assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Written Album"
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Written Genre"]
             assert metadata.get(UnifiedMetadataKey.RATING) == 0

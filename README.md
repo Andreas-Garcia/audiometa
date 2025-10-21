@@ -315,7 +315,7 @@ from audiometa import get_unified_metadata
 # Read all metadata from a file
 metadata = get_unified_metadata("path/to/your/audio.mp3")
 print(f"Title: {metadata.get(UnifiedMetadataKey.TITLE, 'Unknown')}")
-print(f"Artist: {metadata.get(UnifiedMetadataKey.ARTISTS_NAMES, ['Unknown'])}")
+print(f"Artist: {metadata.get(UnifiedMetadataKey.ARTISTS, ['Unknown'])}")
 print(f"Album: {metadata.get(UnifiedMetadataKey.ALBUM_NAME, 'Unknown')}")
 ```
 
@@ -329,7 +329,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 new_metadata = {
     UnifiedMetadataKey.TITLE: 'New Song Title',
-    UnifiedMetadataKey.ARTISTS_NAMES: ['Artist Name'],
+    UnifiedMetadataKey.ARTISTS: ['Artist Name'],
     UnifiedMetadataKey.ALBUM_NAME: 'Album Name',
     UnifiedMetadataKey.RATING: 85,
 }
@@ -375,7 +375,7 @@ from audiometa import update_metadata, UnifiedMetadataKey
 # Remove only specific fields by setting them to None
 update_metadata("path/to/your/audio.mp3", {
     UnifiedMetadataKey.TITLE: None,        # Remove title field
-    UnifiedMetadataKey.ARTISTS_NAMES: None # Remove artist field
+    UnifiedMetadataKey.ARTISTS: None # Remove artist field
     # Other fields remain unchanged
 })
 
@@ -417,7 +417,7 @@ delete_all_metadata("personal_recording.mp3")
 # Remove only personal info, keep technical metadata
 update_metadata("song.mp3", {
     UnifiedMetadataKey.TITLE: None,           # Remove title
-    UnifiedMetadataKey.ARTISTS_NAMES: None,   # Remove artist
+    UnifiedMetadataKey.ARTISTS: None,   # Remove artist
     # Keep album, genre, year, etc.
 })
 # Result: File keeps metadata headers but removes specific fields
@@ -480,7 +480,7 @@ from audiometa import get_unified_metadata
 # Read all metadata (unified across all formats)
 metadata = get_unified_metadata("song.mp3")
 print(metadata[UnifiedMetadataKey.TITLE])  # Song title
-print(metadata[UnifiedMetadataKey.ARTISTS_NAMES])  # List of artists
+print(metadata[UnifiedMetadataKey.ARTISTS])  # List of artists
 
 # Read only ID3v2 metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -713,7 +713,7 @@ When writing, metadata should be provided as a dictionary with keys correspondin
 ```python
 metadata = {
     UnifiedMetadataKey.TITLE: 'Song Title',
-    UnifiedMetadataKey.ARTISTS_NAMES: ['Artist 1', 'Artist 2'],
+    UnifiedMetadataKey.ARTISTS: ['Artist 1', 'Artist 2'],
     UnifiedMetadataKey.ALBUM_NAME: 'Album Name',
     UnifiedMetadataKey.YEAR: 2024,
     UnifiedMetadataKey.GENRES_NAMES: ['Rock'],
@@ -732,7 +732,7 @@ The library performs type checking on metadata values to ensure they conform to 
 The library validates metadata value types passed to `update_metadata` when keys are provided as `UnifiedMetadataKey` instances. Rules:
 
 - `None` values are allowed and indicate field removal.
-- For fields whose expected type is `list[...]` (for example `ARTISTS_NAMES` or `GENRES_NAMES`) the validator accepts only lists. Each list element is checked against the expected inner type (e.g., `str` for `ARTISTS_NAMES`).
+- For fields whose expected type is `list[...]` (for example `ARTISTS` or `GENRES_NAMES`) the validator accepts only lists. Each list element is checked against the expected inner type (e.g., `str` for `ARTISTS`).
 - For plain types (`str`, `int`, etc.) the value must be an instance of that type.
 - On type mismatch the library raises `InvalidMetadataTypeError` (a subclass of `TypeError`).
 
@@ -750,7 +750,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 update_metadata("song.mp3", {
     UnifiedMetadataKey.TITLE: 'New Title',
-    UnifiedMetadataKey.ARTISTS_NAMES: ['Artist Name'],
+    UnifiedMetadataKey.ARTISTS: ['Artist Name'],
     UnifiedMetadataKey.RATING: 85
 })
 
@@ -1150,7 +1150,7 @@ The library intelligently handles multiple values across different metadata form
 
 Fields are classified based on their intended use:
 
-- **Semantically Multi-Value Fields**: Fields that can logically contain multiple values (e.g., `ARTISTS_NAMES`, `GENRES_NAMES`). They can be stored as multiple entries or concatenated values.
+- **Semantically Multi-Value Fields**: Fields that can logically contain multiple values (e.g., `ARTISTS`, `GENRES_NAMES`). They can be stored as multiple entries or concatenated values.
 - **Semantically Single-Value Fields**: Fields that are intended to hold a single value (e.g., `TITLE`, `ALBUM_NAME`). They are typically stored as a single entry but some formats may allow multiple entries.
 
 #### Semantically Single-Value Fields
@@ -1165,7 +1165,7 @@ The library can handle multiple values for these fields.
 
 The following fields are treated as semantically multi-value:
 
-- `ARTISTS_NAMES` - Multiple artist names for the track
+- `ARTISTS` - Multiple artist names for the track
 - `ALBUM_ARTISTS_NAMES` - Multiple album artist names
 - `GENRES_NAMES` - Multiple genre classifications
 - `COMPOSERS` - Multiple composer names

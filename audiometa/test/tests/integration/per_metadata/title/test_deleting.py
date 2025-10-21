@@ -54,7 +54,7 @@ class TestTitleDeleting:
             update_metadata(test_file.path, {UnifiedMetadataKey.TITLE: None}, metadata_format=MetadataFormat.ID3V2)
         
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) is None
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
+            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
 
     def test_delete_title_already_none(self):

@@ -35,7 +35,7 @@ class TestDeletionWorkflows:
             # 1. Verify initial metadata exists
             initial_metadata_result = get_unified_metadata(test_file)
             assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Original Title"
-            assert initial_metadata_result.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original Artist"]
+            assert initial_metadata_result.get(UnifiedMetadataKey.ARTISTS) == ["Original Artist"]
             assert initial_metadata_result.get(UnifiedMetadataKey.ALBUM_NAME) == "Original Album"
             
             # 2. Add more metadata using app's function
@@ -58,7 +58,7 @@ class TestDeletionWorkflows:
             # 5. Verify all metadata was deleted
             deleted_metadata = get_unified_metadata(test_file)
             assert deleted_metadata.get(UnifiedMetadataKey.TITLE) is None or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "Original Title"
-            assert deleted_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) is None or deleted_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) != ["Original Artist"]
+            assert deleted_metadata.get(UnifiedMetadataKey.ARTISTS) is None or deleted_metadata.get(UnifiedMetadataKey.ARTISTS) != ["Original Artist"]
             assert deleted_metadata.get(UnifiedMetadataKey.ALBUM_NAME) is None or deleted_metadata.get(UnifiedMetadataKey.ALBUM_NAME) != "Original Album"
             assert deleted_metadata.get(UnifiedMetadataKey.RATING) is None
             assert deleted_metadata.get(UnifiedMetadataKey.BPM) is None
@@ -134,20 +134,20 @@ class TestDeletionWorkflows:
             # 1. Verify initial metadata
             initial_metadata_result = get_unified_metadata(test_file)
             assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Partial Deletion Title"
-            assert initial_metadata_result.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Partial Deletion Artist"]
+            assert initial_metadata_result.get(UnifiedMetadataKey.ARTISTS) == ["Partial Deletion Artist"]
             assert initial_metadata_result.get(UnifiedMetadataKey.ALBUM_NAME) == "Partial Deletion Album"
             
             # 2. Delete specific fields by setting them to None
             deletion_metadata = {
                 UnifiedMetadataKey.TITLE: None,
-                UnifiedMetadataKey.ARTISTS_NAMES: None
+                UnifiedMetadataKey.ARTISTS: None
             }
             update_metadata(test_file.path, deletion_metadata)
             
             # 3. Verify specific fields were deleted while others remain
             updated_metadata = get_unified_metadata(test_file)
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) is None
-            assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) is None
+            assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) is None
             assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Partial Deletion Album"  # Should remain
             
             # 4. Delete remaining metadata
@@ -168,7 +168,7 @@ class TestDeletionWorkflows:
         # E2e test for deletion consistency across formats
         test_metadata = {
             UnifiedMetadataKey.TITLE: "Cross Format Deletion Test",
-            UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"],
+            UnifiedMetadataKey.ARTISTS: ["Test Artist"],
             UnifiedMetadataKey.ALBUM_NAME: "Test Album"
         }
         
@@ -211,7 +211,7 @@ class TestDeletionWorkflows:
             # 1. Add metadata in different formats
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v2 Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Artist"]
+                UnifiedMetadataKey.ARTISTS: ["ID3v2 Artist"]
             }
             update_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
             
@@ -228,7 +228,7 @@ class TestDeletionWorkflows:
             # 3. Delete only ID3v2 metadata
             id3v2_deletion = {
                 UnifiedMetadataKey.TITLE: None,
-                UnifiedMetadataKey.ARTISTS_NAMES: None
+                UnifiedMetadataKey.ARTISTS: None
             }
             update_metadata(test_file.path, id3v2_deletion, metadata_format=MetadataFormat.ID3V2)
             

@@ -20,7 +20,7 @@ class TestId3v23:
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             assert "TPE1=Artist One;Artist Two;Artist Three" in raw_metadata
 
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
 
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -40,7 +40,7 @@ class TestId3v23:
             tpe1_value = tpe1_lines[0][5:] if tpe1_lines else ""
             verification = {'raw_output': tpe1_value}
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -58,7 +58,7 @@ class TestId3v23:
             assert "TPE1=Artist 1;Artist 2" in raw_metadata
             assert "TPE1=Artist 3" in raw_metadata
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             assert isinstance(artists, list)
             assert len(artists) == 2
             assert "Artist 1;Artist 2" in artists

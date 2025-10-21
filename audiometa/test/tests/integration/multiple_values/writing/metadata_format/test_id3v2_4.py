@@ -12,7 +12,7 @@ class TestMultipleEntriesId3v2_4:
     def test_write_multiple_artists(self):
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"]
+                UnifiedMetadataKey.ARTISTS: ["Artist One", "Artist Two"]
             }
             
             update_metadata(test_file, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
@@ -36,7 +36,7 @@ class TestMultipleEntriesId3v2_4:
             assert "TPE1=Existing A / Existing B" in raw_output
             
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Existing A", "New B"]
+                UnifiedMetadataKey.ARTISTS: ["Existing A", "New B"]
             }
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             

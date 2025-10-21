@@ -11,7 +11,7 @@ class TestEmptyWhitespaceHandling:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             test_file.set_vorbis_artist("Single Artist")
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, MetadataFormat.VORBIS)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, MetadataFormat.VORBIS)
             
             assert isinstance(artists, list)
             assert len(artists) == 1
@@ -21,7 +21,7 @@ class TestEmptyWhitespaceHandling:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             test_file.delete_vorbis_all()
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, MetadataFormat.VORBIS)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, MetadataFormat.VORBIS)
             
             assert artists is None
 
@@ -30,7 +30,7 @@ class TestEmptyWhitespaceHandling:
             test_file.set_vorbis_multiple_artists(["Valid Artist 1", "", "Valid Artist 2", "", "Valid Artist 3"])
             
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             assert isinstance(artists, list)
             assert len(artists) == 3  # Only valid artists
@@ -43,7 +43,7 @@ class TestEmptyWhitespaceHandling:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             test_file.set_vorbis_multiple_artists(["Valid Artist", "   ", "\t", "\n", "Another Valid Artist"])
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, MetadataFormat.VORBIS)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, MetadataFormat.VORBIS)
             
             assert isinstance(artists, list)
             assert len(artists) == 2  # Only valid artists
@@ -57,7 +57,7 @@ class TestEmptyWhitespaceHandling:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             test_file.set_vorbis_multiple_artists(["Artist One;;Artist Two;"])
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, MetadataFormat.VORBIS)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, MetadataFormat.VORBIS)
             
             assert isinstance(artists, list)
             assert len(artists) == 2  # Only non-empty values
@@ -69,7 +69,7 @@ class TestEmptyWhitespaceHandling:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             test_file.set_vorbis_multiple_artists(["Artist One ; Artist Two ; Artist Three"])
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, MetadataFormat.VORBIS)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, MetadataFormat.VORBIS)
             
             assert artists == ["Artist One", "Artist Two", "Artist Three"]
 
@@ -77,7 +77,7 @@ class TestEmptyWhitespaceHandling:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             test_file.set_vorbis_multiple_artists(["   ", "\t", "\n"])
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, MetadataFormat.VORBIS)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, MetadataFormat.VORBIS)
             
             assert artists is None
 
@@ -85,6 +85,6 @@ class TestEmptyWhitespaceHandling:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             test_file.set_vorbis_multiple_artists(["Valid Artist", "   ", "Another Valid Artist", "\t"])
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, MetadataFormat.VORBIS)
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, MetadataFormat.VORBIS)
             
             assert artists == ["Valid Artist", "Another Valid Artist"]

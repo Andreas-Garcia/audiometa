@@ -35,7 +35,7 @@ class TestForcedFormat:
             # Add ID3v2 metadata using the library directly
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "Original ID3v2 Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Original ID3v2 Artist"]
+                UnifiedMetadataKey.ARTISTS: ["Original ID3v2 Artist"]
             }
             update_metadata(test_file.path, id3v2_metadata, 
                                metadata_format=MetadataFormat.ID3V2)
@@ -49,7 +49,7 @@ class TestForcedFormat:
             # Force ID3v2 format (should write only to ID3v2, leave RIFF untouched)
             new_metadata = {
                 UnifiedMetadataKey.TITLE: "New ID3v2 Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["New ID3v2 Artist"]
+                UnifiedMetadataKey.ARTISTS: ["New ID3v2 Artist"]
             }
             
             # This should write only to ID3v2 format, leaving RIFF unchanged
@@ -59,12 +59,12 @@ class TestForcedFormat:
             # Verify ID3v2 has new metadata
             id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "New ID3v2 Title"
-            assert id3v2_after.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["New ID3v2 Artist"]
+            assert id3v2_after.get(UnifiedMetadataKey.ARTISTS) == ["New ID3v2 Artist"]
             
             # Verify RIFF still has original metadata (forced format doesn't affect other formats)
             riff_after = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
             assert riff_after.get(UnifiedMetadataKey.TITLE) == "Original RIFF Title"
-            assert riff_after.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original RIFF Artist"]
+            assert riff_after.get(UnifiedMetadataKey.ARTISTS) == ["Original RIFF Artist"]
 
     def test_forced_format_fails_fast_on_unsupported_fields(self):
         # Create WAV file with basic metadata
@@ -94,7 +94,7 @@ class TestForcedFormat:
             # Write supported fields to RIFF format
             supported_metadata = {
                 UnifiedMetadataKey.TITLE: "New RIFF Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["New RIFF Artist"],
+                UnifiedMetadataKey.ARTISTS: ["New RIFF Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "New RIFF Album"
             }
             
@@ -105,7 +105,7 @@ class TestForcedFormat:
             # Verify RIFF has new metadata
             riff_metadata = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
             assert riff_metadata.get(UnifiedMetadataKey.TITLE) == "New RIFF Title"
-            assert riff_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["New RIFF Artist"]
+            assert riff_metadata.get(UnifiedMetadataKey.ARTISTS) == ["New RIFF Artist"]
             assert riff_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "New RIFF Album"
 
     def test_forced_format_parameter_conflict_error(self):
@@ -117,7 +117,7 @@ class TestForcedFormat:
         with TempFileWithMetadata(initial_metadata, "wav") as test_file:
             metadata = {
                 UnifiedMetadataKey.TITLE: "Test Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"]
+                UnifiedMetadataKey.ARTISTS: ["Test Artist"]
             }
             
             # This should raise error because both parameters are specified
@@ -135,7 +135,7 @@ class TestForcedFormat:
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             metadata = {
                 UnifiedMetadataKey.TITLE: "Test Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"]
+                UnifiedMetadataKey.ARTISTS: ["Test Artist"]
             }
             
             # Try to force Vorbis format on MP3 file (not supported)
@@ -152,7 +152,7 @@ class TestForcedFormat:
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             metadata = {
                 UnifiedMetadataKey.TITLE: "New ID3v1 Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["New ID3v1 Artist"]
+                UnifiedMetadataKey.ARTISTS: ["New ID3v1 Artist"]
             }
             
             update_metadata(test_file.path, metadata, 
@@ -162,7 +162,7 @@ class TestForcedFormat:
             from audiometa import get_single_format_app_metadata
             result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
             assert result.get(UnifiedMetadataKey.TITLE) == "New ID3v1 Title"
-            assert result.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["New ID3v1 Artist"]
+            assert result.get(UnifiedMetadataKey.ARTISTS) == ["New ID3v1 Artist"]
 
     def test_forced_format_multiple_formats_present(self):
         # Create WAV file with both RIFF and ID3v2 metadata
@@ -174,7 +174,7 @@ class TestForcedFormat:
             # Add ID3v2 metadata using the library directly
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "Original ID3v2 Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Original ID3v2 Artist"]
+                UnifiedMetadataKey.ARTISTS: ["Original ID3v2 Artist"]
             }
             update_metadata(test_file.path, id3v2_metadata, 
                                metadata_format=MetadataFormat.ID3V2)
@@ -188,7 +188,7 @@ class TestForcedFormat:
             # Force ID3v2 format - should only update ID3v2
             new_metadata = {
                 UnifiedMetadataKey.TITLE: "New ID3v2 Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["New ID3v2 Artist"]
+                UnifiedMetadataKey.ARTISTS: ["New ID3v2 Artist"]
             }
             
             update_metadata(test_file.path, new_metadata, 
@@ -197,12 +197,12 @@ class TestForcedFormat:
             # Verify ID3v2 was updated
             id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "New ID3v2 Title"
-            assert id3v2_after.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["New ID3v2 Artist"]
+            assert id3v2_after.get(UnifiedMetadataKey.ARTISTS) == ["New ID3v2 Artist"]
             
             # Verify RIFF was NOT updated (forced format only affects specified format)
             riff_after = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
             assert riff_after.get(UnifiedMetadataKey.TITLE) == "Original RIFF Title"
-            assert riff_after.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original RIFF Artist"]
+            assert riff_after.get(UnifiedMetadataKey.ARTISTS) == ["Original RIFF Artist"]
 
     def test_forced_format_with_rating_field(self):
         # Create MP3 file with basic metadata
@@ -258,7 +258,7 @@ class TestForcedFormat:
             # Try to write mixed supported/unsupported fields to RIFF format
             mixed_metadata = {
                 UnifiedMetadataKey.TITLE: "New Title",  # Supported
-                UnifiedMetadataKey.ARTISTS_NAMES: ["New Artist"],  # Supported
+                UnifiedMetadataKey.ARTISTS: ["New Artist"],  # Supported
                 UnifiedMetadataKey.BPM: 120,  # NOT supported by RIFF
                 UnifiedMetadataKey.ALBUM_NAME: "New Album"  # Supported
             }
@@ -271,6 +271,6 @@ class TestForcedFormat:
             # Verify NO changes were made to the file (validation happens before writing)
             final_metadata = get_unified_metadata(test_file)
             assert final_metadata.get(UnifiedMetadataKey.TITLE) == "Original Title"
-            assert final_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original Artist"]
+            assert final_metadata.get(UnifiedMetadataKey.ARTISTS) == ["Original Artist"]
             assert final_metadata.get(UnifiedMetadataKey.BPM) is None
             assert final_metadata.get(UnifiedMetadataKey.ALBUM_NAME) is None

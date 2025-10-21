@@ -60,7 +60,7 @@ class Id3v1Manager(MetadataManager):
     def __init__(self, audio_file: AudioFile):
         metadata_keys_direct_map_read: dict = {
             UnifiedMetadataKey.TITLE: Id3v1RawMetadataKey.TITLE,
-            UnifiedMetadataKey.ARTISTS_NAMES: Id3v1RawMetadataKey.ARTISTS_NAMES_STR,
+            UnifiedMetadataKey.ARTISTS: Id3v1RawMetadataKey.ARTISTS_NAMES_STR,
             UnifiedMetadataKey.ALBUM_NAME: Id3v1RawMetadataKey.ALBUM_NAME,
             UnifiedMetadataKey.RELEASE_DATE: Id3v1RawMetadataKey.YEAR,
             UnifiedMetadataKey.TRACK_NUMBER: Id3v1RawMetadataKey.TRACK_NUMBER,
@@ -69,7 +69,7 @@ class Id3v1Manager(MetadataManager):
         }
         metadata_keys_direct_map_write: dict = {
             UnifiedMetadataKey.TITLE: Id3v1RawMetadataKey.TITLE,
-            UnifiedMetadataKey.ARTISTS_NAMES: Id3v1RawMetadataKey.ARTISTS_NAMES_STR,
+            UnifiedMetadataKey.ARTISTS: Id3v1RawMetadataKey.ARTISTS_NAMES_STR,
             UnifiedMetadataKey.ALBUM_NAME: Id3v1RawMetadataKey.ALBUM_NAME,
             UnifiedMetadataKey.RELEASE_DATE: Id3v1RawMetadataKey.YEAR,
             UnifiedMetadataKey.TRACK_NUMBER: Id3v1RawMetadataKey.TRACK_NUMBER,
@@ -240,7 +240,7 @@ class Id3v1Manager(MetadataManager):
             tag_data[3:3+len(title_bytes)] = title_bytes
         
         # Artist (bytes 33-62, 30 chars max)
-        artists = app_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = app_metadata.get(UnifiedMetadataKey.ARTISTS)
         if artists is not None:
             if isinstance(artists, list):
                 separator = self.find_safe_separator(artists)

@@ -9,12 +9,12 @@ class TestMultipleValuesDuplicateValues:
         # Test with duplicate values
         duplicate_values = ["Artist One", "Artist Two", "Artist One", "Artist Three", "Artist Two"]
         metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: duplicate_values
+            UnifiedMetadataKey.ARTISTS: duplicate_values
         }
         
         update_metadata(temp_audio_file, metadata)
         
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         
         assert isinstance(artists, list)
         assert len(artists) == 5  # Duplicates should be preserved

@@ -12,7 +12,7 @@ class TestMultipleValuesBoundaryConditions:
         large_artist_list = [f"Artist {i:04d}" for i in range(max_values)]
         
         metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: large_artist_list,
+            UnifiedMetadataKey.ARTISTS: large_artist_list,
         }
         
         start_time = time.time()
@@ -20,7 +20,7 @@ class TestMultipleValuesBoundaryConditions:
         write_time = time.time() - start_time
         
         # Verify all values were written
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         
         assert isinstance(artists, list)
         assert len(artists) == max_values
@@ -32,13 +32,13 @@ class TestMultipleValuesBoundaryConditions:
         # Test with extremely long individual values
         very_long_string = "A" * 50000  # 50KB string
         metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: [very_long_string, "Normal Artist"],
+            UnifiedMetadataKey.ARTISTS: [very_long_string, "Normal Artist"],
             UnifiedMetadataKey.COMMENT: very_long_string
         }
         
         update_metadata(temp_audio_file, metadata)
         
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         
         assert isinstance(artists, list)
         assert len(artists) == 2
@@ -55,12 +55,12 @@ class TestMultipleValuesBoundaryConditions:
             "A" * 10000,  # 10000 characters
         ]
         metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: mixed_lengths
+            UnifiedMetadataKey.ARTISTS: mixed_lengths
         }
         
         update_metadata(temp_audio_file, metadata)
         
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         
         assert isinstance(artists, list)
         assert len(artists) == 6
@@ -73,12 +73,12 @@ class TestMultipleValuesBoundaryConditions:
         
         # Add multiple values for each supported multiple-value field
         for i in range(100):
-            large_metadata[UnifiedMetadataKey.ARTISTS_NAMES] = [f"Artist {i:04d}" for i in range(50)]        
+            large_metadata[UnifiedMetadataKey.ARTISTS] = [f"Artist {i:04d}" for i in range(50)]        
         start_time = time.time()
         update_metadata(temp_audio_file, large_metadata)
         write_time = time.time() - start_time
         
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         
         assert isinstance(artists, list)
         assert len(artists) == 50

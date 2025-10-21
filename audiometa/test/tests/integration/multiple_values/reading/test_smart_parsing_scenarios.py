@@ -19,13 +19,13 @@ class TestSmartParsingScenarios:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             # Set multiple separate artist entries (ID3v2 will concatenate them)
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist; with; semicolons", "Artist Three"]
+                UnifiedMetadataKey.ARTISTS: ["Artist One", "Artist; with; semicolons", "Artist Three"]
             }
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2)
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             # ID3v2 stores as single frame with separators, so it gets parsed on read
             assert isinstance(artists, list)
@@ -41,13 +41,13 @@ class TestSmartParsingScenarios:
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.3") as test_file:
             # Set multiple separate artist entries (ID3v2.3 will concatenate them)
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist; with; semicolons", "Artist Three"]
+                UnifiedMetadataKey.ARTISTS: ["Artist One", "Artist; with; semicolons", "Artist Three"]
             }
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             # ID3v2.3 stores as single frame with separators, so it gets parsed on read
             assert isinstance(artists, list)
@@ -63,13 +63,13 @@ class TestSmartParsingScenarios:
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set multiple separate artist entries (ID3v2.4 will concatenate them)
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist; with; semicolons", "Artist Three"]
+                UnifiedMetadataKey.ARTISTS: ["Artist One", "Artist; with; semicolons", "Artist Three"]
             }
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             # ID3v2.4 stores as single frame with separators, so it gets parsed on read
             assert isinstance(artists, list)
@@ -85,13 +85,13 @@ class TestSmartParsingScenarios:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Set multiple separate artist entries (modern format)
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist; with; semicolons", "Artist Three"]
+                UnifiedMetadataKey.ARTISTS: ["Artist One", "Artist; with; semicolons", "Artist Three"]
             }
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             # Should preserve separators in individual entries (no parsing)
             assert isinstance(artists, list)
@@ -105,13 +105,13 @@ class TestSmartParsingScenarios:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             # Set single artist entry with semicolons (legacy data in modern format)
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One;Artist Two;Artist Three"]
+                UnifiedMetadataKey.ARTISTS: ["Artist One;Artist Two;Artist Three"]
             }
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2)
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             # Should parse single entry with separators
             assert isinstance(artists, list)
@@ -125,13 +125,13 @@ class TestSmartParsingScenarios:
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.3") as test_file:
             # Set single artist entry with semicolons (legacy data in modern format)
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One;Artist Two;Artist Three"]
+                UnifiedMetadataKey.ARTISTS: ["Artist One;Artist Two;Artist Three"]
             }
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             # Should parse single entry with separators
             assert isinstance(artists, list)
@@ -145,13 +145,13 @@ class TestSmartParsingScenarios:
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set single artist entry with semicolons (legacy data in modern format)
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One;Artist Two;Artist Three"]
+                UnifiedMetadataKey.ARTISTS: ["Artist One;Artist Two;Artist Three"]
             }
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             # Should parse single entry with separators
             assert isinstance(artists, list)
@@ -165,13 +165,13 @@ class TestSmartParsingScenarios:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Set single artist entry with semicolons (legacy data in modern format)
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One;Artist Two;Artist Three"]
+                UnifiedMetadataKey.ARTISTS: ["Artist One;Artist Two;Artist Three"]
             }
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             # Should parse single entry with separators
             assert isinstance(artists, list)
@@ -185,13 +185,13 @@ class TestSmartParsingScenarios:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             # Set single artist entry with semicolons in RIFF format
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One;Artist Two"]
+                UnifiedMetadataKey.ARTISTS: ["Artist One;Artist Two"]
             }
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             # Should always parse in legacy format
             assert isinstance(artists, list)
@@ -204,13 +204,13 @@ class TestSmartParsingScenarios:
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             # Set single artist entry with semicolons in ID3v1 format
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One;Artist Two"]
+                UnifiedMetadataKey.ARTISTS: ["Artist One;Artist Two"]
             }
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             
             # Should always parse in legacy format
             assert isinstance(artists, list)
@@ -224,7 +224,7 @@ class TestSmartParsingScenarios:
             # Set artists as multiple separate entries (ID3v2 will concatenate them)
             # Set composers as single entry with separators (should parse)
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist; with; semicolons", "Artist Three"],
+                UnifiedMetadataKey.ARTISTS: ["Artist One", "Artist; with; semicolons", "Artist Three"],
                 UnifiedMetadataKey.COMPOSERS: ["Composer One;Composer Two;Composer Three"]
             }
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2)
@@ -233,7 +233,7 @@ class TestSmartParsingScenarios:
             unified_metadata = get_unified_metadata(test_file.path)
             
             # Artists get concatenated by ID3v2, then parsed on read
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             assert isinstance(artists, list)
             assert len(artists) == 5  # All separators are processed in sequence
             assert "Artist One" in artists

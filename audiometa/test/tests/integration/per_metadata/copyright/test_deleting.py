@@ -55,14 +55,14 @@ class TestCopyrightDeleting:
             update_metadata(test_file.path, {
                 UnifiedMetadataKey.COPYRIGHT: "Test Copyright",
                 UnifiedMetadataKey.TITLE: "Test Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"]
+                UnifiedMetadataKey.ARTISTS: ["Test Artist"]
             })
         
             update_metadata(test_file.path, {UnifiedMetadataKey.COPYRIGHT: None})
         
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COPYRIGHT) is None
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) == "Test Title"
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
+            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
 
     def test_delete_copyright_already_none(self):
         with TempFileWithMetadata({}, "mp3") as test_file:

@@ -127,7 +127,7 @@ def get_unified_metadata(
         
         # Get metadata from FLAC file (unified)
         metadata = get_unified_metadata("song.flac")
-        print(metadata.get(UnifiedMetadataKey.ARTISTS_NAMES))
+        print(metadata.get(UnifiedMetadataKey.ARTISTS))
         
         # Get only ID3v2 metadata
         metadata = get_unified_metadata("song.mp3", metadata_format=MetadataFormat.ID3V2)
@@ -135,7 +135,7 @@ def get_unified_metadata(
         
         # Get only Vorbis metadata from FLAC
         metadata = get_unified_metadata("song.flac", metadata_format=MetadataFormat.VORBIS)
-        print(metadata.get(UnifiedMetadataKey.ARTISTS_NAMES))
+        print(metadata.get(UnifiedMetadataKey.ARTISTS))
         
         # Get ID3v2 metadata with normalized ratings
         metadata = get_unified_metadata("song.mp3", metadata_format=MetadataFormat.ID3V2, normalized_rating_max_value=100)
@@ -349,7 +349,7 @@ def update_metadata(
         # Basic metadata update
         metadata = {
             UnifiedMetadataKey.TITLE: "New Title",
-            UnifiedMetadataKey.ARTISTS_NAMES: ["Artist Name"]
+            UnifiedMetadataKey.ARTISTS: ["Artist Name"]
         }
         update_metadata("song.mp3", metadata)
         
@@ -369,7 +369,7 @@ def update_metadata(
         # Remove specific fields by setting them to None
         update_metadata("song.mp3", {
             UnifiedMetadataKey.TITLE: None,        # Removes title field
-            UnifiedMetadataKey.ARTISTS_NAMES: None # Removes artist field
+            UnifiedMetadataKey.ARTISTS: None # Removes artist field
         })
     """
     if not isinstance(file, AudioFile):

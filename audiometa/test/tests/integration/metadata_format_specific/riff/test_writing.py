@@ -31,13 +31,13 @@ class TestRiffWriting:
                         # Now test RIFF writing using app's function (this is what we're testing)
                         test_metadata = {
                             UnifiedMetadataKey.TITLE: "Test Title WAV",
-                            UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist WAV"],
+                            UnifiedMetadataKey.ARTISTS: ["Test Artist WAV"],
                             UnifiedMetadataKey.ALBUM_NAME: "Test Album WAV",
                         }
                         update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
                         metadata = get_unified_metadata(test_file.path)
                         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title WAV"
-                        assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist WAV"]
+                        assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Test Artist WAV"]
                         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album WAV"
 
     def test_multiple_metadata_reading(self, temp_audio_file):
@@ -52,7 +52,7 @@ class TestRiffWriting:
                         test_metadata = {
                             # Basic metadata commonly supported across formats
                             UnifiedMetadataKey.TITLE: "Test Song Title",
-                            UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"],
+                            UnifiedMetadataKey.ARTISTS: ["Test Artist"],
                             UnifiedMetadataKey.ALBUM_NAME: "Test Album",
                         }
             
@@ -63,7 +63,7 @@ class TestRiffWriting:
             
                         # Basic metadata assertions
                         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Song Title"
-                        assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
+                        assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
                         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
 
     def test_multiple_metadata_writing(self, temp_audio_file):
@@ -78,7 +78,7 @@ class TestRiffWriting:
                         test_metadata = {
                             # Basic metadata commonly supported across formats
                             UnifiedMetadataKey.TITLE: "Written Song Title",
-                            UnifiedMetadataKey.ARTISTS_NAMES: ["Written Artist"],
+                            UnifiedMetadataKey.ARTISTS: ["Written Artist"],
                             UnifiedMetadataKey.ALBUM_NAME: "Written Album",
                         }
             
@@ -89,7 +89,7 @@ class TestRiffWriting:
             
                         # Basic metadata assertions
                         assert metadata.get(UnifiedMetadataKey.TITLE) == "Written Song Title"
-                        assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Written Artist"]
+                        assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Written Artist"]
                         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Written Album"
 
     def test_none_field_removal_riff(self, temp_audio_file):
@@ -104,7 +104,7 @@ class TestRiffWriting:
                         # Only supported fields for WAV
                         initial_metadata = {
                             UnifiedMetadataKey.TITLE: "Test WAV Title",
-                            UnifiedMetadataKey.ARTISTS_NAMES: ["Test WAV Artist"],
+                            UnifiedMetadataKey.ARTISTS: ["Test WAV Artist"],
                             UnifiedMetadataKey.ALBUM_NAME: "Test WAV Album"
                         }
                         update_metadata(test_file.path, initial_metadata)
@@ -112,13 +112,13 @@ class TestRiffWriting:
                         # Verify metadata was written
                         metadata = get_unified_metadata(test_file.path)
                         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test WAV Title"
-                        assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test WAV Artist"]
+                        assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Test WAV Artist"]
                         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test WAV Album"
             
                         # Now set some fields to None (RiffManager replaces entire INFO chunk, so we need to include fields we want to keep)
                         none_metadata = {
                             UnifiedMetadataKey.TITLE: None,
-                            UnifiedMetadataKey.ARTISTS_NAMES: ["Test WAV Artist"],  # Keep this field
+                            UnifiedMetadataKey.ARTISTS: ["Test WAV Artist"],  # Keep this field
                             UnifiedMetadataKey.ALBUM_NAME: "Test WAV Album"  # Keep this field
                         }
                         update_metadata(test_file.path, none_metadata)
@@ -128,7 +128,7 @@ class TestRiffWriting:
                         assert updated_metadata.get(UnifiedMetadataKey.TITLE) is None
             
                         # Verify other fields are still present
-                        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test WAV Artist"]
+                        assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) == ["Test WAV Artist"]
                         assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test WAV Album"
             
                         # Verify at RIFF level that fields were actually removed

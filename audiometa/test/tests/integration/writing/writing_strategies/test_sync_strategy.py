@@ -43,7 +43,7 @@ class TestSyncStrategy:
             # if we write to ID3v2 format instead of RIFF format
             sync_metadata = {
                 UnifiedMetadataKey.TITLE: "Synced Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Synced Artist"],
+                UnifiedMetadataKey.ARTISTS: ["Synced Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "Synced Album"
             }
             update_metadata(test_file, sync_metadata, 
@@ -72,7 +72,7 @@ class TestSyncStrategy:
             # Now write RIFF metadata without specifying strategy (should default to SYNC)
             riff_metadata = {
                 UnifiedMetadataKey.TITLE: "RIFF Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Artist"]
+                UnifiedMetadataKey.ARTISTS: ["RIFF Artist"]
             }
             update_metadata(test_file, riff_metadata)
             
@@ -103,7 +103,7 @@ class TestSyncStrategy:
             # Now write ID3v2 metadata with SYNC strategy
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "Synced Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Synced Artist"],
+                UnifiedMetadataKey.ARTISTS: ["Synced Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "Synced Album"
             }
             update_metadata(test_file, id3v2_metadata, metadata_strategy=MetadataWritingStrategy.SYNC)
@@ -158,7 +158,7 @@ class TestSyncStrategy:
             long_title = "This is a Very Long Title That Exceeds ID3v1 Limits"
             sync_metadata = {
                 UnifiedMetadataKey.TITLE: long_title,
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Long Artist Name That Exceeds Limits"],
+                UnifiedMetadataKey.ARTISTS: ["Long Artist Name That Exceeds Limits"],
                 UnifiedMetadataKey.ALBUM_NAME: "Long Album Name That Exceeds Limits"
             }
             update_metadata(test_file, sync_metadata, metadata_strategy=MetadataWritingStrategy.SYNC)
@@ -166,13 +166,13 @@ class TestSyncStrategy:
             # Verify RIFF metadata has full values (no truncation)
             riff_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.RIFF)
             assert riff_after.get(UnifiedMetadataKey.TITLE) == long_title
-            assert riff_after.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Long Artist Name That Exceeds Limits"]
+            assert riff_after.get(UnifiedMetadataKey.ARTISTS) == ["Long Artist Name That Exceeds Limits"]
             assert riff_after.get(UnifiedMetadataKey.ALBUM_NAME) == "Long Album Name That Exceeds Limits"
             
             # Verify ID3v1 metadata is truncated (ID3v1 has 30-char field limits)
             id3v1_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V1)
             id3v1_title = id3v1_after.get(UnifiedMetadataKey.TITLE)
-            id3v1_artist = id3v1_after.get(UnifiedMetadataKey.ARTISTS_NAMES)[0] if id3v1_after.get(UnifiedMetadataKey.ARTISTS_NAMES) else ""
+            id3v1_artist = id3v1_after.get(UnifiedMetadataKey.ARTISTS)[0] if id3v1_after.get(UnifiedMetadataKey.ARTISTS) else ""
             id3v1_album = id3v1_after.get(UnifiedMetadataKey.ALBUM_NAME)
             
             # Verify truncation occurred (should be shorter than original)
@@ -188,4 +188,4 @@ class TestSyncStrategy:
             # Merged metadata should prefer RIFF (WAV native format has higher precedence)
             merged = get_unified_metadata(test_file)
             assert merged.get(UnifiedMetadataKey.TITLE) == long_title  # Full title from RIFF
-            assert merged.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Long Artist Name That Exceeds Limits"]
+            assert merged.get(UnifiedMetadataKey.ARTISTS) == ["Long Artist Name That Exceeds Limits"]

@@ -9,7 +9,7 @@ from audiometa.test.helpers.riff.riff_metadata_setter import RIFFMetadataSetter
 
 class TestMultipleEntriesRiff:
 	def test_write_multiple_artists(self):
-		metadata = {UnifiedMetadataKey.ARTISTS_NAMES: ["Artist 1", "Artist 2", "Artist 3"]}
+		metadata = {UnifiedMetadataKey.ARTISTS: ["Artist 1", "Artist 2", "Artist 3"]}
 		with TempFileWithMetadata({}, "wav") as test_file:
 			update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
 
@@ -22,7 +22,7 @@ class TestMultipleEntriesRiff:
 	def test_artists_concatenation(self):
 		initial_metadata = {"title": "Test Song"}
 		with TempFileWithMetadata(initial_metadata, "wav") as test_file:
-			metadata = {UnifiedMetadataKey.ARTISTS_NAMES: ["Artist 1", "Artist 2", "Artist 3"]}
+			metadata = {UnifiedMetadataKey.ARTISTS: ["Artist 1", "Artist 2", "Artist 3"]}
 
 			update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
 
@@ -44,7 +44,7 @@ class TestMultipleEntriesRiff:
 			assert "Existing 1" in verification['raw_output']
 			assert "Existing 2" in verification['raw_output']
 
-			metadata = {UnifiedMetadataKey.ARTISTS_NAMES: ["Existing 1", "New 2"]}
+			metadata = {UnifiedMetadataKey.ARTISTS: ["Existing 1", "New 2"]}
 			update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
 
 			verification = RIFFMetadataGetter.get_raw_metadata(test_file.path, "IART")

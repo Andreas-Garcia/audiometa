@@ -33,7 +33,7 @@ class TestDefaultWritingFormat:
         # Prepare test metadata
         test_metadata = {
             UnifiedMetadataKey.TITLE: "MP3 Test Title",
-            UnifiedMetadataKey.ARTISTS_NAMES: ["MP3 Test Artist"],
+            UnifiedMetadataKey.ARTISTS: ["MP3 Test Artist"],
             UnifiedMetadataKey.ALBUM_NAME: "MP3 Test Album",
             UnifiedMetadataKey.BPM: 120
         }
@@ -45,14 +45,14 @@ class TestDefaultWritingFormat:
             # Verify metadata was written to ID3v2 format
             id3v2_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
             assert id3v2_metadata.get(UnifiedMetadataKey.TITLE) == "MP3 Test Title"
-            assert id3v2_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["MP3 Test Artist"]
+            assert id3v2_metadata.get(UnifiedMetadataKey.ARTISTS) == ["MP3 Test Artist"]
             assert id3v2_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "MP3 Test Album"
             assert id3v2_metadata.get(UnifiedMetadataKey.BPM) == 120
         
             # Verify that merged metadata (which follows priority order) returns ID3v2 data
             merged_metadata = get_unified_metadata(test_file.path)
             assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "MP3 Test Title"
-            assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["MP3 Test Artist"]
+            assert merged_metadata.get(UnifiedMetadataKey.ARTISTS) == ["MP3 Test Artist"]
 
     def test_mp3_default_writes_to_id3v2_3_version(self):
         from mutagen.id3 import ID3
@@ -61,7 +61,7 @@ class TestDefaultWritingFormat:
             # Prepare test metadata
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "MP3 Default Version Test Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["MP3 Default Version Test Artist"],
+                UnifiedMetadataKey.ARTISTS: ["MP3 Default Version Test Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "MP3 Default Version Test Album"
             }
             
@@ -77,7 +77,7 @@ class TestDefaultWritingFormat:
             # Prepare test metadata
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "FLAC Test Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["FLAC Test Artist"],
+                UnifiedMetadataKey.ARTISTS: ["FLAC Test Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "FLAC Test Album",
                 UnifiedMetadataKey.BPM: 140
             }
@@ -88,21 +88,21 @@ class TestDefaultWritingFormat:
             # Verify metadata was written to Vorbis format
             vorbis_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.VORBIS)
             assert vorbis_metadata.get(UnifiedMetadataKey.TITLE) == "FLAC Test Title"
-            assert vorbis_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["FLAC Test Artist"]
+            assert vorbis_metadata.get(UnifiedMetadataKey.ARTISTS) == ["FLAC Test Artist"]
             assert vorbis_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "FLAC Test Album"
             assert vorbis_metadata.get(UnifiedMetadataKey.BPM) == 140
             
             # Verify that merged metadata (which follows priority order) returns Vorbis data
             merged_metadata = get_unified_metadata(test_file.path)
             assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "FLAC Test Title"
-            assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["FLAC Test Artist"]
+            assert merged_metadata.get(UnifiedMetadataKey.ARTISTS) == ["FLAC Test Artist"]
 
     def test_wav_default_writes_to_riff(self):
         with TempFileWithMetadata({}, "wav") as test_file:
             # Prepare test metadata (RIFF has limited support, so we test supported fields)
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "WAV Test Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["WAV Test Artist"],
+                UnifiedMetadataKey.ARTISTS: ["WAV Test Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "WAV Test Album",
                 UnifiedMetadataKey.GENRES_NAMES: ["Test Genre"]
             }
@@ -113,14 +113,14 @@ class TestDefaultWritingFormat:
             # Verify metadata was written to RIFF format
             riff_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
             assert riff_metadata.get(UnifiedMetadataKey.TITLE) == "WAV Test Title"
-            assert riff_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["WAV Test Artist"]
+            assert riff_metadata.get(UnifiedMetadataKey.ARTISTS) == ["WAV Test Artist"]
             assert riff_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "WAV Test Album"
             assert riff_metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Test Genre"]
             
             # Verify that merged metadata (which follows priority order) returns RIFF data
             merged_metadata = get_unified_metadata(test_file.path)
             assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "WAV Test Title"
-            assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["WAV Test Artist"]
+            assert merged_metadata.get(UnifiedMetadataKey.ARTISTS) == ["WAV Test Artist"]
 
     def test_format_priority_order_matches_defaults(self):
         priorities = MetadataFormat.get_priorities()
@@ -149,7 +149,7 @@ class TestDefaultWritingFormat:
                 # Test metadata
                 test_metadata = {
                     UnifiedMetadataKey.TITLE: f"{file_type} Default Test",
-                    UnifiedMetadataKey.ARTISTS_NAMES: [f"{file_type} Artist"]
+                    UnifiedMetadataKey.ARTISTS: [f"{file_type} Artist"]
                 }
                 
                 # Write using default format
@@ -158,14 +158,14 @@ class TestDefaultWritingFormat:
                 # Verify it was written to the expected default format
                 default_metadata = get_single_format_app_metadata(test_file.path, expected_format)
                 assert default_metadata.get(UnifiedMetadataKey.TITLE) == f"{file_type} Default Test"
-                assert default_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == [f"{file_type} Artist"]
+                assert default_metadata.get(UnifiedMetadataKey.ARTISTS) == [f"{file_type} Artist"]
 
     def test_id3v1_writing_support(self):
         with TempFileWithMetadata({}, "id3v1") as test_file:
             # Test writing directly to ID3v1 format
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v1 Test Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v1 Test Artist"]
+                UnifiedMetadataKey.ARTISTS: ["ID3v1 Test Artist"]
             }
             
             # Write directly to ID3v1 format
@@ -174,7 +174,7 @@ class TestDefaultWritingFormat:
             # Verify ID3v1 was written
             id3v1_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
             assert id3v1_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v1 Test Title"
-            assert id3v1_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["ID3v1 Test Artist"]
+            assert id3v1_metadata.get(UnifiedMetadataKey.ARTISTS) == ["ID3v1 Test Artist"]
         
         # Test default behavior still uses ID3v2 as primary format
         test_metadata2 = {

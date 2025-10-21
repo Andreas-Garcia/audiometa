@@ -41,7 +41,7 @@ class TestCoreWorkflows:
             # Edit metadata using app's function (this is what we're testing)
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "New Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["New Artist"],
+                UnifiedMetadataKey.ARTISTS: ["New Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "New Album",
                 UnifiedMetadataKey.GENRES_NAMES: "Rock",
                 UnifiedMetadataKey.COMMENT: "Test comment"
@@ -53,7 +53,7 @@ class TestCoreWorkflows:
             # Verify persistence by reloading
             metadata = get_unified_metadata(test_file)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "New Title"
-            assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["New Artist"]
+            assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["New Artist"]
             assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "New Album"
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
             assert metadata.get(UnifiedMetadataKey.COMMENT) == "Test comment"
@@ -107,7 +107,7 @@ class TestCoreWorkflows:
         # E2E test for deletion across multiple formats
         test_metadata = {
             UnifiedMetadataKey.TITLE: "Cross Format Deletion",
-            UnifiedMetadataKey.ARTISTS_NAMES: ["Cross Format Artist"],
+            UnifiedMetadataKey.ARTISTS: ["Cross Format Artist"],
             UnifiedMetadataKey.ALBUM_NAME: "Cross Format Album"
         }
         

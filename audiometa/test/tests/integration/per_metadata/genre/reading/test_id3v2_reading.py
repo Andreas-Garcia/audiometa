@@ -202,7 +202,7 @@ class TestId3v2GenreReading:
             
             assert genres == ["Rock", "Alternative"]
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
-            assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
+            assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
             assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
 
     def test_id3v2_genre_id3v2_3_version(self):

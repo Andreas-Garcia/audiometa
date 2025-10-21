@@ -40,7 +40,7 @@ class TestId3v2Manager:
             
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v2 Test Title",
-                UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Test Artist"],
+                UnifiedMetadataKey.ARTISTS: ["ID3v2 Test Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "ID3v2 Test Album",
                 UnifiedMetadataKey.RATING: 80,
                 UnifiedMetadataKey.BPM: 120
@@ -51,7 +51,7 @@ class TestId3v2Manager:
             # Verify metadata was updated
             updated_metadata = manager.get_app_metadata()
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2 Test Title"
-            assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["ID3v2 Test Artist"]
+            assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) == ["ID3v2 Test Artist"]
             assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v2 Test Album"
             assert updated_metadata.get(UnifiedMetadataKey.RATING) == 80
             assert updated_metadata.get(UnifiedMetadataKey.BPM) == 120

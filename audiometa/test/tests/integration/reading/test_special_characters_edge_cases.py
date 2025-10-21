@@ -16,7 +16,7 @@ class TestSpecialCharactersEdgeCases:
                 pytest.skip("metaflac not available or failed to set unicode metadata")
             
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
             assert isinstance(artists, list)
@@ -38,7 +38,7 @@ class TestSpecialCharactersEdgeCases:
                 pytest.skip("metaflac not available or failed to set special punctuation metadata")
             
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
             assert isinstance(artists, list)
@@ -59,7 +59,7 @@ class TestSpecialCharactersEdgeCases:
                 pytest.skip("metaflac not available or failed to set quotes metadata")
             
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
             assert isinstance(artists, list)
@@ -80,7 +80,7 @@ class TestSpecialCharactersEdgeCases:
                 pytest.skip("metaflac not available or failed to set control characters metadata")
             
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
             assert isinstance(artists, list)
@@ -102,7 +102,7 @@ class TestSpecialCharactersEdgeCases:
                 pytest.skip("metaflac not available or failed to set long strings metadata")
             
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
             assert isinstance(artists, list)
@@ -122,7 +122,7 @@ class TestSpecialCharactersEdgeCases:
                 pytest.skip("metaflac not available or failed to set mixed encodings metadata")
             
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
             assert isinstance(artists, list)
@@ -145,7 +145,7 @@ class TestSpecialCharactersEdgeCases:
                 pytest.skip("metaflac not available or failed to set separator characters metadata")
             
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
             assert isinstance(artists, list)
@@ -166,7 +166,7 @@ class TestSpecialCharactersEdgeCases:
                 pytest.skip("metaflac not available or failed to set HTML/XML characters metadata")
             
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
             assert isinstance(artists, list)
@@ -187,7 +187,7 @@ class TestSpecialCharactersEdgeCases:
                 pytest.skip("metaflac not available or failed to set emoji characters metadata")
             
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
             assert isinstance(artists, list)
@@ -216,7 +216,7 @@ class TestSpecialCharactersEdgeCases:
                 pytest.skip("metaflac not available or failed to set null bytes metadata")
             
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
             assert isinstance(artists, list)
@@ -245,7 +245,7 @@ class TestSpecialCharactersEdgeCases:
                 pytest.skip("metaflac not available or failed to set mixed special characters metadata")
             
             unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
             assert isinstance(artists, list)

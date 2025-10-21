@@ -113,7 +113,7 @@ def write_metadata(args) -> None:
     if args.title:
         metadata[UnifiedMetadataKey.TITLE] = args.title
     if args.artist:
-        metadata[UnifiedMetadataKey.ARTISTS_NAMES] = [args.artist]
+        metadata[UnifiedMetadataKey.ARTISTS] = [args.artist]
     if args.album:
         metadata[UnifiedMetadataKey.ALBUM_NAME] = args.album
     if args.year:
