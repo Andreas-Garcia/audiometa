@@ -76,7 +76,7 @@ class RiffManager(RatingSupportingMetadataManager):
         COMPOSERS = 'ICMP'  # Composers
 
         # Non-standard
-        ALBUM_ARTISTS_NAMES = 'IAAR'
+        ALBUM_ARTISTS = 'IAAR'
         LANGUAGE = 'ILNG'
         RATING = 'IRTD'
         COMMENT = 'ICMT'
@@ -94,7 +94,7 @@ class RiffManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.TITLE: self.RiffTagKey.TITLE,
             UnifiedMetadataKey.ARTISTS: self.RiffTagKey.ARTIST_NAME,
             UnifiedMetadataKey.ALBUM_NAME: self.RiffTagKey.ALBUM_NAME,
-            UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.RiffTagKey.ALBUM_ARTISTS_NAMES,
+            UnifiedMetadataKey.ALBUM_ARTISTS: self.RiffTagKey.ALBUM_ARTISTS,
             UnifiedMetadataKey.GENRES_NAMES: None,
             UnifiedMetadataKey.RATING: None,
             UnifiedMetadataKey.LANGUAGE: self.RiffTagKey.LANGUAGE,
@@ -108,7 +108,7 @@ class RiffManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.TITLE: self.RiffTagKey.TITLE,
             UnifiedMetadataKey.ARTISTS: self.RiffTagKey.ARTIST_NAME,
             UnifiedMetadataKey.ALBUM_NAME: self.RiffTagKey.ALBUM_NAME,
-            UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.RiffTagKey.ALBUM_ARTISTS_NAMES,
+            UnifiedMetadataKey.ALBUM_ARTISTS: self.RiffTagKey.ALBUM_ARTISTS,
             UnifiedMetadataKey.GENRES_NAMES: None,
             UnifiedMetadataKey.RATING: None,
             UnifiedMetadataKey.LANGUAGE: self.RiffTagKey.LANGUAGE,

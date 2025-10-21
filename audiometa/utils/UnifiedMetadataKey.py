@@ -6,7 +6,7 @@ class UnifiedMetadataKey(str, Enum):
     TITLE = 'title'
     ARTISTS = 'artists_names'
     ALBUM_NAME = 'album_name'
-    ALBUM_ARTISTS_NAMES = 'album_artists_names'
+    ALBUM_ARTISTS = 'album_artists_names'
     GENRES_NAMES = 'genre_name'
     RATING = 'rating'
     LANGUAGE = 'language'
@@ -23,7 +23,7 @@ class UnifiedMetadataKey(str, Enum):
         # Fields that can contain multiple values (lists) - only semantically meaningful ones
         multi_value_fields = {
             UnifiedMetadataKey.ARTISTS,
-            UnifiedMetadataKey.ALBUM_ARTISTS_NAMES,
+            UnifiedMetadataKey.ALBUM_ARTISTS,
             UnifiedMetadataKey.GENRES_NAMES,
             UnifiedMetadataKey.COMPOSERS,
         }
@@ -38,7 +38,7 @@ class UnifiedMetadataKey(str, Enum):
             UnifiedMetadataKey.TITLE: str,
             UnifiedMetadataKey.ARTISTS: list[str],
             UnifiedMetadataKey.ALBUM_NAME: str,
-            UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: list[str],
+            UnifiedMetadataKey.ALBUM_ARTISTS: list[str],
             UnifiedMetadataKey.GENRES_NAMES: list[str],
             UnifiedMetadataKey.RATING: int,
             UnifiedMetadataKey.LANGUAGE: str,

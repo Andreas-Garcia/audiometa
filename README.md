@@ -1166,7 +1166,7 @@ The library can handle multiple values for these fields.
 The following fields are treated as semantically multi-value:
 
 - `ARTISTS` - Multiple artist names for the track
-- `ALBUM_ARTISTS_NAMES` - Multiple album artist names
+- `ALBUM_ARTISTS` - Multiple album artist names
 - `GENRES_NAMES` - Multiple genre classifications
 - `COMPOSERS` - Multiple composer names
 - `MUSICIANS` - Multiple musician credits (ID3v2.4)

@@ -168,7 +168,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         TITLE = 'TIT2'
         ARTISTS = 'TPE1'
         ALBUM_NAME = 'TALB'
-        ALBUM_ARTISTS_NAMES = 'TPE2'
+        ALBUM_ARTISTS = 'TPE2'
         GENRES_NAMES = 'TCON'
 
         # In cleaned metadata, the rating is stored as a tuple the potential identifier (e.g. 'Traktor') and the rating
@@ -198,7 +198,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         Id3TextFrame.TITLE: TIT2,
         Id3TextFrame.ARTISTS: TPE1,
         Id3TextFrame.ALBUM_NAME: TALB,
-        Id3TextFrame.ALBUM_ARTISTS_NAMES: TPE2,
+        Id3TextFrame.ALBUM_ARTISTS: TPE2,
         Id3TextFrame.GENRES_NAMES: TCON,
         Id3TextFrame.LANGUAGE: TLAN,
         Id3TextFrame.RECORDING_TIME: TDRC,
@@ -226,7 +226,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.TITLE: self.Id3TextFrame.TITLE,
             UnifiedMetadataKey.ARTISTS: self.Id3TextFrame.ARTISTS,
             UnifiedMetadataKey.ALBUM_NAME: self.Id3TextFrame.ALBUM_NAME,
-            UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.Id3TextFrame.ALBUM_ARTISTS_NAMES,
+            UnifiedMetadataKey.ALBUM_ARTISTS: self.Id3TextFrame.ALBUM_ARTISTS,
             UnifiedMetadataKey.GENRES_NAMES: self.Id3TextFrame.GENRES_NAMES,
             UnifiedMetadataKey.RATING: None,
             UnifiedMetadataKey.LANGUAGE: self.Id3TextFrame.LANGUAGE,
@@ -243,7 +243,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.TITLE: self.Id3TextFrame.TITLE,
             UnifiedMetadataKey.ARTISTS: self.Id3TextFrame.ARTISTS,
             UnifiedMetadataKey.ALBUM_NAME: self.Id3TextFrame.ALBUM_NAME,
-            UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.Id3TextFrame.ALBUM_ARTISTS_NAMES,
+            UnifiedMetadataKey.ALBUM_ARTISTS: self.Id3TextFrame.ALBUM_ARTISTS,
             UnifiedMetadataKey.GENRES_NAMES: self.Id3TextFrame.GENRES_NAMES,
             UnifiedMetadataKey.RATING: self.Id3TextFrame.RATING,
             UnifiedMetadataKey.LANGUAGE: self.Id3TextFrame.LANGUAGE,

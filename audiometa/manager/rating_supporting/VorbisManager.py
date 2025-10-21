@@ -47,7 +47,7 @@ class VorbisManager(RatingSupportingMetadataManager):
         TITLE = 'title'
         ARTIST_NAME = 'artist'
         ALBUM_NAME = 'album'
-        ALBUM_ARTISTS_NAMES = 'albumartist'
+        ALBUM_ARTISTS = 'albumartist'
         GENRES_NAMES = 'genre'
         RATING = 'rating'
         RATING_TRAKTOR = 'rating wmp'  # Traktor rating
@@ -72,7 +72,7 @@ class VorbisManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.TITLE: self.VorbisKey.TITLE,
             UnifiedMetadataKey.ARTISTS: self.VorbisKey.ARTIST_NAME,
             UnifiedMetadataKey.ALBUM_NAME: self.VorbisKey.ALBUM_NAME,
-            UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.VorbisKey.ALBUM_ARTISTS_NAMES,
+            UnifiedMetadataKey.ALBUM_ARTISTS: self.VorbisKey.ALBUM_ARTISTS,
             UnifiedMetadataKey.GENRES_NAMES: self.VorbisKey.GENRES_NAMES,
             UnifiedMetadataKey.RATING: None,
             UnifiedMetadataKey.LANGUAGE: self.VorbisKey.LANGUAGE,
@@ -86,7 +86,7 @@ class VorbisManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.TITLE: self.VorbisKey.TITLE,
             UnifiedMetadataKey.ARTISTS: self.VorbisKey.ARTIST_NAME,
             UnifiedMetadataKey.ALBUM_NAME: self.VorbisKey.ALBUM_NAME,
-            UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: self.VorbisKey.ALBUM_ARTISTS_NAMES,
+            UnifiedMetadataKey.ALBUM_ARTISTS: self.VorbisKey.ALBUM_ARTISTS,
             UnifiedMetadataKey.GENRES_NAMES: self.VorbisKey.GENRES_NAMES,
             UnifiedMetadataKey.RATING: None,
             UnifiedMetadataKey.LANGUAGE: self.VorbisKey.LANGUAGE,

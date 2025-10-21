@@ -72,7 +72,7 @@ class TestId3v1Manager:
             unsupported_metadata = {
                 UnifiedMetadataKey.BPM: 120,  # BPM not supported by ID3v1
                 UnifiedMetadataKey.RATING: 85,  # Rating not supported by ID3v1
-                UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: ["Album Artist"],  # Album artist not supported by ID3v1
+                UnifiedMetadataKey.ALBUM_ARTISTS: ["Album Artist"],  # Album artist not supported by ID3v1
             }
             
             # ID3v1 manager should raise error when trying to write unsupported fields
