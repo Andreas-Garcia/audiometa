@@ -1,6 +1,7 @@
 """Vorbis metadata inspection utilities for testing audio file metadata."""
 
 import subprocess
+import re
 from pathlib import Path
 from typing import Dict, Any
 
@@ -18,7 +19,6 @@ class VorbisMetadataInspector:
         
         Returns:
             Dictionary with inspection results including:
-            - success: Whether the inspection succeeded
             - actual_count: Number of entries found
             - has_multiple: Whether multiple entries exist
             - raw_output: Raw metaflac output
@@ -30,16 +30,18 @@ class VorbisMetadataInspector:
         )
         raw_output = result.stdout
         
-        # Count occurrences of the tag
-        tag_pattern = f"{tag_name}="
-        actual_count = raw_output.count(tag_pattern)
-        has_multiple = actual_count > 1
-        
-        # Extract individual entries
+        # Case-insensitive search for occurrences of TAG= in the metaflac output.
+        # metaflac often prints lines like: "comment[0]: artist=Artist One"
+        pattern = re.compile(rf"{re.escape(tag_name)}=(.*)", re.IGNORECASE)
         entries = []
         for line in raw_output.split('\n'):
-            if line.strip().startswith(tag_pattern):
-                entries.append(line.strip())
+            m = pattern.search(line)
+            if m:
+                # Store the full key=value form as seen (lower/upper preserved in output)
+                entries.append(m.group(0).strip())
+
+        actual_count = len(entries)
+        has_multiple = actual_count > 1
         
         return {
             'actual_count': actual_count,
