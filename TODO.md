@@ -23,12 +23,15 @@ This file tracks future work, improvements, and testing tasks for AudioMeta Pyth
   - Integration with existing Vorbis manager
 
 - [ ] **Batch processing with parallelization**
+
   - Add Python API functions for processing multiple audio files (CLI already supports this)
   - Bridge the gap between CLI multi-file support and single-file Python API
   - Implement parallel metadata reading/writing operations for better performance
   - Add progress tracking and consolidated error handling for batch operations
   - Consider thread pool or multiprocessing for CPU-intensive tasks
   - Provide both sequential and parallel processing options
+
+- [ ] **Remove audio file class and move capabilities directly into metadata manager**
 
 ---
 
