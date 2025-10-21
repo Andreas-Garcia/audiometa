@@ -20,7 +20,7 @@ class TestMultipleEntriesRiff:
 			# Expect three separate IART entries
 			assert verification['actual_count'] == 3
 
-	def test_riff_artists_concatenation(self):
+	def test_artists_concatenation(self):
 		initial_metadata = {"title": "Test Song"}
 		with TempFileWithMetadata(initial_metadata, "wav") as test_file:
 			metadata = {UnifiedMetadataKey.ARTISTS_NAMES: ["Artist 1", "Artist 2", "Artist 3"]}
