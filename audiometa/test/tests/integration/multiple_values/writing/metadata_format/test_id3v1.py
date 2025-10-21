@@ -17,9 +17,9 @@ class TestMultipleEntriesId3v1:
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
             
             # Use helper to check the created ID3v1 artist field directly
-            inspection = ID3v1MetadataGetter.get_raw_metadata(test_file.path, 'artist')
-            raw_output = inspection['raw_output']
-            assert "Artist 1;Artist 2" in raw_output or "Artist 2;Artist 1" in raw_output
+            raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file.path)
+            artists = raw_metadata.get("artist", "")
+            assert "Artist 1;Artist 2" in artists or "Artist 2;Artist 1" in artists
             
     
     def test_with_existing_artists_field(self):
