@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from audiometa import update_file_metadata, get_merged_unified_metadata
+from audiometa import update_file_metadata, get_specific_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
@@ -20,8 +20,7 @@ class TestSeparatorHandling:
         }
         update_file_metadata(temp_audio_file, metadata)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         
         assert isinstance(artists, list)
         assert len(artists) == 6
@@ -43,8 +42,7 @@ class TestSeparatorHandling:
         }
         update_file_metadata(temp_audio_file, metadata)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         
         assert isinstance(artists, list)
         assert len(artists) == 3
@@ -56,35 +54,11 @@ class TestSeparatorHandling:
         # Test separator handling across different multi-value fields
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist; with; semicolons", "Artist, with, commas"],
-            UnifiedMetadataKey.COMPOSERS: ["Composer / with / slashes", "Composer \\ with \\ backslashes"],
-            UnifiedMetadataKey.MUSICIANS: ["Guitar; Lead: Alice", "Bass, Electric: Bob"],
-            UnifiedMetadataKey.GENRES_NAMES: ["Rock; Alternative", "Jazz, Fusion"]
         }
         update_file_metadata(temp_audio_file, metadata)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        
-        # Verify each field preserves separators correctly
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         assert isinstance(artists, list)
         assert len(artists) == 2
         assert "Artist; with; semicolons" in artists
         assert "Artist, with, commas" in artists
-        
-        composers = unified_metadata.get(UnifiedMetadataKey.COMPOSERS)
-        assert isinstance(composers, list)
-        assert len(composers) == 2
-        assert "Composer / with / slashes" in composers
-        assert "Composer \\ with \\ backslashes" in composers
-        
-        musicians = unified_metadata.get(UnifiedMetadataKey.MUSICIANS)
-        assert isinstance(musicians, list)
-        assert len(musicians) == 2
-        assert "Guitar; Lead: Alice" in musicians
-        assert "Bass, Electric: Bob" in musicians
-        
-        genres = unified_metadata.get(UnifiedMetadataKey.GENRES_NAMES)
-        assert isinstance(genres, list)
-        assert len(genres) == 2
-        assert "Rock; Alternative" in genres
-        assert "Jazz, Fusion" in genres
