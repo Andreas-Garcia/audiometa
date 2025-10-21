@@ -7,7 +7,7 @@ class UnifiedMetadataKey(str, Enum):
     ARTISTS = 'artists'
     ALBUM_NAME = 'album_name'
     ALBUM_ARTISTS = 'album_artists_names'
-    GENRES_NAMES = 'genre_name'
+    GENRES_NAMES = 'genres_names'
     RATING = 'rating'
     LANGUAGE = 'language'
     RELEASE_DATE = 'release_date'
