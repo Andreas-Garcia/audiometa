@@ -4,51 +4,38 @@ Helper for extracting ID3v2 metadata from audio files.
 """
 
 
-from pathlib import Path
+
 from audiometa.test.helpers.common.external_tool_runner import run_external_tool
 
 
 
 class ID3v2MetadataGetter:
-    """
-    Static helper for getting ID3v2 metadata fields from an audio file using external tools.
-    """
+    """Helper class to get ID3v2 metadata from audio files using the id3v2 tool."""
     @staticmethod
-    def _get_raw_metadata(file_path):
+    def get_raw_metadata(file_path):
         """
-        Runs id3v2 tool and returns its output as a string.
+        Runs id3v2 tool and returns its output as a string in the format FRAMEID=value, e.g. TPE1=Artist One;Artist Two;Artist Three
         """
         result = run_external_tool(["id3v2", "-l", str(file_path)], "id3v2")
-        return result.stdout
+        lines = result.stdout.splitlines()
+        parsed_lines = []
+        for line in lines:
+            # Match lines like: FRAMEID (Description): Value
+            if "(" in line and "):" in line:
+                frame_id = line.split(" ", 1)[0]
+                value = line.split("):", 1)[-1].strip()
+                parsed_lines.append(f"{frame_id}={value}")
+            else:
+                parsed_lines.append(line)
+        return "\n".join(parsed_lines)
 
-    @staticmethod
-    def get_metadata(file_path):
-        """
-        Returns a dictionary of ID3v2 metadata fields using id3v2 tool output.
-        """
-        output = ID3v2MetadataGetter._get_raw_metadata(file_path)
-        metadata = {}
-        for line in output.splitlines():
-            if line.startswith("TIT2 (Title):"):
-                metadata["title"] = line.split(":", 1)[1].strip()
-            elif line.startswith("TPE1 (Lead performer(s)/Soloist(s)):"):
-                metadata["artists"] = [a.strip() for a in line.split(":", 1)[1].split("/") if a.strip()]
-            elif line.startswith("TALB (Album/Movie/Show title):"):
-                metadata["album"] = line.split(":", 1)[1].strip()
-            elif line.startswith("TDRC (Recording time):"):
-                metadata["year"] = line.split(":", 1)[1].strip()
-            elif line.startswith("TCON (Content type):"):
-                metadata["genre"] = line.split(":", 1)[1].strip()
-            elif line.startswith("COMM (Comments):"):
-                metadata["comment"] = line.split(":", 1)[1].strip()
-            elif line.startswith("TRCK (Track number/Position in set):"):
-                metadata["track"] = line.split(":", 1)[1].strip()
-        return metadata
 
     @staticmethod
     def get_artists(file_path):
         metadata = ID3v2MetadataGetter.get_metadata(file_path)
         return metadata.get('artists', [])
+
+
 
     @staticmethod
     def get_title(file_path):
