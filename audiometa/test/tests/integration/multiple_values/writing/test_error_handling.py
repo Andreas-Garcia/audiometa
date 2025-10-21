@@ -23,3 +23,10 @@ class TestMultipleValuesErrorHandling:
         }
         with pytest.raises(InvalidMetadataTypeError):
             update_file_metadata(temp_audio_file, metadata)
+            
+    def test_write_list_with_none_removes_raises_error(self, temp_audio_file: Path):
+        metadata = {
+            UnifiedMetadataKey.ARTISTS_NAMES: [None, None]
+        }
+        with pytest.raises(InvalidMetadataTypeError):   
+            update_file_metadata(temp_audio_file, metadata)
