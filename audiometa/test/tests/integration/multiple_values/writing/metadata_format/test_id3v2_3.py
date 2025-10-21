@@ -9,20 +9,8 @@ from audiometa.test.helpers.id3v2.id3v2_metadata_setter import ID3v2MetadataSett
 
 
 class TestMultipleEntriesId3v2_3:
-    def test_write_multiple_artists_id3v2_3(self, temp_audio_file: Path):
-        metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: ["Artist 1", "Artist 2", "Artist 3"]
-        }
         
-        update_file_metadata(temp_audio_file, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
-        
-        # Use helper to check the created ID3v2 frame directly
-        verification = ID3v2MetadataInspector.inspect_multiple_entries_in_raw_data(temp_audio_file, "TPE1")
-        assert verification['success']
-        # In ID3v2.3, multiple artists should be in a single frame with separator (// has highest priority)
-        assert "TPE1=Artist 1//Artist 2//Artist 3" in verification['raw_output']
-    
-    def test_id3v2_3_artists_concatenation(self):
+    def test_artists_concatenation(self):
         initial_metadata = {"title": "Test Song"}
         with TempFileWithMetadata(initial_metadata, "id3v2.3") as test_file:
             metadata = {
@@ -37,10 +25,6 @@ class TestMultipleEntriesId3v2_3:
             
             # Check that all artists are concatenated with separators in ID3v2.3
             raw_output = verification['raw_output']
-            assert "Artist 1" in raw_output
-            assert "Artist 2" in raw_output
-            assert "Artist 3" in raw_output
-            # In ID3v2.3, multiple artists should be in a single frame with separators (// has highest priority)
             assert "TPE1=Artist 1//Artist 2//Artist 3" in raw_output
     
     def test_with_existing_artists_field(self):
@@ -49,9 +33,8 @@ class TestMultipleEntriesId3v2_3:
         with TempFileWithMetadata(initial_metadata, "id3v2.3") as test_file:
             ID3v2MetadataSetter.set_artist(test_file.path, "Existing 1; Existing 2", version="2.3")
             verification = ID3v2MetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "TPE1")
-            assert verification['success']
-            assert "Existing 1" in verification['raw_output']
-            assert "Existing 2" in verification['raw_output']
+            raw_output = verification['raw_output']
+            assert "TPE1=Existing 1; Existing 2" in raw_output
             
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Existing 1", "New 2"]

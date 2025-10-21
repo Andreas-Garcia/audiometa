@@ -153,6 +153,32 @@ class ID3v2MetadataSetter:
     def set_bpm(file_path: Path, bpm: int) -> None:
         command = ["mid3v2", "--TBPM", str(bpm), str(file_path)]
         run_external_tool(command, "mid3v2")
+
+    @staticmethod
+    def write_tpe1_with_encoding(file_path: Path, text: str, encoding: int = 3, version: str = "2.4") -> None:
+        """Write a TPE1 frame using mutagen with a specific text encoding.
+
+        encoding: integer 0..3 (ISO-8859-1, UTF-16 with BOM, UTF-16BE, UTF-8)
+        version: "2.3" or "2.4" — controls the saved ID3v2 version tuple
+        """
+        from mutagen.id3 import ID3, TPE1
+        from mutagen.id3._util import ID3NoHeaderError
+
+        try:
+            id3 = ID3(file_path)
+        except ID3NoHeaderError:
+            id3 = ID3()
+
+        # Set requested version
+        id3.version = (2, 3, 0) if version == "2.3" else (2, 4, 0)
+
+        # Remove existing artist frames and add new one with the requested encoding
+        id3.delall('TPE1')
+        id3.add(TPE1(encoding=encoding, text=text))
+
+        # Save with the matching v2 version
+        version_major = 3 if version == "2.3" else 4
+        id3.save(file_path, v2_version=version_major)
     
     @staticmethod
     def set_max_metadata(file_path: Path) -> None:
