@@ -31,6 +31,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
 - [Core API Reference](#core-api-reference)
   - [Reading Metadata](#reading-metadata)
   - [Writing Metadata](#writing-metadata)
+    - [Writing Defaults by Audio Format](#writing-defaults-by-audio-format)
   - [Deleting Metadata](#deleting-metadata)
   - [AudioFile Class](#audiofile-class)
 - [Advanced Features](#advanced-features)
@@ -41,7 +42,6 @@ A comprehensive Python library for reading and writing audio metadata across mul
 - [Metadata Field Reference](#metadata-field-reference)
   - [Metadata Support by Format](#metadata-support-by-format)
   - [Track Number Formats](#track-number-formats)
-  - [Writing Defaults by Audio Format](#writing-defaults-by-audio-format)
   - [Metadata Writing Strategy](#metadata-writing-strategy)
   - [None vs Empty String Handling](#none-vs-empty-string-handling)
 - [Requirements](#requirements)
@@ -260,8 +260,6 @@ update_file_metadata("path/to/your/audio.mp3", new_metadata)
 from audiometa.utils.MetadataFormat import MetadataFormat
 update_file_metadata("song.wav", new_metadata, metadata_format=MetadataFormat.RIFF)
 
-````
-
 ### Deleting Metadata
 
 There are two ways to remove metadata from audio files:
@@ -279,7 +277,7 @@ print(f"All metadata deleted: {success}")
 from audiometa.utils.MetadataFormat import MetadataFormat
 success = delete_all_metadata("song.wav", tag_format=MetadataFormat.ID3V2)
 # This removes only ID3v2 tags, keeps RIFF metadata
-````
+```
 
 **Important**: This function removes the metadata headers/containers entirely from the file, not just the content. This means:
 
@@ -859,6 +857,48 @@ update_file_metadata("song.wav", {"title": "New Title"},
 update_file_metadata("song.wav", {"title": "New Title"},
                     metadata_strategy=MetadataWritingStrategy.PRESERVE)
 ```
+
+### Writing Defaults by Audio Format
+
+The library automatically selects appropriate default metadata formats for different audio file types:
+
+#### MP3 Files (ID3v2)
+
+- **Default Format**: ID3v2.4
+- **Why ID3v2.4?**: Most compatible with modern software and supports Unicode
+- **Fallback**: If ID3v2.4 writing fails, automatically falls back to ID3v2.3
+
+#### FLAC Files (Vorbis Comments)
+
+- **Default Format**: Vorbis Comments
+- **Why Vorbis?**: Native format for FLAC files, full Unicode support
+
+#### WAV Files (RIFF INFO)
+
+- **Default Format**: RIFF INFO chunks
+- **Why RIFF?**: Native format for WAV files, widely supported
+
+#### ID3v2 Version Selection
+
+When writing to MP3 files, the library intelligently selects the best ID3v2 version:
+
+```python
+from audiometa import update_file_metadata
+
+# The library automatically chooses ID3v2.4 for MP3 files
+update_file_metadata("song.mp3", {"title": "Song Title"})
+
+# You can override the version if needed
+from audiometa.utils.MetadataFormat import MetadataFormat
+update_file_metadata("song.mp3", {"title": "Song Title"},
+                    metadata_format=MetadataFormat.ID3V2_3)  # Force ID3v2.3
+```
+
+**Version Selection Logic:**
+
+1. **Default**: ID3v2.4 (most compatible)
+2. **Automatic Fallback**: If ID3v2.4 fails, tries ID3v2.3
+3. **Manual Override**: You can specify exact version when needed
 
 ### Deleting Metadata
 
@@ -1694,64 +1734,6 @@ The library gracefully handles common edge cases:
 - `""` → Track number: `None` (empty string)
 - `"5/12/15"` → Track number: `5` (takes first part before first slash)
 - `"5-12"` → `ValueError` (different separator, no slash)
-
-### Writing Defaults by Audio Format
-
-When writing metadata, the library uses these default metadata formats per audio file type:
-
-#### MP3 Files
-
-**Default Writing Format**: ID3v2 (v2.3)
-
-- **Version Selection**: You can choose between ID3v2.3 (maximum compatibility) and ID3v2.4 (modern features) using the `id3v2_version` parameter
-
-**ID3v2 Version Selection**
-
-The library supports both ID3v2.3 and ID3v2.4 formats for MP3 files. You can choose the version based on your compatibility needs:
-
-**ID3v2.3 (Default - Maximum Compatibility)**
-
-- **Best for**: Maximum compatibility with older players and devices
-- **Supported by**: Windows Media Player, older car systems, most DJ software
-- **Features**: UTF-16 encoding, basic unsynchronization
-
-**ID3v2.4 (Modern Features)**
-
-- **Best for**: Modern players and applications that support it
-- **Supported by**: Modern browsers, recent media players, newer mobile devices
-- **Features**: UTF-8 encoding, per-frame unsynchronization, extended metadata
-
-**Usage Examples**
-
-```python
-from audiometa import update_file_metadata, get_merged_unified_metadata
-
-# Use default ID3v2.3 (maximum compatibility)
-update_file_metadata("song.mp3", {"title": "My Song"})
-
-# Explicitly use ID3v2.3
-update_file_metadata("song.mp3", {"title": "My Song"}, id3v2_version=(2, 3, 0))
-
-# Use ID3v2.4 for modern features
-update_file_metadata("song.mp3", {"title": "My Song"}, id3v2_version=(2, 4, 0))
-
-# Reading also supports version selection
-metadata = get_merged_unified_metadata("song.mp3", id3v2_version=(2, 4, 0))
-```
-
-#### FLAC Files
-
-**Default Writing Format**: Vorbis Comments
-
-- **Note**: Vorbis is the native format for FLAC files
-
-#### WAV Files
-
-**Default Writing Format**: RIFF
-
-- **Note**: RIFF is the native format for WAV files
-
-**Note**: ID3v1 is a legacy format with limitations (30-character field limits, Latin-1 encoding). The library supports both reading and writing ID3v1 tags using direct file manipulation.
 
 ### Metadata Writing Strategy
 
