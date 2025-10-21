@@ -737,7 +737,7 @@ The library performs type checking on metadata values to ensure they conform to 
 The library validates metadata value types passed to `update_metadata` when keys are provided as `UnifiedMetadataKey` instances. Rules:
 
 - `None` values are allowed and indicate field removal.
-- For fields whose expected type is `list[...]` (for example `ARTISTS_NAMES` or `GENRES_NAMES`) the validator accepts either a `list` of the inner type or a single shorthand value of the inner type (e.g., a single `str`) for convenience; read operations will normalize to lists for multi-valued fields.
+- For fields whose expected type is `list[...]` (for example `ARTISTS_NAMES` or `GENRES_NAMES`) the validator accepts only lists. Each list element is checked against the expected inner type (e.g., `str` for `ARTISTS_NAMES`).
 - For plain types (`str`, `int`, etc.) the value must be an instance of that type.
 - On type mismatch the library raises `InvalidMetadataTypeError` (a subclass of `TypeError`).
 
