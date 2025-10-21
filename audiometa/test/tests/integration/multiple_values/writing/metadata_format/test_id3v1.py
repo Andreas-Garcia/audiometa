@@ -11,21 +11,15 @@ class TestMultipleEntriesId3v1:
         initial_metadata = {"title": "Test Song"}
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             metadata = {
-                UnifiedMetadataKey.ARTISTS_NAMES: ["Artist 1", "Artist 2", "Artist 3"]
+                UnifiedMetadataKey.ARTISTS_NAMES: ["Artist 1", "Artist 2"]
             }
             
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
             
             # Use helper to check the created ID3v1 artist field directly
-            inspection = ID3v1MetadataInspector.inspect_artist_field(test_file.path)
-            assert inspection['has_data']
-            
-            # Check that all artists are concatenated with separators
-            artist_value = inspection['artist_value']
-            assert "Artist 1" in artist_value
-            assert "Artist 2" in artist_value
-            assert "Artist 3" in artist_value
-            assert inspection['contains_separators']
+            inspection = ID3v1MetadataInspector.inspect_raw_field(test_file.path, 'artist')
+            raw_output = inspection['raw_output']
+            assert "Artist 1;Artist 2" in raw_output or "Artist 2;Artist 1" in raw_output
             
     
     def test_with_existing_artists_field(self):
