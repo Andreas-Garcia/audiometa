@@ -1060,7 +1060,7 @@ metadata = audio_file.get_unified_metadata()
 print(f"Title: {metadata.get('title', 'Unknown')}")
 ```
 
-### Error Handling
+## Error Handling
 
 The library provides specific exception types for different error conditions:
 
