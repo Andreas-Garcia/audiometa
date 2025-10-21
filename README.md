@@ -50,7 +50,14 @@ A comprehensive Python library for reading and writing audio metadata across mul
   - [Deleting Metadata](#deleting-metadata)
     - [`delete_all_metadata(file_path, tag_format=None)`](#delete_all_metadatafile_path-tag_formatnone)
   - [AudioFile Class](#audiofile-class)
-- [Advanced Features](#advanced-features)
+- [Error Handling](#error-handling)
+- [Metadata Field Reference](#metadata-field-reference)
+  - [Metadata Support by Format](#metadata-support-by-format)
+    - [ID3v2](#id3v2-format-mp3-wav-flac)
+    - [ID3v1](#id3v1-format-mp3-flac-wav)
+    - [Vorbis](#vorbis-format-flac)
+    - [RIFF](#riff-format-wav)
+    - [Edge Case Handling](#edge-case-handling)
   - [Multiple Values](#multiple-values)
     - [Semantic Classification](#semantic-classification)
     - [Semantically Single-Value Fields](#semantically-single-value-fields)
@@ -66,14 +73,6 @@ A comprehensive Python library for reading and writing audio metadata across mul
         - [Strategy Overview](#strategy-overview)
         - [Smart Separator Selection](#smart-separator-selection)
         - [Examples of Smart Separator Selection](#examples-of-smart-separator-selection)
-  - [Error Handling](#error-handling)
-- [Metadata Field Reference](#metadata-field-reference)
-  - [Metadata Support by Format](#metadata-support-by-format)
-    - [ID3v2](#id3v2-format-mp3-wav-flac)
-    - [ID3v1](#id3v1-format-mp3-flac-wav)
-    - [Vorbis](#vorbis-format-flac)
-    - [RIFF](#riff-format-wav)
-    - [Edge Case Handling](#edge-case-handling)
   - [Genre Handling](#genre-handling)
     - [Genre Support by Format](#genre-support-by-format)
     - [ID3v1 Genre Code System](#id3v1-genre-code-system)
@@ -1055,223 +1054,6 @@ metadata = audio_file.get_unified_metadata()
 print(f"Title: {metadata.get('title', 'Unknown')}")
 ```
 
-## Advanced Features
-
-### Multiple Values
-
-The library intelligently handles multiple values across different metadata formats, automatically choosing the best approach for each situation.
-
-#### Semantic Classification
-
-Fields are classified based on their intended use:
-
-- **Semantically Multi-Value Fields**: Fields that can logically contain multiple values (e.g., `ARTISTS_NAMES`, `GENRES_NAMES`). They can be stored as multiple entries or concatenated values.
-- **Semantically Single-Value Fields**: Fields that are intended to hold a single value (e.g., `TITLE`, `ALBUM_NAME`). They are typically stored as a single entry but some formats may allow multiple entries.
-
-#### Semantically Single-Value Fields
-
-The library always returns only the first value for these fields, regardless of how many values are present in the metadata.
-
-#### Semantically Multi-Value Fields
-
-The library can handle multiple values for these fields.
-
-##### List of Semantically Multi-Value Fields
-
-The following fields are treated as semantically multi-value:
-
-- `ARTISTS_NAMES` - Multiple artist names for the track
-- `ALBUM_ARTISTS_NAMES` - Multiple album artist names
-- `GENRES_NAMES` - Multiple genre classifications
-- `COMPOSERS` - Multiple composer names
-- `MUSICIANS` - Multiple musician credits (ID3v2.4)
-- `CONDUCTORS` - Multiple conductor names (ID3v2.4)
-- `ARRANGERS` - Multiple arranger names
-- `LYRICISTS` - Multiple lyricist names (ID3v2.4)
-- `INVOLVED_PEOPLE` - Multiple involved people credits (ID3v2.4)
-- `PERFORMERS` - Multiple performer names (Vorbis)
-
-##### Ways to handle multiple values
-
-Metadata formats can represent multi-value fields in two ways:
-
-##### Multiple Field Instances (Multi-Frame/Multi-Key)
-
-Each value is stored as a separate instance of the same field or frame.
-
-```
-ARTIST=Artist 1
-ARTIST=Artist 2
-ARTIST=Artist 3
-```
-
-- **Officially supported**: Vorbis Comments
-- **Technically possible**: ID3v2.3, ID3v2.4, RIFF INFO
-- **Not supported**: ID3v1
-
-| Format  | Official Support | Technically possible | Notes                                                                           |
-| ------- | ---------------- | -------------------- | ------------------------------------------------------------------------------- |
-| ID3v1   | ❌ No            | ❌ No                | Only one field per tag; repeated fields not allowed                             |
-| ID3v2.3 | ❌ No            | ✅ Yes               | Multiple frames allowed technically, but not officially defined for text values |
-| ID3v2.4 | ❌ No            | ✅ Yes               | Uses single frames with null-separated values for multi-value text fields       |
-| RIFF    | ❌ No            | ✅ Yes               | Duplicate chunks possible ; all fields can have multiple instances              |
-| Vorbis  | ✅ Yes           | ✅ Yes               | Allows repeated field names; semantically meaningful for multi-value fields     |
-
-##### Single field with separated values (separator-based)
-
-All values are stored in one field, separated by a character or delimiter.
-
-Example:
-
-```
-ARTIST=Artist 1; Artist 2
-```
-
-- Used when repeated fields aren’t officially supported, though repeated fields could still occur in these formats.
-- In ID3v2.4, the official separator is a null byte (\0).
-
-| Format  | Separator(s)  | Notes                                                       |
-| ------- | ------------- | ----------------------------------------------------------- |
-| ID3v1   | `/`, `;`, `,` | Single field only; multi-values concatenated with separator |
-| ID3v2.3 | `/`, `;`      | Uses single frame with separators                           |
-| ID3v2.4 | `/`, `;`      | Null-separated values preferred;                            |
-| RIFF    | `/`, `;`      | Not standardized; concatenation varies by implementation    |
-| Vorbis  | rarely needed | Native repeated fields make separators mostly unnecessary   |
-
-##### Reading Semantically Multiple Values
-
-The library uses **smart semantic multi-value reading logic** that follows a two-step process to handle the complex variations in how metadata can be stored:
-
-**Step 1: Extract All Field Instances**
-
-For each metadata format present in the file, the library first extracts all individual field instances without any processing:
-
-- **Vorbis (FLAC)**: Multiple `ARTIST=value` entries or single entry → `["Artist One", "Artist Two", "Artist Three"]` or `["Artist One;Artist Two;Artist Three"]`
-- **ID3v2 (MP3)**: Multiple `TPE1` frames or single frame → `["Artist One;Artist Two"]` or `["Artist One", "Artist Two"]`
-- **RIFF (WAV)**: Multiple `IART` chunks or single chunk → `["Artist One;Artist Two"]` or `["Artist One", "Artist Two"]`
-- **ID3v1**: Single artist field → `["Artist One;Artist Two"]`
-
-**Step 2: Apply Smart Multi-Value Logic**
-
-- **Multiple instances found**: Uses all instances as-is (no separator parsing)
-
-  - Raw data: `["Artist One", "Artist; with; semicolons", "Artist Three"]`
-  - Result: `["Artist One", "Artist; with; semicolons", "Artist Three"]`
-  - ✅ Preserves separators within individual entries
-
-- **Single instance found**: Applies smart separator parsing
-
-  - Raw data: `["Artist One;Artist Two;Artist Three"]`
-  - Result: `["Artist One", "Artist Two", "Artist Three"]`
-  - ✅ Parses concatenated values using separator detection
-
-- **Mixed instances found**: Uses all instances as-is (no separator parsing)
-  - Raw data: `["Artist One", "Artist Two;Artist Three", "Artist Four"]`
-  - Result: `["Artist One", "Artist Two;Artist Three", "Artist Four"]`
-  - ✅ Preserves all entries exactly as found, including separators within values
-
-###### Smart separator parsing of concatenated values
-
-When parsing concatenated values from a single instance, the library uses an intelligent separator detection mechanism:
-
-0. null bytes (`\0`) are treated as separators first (ID3v2.4 specific)
-1. `//` (double slash)
-2. `\\` (double backslash)
-3. `;` (semicolon)
-4. `\` (backslash)
-5. `/` (forward slash)
-6. `,` (comma)
-
-###### Detailed Examples of Smart Semantically Multi-Value Logic
-
-```python
-# Example 1: Semantically multi-value field with multiple instances (no parsing needed)
-# Step 1: Extract from Vorbis: ["Artist One", "Artist; with; semicolons", "Artist Three"]
-# Step 2: Multi-value field + Multiple instances → Use as-is
-# Result: ["Artist One", "Artist; with; semicolons", "Artist Three"]
-# ✅ Separators preserved because they're part of actual artist names
-
-# Example 2: Semantically multi-value field with single instance (parsing applied)
-# Step 1: Extract from ID3v1: ["Artist One;Artist Two;Artist Three"]
-# Step 2: Multi-value field + Single instance → Apply separator parsing
-# Result: ["Artist One", "Artist Two", "Artist Three"]
-# ✅ Concatenated string gets split into individual artists
-
-# Example 3: Semantically single-value field with multiple instances (first only)
-# Step 1: Extract from ID3v2: ["Main Title", "Alternative Title", "Extended Title"]
-# Step 2: Single-value field → Take first value only
-# Result: "Main Title"
-# ✅ Only the first title is returned regardless of other instances
-
-# Example 4: Semantically single-value field with parsing attempt (first only)
-# Step 1: Extract from RIFF: ["Main Title;Alternative Title"]
-# Step 2: Single-value field → Take first value (no parsing for single-value fields)
-# Result: "Main Title;Alternative Title"
-# ✅ Returns entire string as-is for single-value fields
-```
-
-##### Writing Semantically Multiple Values
-
-###### Strategy Overview
-
-The library uses a **smart writing strategy** that adapts to format capabilities and data characteristics. For each semantically multi-value field, different formats use different approaches:
-
-| Format  | Multi-value Writing Method |
-| ------- | -------------------------- |
-| ID3v1   | Restricted smart separator |
-| ID3v2.3 | Smart separator            |
-| ID3v2.4 | Null-separated values      |
-| RIFF    | Smart separator            |
-| Vorbis  | Multiple entries           |
-
-- The library automatically selects the best separator for legacy formats.
-- Writing new values always replaces any previous values for that field.
-
-##### Smart Separator Selection
-
-When writing to legacy formats that require concatenated values, the library uses **intelligent separator selection**. It scans the values to be written and selects a separator that does not appear in any of the values, prioritizing more distinctive separators first:
-
-1. `//` (double slash) - highest priority
-2. `\\` (double backslash)
-3. `;` (semicolon)
-4. `\` (backslash)
-5. `/` (forward slash)
-6. `,` (comma) - lowest priority
-
-If all these separators are present in the values, a comma (`,`) is used as a last resort.
-
-**ID3v1 Restricted Separator Selection:**
-ID3v1 only allows a single separator character (not multi-character like `//` or `\\`). The library will select the first available single-character separator from the priority list that does not appear in any value:
-
-1. `,` (comma) - Standard, readable
-2. `;` (semicolon) - Common alternative
-3. `|` (pipe) - Less common
-4. `·` (middle dot) - Unicode but Latin-1 safe
-5. `/` (slash) - Last resort, may be confusing
-
-**ID3v2.4 Null Separator:**
-For ID3v2.4, the library uses null bytes (`\0`) as the separator for multi-value fields, as per the specification.
-
-##### Examples of Smart Separator Selection:
-
-```python
-# Example 1: Clean values - uses highest priority separator
-values = ["Artist One", "Artist Two", "Artist Three"]
-# Result: "Artist One//Artist Two//Artist Three" (uses //)
-
-# Example 2: Values contain // - uses next priority separator
-values = ["Artist//One", "Artist Two", "Artist Three"]
-# Result: "Artist//One\\Artist Two\\Artist Three" (uses \\)
-
-# Example 3: Values contain // and \\ - uses semicolon
-values = ["Artist//One", "Artist\\Two", "Artist Three"]
-# Result: "Artist//One;Artist\\Two;Artist Three" (uses ;)
-
-# Example 4: All common separators present - uses comma
-values = ["Artist//One", "Artist\\Two", "Artist;Three", "Artist/Four"]
-# Result: "Artist//One,Artist\\Two,Artist;Three,Artist/Four" (uses ,)
-```
-
 ### Rating Profiles
 
 AudioMeta implements a sophisticated rating profile system to handle the complex compatibility requirements across different audio players and formats. This system ensures that ratings work consistently regardless of which software was used to create them.
@@ -1557,6 +1339,221 @@ The library supports a comprehensive set of metadata fields across different aud
 | Involved People   |               | ✓ (Format)   | ✓ (Format)   | ✓ (Format)    |                   |
 | Musicians         |               | ✓ (Format)   | ✓ (Format)   | ✓ (Format)    |                   |
 | Part of Set       |               | ✓ (Format)   | ✓ (Format)   | ✓ (Format)    |                   |
+
+### Multiple Values
+
+The library intelligently handles multiple values across different metadata formats, automatically choosing the best approach for each situation.
+
+#### Semantic Classification
+
+Fields are classified based on their intended use:
+
+- **Semantically Multi-Value Fields**: Fields that can logically contain multiple values (e.g., `ARTISTS_NAMES`, `GENRES_NAMES`). They can be stored as multiple entries or concatenated values.
+- **Semantically Single-Value Fields**: Fields that are intended to hold a single value (e.g., `TITLE`, `ALBUM_NAME`). They are typically stored as a single entry but some formats may allow multiple entries.
+
+#### Semantically Single-Value Fields
+
+The library always returns only the first value for these fields, regardless of how many values are present in the metadata.
+
+#### Semantically Multi-Value Fields
+
+The library can handle multiple values for these fields.
+
+##### List of Semantically Multi-Value Fields
+
+The following fields are treated as semantically multi-value:
+
+- `ARTISTS_NAMES` - Multiple artist names for the track
+- `ALBUM_ARTISTS_NAMES` - Multiple album artist names
+- `GENRES_NAMES` - Multiple genre classifications
+- `COMPOSERS` - Multiple composer names
+- `MUSICIANS` - Multiple musician credits (ID3v2.4)
+- `CONDUCTORS` - Multiple conductor names (ID3v2.4)
+- `ARRANGERS` - Multiple arranger names
+- `LYRICISTS` - Multiple lyricist names (ID3v2.4)
+- `INVOLVED_PEOPLE` - Multiple involved people credits (ID3v2.4)
+- `PERFORMERS` - Multiple performer names (Vorbis)
+
+##### Ways to handle multiple values
+
+Metadata formats can represent multi-value fields in two ways:
+
+##### Multiple Field Instances (Multi-Frame/Multi-Key)
+
+Each value is stored as a separate instance of the same field or frame.
+
+```
+ARTIST=Artist 1
+ARTIST=Artist 2
+ARTIST=Artist 3
+```
+
+- **Officially supported**: Vorbis Comments
+- **Technically possible**: ID3v2.3, ID3v2.4, RIFF INFO
+- **Not supported**: ID3v1
+
+| Format  | Official Support | Technically possible | Notes                                                                           |
+| ------- | ---------------- | -------------------- | ------------------------------------------------------------------------------- |
+| ID3v1   | ❌ No            | ❌ No                | Only one field per tag; repeated fields not allowed                             |
+| ID3v2.3 | ❌ No            | ✅ Yes               | Multiple frames allowed technically, but not officially defined for text values |
+| ID3v2.4 | ❌ No            | ✅ Yes               | Uses single frames with null-separated values for multi-value text fields       |
+| RIFF    | ❌ No            | ✅ Yes               | Duplicate chunks possible ; all fields can have multiple instances              |
+| Vorbis  | ✅ Yes           | ✅ Yes               | Allows repeated field names; semantically meaningful for multi-value fields     |
+
+##### Single field with separated values (separator-based)
+
+All values are stored in one field, separated by a character or delimiter.
+
+Example:
+
+```
+ARTIST=Artist 1; Artist 2
+```
+
+- Used when repeated fields aren’t officially supported, though repeated fields could still occur in these formats.
+- In ID3v2.4, the official separator is a null byte (\0).
+
+| Format  | Separator(s)  | Notes                                                       |
+| ------- | ------------- | ----------------------------------------------------------- |
+| ID3v1   | `/`, `;`, `,` | Single field only; multi-values concatenated with separator |
+| ID3v2.3 | `/`, `;`      | Uses single frame with separators                           |
+| ID3v2.4 | `/`, `;`      | Null-separated values preferred;                            |
+| RIFF    | `/`, `;`      | Not standardized; concatenation varies by implementation    |
+| Vorbis  | rarely needed | Native repeated fields make separators mostly unnecessary   |
+
+##### Reading Semantically Multiple Values
+
+The library uses **smart semantic multi-value reading logic** that follows a two-step process to handle the complex variations in how metadata can be stored:
+
+**Step 1: Extract All Field Instances**
+
+For each metadata format present in the file, the library first extracts all individual field instances without any processing:
+
+- **Vorbis (FLAC)**: Multiple `ARTIST=value` entries or single entry → `["Artist One", "Artist Two", "Artist Three"]` or `["Artist One;Artist Two;Artist Three"]`
+- **ID3v2 (MP3)**: Multiple `TPE1` frames or single frame → `["Artist One;Artist Two"]` or `["Artist One", "Artist Two"]`
+- **RIFF (WAV)**: Multiple `IART` chunks or single chunk → `["Artist One;Artist Two"]` or `["Artist One", "Artist Two"]`
+- **ID3v1**: Single artist field → `["Artist One;Artist Two"]`
+
+**Step 2: Apply Smart Multi-Value Logic**
+
+- **Multiple instances found**: Uses all instances as-is (no separator parsing)
+
+  - Raw data: `["Artist One", "Artist; with; semicolons", "Artist Three"]`
+  - Result: `["Artist One", "Artist; with; semicolons", "Artist Three"]`
+  - ✅ Preserves separators within individual entries
+
+- **Single instance found**: Applies smart separator parsing
+
+  - Raw data: `["Artist One;Artist Two;Artist Three"]`
+  - Result: `["Artist One", "Artist Two", "Artist Three"]`
+  - ✅ Parses concatenated values using separator detection
+
+- **Mixed instances found**: Uses all instances as-is (no separator parsing)
+  - Raw data: `["Artist One", "Artist Two;Artist Three", "Artist Four"]`
+  - Result: `["Artist One", "Artist Two;Artist Three", "Artist Four"]`
+  - ✅ Preserves all entries exactly as found, including separators within values
+
+###### Smart separator parsing of concatenated values
+
+When parsing concatenated values from a single instance, the library uses an intelligent separator detection mechanism:
+
+0. null bytes (`\0`) are treated as separators first (ID3v2.4 specific)
+1. `//` (double slash)
+2. `\\` (double backslash)
+3. `;` (semicolon)
+4. `\` (backslash)
+5. `/` (forward slash)
+6. `,` (comma)
+
+###### Detailed Examples of Smart Semantically Multi-Value Logic
+
+```python
+# Example 1: Semantically multi-value field with multiple instances (no parsing needed)
+# Step 1: Extract from Vorbis: ["Artist One", "Artist; with; semicolons", "Artist Three"]
+# Step 2: Multi-value field + Multiple instances → Use as-is
+# Result: ["Artist One", "Artist; with; semicolons", "Artist Three"]
+# ✅ Separators preserved because they're part of actual artist names
+
+# Example 2: Semantically multi-value field with single instance (parsing applied)
+# Step 1: Extract from ID3v1: ["Artist One;Artist Two;Artist Three"]
+# Step 2: Multi-value field + Single instance → Apply separator parsing
+# Result: ["Artist One", "Artist Two", "Artist Three"]
+# ✅ Concatenated string gets split into individual artists
+
+# Example 3: Semantically single-value field with multiple instances (first only)
+# Step 1: Extract from ID3v2: ["Main Title", "Alternative Title", "Extended Title"]
+# Step 2: Single-value field → Take first value only
+# Result: "Main Title"
+# ✅ Only the first title is returned regardless of other instances
+
+# Example 4: Semantically single-value field with parsing attempt (first only)
+# Step 1: Extract from RIFF: ["Main Title;Alternative Title"]
+# Step 2: Single-value field → Take first value (no parsing for single-value fields)
+# Result: "Main Title;Alternative Title"
+# ✅ Returns entire string as-is for single-value fields
+```
+
+##### Writing Semantically Multiple Values
+
+###### Strategy Overview
+
+The library uses a **smart writing strategy** that adapts to format capabilities and data characteristics. For each semantically multi-value field, different formats use different approaches:
+
+| Format  | Multi-value Writing Method |
+| ------- | -------------------------- |
+| ID3v1   | Restricted smart separator |
+| ID3v2.3 | Smart separator            |
+| ID3v2.4 | Null-separated values      |
+| RIFF    | Smart separator            |
+| Vorbis  | Multiple entries           |
+
+- The library automatically selects the best separator for legacy formats.
+- Writing new values always replaces any previous values for that field.
+
+##### Smart Separator Selection
+
+When writing to legacy formats that require concatenated values, the library uses **intelligent separator selection**. It scans the values to be written and selects a separator that does not appear in any of the values, prioritizing more distinctive separators first:
+
+1. `//` (double slash) - highest priority
+2. `\\` (double backslash)
+3. `;` (semicolon)
+4. `\` (backslash)
+5. `/` (forward slash)
+6. `,` (comma) - lowest priority
+
+If all these separators are present in the values, a comma (`,`) is used as a last resort.
+
+**ID3v1 Restricted Separator Selection:**
+ID3v1 only allows a single separator character (not multi-character like `//` or `\\`). The library will select the first available single-character separator from the priority list that does not appear in any value:
+
+1. `,` (comma) - Standard, readable
+2. `;` (semicolon) - Common alternative
+3. `|` (pipe) - Less common
+4. `·` (middle dot) - Unicode but Latin-1 safe
+5. `/` (slash) - Last resort, may be confusing
+
+**ID3v2.4 Null Separator:**
+For ID3v2.4, the library uses null bytes (`\0`) as the separator for multi-value fields, as per the specification.
+
+##### Examples of Smart Separator Selection:
+
+```python
+# Example 1: Clean values - uses highest priority separator
+values = ["Artist One", "Artist Two", "Artist Three"]
+# Result: "Artist One//Artist Two//Artist Three" (uses //)
+
+# Example 2: Values contain // - uses next priority separator
+values = ["Artist//One", "Artist Two", "Artist Three"]
+# Result: "Artist//One\\Artist Two\\Artist Three" (uses \\)
+
+# Example 3: Values contain // and \\ - uses semicolon
+values = ["Artist//One", "Artist\\Two", "Artist Three"]
+# Result: "Artist//One;Artist\\Two;Artist Three" (uses ;)
+
+# Example 4: All common separators present - uses comma
+values = ["Artist//One", "Artist\\Two", "Artist;Three", "Artist/Four"]
+# Result: "Artist//One,Artist\\Two,Artist;Three,Artist/Four" (uses ,)
+```
 
 ### Genre Handling
 
