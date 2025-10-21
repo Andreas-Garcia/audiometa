@@ -2,7 +2,7 @@ import pytest
 
 
 
-from audiometa import get_merged_unified_metadata, update_file_metadata
+from audiometa import get_unified_metadata, update_file_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -15,7 +15,7 @@ class TestGenreWriting:
             test_genre = "Test Genre ID3v2"
             test_metadata = {UnifiedMetadataKey.GENRES_NAMES: test_genre}
             update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == [test_genre]
 
     def test_riff(self):
@@ -23,7 +23,7 @@ class TestGenreWriting:
             test_genre = "Rock"
             test_metadata = {UnifiedMetadataKey.GENRES_NAMES: test_genre}
             update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == [test_genre]
 
     def test_vorbis(self):
@@ -31,7 +31,7 @@ class TestGenreWriting:
             test_genre = "Test Genre Vorbis"
             test_metadata = {UnifiedMetadataKey.GENRES_NAMES: test_genre}
             update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == [test_genre]
 
     def test_id3v1(self):
@@ -39,7 +39,7 @@ class TestGenreWriting:
             test_genre = "Rock"
             test_metadata = {UnifiedMetadataKey.GENRES_NAMES: test_genre}
             update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == [test_genre]
 
     def test_invalid_type_raises(self):

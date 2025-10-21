@@ -3,7 +3,7 @@ import pytest
 from pathlib import Path
 
 from audiometa import (
-    get_merged_unified_metadata,
+    get_unified_metadata,
     get_single_format_app_metadata,
     get_specific_metadata,
     AudioFile
@@ -126,7 +126,7 @@ class TestId3v23Reading:
             assert id3v1_metadata_result.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v1 Album"
             
             # Test merged metadata (should prioritize ID3v2.3 over ID3v1)
-            merged_metadata = get_merged_unified_metadata(test_file.path)
+            merged_metadata = get_unified_metadata(test_file.path)
             assert merged_metadata is not None
             assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2.3 Long Title That Exceeds ID3v1 Limits"
 

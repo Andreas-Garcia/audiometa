@@ -7,7 +7,7 @@ instead of the app's update functions, preventing circular dependencies.
 import pytest
 
 from audiometa import (
-    get_merged_unified_metadata,
+    get_unified_metadata,
     get_single_format_app_metadata,
     get_specific_metadata,
     update_file_metadata
@@ -35,7 +35,7 @@ class TestRiffWriting:
                             UnifiedMetadataKey.ALBUM_NAME: "Test Album WAV",
                         }
                         update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
-                        metadata = get_merged_unified_metadata(test_file.path)
+                        metadata = get_unified_metadata(test_file.path)
                         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title WAV"
                         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist WAV"]
                         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album WAV"
@@ -59,7 +59,7 @@ class TestRiffWriting:
                         update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
             
                         # Verify all fields
-                        metadata = get_merged_unified_metadata(test_file.path, normalized_rating_max_value=10)
+                        metadata = get_unified_metadata(test_file.path, normalized_rating_max_value=10)
             
                         # Basic metadata assertions
                         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Song Title"
@@ -85,7 +85,7 @@ class TestRiffWriting:
                         update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
             
                         # Verify all fields were written
-                        metadata = get_merged_unified_metadata(test_file.path, normalized_rating_max_value=10)
+                        metadata = get_unified_metadata(test_file.path, normalized_rating_max_value=10)
             
                         # Basic metadata assertions
                         assert metadata.get(UnifiedMetadataKey.TITLE) == "Written Song Title"
@@ -110,7 +110,7 @@ class TestRiffWriting:
                         update_file_metadata(test_file.path, initial_metadata)
             
                         # Verify metadata was written
-                        metadata = get_merged_unified_metadata(test_file.path)
+                        metadata = get_unified_metadata(test_file.path)
                         assert metadata.get(UnifiedMetadataKey.TITLE) == "Test WAV Title"
                         assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test WAV Artist"]
                         assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test WAV Album"
@@ -124,7 +124,7 @@ class TestRiffWriting:
                         update_file_metadata(test_file.path, none_metadata)
             
                         # Verify fields were removed (return None because they don't exist)
-                        updated_metadata = get_merged_unified_metadata(test_file.path)
+                        updated_metadata = get_unified_metadata(test_file.path)
                         assert updated_metadata.get(UnifiedMetadataKey.TITLE) is None
             
                         # Verify other fields are still present

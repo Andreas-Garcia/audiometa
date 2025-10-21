@@ -10,7 +10,7 @@ from pathlib import Path
 from audiometa import (
     update_file_metadata,
     get_single_format_app_metadata,
-    get_merged_unified_metadata,
+    get_unified_metadata,
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
@@ -60,7 +60,7 @@ class TestSyncStrategy:
             assert riff_after.get(UnifiedMetadataKey.TITLE) == "Synced Title"
             
             # Merged metadata should prefer ID3v2 (higher precedence)
-            merged = get_merged_unified_metadata(test_file)
+            merged = get_unified_metadata(test_file)
             assert merged.get(UnifiedMetadataKey.TITLE) == "Synced Title"
 
     def test_default_strategy_is_sync(self):
@@ -86,7 +86,7 @@ class TestSyncStrategy:
             assert riff_after.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
             
             # Merged metadata should prefer RIFF (WAV native format)
-            merged = get_merged_unified_metadata(test_file)
+            merged = get_unified_metadata(test_file)
             assert merged.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
 
     def test_id3v1_not_preserved_with_sync_strategy(self, sample_mp3_file: Path, temp_audio_file: Path):
@@ -119,7 +119,7 @@ class TestSyncStrategy:
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "Synced Title"
             
             # Merged metadata should prefer ID3v2 (higher precedence)
-            merged = get_merged_unified_metadata(test_file)
+            merged = get_unified_metadata(test_file)
             assert merged.get(UnifiedMetadataKey.TITLE) == "Synced Title"
 
     def test_id3v1_modification_success(self, sample_mp3_file: Path, temp_audio_file: Path):
@@ -187,6 +187,6 @@ class TestSyncStrategy:
             assert len(id3v1_album) <= 30, f"ID3v1 album should be <= 30 chars: {len(id3v1_album)}"
             
             # Merged metadata should prefer RIFF (WAV native format has higher precedence)
-            merged = get_merged_unified_metadata(test_file)
+            merged = get_unified_metadata(test_file)
             assert merged.get(UnifiedMetadataKey.TITLE) == long_title  # Full title from RIFF
             assert merged.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Long Artist Name That Exceeds Limits"]

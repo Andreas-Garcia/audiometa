@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import get_merged_unified_metadata, get_specific_metadata
+from audiometa import get_unified_metadata, get_specific_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -155,7 +155,7 @@ class TestVorbisGenreReading:
             with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
                 test_file.set_vorbis_genre(genre)
                 
-                metadata = get_merged_unified_metadata(test_file.path)
+                metadata = get_unified_metadata(test_file.path)
                 genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
                 
                 assert genres == [genre]
@@ -195,7 +195,7 @@ class TestVorbisGenreReading:
         with TempFileWithMetadata({"title": "Test Title", "artist": "Test Artist", "album": "Test Album"}, "flac") as test_file:
             test_file.set_vorbis_genre("Rock; Alternative; Indie")
             
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock", "Alternative", "Indie"]

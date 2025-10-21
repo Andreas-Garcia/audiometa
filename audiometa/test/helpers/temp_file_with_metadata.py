@@ -36,7 +36,7 @@ class TempFileWithMetadata:
             assert test_file.has_id3v2_header()
             
             # Use test_file.path for testing
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
     """
     
     def __init__(self, metadata: dict, format_type: str):

@@ -3,7 +3,7 @@
 import pytest
 
 from audiometa import (
-    get_merged_unified_metadata,
+    get_unified_metadata,
     get_single_format_app_metadata,
     AudioFile
 )
@@ -17,17 +17,17 @@ class TestVorbisReading:
 
     def test_vorbis_metadata_capabilities(self, metadata_vorbis_small_flac, metadata_vorbis_big_flac):
         # Small Vorbis file
-        metadata = get_merged_unified_metadata(metadata_vorbis_small_flac)
+        metadata = get_unified_metadata(metadata_vorbis_small_flac)
         title = metadata.get(UnifiedMetadataKey.TITLE)
         assert len(title) > 30  # Vorbis can have longer titles
         
         # Big Vorbis file
-        metadata = get_merged_unified_metadata(metadata_vorbis_big_flac)
+        metadata = get_unified_metadata(metadata_vorbis_big_flac)
         title = metadata.get(UnifiedMetadataKey.TITLE)
         assert len(title) > 30  # Vorbis can have longer titles
 
     def test_vorbis_metadata_reading(self, metadata_vorbis_small_flac):
-        metadata = get_merged_unified_metadata(metadata_vorbis_small_flac)
+        metadata = get_unified_metadata(metadata_vorbis_small_flac)
         assert isinstance(metadata, dict)
         assert UnifiedMetadataKey.TITLE in metadata
         # Vorbis can have very long titles
@@ -40,14 +40,14 @@ class TestVorbisReading:
 
     def test_metadata_none_files(self, metadata_none_flac):
         # FLAC with no metadata
-        metadata = get_merged_unified_metadata(metadata_none_flac)
+        metadata = get_unified_metadata(metadata_none_flac)
         assert isinstance(metadata, dict)
 
     def test_audio_file_object_reading(self, metadata_vorbis_small_flac):
         audio_file = AudioFile(metadata_vorbis_small_flac)
         
         # Test merged metadata
-        metadata = get_merged_unified_metadata(audio_file)
+        metadata = get_unified_metadata(audio_file)
         assert isinstance(metadata, dict)
         assert UnifiedMetadataKey.TITLE in metadata
 

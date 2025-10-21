@@ -2,7 +2,7 @@ import pytest
 from pathlib import Path
 
 from audiometa import (
-    get_merged_unified_metadata,
+    get_unified_metadata,
     get_single_format_app_metadata,
     get_specific_metadata,
     AudioFile,
@@ -23,7 +23,7 @@ class TestId3v24Reading:
             # Set maximum metadata using the script helper
             ID3v2MetadataSetter.set_max_metadata(test_file.path)
             
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             title = metadata.get(UnifiedMetadataKey.TITLE)
             assert len(title) > 30  # ID3v2.4 can have longer titles than ID3v1
 
@@ -32,7 +32,7 @@ class TestId3v24Reading:
             # Set test metadata
             ID3v2MetadataSetter.set_max_metadata(test_file.path)
             
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             assert isinstance(metadata, dict)
             assert UnifiedMetadataKey.TITLE in metadata
             # ID3v2.4 can have longer titles than ID3v1
@@ -55,7 +55,7 @@ class TestId3v24Reading:
             audio_file = AudioFile(test_file.path)
             
             # Test merged metadata
-            metadata = get_merged_unified_metadata(audio_file)
+            metadata = get_unified_metadata(audio_file)
             assert isinstance(metadata, dict)
             assert UnifiedMetadataKey.TITLE in metadata
             
@@ -93,7 +93,7 @@ class TestId3v24Reading:
             update_file_metadata(test_file.path, unicode_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             # Verify the Unicode characters are preserved
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test 中文 العربية русский 🎵"
             assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Artist 日本語 한국어"]
             assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Album Ελληνικά ภาษาไทย"
@@ -104,7 +104,7 @@ class TestId3v24Reading:
             artists = ["Artist One", "Artist Two", "Artist Three"]
             ID3v2MetadataSetter.set_artists(test_file.path, artists)
             
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             retrieved_artists = metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             assert isinstance(retrieved_artists, list)
@@ -118,7 +118,7 @@ class TestId3v24Reading:
             ID3v2MetadataSetter.set_artists(test_file.path, artists)
             
             # Test that multiple artists are preserved
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             retrieved_artists = metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             assert isinstance(retrieved_artists, list)
@@ -164,7 +164,7 @@ class TestId3v24Reading:
             assert id3v1_metadata_result[UnifiedMetadataKey.TITLE] == "ID3v1 Title"
             
             # Test merged metadata (should prioritize ID3v2.4 over ID3v1)
-            merged_metadata = get_merged_unified_metadata(test_file.path)
+            merged_metadata = get_unified_metadata(test_file.path)
             assert merged_metadata is not None
             assert UnifiedMetadataKey.TITLE in merged_metadata
             # Should prefer ID3v2.4 title since it's more comprehensive
@@ -184,7 +184,7 @@ class TestId3v24Reading:
             update_file_metadata(test_file.path, complex_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             # Verify all complex metadata is preserved
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Complex Title with Special Characters: äöü ñç 中文"
             assert "Artist with UTF-8: 日本語" in metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             assert "Another Artist: العربية" in metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -205,8 +205,8 @@ class TestId3v24Reading:
             update_file_metadata(id3v24_file.path, unicode_test_data, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             # Both should preserve the Unicode characters, but ID3v2.4 should handle them more efficiently
-            id3v23_metadata = get_merged_unified_metadata(id3v23_file.path)
-            id3v24_metadata = get_merged_unified_metadata(id3v24_file.path)
+            id3v23_metadata = get_unified_metadata(id3v23_file.path)
+            id3v24_metadata = get_unified_metadata(id3v24_file.path)
             
             # Both should preserve the same content
             assert id3v23_metadata.get(UnifiedMetadataKey.TITLE) == "Unicode Test: 中文 العربية"

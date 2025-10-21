@@ -9,7 +9,7 @@ from typing import Any, Dict, List
 
 from audiometa import (
     get_full_metadata,
-    get_merged_unified_metadata,
+    get_unified_metadata,
     update_file_metadata,
     delete_all_metadata,
     UnifiedMetadataKey,
@@ -74,7 +74,7 @@ def read_metadata(args) -> None:
     for file_path in files:
         try:
             if getattr(args, 'format_type', None) == "unified":
-                metadata = get_merged_unified_metadata(file_path)
+                metadata = get_unified_metadata(file_path)
             else:
                 metadata = get_full_metadata(
                     file_path,

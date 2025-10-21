@@ -10,7 +10,7 @@ from pathlib import Path
 from audiometa import (
     update_file_metadata,
     get_single_format_app_metadata,
-    get_merged_unified_metadata,
+    get_unified_metadata,
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
@@ -58,7 +58,7 @@ class TestPreserveStrategy:
             assert riff_after.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
             
             # Merged metadata should prefer RIFF (WAV native format has higher precedence)
-            merged = get_merged_unified_metadata(test_file)
+            merged = get_unified_metadata(test_file)
             assert merged.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
 
     def test_id3v1_not_preserved_with_preserve_strategy(self):
@@ -91,5 +91,5 @@ class TestPreserveStrategy:
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
             
             # Merged metadata should prefer ID3v2 (higher precedence)
-            merged = get_merged_unified_metadata(test_file.path)
+            merged = get_unified_metadata(test_file.path)
             assert merged.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"

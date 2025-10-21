@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from audiometa import update_file_metadata, get_merged_unified_metadata, get_single_format_app_metadata
+from audiometa import update_file_metadata, get_unified_metadata, get_single_format_app_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata

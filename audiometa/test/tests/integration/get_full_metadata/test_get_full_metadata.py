@@ -199,10 +199,10 @@ class TestGetFullMetadata:
         assert 'chunk_structure' in id3v1_raw
 
     def test_get_full_metadata_consistency_with_merged_metadata(self, sample_mp3_file: Path):
-        from audiometa import get_merged_unified_metadata
+        from audiometa import get_unified_metadata
         
         full_result = get_full_metadata(sample_mp3_file)
-        merged_result = get_merged_unified_metadata(sample_mp3_file)
+        merged_result = get_unified_metadata(sample_mp3_file)
         
         # Should be identical
         assert full_result['unified_metadata'] == merged_result

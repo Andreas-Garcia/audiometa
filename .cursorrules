@@ -168,7 +168,7 @@ def test_wav_sync_multiple_values(self, sample_wav_file: Path, temp_audio_file: 
         update_file_metadata(test_file.path, metadata)
 
         # Verify results
-        result = get_merged_unified_metadata(test_file.path)
+        result = get_unified_metadata(test_file.path)
         assert result.get(UnifiedMetadataKey.TITLE) == "Expected Title"
 ```
 
@@ -226,7 +226,7 @@ def test_wav_sync_multiple_values(self, sample_wav_file: Path, temp_audio_file: 
         update_file_metadata(test_file.path, metadata)
 
         # Verify results
-        result = get_merged_unified_metadata(test_file.path)
+        result = get_unified_metadata(test_file.path)
         assert result.get(UnifiedMetadataKey.TITLE) == "Expected Title"
 ```
 
@@ -247,7 +247,7 @@ def test_id3v1_genre_reading(self):
         }, metadata_format=MetadataFormat.ID3V1)
 
         # Testing reading - but we used our own writing logic!
-        metadata = get_merged_unified_metadata(test_file.path)
+        metadata = get_unified_metadata(test_file.path)
         assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
 
 def test_delete_lyrics_id3v2(self):
@@ -269,7 +269,7 @@ def test_id3v1_genre_reading(self):
         test_file.set_id3v1_max_metadata()
 
         # Now test reading with external verification
-        metadata = get_merged_unified_metadata(test_file.path)
+        metadata = get_unified_metadata(test_file.path)
         assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Blues"]
 
 def test_delete_lyrics_id3v2(self):
@@ -288,7 +288,7 @@ def test_delete_lyrics_id3v2(self):
 def test_id3v1_genre_reading(self):
     # ✅ TempFileWithMetadata uses external tools internally
     with TempFileWithMetadata({"genre": "Rock"}, "id3v1") as test_file:
-        metadata = get_merged_unified_metadata(test_file.path)
+        metadata = get_unified_metadata(test_file.path)
         assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
 ```
 
@@ -368,13 +368,13 @@ def test_delete_comment_riff(self):
 
 #### Use get_specific_metadata for Single Metadata Field Tests
 
-When testing reading of a **single metadata field**, use `get_specific_metadata()` instead of `get_merged_unified_metadata()` for better performance and clarity.
+When testing reading of a **single metadata field**, use `get_specific_metadata()` instead of `get_unified_metadata()` for better performance and clarity.
 
 #### ❌ WRONG - Inefficient for single field:
 
 ```python
 def test_title_reading(self, test_file):
-    metadata = get_merged_unified_metadata(test_file.path)
+    metadata = get_unified_metadata(test_file.path)
     title = metadata.get(UnifiedMetadataKey.TITLE)
     assert title == "Expected Title"
 ```
@@ -390,7 +390,7 @@ def test_title_reading(self, test_file):
 #### When to Use Each Function
 
 - **`get_specific_metadata()`**: When testing a single metadata field
-- **`get_merged_unified_metadata()`**: When testing multiple metadata fields or full metadata workflows
+- **`get_unified_metadata()`**: When testing multiple metadata fields or full metadata workflows
 
 ## File Organization
 

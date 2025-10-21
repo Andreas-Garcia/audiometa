@@ -19,7 +19,7 @@ import shutil
 from audiometa import (
     update_file_metadata,
     get_single_format_app_metadata,
-    get_merged_unified_metadata
+    get_unified_metadata
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -50,7 +50,7 @@ class TestDefaultWritingFormat:
             assert id3v2_metadata.get(UnifiedMetadataKey.BPM) == 120
         
             # Verify that merged metadata (which follows priority order) returns ID3v2 data
-            merged_metadata = get_merged_unified_metadata(test_file.path)
+            merged_metadata = get_unified_metadata(test_file.path)
             assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "MP3 Test Title"
             assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["MP3 Test Artist"]
 
@@ -93,7 +93,7 @@ class TestDefaultWritingFormat:
             assert vorbis_metadata.get(UnifiedMetadataKey.BPM) == 140
             
             # Verify that merged metadata (which follows priority order) returns Vorbis data
-            merged_metadata = get_merged_unified_metadata(test_file.path)
+            merged_metadata = get_unified_metadata(test_file.path)
             assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "FLAC Test Title"
             assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["FLAC Test Artist"]
 
@@ -118,7 +118,7 @@ class TestDefaultWritingFormat:
             assert riff_metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Test Genre"]
             
             # Verify that merged metadata (which follows priority order) returns RIFF data
-            merged_metadata = get_merged_unified_metadata(test_file.path)
+            merged_metadata = get_unified_metadata(test_file.path)
             assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "WAV Test Title"
             assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["WAV Test Artist"]
 

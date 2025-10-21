@@ -38,7 +38,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
 - [Core API Reference](#core-api-reference)
   - [Reading Metadata](#reading-metadata)
     - [Reading Priorities (Tag Precedence)](#reading-priorities-tag-precedence)
-    - [`get_merged_unified_metadata(file_path)`](#get_merged_unified_metadatafile_path)
+    - [`get_unified_metadata(file_path)`](#get_unified_metadatafile_path)
     - [`get_single_format_app_metadata(file_path, format)`](#get_single_format_app_metadatafile_path-format)
     - [`get_specific_metadata(file_path, field, metadata_format=None)`](#get_specific_metadatafile_path-field-metadata_formatnone)
     - [`get_full_metadata(file_path, include_headers=True, include_technical=True)`](#get_full_metadatafile_path-include_headerstrue-include_technicaltrue)
@@ -309,10 +309,10 @@ flac --version
 ### Reading Metadata
 
 ```python
-from audiometa import get_merged_unified_metadata
+from audiometa import get_unified_metadata
 
 # Read all metadata from a file
-metadata = get_merged_unified_metadata("path/to/your/audio.mp3")
+metadata = get_unified_metadata("path/to/your/audio.mp3")
 print(f"Title: {metadata.get(UnifiedMetadataKey.TITLE.value, 'Unknown')}")
 print(f"Artist: {metadata.get(UnifiedMetadataKey.ARTISTS_NAMES.value, ['Unknown'])}")
 print(f"Album: {metadata.get(UnifiedMetadataKey.ALBUM_NAME.value, 'Unknown')}")
@@ -580,14 +580,14 @@ When the same metadata tag exists in multiple formats within the same file, the 
 - For WAV files: If a title exists in both RIFF and ID3v2, the RIFF title will be returned.
 - For FLAC files: If a title exists in both Vorbis and ID3v2, the Vorbis title will be returned.
 
-#### `get_merged_unified_metadata(file_path)`
+#### `get_unified_metadata(file_path)`
 
 Reads all metadata from a file and returns a unified dictionary.
 
 ```python
-from audiometa import get_merged_unified_metadata
+from audiometa import get_unified_metadata
 
-metadata = get_merged_unified_metadata("song.mp3")
+metadata = get_unified_metadata("song.mp3")
 print(metadata['title'])  # Song title
 print(metadata['artists_names'])  # List of artists
 ```
@@ -638,7 +638,7 @@ from audiometa import get_full_metadata
 # Get complete metadata including headers and technical info
 full_metadata = get_full_metadata("song.mp3")
 
-# Access unified metadata (same as get_merged_unified_metadata)
+# Access unified metadata (same as get_unified_metadata)
 print(f"Title: {full_metadata['unified_metadata']['title']}")
 print(f"Artists: {full_metadata['unified_metadata']['artists_names']}")
 
@@ -676,7 +676,7 @@ A comprehensive dictionary containing:
 ```python
 {
     'unified_metadata': {
-        # Same as get_merged_unified_metadata() result
+        # Same as get_unified_metadata() result
         'title': 'Song Title',
         'artists_names': ['Artist 1', 'Artist 2'],
         'album_name': 'Album Name',
@@ -1048,7 +1048,7 @@ if audio_file.file_extension == '.flac':
     print(f"FLAC MD5 valid: {is_valid}")
 
 # Get metadata using the object
-metadata = audio_file.get_merged_unified_metadata()
+metadata = audio_file.get_unified_metadata()
 print(f"Title: {metadata.get('title', 'Unknown')}")
 ```
 
@@ -1332,7 +1332,7 @@ update_file_metadata("song.mp3", {
 **Reading Multiple Genres:**
 
 ```python
-metadata = get_merged_unified_metadata("song.mp3")
+metadata = get_unified_metadata("song.mp3")
 genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
 # Returns: ['Rock', 'Alternative', 'Indie'] (list)
 ```
@@ -1402,21 +1402,21 @@ Many audio editing software and tagging tools write multiple genres to RIFF file
 ```python
 # Example 1: Genre names only
 # File contains: "Rock; Alternative; Indie" in IGNR tag
-metadata = get_merged_unified_metadata("song.wav")
+metadata = get_unified_metadata("song.wav")
 genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
 # Currently returns: ["Rock"] (first genre only)
 # Future: Will return: ["Rock", "Alternative", "Indie"]
 
 # Example 2: Genre codes only
 # File contains: "17; 20; 131" in IGNR tag
-metadata = get_merged_unified_metadata("song.wav")
+metadata = get_unified_metadata("song.wav")
 genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
 # Currently returns: ["Rock"] (first code converted to name)
 # Future: Will return: ["Rock", "Alternative", "Indie"]
 
 # Example 3: Mixed codes and names
 # File contains: "Rock; 20; Indie" in IGNR tag
-metadata = get_merged_unified_metadata("song.wav")
+metadata = get_unified_metadata("song.wav")
 genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
 # Currently returns: ["Rock"] (first genre only)
 # Future: Will return: ["Rock", "Alternative", "Indie"]
@@ -1526,10 +1526,10 @@ AudioMeta recognizes three main rating profiles:
 **Automatic Profile Detection**
 
 ```python
-from audiometa import get_merged_unified_metadata
+from audiometa import get_unified_metadata
 
 # AudioMeta automatically detects the rating profile and normalizes the value
-metadata = get_merged_unified_metadata("song.mp3")
+metadata = get_unified_metadata("song.mp3")
 rating = metadata.get('rating')  # Always returns 0-10 scale regardless of source profile
 
 # Examples of what you get:
@@ -1561,7 +1561,7 @@ AudioMeta fully supports half-star ratings (0.5, 1.5, 2.5, 3.5, 4.5 stars) acros
 
 ```python
 # Reading half-star ratings
-metadata = get_merged_unified_metadata("half_star_rated.mp3")
+metadata = get_unified_metadata("half_star_rated.mp3")
 rating = metadata.get('rating')  # Could be 1.0, 3.0, 5.0, 7.0, 9.0 for half-stars
 
 # Writing half-star ratings
@@ -1583,7 +1583,7 @@ AudioMeta ensures that ratings work across different players:
 
 ```python
 # Read a file rated in Windows Media Player
-metadata = get_merged_unified_metadata("windows_rated.mp3")
+metadata = get_unified_metadata("windows_rated.mp3")
 print(f"Rating: {metadata['rating']}")  # 6.0 (3 stars)
 
 # Write the same rating to a FLAC file
@@ -1599,7 +1599,7 @@ Traktor uses special email tags to identify its ratings:
 
 ```python
 # AudioMeta automatically detects Traktor ratings
-metadata = get_merged_unified_metadata("traktor_rated.mp3")
+metadata = get_unified_metadata("traktor_rated.mp3")
 # If the file was rated in Traktor, AudioMeta handles it correctly
 # even though Traktor uses different numeric values
 ```
@@ -1617,7 +1617,7 @@ files = [
 ]
 
 for file_path in files:
-    metadata = get_merged_unified_metadata(file_path)
+    metadata = get_unified_metadata(file_path)
     print(f"{file_path}: {metadata['rating']}")  # All show 6.0
 ```
 
@@ -1686,7 +1686,7 @@ from audiometa.exceptions import (
 )
 
 try:
-    metadata = get_merged_unified_metadata("invalid_file.txt")
+    metadata = get_unified_metadata("invalid_file.txt")
 except FileTypeNotSupportedError:
     print("File format not supported")
 except FileCorruptedError:
@@ -2009,10 +2009,10 @@ except MetadataNotSupportedError as e:
     # File remains completely unchanged - no metadata was written (atomic operation)
 
 # Practical example: Demonstrating atomic behavior
-from audiometa import get_merged_unified_metadata
+from audiometa import get_unified_metadata
 
 # File with existing metadata
-original_metadata = get_merged_unified_metadata("song.wav")
+original_metadata = get_unified_metadata("song.wav")
 print(f"Original title: {original_metadata.get('title')}")  # e.g., "Original Title"
 
 # Attempt to write metadata with unsupported field
@@ -2026,7 +2026,7 @@ except MetadataNotSupportedError:
     pass
 
 # Verify file is unchanged (atomic behavior)
-final_metadata = get_merged_unified_metadata("song.wav")
+final_metadata = get_unified_metadata("song.wav")
 print(f"Final title: {final_metadata.get('title')}")  # Still "Original Title" - no changes made
 ```
 

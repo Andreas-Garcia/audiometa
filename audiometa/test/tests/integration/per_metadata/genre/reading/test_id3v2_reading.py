@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import get_merged_unified_metadata, get_specific_metadata
+from audiometa import get_unified_metadata, get_specific_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -156,7 +156,7 @@ class TestId3v2GenreReading:
             with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
                 test_file.set_id3v2_genre( genre)
                 
-                metadata = get_merged_unified_metadata(test_file.path)
+                metadata = get_unified_metadata(test_file.path)
                 genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
                 
                 assert genres == [genre]
@@ -197,7 +197,7 @@ class TestId3v2GenreReading:
             # Set genre using helper
             test_file.set_id3v2_multiple_genres(["Rock", "Alternative"])
             
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock", "Alternative"]

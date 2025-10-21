@@ -1,7 +1,7 @@
 
 from pathlib import Path
 
-from audiometa import update_file_metadata, get_merged_unified_metadata, get_specific_metadata
+from audiometa import update_file_metadata, get_unified_metadata, get_specific_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
@@ -144,7 +144,7 @@ class TestNoneEmptyWhitespaceHandling:
         update_file_metadata(temp_audio_file, metadata)
         
         # Should not raise an error
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_unified_metadata(temp_audio_file)
         assert isinstance(unified_metadata, dict)
 
     def test_write_metadata_with_all_none_values(self, temp_audio_file: Path):
@@ -157,5 +157,5 @@ class TestNoneEmptyWhitespaceHandling:
         update_file_metadata(temp_audio_file, metadata)
         
         # Should not raise an error
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_unified_metadata(temp_audio_file)
         assert isinstance(unified_metadata, dict)

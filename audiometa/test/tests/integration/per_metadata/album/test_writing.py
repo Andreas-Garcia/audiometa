@@ -1,7 +1,7 @@
 
 import pytest
 
-from audiometa import get_merged_unified_metadata, update_file_metadata
+from audiometa import get_unified_metadata, update_file_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -14,7 +14,7 @@ class TestAlbumWriting:
             test_album = "Test Album ID3v2"
             test_metadata = {UnifiedMetadataKey.ALBUM_NAME: test_album}
             update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == test_album
 
     def test_riff(self):
@@ -22,7 +22,7 @@ class TestAlbumWriting:
             test_album = "Test Album RIFF"
             test_metadata = {UnifiedMetadataKey.ALBUM_NAME: test_album}
             update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == test_album
 
     def test_vorbis(self):
@@ -30,7 +30,7 @@ class TestAlbumWriting:
             test_album = "Test Album Vorbis"
             test_metadata = {UnifiedMetadataKey.ALBUM_NAME: test_album}
             update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == test_album
 
     def test_id3v1(self):
@@ -38,7 +38,7 @@ class TestAlbumWriting:
             test_album = "Test Album ID3v1"
             test_metadata = {UnifiedMetadataKey.ALBUM_NAME: test_album}
             update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == test_album
 
     def test_invalid_type_raises(self):

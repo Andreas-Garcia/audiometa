@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import get_merged_unified_metadata, update_file_metadata
+from audiometa import get_unified_metadata, update_file_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -13,7 +13,7 @@ class TestAlbumArtistsWriting:
         test_metadata = {UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: test_album_artists}
         with TempFileWithMetadata({}, "mp3") as test_file:
             update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.ALBUM_ARTISTS_NAMES) == test_album_artists
 
     def test_riff(self):
@@ -21,7 +21,7 @@ class TestAlbumArtistsWriting:
         test_metadata = {UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: test_album_artists}
         with TempFileWithMetadata({}, "wav") as test_file:
             update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.ALBUM_ARTISTS_NAMES) == test_album_artists
 
     def test_vorbis(self):
@@ -29,7 +29,7 @@ class TestAlbumArtistsWriting:
         test_metadata = {UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: test_album_artists}
         with TempFileWithMetadata({}, "flac") as test_file:
             update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.ALBUM_ARTISTS_NAMES) == test_album_artists
 
     def test_id3v1(self):
@@ -49,5 +49,5 @@ class TestAlbumArtistsWriting:
             # Single-string shorthand should be accepted and normalized to a list on read
             shorthand_metadata = {UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: "Single Album Artist"}
             update_file_metadata(test_file.path, shorthand_metadata)
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.ALBUM_ARTISTS_NAMES) == ["Single Album Artist"]

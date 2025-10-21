@@ -5,7 +5,7 @@ from pathlib import Path
 
 from audiometa import (
     AudioFile,
-    get_merged_unified_metadata,
+    get_unified_metadata,
     get_single_format_app_metadata,
     get_specific_metadata
 )
@@ -21,7 +21,7 @@ class TestAudioFileIntegration:
         audio_file = AudioFile(sample_mp3_file)
         
         # Test that AudioFile object works with functional APIs
-        metadata = get_merged_unified_metadata(audio_file)
+        metadata = get_unified_metadata(audio_file)
         assert isinstance(metadata, dict)
         
         # Test single format with AudioFile object

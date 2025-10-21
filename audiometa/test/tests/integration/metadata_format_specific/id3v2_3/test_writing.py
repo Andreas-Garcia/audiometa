@@ -7,7 +7,7 @@ version-specific features, encoding support, and compatibility with other format
 import pytest
 
 from audiometa import (
-    get_merged_unified_metadata,
+    get_unified_metadata,
     get_single_format_app_metadata,
     get_specific_metadata,
     update_file_metadata
@@ -29,7 +29,7 @@ class TestId3v23Writing:
             }
             update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title ID3v2.3"
             assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist ID3v2.3"]
             assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album ID3v2.3"
@@ -44,7 +44,7 @@ class TestId3v23Writing:
             
             update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Song Title"
             assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist"]
@@ -60,7 +60,7 @@ class TestId3v23Writing:
             
             update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Written Song Title"
             assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Written Artist"]
@@ -75,7 +75,7 @@ class TestId3v23Writing:
             }
             update_file_metadata(test_file.path, initial_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test ID3v2.3 Title"
             assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test ID3v2.3 Artist"]
             assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test ID3v2.3 Album"
@@ -87,7 +87,7 @@ class TestId3v23Writing:
             }
             update_file_metadata(test_file.path, none_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
-            updated_metadata = get_merged_unified_metadata(test_file.path)
+            updated_metadata = get_unified_metadata(test_file.path)
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) is None
             assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) is None
             
@@ -121,7 +121,7 @@ class TestId3v23Writing:
             
             update_file_metadata(test_file.path, special_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Tëst Ñamé with Spëcîal Charâcters"
             assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Artîst with Åccénts"]
             assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Albüm Naïme Tést"
@@ -135,7 +135,7 @@ class TestId3v23Writing:
             
             update_file_metadata(test_file.path, multiple_artists_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
-            metadata = get_merged_unified_metadata(test_file.path)
+            metadata = get_unified_metadata(test_file.path)
             retrieved_artists = metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             assert isinstance(retrieved_artists, list)
@@ -169,6 +169,6 @@ class TestId3v23Writing:
             assert id3v1_result.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
             assert id3v1_result.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["ID3v1 Artist"]
             
-            merged_metadata = get_merged_unified_metadata(test_file.path)
+            merged_metadata = get_unified_metadata(test_file.path)
             assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2.3 Title"
             assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["ID3v2.3 Artist"]

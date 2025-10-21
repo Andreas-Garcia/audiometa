@@ -1,7 +1,7 @@
 import pytest
 import time
 
-from audiometa import get_merged_unified_metadata
+from audiometa import get_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
@@ -15,7 +15,7 @@ class TestPerformanceLargeData:
             test_file.set_vorbis_multiple_artists(artists_list)
             
             for _ in range(5):
-                unified_metadata = get_merged_unified_metadata(test_file.path)
+                unified_metadata = get_unified_metadata(test_file.path)
                 artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
                 
                 assert isinstance(artists, list)
@@ -29,7 +29,7 @@ class TestPerformanceLargeData:
             test_file.set_vorbis_multiple_artists(artists_list)
             
             start_time = time.time()
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             end_time = time.time()
             
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -56,7 +56,7 @@ class TestPerformanceLargeData:
                 pytest.skip("metaflac not available or failed to set complex separated artists")
             
             start_time = time.time()
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             end_time = time.time()
             
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -79,7 +79,7 @@ class TestPerformanceLargeData:
             except RuntimeError:
                 pytest.skip("metaflac not available or failed to set very long artist")
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             assert isinstance(artists, list)
@@ -99,7 +99,7 @@ class TestPerformanceLargeData:
             # Test repeated reads
             start_time = time.time()
             for _ in range(100):
-                unified_metadata = get_merged_unified_metadata(test_file.path)
+                unified_metadata = get_unified_metadata(test_file.path)
                 artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
                 assert isinstance(artists, list)
                 assert len(artists) == 10
@@ -129,7 +129,7 @@ class TestPerformanceLargeData:
                 pytest.skip("metaflac not available or failed to set multiple multi-value fields")
             
             start_time = time.time()
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             end_time = time.time()
             
             # Check all multi-value fields
@@ -160,7 +160,7 @@ class TestPerformanceLargeData:
                 pytest.skip("metaflac not available or failed to set whitespace-heavy artists")
             
             start_time = time.time()
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             end_time = time.time()
             
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)

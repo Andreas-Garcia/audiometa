@@ -8,7 +8,7 @@ import pytest
 from pathlib import Path
 
 from audiometa import (
-    get_merged_unified_metadata,
+    get_unified_metadata,
     update_file_metadata,
     delete_all_metadata,
     get_bitrate,
@@ -38,7 +38,7 @@ class TestErrorHandlingWorkflows:
             update_file_metadata(test_file.path, test_metadata)
         
             # Verify the file is still usable
-            metadata = get_merged_unified_metadata(test_file)
+            metadata = get_unified_metadata(test_file)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Recovery Test"
 
     def test_error_handling_workflow(self, temp_audio_file: Path):
@@ -49,7 +49,7 @@ class TestErrorHandlingWorkflows:
         
         # All operations should raise FileTypeNotSupportedError
         with pytest.raises(Exception):  # FileTypeNotSupportedError
-            get_merged_unified_metadata(str(test_file))
+            get_unified_metadata(str(test_file))
         
         with pytest.raises(Exception):  # FileTypeNotSupportedError
             update_file_metadata(str(test_file), {UnifiedMetadataKey.TITLE: "Test"})
@@ -72,7 +72,7 @@ class TestErrorHandlingWorkflows:
         
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             # 1. Verify initial metadata exists
-            initial_metadata_result = get_merged_unified_metadata(test_file)
+            initial_metadata_result = get_unified_metadata(test_file)
             assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Deletion Error Test"
             
             # 2. Test deletion on file that doesn't exist
@@ -85,7 +85,7 @@ class TestErrorHandlingWorkflows:
                 delete_all_metadata(str(test_file.parent))
             
             # 4. Verify original file is still usable after errors
-            metadata_after_errors = get_merged_unified_metadata(test_file)
+            metadata_after_errors = get_unified_metadata(test_file)
             assert metadata_after_errors.get(UnifiedMetadataKey.TITLE) == "Deletion Error Test"
             
             # 5. Successfully delete metadata from original file
@@ -93,7 +93,7 @@ class TestErrorHandlingWorkflows:
             assert delete_result is True
             
             # 6. Verify deletion worked
-            deleted_metadata = get_merged_unified_metadata(test_file)
+            deleted_metadata = get_unified_metadata(test_file)
             assert deleted_metadata.get(UnifiedMetadataKey.TITLE) is None or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "Deletion Error Test"
 
     def test_deletion_with_corrupted_metadata_workflow(self):
@@ -105,7 +105,7 @@ class TestErrorHandlingWorkflows:
         
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             # 1. Verify initial metadata exists
-            initial_metadata_result = get_merged_unified_metadata(test_file)
+            initial_metadata_result = get_unified_metadata(test_file)
             assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Corrupted Metadata Test"
             
             # 2. Try to delete metadata - should work even if some metadata is corrupted
@@ -113,7 +113,7 @@ class TestErrorHandlingWorkflows:
             assert delete_result is True
             
             # 3. Verify deletion worked
-            deleted_metadata = get_merged_unified_metadata(test_file)
+            deleted_metadata = get_unified_metadata(test_file)
             assert deleted_metadata.get(UnifiedMetadataKey.TITLE) is None or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "Corrupted Metadata Test"
             
             # 4. Verify file is still usable after deletion
@@ -124,5 +124,5 @@ class TestErrorHandlingWorkflows:
             update_file_metadata(test_file.path, new_metadata)
             
             # 5. Verify new metadata was added successfully
-            new_metadata_result = get_merged_unified_metadata(test_file)
+            new_metadata_result = get_unified_metadata(test_file)
             assert new_metadata_result.get(UnifiedMetadataKey.TITLE) == "New Title After Deletion"

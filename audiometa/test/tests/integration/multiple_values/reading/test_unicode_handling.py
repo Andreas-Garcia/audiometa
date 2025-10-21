@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import get_merged_unified_metadata
+from audiometa import get_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
@@ -14,7 +14,7 @@ class TestUnicodeHandling:
                 "Artist 🎵"
             ])
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             assert isinstance(artists, list)

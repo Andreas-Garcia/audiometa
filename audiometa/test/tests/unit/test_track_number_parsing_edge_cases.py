@@ -190,10 +190,10 @@ class TestTrackNumberParsingEdgeCases:
 
     def test_track_number_parsing_integration_with_real_files(self, sample_mp3_file: Path):
         """Test track number parsing with real files to ensure integration works."""
-        from audiometa import get_merged_unified_metadata
+        from audiometa import get_unified_metadata
         
         # Test with a real file
-        metadata = get_merged_unified_metadata(sample_mp3_file)
+        metadata = get_unified_metadata(sample_mp3_file)
         track_number = metadata.get(UnifiedMetadataKey.TRACK_NUMBER)
         
         # Should be either None or a valid integer

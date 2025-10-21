@@ -2,7 +2,7 @@ import pytest
 from pathlib import Path
 
 from audiometa import (
-    get_merged_unified_metadata,
+    get_unified_metadata,
     get_single_format_app_metadata,
     get_specific_metadata
 )
@@ -21,13 +21,13 @@ class TestReadingErrorHandling:
         temp_audio_file.write_bytes(b"fake audio content")
         
         with pytest.raises(FileTypeNotSupportedError):
-            get_merged_unified_metadata(str(temp_audio_file))
+            get_unified_metadata(str(temp_audio_file))
 
     def test_nonexistent_file_raises_error(self):
         nonexistent_file = "nonexistent_file.mp3"
         
         with pytest.raises(FileNotFoundError):
-            get_merged_unified_metadata(nonexistent_file)
+            get_unified_metadata(nonexistent_file)
         
         with pytest.raises(FileNotFoundError):
             get_single_format_app_metadata(nonexistent_file, MetadataFormat.ID3V2)

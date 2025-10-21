@@ -3,7 +3,7 @@ import warnings
 
 from audiometa import (
     update_file_metadata,
-    get_merged_unified_metadata,
+    get_unified_metadata,
 )
 from audiometa.exceptions import MetadataNotSupportedError
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -41,5 +41,5 @@ class TestFailBehavior:
                 warning_messages = [str(warning.message) for warning in w]
                 assert any("unsupported" in msg.lower() or "not supported" in msg.lower() for msg in warning_messages)
             
-            metadata = get_merged_unified_metadata(test_file)
+            metadata = get_unified_metadata(test_file)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"

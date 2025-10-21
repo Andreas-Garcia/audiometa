@@ -2,7 +2,7 @@ import pytest
 import subprocess
 from pathlib import Path
 
-from audiometa import get_merged_unified_metadata, get_specific_metadata
+from audiometa import get_unified_metadata, get_specific_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
@@ -141,7 +141,7 @@ class TestId3v1GenreReading:
         
         for genre in original_genres:
             with TempFileWithMetadata({"title": "Test Song", "genre": genre}, "id3v1") as test_file:
-                metadata = get_merged_unified_metadata(test_file.path)
+                metadata = get_unified_metadata(test_file.path)
                 genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
                 
                 assert genres == [genre]
@@ -156,7 +156,7 @@ class TestId3v1GenreReading:
         
         for genre in winamp_genres:
             with TempFileWithMetadata({"title": "Test Song", "genre": genre}, "id3v1") as test_file:
-                metadata = get_merged_unified_metadata(test_file.path)
+                metadata = get_unified_metadata(test_file.path)
                 genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
                 
                 assert genres == [genre]
@@ -171,7 +171,7 @@ class TestId3v1GenreReading:
         
         for genre in winamp_56_genres:
             with TempFileWithMetadata({"title": "Test Song", "genre": genre}, "id3v1") as test_file:
-                metadata = get_merged_unified_metadata(test_file.path)
+                metadata = get_unified_metadata(test_file.path)
                 genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
                 
                 assert genres == [genre]
@@ -190,8 +190,8 @@ class TestId3v1GenreReading:
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             assert genres == ["Rock"]
             
-            # Test that other metadata is also present (using get_merged_unified_metadata for multiple fields)
-            metadata = get_merged_unified_metadata(test_file.path)
+            # Test that other metadata is also present (using get_unified_metadata for multiple fields)
+            metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.TITLE) is not None
 
 

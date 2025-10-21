@@ -2,7 +2,7 @@ import pytest
 
 from audiometa import (
     update_file_metadata,
-    get_merged_unified_metadata,
+    get_unified_metadata,
 )
 from audiometa.exceptions import MetadataNotSupportedError
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -18,7 +18,7 @@ class TestNoWritingOnFailure:
             "artist": "Original Artist"
         }
         with TempFileWithMetadata(initial_metadata, "wav") as test_file:
-            initial_read = get_merged_unified_metadata(test_file)
+            initial_read = get_unified_metadata(test_file)
             assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original Title"
             assert initial_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original Artist"]
             
@@ -31,7 +31,7 @@ class TestNoWritingOnFailure:
             with pytest.raises(MetadataNotSupportedError):
                 update_file_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
             
-            final_read = get_merged_unified_metadata(test_file)
+            final_read = get_unified_metadata(test_file)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original Title"  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original Artist"]  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist
@@ -42,7 +42,7 @@ class TestNoWritingOnFailure:
             "artist": "Original MP3 Artist"
         }
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
-            initial_read = get_merged_unified_metadata(test_file)
+            initial_read = get_unified_metadata(test_file)
             assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original MP3 Title"
             assert initial_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original MP3 Artist"]
             
@@ -55,7 +55,7 @@ class TestNoWritingOnFailure:
             with pytest.raises(MetadataNotSupportedError):
                 update_file_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
             
-            final_read = get_merged_unified_metadata(test_file)
+            final_read = get_unified_metadata(test_file)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original MP3 Title"  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original MP3 Artist"]  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist
@@ -66,7 +66,7 @@ class TestNoWritingOnFailure:
             "artist": "Original FLAC Artist"
         }
         with TempFileWithMetadata(initial_metadata, "flac") as test_file:
-            initial_read = get_merged_unified_metadata(test_file)
+            initial_read = get_unified_metadata(test_file)
             assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original FLAC Title"
             assert initial_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original FLAC Artist"]
             
@@ -79,7 +79,7 @@ class TestNoWritingOnFailure:
             with pytest.raises(MetadataNotSupportedError):
                 update_file_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
             
-            final_read = get_merged_unified_metadata(test_file)
+            final_read = get_unified_metadata(test_file)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original FLAC Title"  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original FLAC Artist"]  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist
@@ -90,7 +90,7 @@ class TestNoWritingOnFailure:
             "artist": "Original WAV Artist"
         }
         with TempFileWithMetadata(initial_metadata, "wav") as test_file:
-            initial_read = get_merged_unified_metadata(test_file)
+            initial_read = get_unified_metadata(test_file)
             assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"
             assert initial_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original WAV Artist"]
             
@@ -103,7 +103,7 @@ class TestNoWritingOnFailure:
             with pytest.raises(MetadataNotSupportedError):
                 update_file_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
             
-            final_read = get_merged_unified_metadata(test_file)
+            final_read = get_unified_metadata(test_file)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original WAV Artist"]  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist

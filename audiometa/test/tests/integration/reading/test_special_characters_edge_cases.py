@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
 
-from audiometa import get_merged_unified_metadata
+from audiometa import get_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
@@ -15,7 +15,7 @@ class TestSpecialCharactersEdgeCases:
             except RuntimeError:
                 pytest.skip("metaflac not available or failed to set unicode metadata")
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
@@ -37,7 +37,7 @@ class TestSpecialCharactersEdgeCases:
             except RuntimeError:
                 pytest.skip("metaflac not available or failed to set special punctuation metadata")
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
@@ -58,7 +58,7 @@ class TestSpecialCharactersEdgeCases:
             except RuntimeError:
                 pytest.skip("metaflac not available or failed to set quotes metadata")
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
@@ -79,7 +79,7 @@ class TestSpecialCharactersEdgeCases:
             except RuntimeError:
                 pytest.skip("metaflac not available or failed to set control characters metadata")
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
@@ -101,7 +101,7 @@ class TestSpecialCharactersEdgeCases:
             except RuntimeError:
                 pytest.skip("metaflac not available or failed to set long strings metadata")
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
@@ -121,7 +121,7 @@ class TestSpecialCharactersEdgeCases:
             except RuntimeError:
                 pytest.skip("metaflac not available or failed to set mixed encodings metadata")
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
@@ -144,7 +144,7 @@ class TestSpecialCharactersEdgeCases:
             except RuntimeError:
                 pytest.skip("metaflac not available or failed to set separator characters metadata")
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
@@ -165,7 +165,7 @@ class TestSpecialCharactersEdgeCases:
             except RuntimeError:
                 pytest.skip("metaflac not available or failed to set HTML/XML characters metadata")
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
@@ -186,7 +186,7 @@ class TestSpecialCharactersEdgeCases:
             except RuntimeError:
                 pytest.skip("metaflac not available or failed to set emoji characters metadata")
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
@@ -215,7 +215,7 @@ class TestSpecialCharactersEdgeCases:
             except (subprocess.CalledProcessError, FileNotFoundError):
                 pytest.skip("metaflac not available or failed to set null bytes metadata")
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
@@ -244,7 +244,7 @@ class TestSpecialCharactersEdgeCases:
             except (subprocess.CalledProcessError, FileNotFoundError):
                 pytest.skip("metaflac not available or failed to set mixed special characters metadata")
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             title = unified_metadata.get(UnifiedMetadataKey.TITLE)
             
@@ -260,7 +260,7 @@ class TestSpecialCharactersEdgeCases:
     def test_read_special_characters_from_existing_file(self, sample_mp3_file: Path):
         # Test reading special characters from a file that already has them
         # This tests the reading functionality without writing first
-        unified_metadata = get_merged_unified_metadata(sample_mp3_file)
+        unified_metadata = get_unified_metadata(sample_mp3_file)
         
         # Should handle any special characters that might be in the sample file
         for key, value in unified_metadata.items():

@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import get_merged_unified_metadata
+from audiometa import get_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
@@ -10,7 +10,7 @@ class TestMultipleValuesEdgeCases:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             test_file.set_vorbis_multiple_artists(["Artist 1", "Artist 2", "123"])
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             assert isinstance(artists, list)
@@ -28,7 +28,7 @@ class TestMultipleValuesEdgeCases:
                 "ArTiSt FoUr"
             ])
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             assert isinstance(artists, list)
@@ -48,7 +48,7 @@ class TestMultipleValuesEdgeCases:
                 "Artist Two"   # Another duplicate
             ])
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             assert isinstance(artists, list)
@@ -66,7 +66,7 @@ class TestMultipleValuesEdgeCases:
                 "Fourth Artist"
             ])
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             assert isinstance(artists, list)
@@ -81,7 +81,7 @@ class TestMultipleValuesEdgeCases:
             long_artist = "A" * 10000  # 10,000 character artist name
             test_file.set_vorbis_multiple_artists([long_artist])
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             assert isinstance(artists, list)
@@ -93,7 +93,7 @@ class TestMultipleValuesEdgeCases:
             test_file.set_vorbis_multiple_artists(["Artist One", "Artist Two"])
             test_file.set_vorbis_multiple_genres(["Rock", "Alternative"])
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             assert isinstance(artists, list)
@@ -113,7 +113,7 @@ class TestMultipleValuesEdgeCases:
 
     def test_corrupted_multiple_entries(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             
             assert isinstance(unified_metadata, dict)
             

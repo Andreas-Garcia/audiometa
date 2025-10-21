@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import get_merged_unified_metadata, update_file_metadata, get_specific_metadata
+from audiometa import get_unified_metadata, update_file_metadata, get_specific_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -15,7 +15,7 @@ class TestId3v2RatingWriting:
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 0}
             update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
-            metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             rating = metadata.get(UnifiedMetadataKey.RATING)
             assert rating is not None
             assert rating == 0
@@ -26,7 +26,7 @@ class TestId3v2RatingWriting:
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 20}
             update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
-            metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             rating = metadata.get(UnifiedMetadataKey.RATING)
             assert rating is not None
             assert rating == 20
@@ -37,7 +37,7 @@ class TestId3v2RatingWriting:
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 40}
             update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
-            metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             rating = metadata.get(UnifiedMetadataKey.RATING)
             assert rating is not None
             assert rating == 40
@@ -48,7 +48,7 @@ class TestId3v2RatingWriting:
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 60}
             update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
-            metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             rating = metadata.get(UnifiedMetadataKey.RATING)
             assert rating is not None
             assert rating == 60
@@ -59,7 +59,7 @@ class TestId3v2RatingWriting:
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 80}
             update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
-            metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             rating = metadata.get(UnifiedMetadataKey.RATING)
             assert rating is not None
             assert rating == 80
@@ -70,7 +70,7 @@ class TestId3v2RatingWriting:
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 100}
             update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
-            metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             rating = metadata.get(UnifiedMetadataKey.RATING)
             assert rating is not None
             assert rating == 100
@@ -81,7 +81,7 @@ class TestId3v2RatingWriting:
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 10}
             update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
-            metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             rating = metadata.get(UnifiedMetadataKey.RATING)
             assert rating is not None
             assert rating == 10
@@ -92,7 +92,7 @@ class TestId3v2RatingWriting:
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 30}
             update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
-            metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             rating = metadata.get(UnifiedMetadataKey.RATING)
             assert rating is not None
             assert rating == 30
@@ -103,7 +103,7 @@ class TestId3v2RatingWriting:
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 50}
             update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
-            metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             rating = metadata.get(UnifiedMetadataKey.RATING)
             assert rating is not None
             assert rating == 50
@@ -114,7 +114,7 @@ class TestId3v2RatingWriting:
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 70}
             update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
-            metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             rating = metadata.get(UnifiedMetadataKey.RATING)
             assert rating is not None
             assert rating == 70
@@ -125,7 +125,7 @@ class TestId3v2RatingWriting:
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 90}
             update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
-            metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             rating = metadata.get(UnifiedMetadataKey.RATING)
             assert rating is not None
             assert rating == 90

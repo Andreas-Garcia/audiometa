@@ -7,7 +7,7 @@ These tests verify that the system works correctly with different audio formats
 import pytest
 
 from audiometa import (
-    get_merged_unified_metadata,
+    get_unified_metadata,
     update_file_metadata,
     delete_all_metadata,
     get_bitrate,
@@ -29,7 +29,7 @@ class TestFormatSpecificWorkflows:
         }
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             # 1. Read initial metadata
-            initial_metadata_result = get_merged_unified_metadata(test_file)
+            initial_metadata_result = get_unified_metadata(test_file)
             assert isinstance(initial_metadata_result, dict)
             
             # 2. Update metadata using app's function (this is what we're testing)
@@ -43,7 +43,7 @@ class TestFormatSpecificWorkflows:
             update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
             
             # 3. Verify metadata was updated
-            updated_metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            updated_metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Integration Test Title"
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Integration Test Artist"]
             assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Integration Test Album"
@@ -63,7 +63,7 @@ class TestFormatSpecificWorkflows:
             assert delete_result is True
             
             # 6. Verify metadata was deleted
-            deleted_metadata = get_merged_unified_metadata(test_file)
+            deleted_metadata = get_unified_metadata(test_file)
             # After deletion, metadata should be empty or minimal
             assert UnifiedMetadataKey.TITLE not in deleted_metadata or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "Integration Test Title"
 
@@ -76,7 +76,7 @@ class TestFormatSpecificWorkflows:
         }
         with TempFileWithMetadata(initial_metadata, "flac") as test_file:
             # 1. Read initial metadata
-            initial_metadata_result = get_merged_unified_metadata(test_file)
+            initial_metadata_result = get_unified_metadata(test_file)
             assert isinstance(initial_metadata_result, dict)
             
             # 2. Update metadata using app's function (this is what we're testing)
@@ -90,7 +90,7 @@ class TestFormatSpecificWorkflows:
             update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
             
             # 3. Verify metadata was updated
-            updated_metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            updated_metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "FLAC Integration Test Title"
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["FLAC Integration Test Artist"]
             assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "FLAC Integration Test Album"
@@ -114,7 +114,7 @@ class TestFormatSpecificWorkflows:
         }
         with TempFileWithMetadata(initial_metadata, "wav") as test_file:
             # 1. Read initial metadata
-            initial_metadata_result = get_merged_unified_metadata(test_file)
+            initial_metadata_result = get_unified_metadata(test_file)
             assert isinstance(initial_metadata_result, dict)
             
             # 2. Update metadata using app's function (this is what we're testing)
@@ -127,7 +127,7 @@ class TestFormatSpecificWorkflows:
             update_file_metadata(test_file.path, test_metadata)
             
             # 3. Verify metadata was updated
-            updated_metadata = get_merged_unified_metadata(test_file)
+            updated_metadata = get_unified_metadata(test_file)
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "WAV Integration Test Title"
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["WAV Integration Test Artist"]
             assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "WAV Integration Test Album"

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from audiometa import update_file_metadata, get_merged_unified_metadata
+from audiometa import update_file_metadata, get_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
@@ -12,7 +12,7 @@ class TestSpecialCharactersEdgeCases:
         }
         update_file_metadata(temp_audio_file, metadata)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
@@ -33,7 +33,7 @@ class TestSpecialCharactersEdgeCases:
         }
         update_file_metadata(temp_audio_file, metadata)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
@@ -53,7 +53,7 @@ class TestSpecialCharactersEdgeCases:
         }
         update_file_metadata(temp_audio_file, metadata)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
@@ -73,7 +73,7 @@ class TestSpecialCharactersEdgeCases:
         }
         update_file_metadata(temp_audio_file, metadata)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
@@ -94,7 +94,7 @@ class TestSpecialCharactersEdgeCases:
         }
         update_file_metadata(temp_audio_file, metadata)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
@@ -113,7 +113,7 @@ class TestSpecialCharactersEdgeCases:
         }
         update_file_metadata(temp_audio_file, metadata)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
@@ -135,7 +135,7 @@ class TestSpecialCharactersEdgeCases:
         }
         update_file_metadata(temp_audio_file, metadata)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
@@ -155,7 +155,7 @@ class TestSpecialCharactersEdgeCases:
         }
         update_file_metadata(temp_audio_file, metadata)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
@@ -175,7 +175,7 @@ class TestSpecialCharactersEdgeCases:
         }
         update_file_metadata(temp_audio_file, metadata)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
@@ -195,7 +195,7 @@ class TestSpecialCharactersEdgeCases:
         }
         update_file_metadata(temp_audio_file, metadata)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         
@@ -218,7 +218,7 @@ class TestSpecialCharactersEdgeCases:
         }
         update_file_metadata(temp_audio_file, metadata)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
+        unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
         title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         

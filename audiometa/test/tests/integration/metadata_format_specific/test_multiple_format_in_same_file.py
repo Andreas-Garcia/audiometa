@@ -11,7 +11,7 @@ import pytest
 from pathlib import Path
 
 from audiometa import (
-    get_merged_unified_metadata,
+    get_unified_metadata,
     get_single_format_app_metadata,
     get_specific_metadata,
     update_file_metadata,
@@ -29,7 +29,7 @@ class TestConflictingMetadata:
         # This test uses a pre-existing file with both ID3v1 and ID3v2 metadata
         
         # Merged metadata should prefer ID3v2
-        merged_metadata = get_merged_unified_metadata(metadata_id3v1_and_id3v2_mp3)
+        merged_metadata = get_unified_metadata(metadata_id3v1_and_id3v2_mp3)
         assert merged_metadata.get(UnifiedMetadataKey.TITLE) is not None
         assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) is not None
         assert merged_metadata.get(UnifiedMetadataKey.ALBUM_NAME) is not None
@@ -71,7 +71,7 @@ class TestConflictingMetadata:
             update_file_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
             
             # Merged metadata should prefer RIFF (WAV native format)
-            merged_metadata = get_merged_unified_metadata(test_file.path)
+            merged_metadata = get_unified_metadata(test_file.path)
             assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
             assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["RIFF Artist"]
             assert merged_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "RIFF Album"
@@ -102,7 +102,7 @@ class TestConflictingMetadata:
             update_file_metadata(test_file.path, vorbis_metadata, metadata_format=MetadataFormat.VORBIS)
             
             # Merged metadata should prefer Vorbis
-            merged_metadata = get_merged_unified_metadata(test_file.path)
+            merged_metadata = get_unified_metadata(test_file.path)
             assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "Vorbis Title"
             assert merged_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Vorbis Artist"]
             assert merged_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Vorbis Album"
@@ -131,7 +131,7 @@ class TestConflictingMetadata:
             
             update_file_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
             
-            merged_metadata = get_merged_unified_metadata(test_file.path)
+            merged_metadata = get_unified_metadata(test_file.path)
             
             # Title should come from ID3v2
             assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
@@ -161,7 +161,7 @@ class TestConflictingMetadata:
             
             update_file_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2, normalized_rating_max_value=10)
             
-            merged_metadata = get_merged_unified_metadata(test_file.path, normalized_rating_max_value=10)
+            merged_metadata = get_unified_metadata(test_file.path, normalized_rating_max_value=10)
             
             # Should use ID3v2 rating
             assert merged_metadata.get(UnifiedMetadataKey.RATING) == 1
@@ -189,7 +189,7 @@ class TestConflictingMetadata:
             
             # Test with AudioFile object
             audio_file = AudioFile(test_file.path)
-            merged_metadata = get_merged_unified_metadata(audio_file)
+            merged_metadata = get_unified_metadata(audio_file)
             
             assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
             

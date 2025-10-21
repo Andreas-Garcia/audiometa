@@ -1,5 +1,5 @@
 
-from audiometa import get_merged_unified_metadata, update_file_metadata
+from audiometa import get_unified_metadata, update_file_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -24,7 +24,7 @@ class TestSmartParsingScenarios:
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2)
             
             # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             # ID3v2 stores as single frame with separators, so it gets parsed on read
@@ -46,7 +46,7 @@ class TestSmartParsingScenarios:
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
             # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             # ID3v2.3 stores as single frame with separators, so it gets parsed on read
@@ -68,7 +68,7 @@ class TestSmartParsingScenarios:
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             # ID3v2.4 stores as single frame with separators, so it gets parsed on read
@@ -90,7 +90,7 @@ class TestSmartParsingScenarios:
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
             
             # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             # Should preserve separators in individual entries (no parsing)
@@ -110,7 +110,7 @@ class TestSmartParsingScenarios:
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2)
             
             # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             # Should parse single entry with separators
@@ -130,7 +130,7 @@ class TestSmartParsingScenarios:
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
             # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             # Should parse single entry with separators
@@ -150,7 +150,7 @@ class TestSmartParsingScenarios:
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             # Should parse single entry with separators
@@ -170,7 +170,7 @@ class TestSmartParsingScenarios:
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
             
             # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             # Should parse single entry with separators
@@ -190,7 +190,7 @@ class TestSmartParsingScenarios:
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
             
             # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             # Should always parse in legacy format
@@ -209,7 +209,7 @@ class TestSmartParsingScenarios:
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
             
             # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             # Should always parse in legacy format
@@ -230,7 +230,7 @@ class TestSmartParsingScenarios:
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2)
             
             # Read metadata
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             
             # Artists get concatenated by ID3v2, then parsed on read
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)

@@ -9,7 +9,7 @@ from pathlib import Path
 
 from audiometa import (
     AudioFile,
-    get_merged_unified_metadata,
+    get_unified_metadata,
     update_file_metadata,
     delete_all_metadata,
     get_bitrate,
@@ -51,7 +51,7 @@ class TestCoreWorkflows:
             update_file_metadata(test_file.path, test_metadata)
             
             # Verify persistence by reloading
-            metadata = get_merged_unified_metadata(test_file)
+            metadata = get_unified_metadata(test_file)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "New Title"
             assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["New Artist"]
             assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "New Album"
@@ -94,7 +94,7 @@ class TestCoreWorkflows:
     def test_audio_file_context_manager(self, sample_mp3_file: Path):
         with AudioFile(sample_mp3_file) as audio_file:
             # Test that we can read metadata within context
-            metadata = get_merged_unified_metadata(audio_file)
+            metadata = get_unified_metadata(audio_file)
             assert isinstance(metadata, dict)
             
             # Test that we can get technical info within context
@@ -128,7 +128,7 @@ class TestCoreWorkflows:
                 update_file_metadata(test_file.path, test_metadata)
                 
                 # Verify metadata was added
-                added_metadata = get_merged_unified_metadata(test_file)
+                added_metadata = get_unified_metadata(test_file)
                 assert added_metadata.get(UnifiedMetadataKey.TITLE) == "Cross Format Deletion"
                 
                 # Delete all metadata
@@ -136,7 +136,7 @@ class TestCoreWorkflows:
                 assert delete_result is True
                 
                 # Verify metadata was deleted
-                deleted_metadata = get_merged_unified_metadata(test_file)
+                deleted_metadata = get_unified_metadata(test_file)
                 assert deleted_metadata.get(UnifiedMetadataKey.TITLE) is None or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "Cross Format Deletion"
 
     def test_metadata_cleanup_workflow(self):
@@ -151,7 +151,7 @@ class TestCoreWorkflows:
         
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             # 1. Verify initial metadata exists
-            initial_metadata_result = get_merged_unified_metadata(test_file)
+            initial_metadata_result = get_unified_metadata(test_file)
             assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Cleanup Test Title"
             
             # 2. Add more metadata
@@ -163,7 +163,7 @@ class TestCoreWorkflows:
             update_file_metadata(test_file.path, additional_metadata, normalized_rating_max_value=100)
             
             # 3. Verify all metadata exists
-            full_metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            full_metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             assert full_metadata.get(UnifiedMetadataKey.RATING) == 80
             assert full_metadata.get(UnifiedMetadataKey.BPM) == 128
             
@@ -172,7 +172,7 @@ class TestCoreWorkflows:
             assert delete_result is True
             
             # 5. Verify complete cleanup
-            cleaned_metadata = get_merged_unified_metadata(test_file)
+            cleaned_metadata = get_unified_metadata(test_file)
             assert cleaned_metadata.get(UnifiedMetadataKey.TITLE) is None or cleaned_metadata.get(UnifiedMetadataKey.TITLE) != "Cleanup Test Title"
             assert cleaned_metadata.get(UnifiedMetadataKey.RATING) is None
             assert cleaned_metadata.get(UnifiedMetadataKey.BPM) is None

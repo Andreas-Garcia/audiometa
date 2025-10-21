@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
 
-from audiometa import get_merged_unified_metadata
+from audiometa import get_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
@@ -10,7 +10,7 @@ class TestBase255NonProportionalId3v2Mp3RatingReading:
     
     def test_base_255_non_proportional_0_star_mp3(self, test_files_dir: Path):
         file_path = test_files_dir / "rating_id3v2=0 star.mp3"
-        metadata = get_merged_unified_metadata(file_path, normalized_rating_max_value=100)
+        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
         assert isinstance(rating, (int, float))
@@ -18,7 +18,7 @@ class TestBase255NonProportionalId3v2Mp3RatingReading:
 
     def test_base_255_non_proportional_0_5_star_mp3(self, test_files_dir: Path):
         file_path = test_files_dir / "rating_id3v2=0.5 star.mp3"
-        metadata = get_merged_unified_metadata(file_path, normalized_rating_max_value=100)
+        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
         assert isinstance(rating, (int, float))
@@ -26,7 +26,7 @@ class TestBase255NonProportionalId3v2Mp3RatingReading:
 
     def test_base_255_non_proportional_1_star_mp3(self, test_files_dir: Path):
         file_path = test_files_dir / "rating_id3v2=1 star.mp3"
-        metadata = get_merged_unified_metadata(file_path, normalized_rating_max_value=100)
+        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
         assert isinstance(rating, (int, float))
@@ -34,7 +34,7 @@ class TestBase255NonProportionalId3v2Mp3RatingReading:
 
     def test_base_255_non_proportional_1_5_star_mp3(self, test_files_dir: Path):
         file_path = test_files_dir / "rating_id3v2=1.5 star.mp3"
-        metadata = get_merged_unified_metadata(file_path, normalized_rating_max_value=100)
+        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
         assert isinstance(rating, (int, float))
@@ -42,7 +42,7 @@ class TestBase255NonProportionalId3v2Mp3RatingReading:
 
     def test_base_255_non_proportional_2_star_mp3(self, test_files_dir: Path):
         file_path = test_files_dir / "rating_id3v2=2 star.mp3"
-        metadata = get_merged_unified_metadata(file_path, normalized_rating_max_value=100)
+        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
         assert isinstance(rating, (int, float))
@@ -50,7 +50,7 @@ class TestBase255NonProportionalId3v2Mp3RatingReading:
 
     def test_base_255_non_proportional_2_5_star_mp3(self, test_files_dir: Path):
         file_path = test_files_dir / "rating_id3v2=2.5 star.mp3"
-        metadata = get_merged_unified_metadata(file_path, normalized_rating_max_value=100)
+        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
         assert isinstance(rating, (int, float))
@@ -58,7 +58,7 @@ class TestBase255NonProportionalId3v2Mp3RatingReading:
 
     def test_base_255_non_proportional_3_star_mp3(self, test_files_dir: Path):
         file_path = test_files_dir / "rating_id3v2=3 star.mp3"
-        metadata = get_merged_unified_metadata(file_path, normalized_rating_max_value=100)
+        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
         assert isinstance(rating, (int, float))
@@ -66,7 +66,7 @@ class TestBase255NonProportionalId3v2Mp3RatingReading:
 
     def test_base_255_non_proportional_3_5_star_mp3(self, test_files_dir: Path):
         file_path = test_files_dir / "rating_id3v2=3.5 star.mp3"
-        metadata = get_merged_unified_metadata(file_path, normalized_rating_max_value=100)
+        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
         assert isinstance(rating, (int, float))
@@ -74,7 +74,7 @@ class TestBase255NonProportionalId3v2Mp3RatingReading:
 
     def test_base_255_non_proportional_4_star_mp3(self, test_files_dir: Path):
         file_path = test_files_dir / "rating_id3v2=4 star.mp3"
-        metadata = get_merged_unified_metadata(file_path, normalized_rating_max_value=100)
+        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
         assert isinstance(rating, (int, float))
@@ -82,7 +82,7 @@ class TestBase255NonProportionalId3v2Mp3RatingReading:
 
     def test_base_255_non_proportional_4_5_star_mp3(self, test_files_dir: Path):
         file_path = test_files_dir / "rating_id3v2=4.5 star.mp3"
-        metadata = get_merged_unified_metadata(file_path, normalized_rating_max_value=100)
+        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
         assert isinstance(rating, (int, float))
@@ -90,7 +90,7 @@ class TestBase255NonProportionalId3v2Mp3RatingReading:
 
     def test_base_255_non_proportional_5_star_mp3(self, test_files_dir: Path):
         file_path = test_files_dir / "rating_id3v2=5 star.mp3"
-        metadata = get_merged_unified_metadata(file_path, normalized_rating_max_value=100)
+        metadata = get_unified_metadata(file_path, normalized_rating_max_value=100)
         rating = metadata.get(UnifiedMetadataKey.RATING)
         assert rating is not None
         assert isinstance(rating, (int, float))

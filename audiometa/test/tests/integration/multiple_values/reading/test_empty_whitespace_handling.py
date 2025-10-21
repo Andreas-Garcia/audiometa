@@ -1,5 +1,5 @@
 
-from audiometa import get_merged_unified_metadata, get_specific_metadata
+from audiometa import get_unified_metadata, get_specific_metadata
 from audiometa.utils import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -29,7 +29,7 @@ class TestEmptyWhitespaceHandling:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             test_file.set_vorbis_multiple_artists(["Valid Artist 1", "", "Valid Artist 2", "", "Valid Artist 3"])
             
-            unified_metadata = get_merged_unified_metadata(test_file.path)
+            unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
             
             assert isinstance(artists, list)

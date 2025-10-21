@@ -4,7 +4,7 @@ import pytest
 from pathlib import Path
 
 from audiometa import (
-    get_merged_unified_metadata,
+    get_unified_metadata,
     update_file_metadata
 )
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -28,7 +28,7 @@ class TestId3v1Writing:
             update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
             
             # Verify all fields
-            metadata = get_merged_unified_metadata(test_file.path, normalized_rating_max_value=10)
+            metadata = get_unified_metadata(test_file.path, normalized_rating_max_value=10)
             
             # Basic metadata assertions
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Song Title"
@@ -51,7 +51,7 @@ class TestId3v1Writing:
             update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
             
             # Verify all fields were written
-            metadata = get_merged_unified_metadata(test_file.path, normalized_rating_max_value=10)
+            metadata = get_unified_metadata(test_file.path, normalized_rating_max_value=10)
             
             # Basic metadata assertions
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Written Song Title"

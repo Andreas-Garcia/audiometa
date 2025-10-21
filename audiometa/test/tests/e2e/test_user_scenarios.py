@@ -8,7 +8,7 @@ These tests simulate how actual users would interact with the library
 in real-world applications.
 """
 import pytest
-from audiometa import get_merged_unified_metadata, update_file_metadata
+from audiometa import get_unified_metadata, update_file_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
@@ -40,7 +40,7 @@ class TestUserScenarios:
                 update_file_metadata(test_file.path, test_metadata)
                 
                 # Verify the organization worked
-                metadata = get_merged_unified_metadata(test_file.path)
+                metadata = get_unified_metadata(test_file.path)
                 assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "My Music Library"
                 assert metadata.get(UnifiedMetadataKey.TITLE) == f"Track {i + 1}"
     
@@ -54,7 +54,7 @@ class TestUserScenarios:
         }
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             # Export current metadata
-            current_metadata = get_merged_unified_metadata(test_file.path)
+            current_metadata = get_unified_metadata(test_file.path)
             metadata = {
                 'title': current_metadata.get(UnifiedMetadataKey.TITLE),
                 'artist': current_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES),
@@ -74,7 +74,7 @@ class TestUserScenarios:
             update_file_metadata(test_file.path, test_metadata)
             
             # Verify the import worked
-            updated_metadata = get_merged_unified_metadata(test_file.path)
+            updated_metadata = get_unified_metadata(test_file.path)
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Updated Title"
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Updated Artist"]
     
@@ -89,7 +89,7 @@ class TestUserScenarios:
         
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             # 1. Verify initial metadata exists
-            initial_metadata_result = get_merged_unified_metadata(test_file)
+            initial_metadata_result = get_unified_metadata(test_file)
             assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Personal Music Track"
             assert initial_metadata_result.get(UnifiedMetadataKey.COMMENT) == "Personal comment with sensitive info"
             
@@ -101,7 +101,7 @@ class TestUserScenarios:
             update_file_metadata(test_file.path, cleanup_metadata)
             
             # 3. Verify sensitive data was removed
-            cleaned_metadata = get_merged_unified_metadata(test_file)
+            cleaned_metadata = get_unified_metadata(test_file)
             assert cleaned_metadata.get(UnifiedMetadataKey.COMMENT) is None
             assert cleaned_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Generic Album"
             assert cleaned_metadata.get(UnifiedMetadataKey.TITLE) == "Personal Music Track"  # Title remains
@@ -111,7 +111,7 @@ class TestUserScenarios:
             assert delete_result is True
             
             # 5. Verify all metadata is removed
-            final_metadata = get_merged_unified_metadata(test_file)
+            final_metadata = get_unified_metadata(test_file)
             assert final_metadata.get(UnifiedMetadataKey.TITLE) is None or final_metadata.get(UnifiedMetadataKey.TITLE) != "Personal Music Track"
             assert final_metadata.get(UnifiedMetadataKey.COMMENT) is None
 
@@ -125,7 +125,7 @@ class TestUserScenarios:
         
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             # 1. Verify initial incorrect metadata
-            initial_metadata_result = get_merged_unified_metadata(test_file)
+            initial_metadata_result = get_unified_metadata(test_file)
             assert initial_metadata_result.get(UnifiedMetadataKey.TITLE) == "Wrong Title"
             
             # 2. User realizes the metadata is wrong and wants to start fresh
@@ -134,7 +134,7 @@ class TestUserScenarios:
             assert delete_result is True
             
             # 3. Verify metadata was deleted
-            deleted_metadata = get_merged_unified_metadata(test_file)
+            deleted_metadata = get_unified_metadata(test_file)
             assert deleted_metadata.get(UnifiedMetadataKey.TITLE) is None or deleted_metadata.get(UnifiedMetadataKey.TITLE) != "Wrong Title"
             
             # 4. Add correct metadata
@@ -146,7 +146,7 @@ class TestUserScenarios:
             update_file_metadata(test_file.path, correct_metadata)
             
             # 5. Verify correct metadata was added
-            final_metadata = get_merged_unified_metadata(test_file)
+            final_metadata = get_unified_metadata(test_file)
             assert final_metadata.get(UnifiedMetadataKey.TITLE) == "Correct Title"
             assert final_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Correct Artist"]
             assert final_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Correct Album"
@@ -177,7 +177,7 @@ class TestUserScenarios:
                 update_file_metadata(test_file.path, test_metadata)
                 
                 # Verify metadata was set correctly
-                metadata = get_merged_unified_metadata(test_file.path)
+                metadata = get_unified_metadata(test_file.path)
                 assert metadata.get(UnifiedMetadataKey.TITLE) == test_metadata[UnifiedMetadataKey.TITLE]
                 assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == test_metadata[UnifiedMetadataKey.ARTISTS_NAMES]
                 assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == test_metadata[UnifiedMetadataKey.ALBUM_NAME]

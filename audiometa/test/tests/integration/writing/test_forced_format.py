@@ -9,7 +9,7 @@ import pytest
 from audiometa import (
     update_file_metadata,
     get_single_format_app_metadata,
-    get_merged_unified_metadata,
+    get_unified_metadata,
 )
 from audiometa.exceptions import (
     MetadataNotSupportedError,
@@ -269,7 +269,7 @@ class TestForcedFormat:
                                    metadata_format=MetadataFormat.RIFF)
             
             # Verify NO changes were made to the file (validation happens before writing)
-            final_metadata = get_merged_unified_metadata(test_file)
+            final_metadata = get_unified_metadata(test_file)
             assert final_metadata.get(UnifiedMetadataKey.TITLE) == "Original Title"
             assert final_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original Artist"]
             assert final_metadata.get(UnifiedMetadataKey.BPM) is None

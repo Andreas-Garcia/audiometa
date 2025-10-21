@@ -7,7 +7,7 @@ and normalization values across different audio formats.
 import pytest
 
 from audiometa import (
-    get_merged_unified_metadata,
+    get_unified_metadata,
     update_file_metadata
 )
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -32,7 +32,7 @@ class TestRatingWorkflows:
             }
             update_file_metadata(test_file.path, test_metadata_100, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
     
-            metadata_100 = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            metadata_100 = get_unified_metadata(test_file, normalized_rating_max_value=100)
             assert metadata_100.get(UnifiedMetadataKey.TITLE) == "Rating Test 100"
             assert metadata_100.get(UnifiedMetadataKey.RATING) == 60
     
@@ -43,7 +43,7 @@ class TestRatingWorkflows:
             }
             update_file_metadata(test_file.path, test_metadata_255, normalized_rating_max_value=255, metadata_format=MetadataFormat.ID3V2)
     
-            metadata_255 = get_merged_unified_metadata(test_file, normalized_rating_max_value=255)
+            metadata_255 = get_unified_metadata(test_file, normalized_rating_max_value=255)
             assert metadata_255.get(UnifiedMetadataKey.TITLE) == "Rating Test 255"
             assert metadata_255.get(UnifiedMetadataKey.RATING) == 153
 
@@ -62,7 +62,7 @@ class TestRatingWorkflows:
             update_file_metadata(test_file.path, rating_metadata_100, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
             
             # 2. Verify rating was added
-            metadata_with_rating = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            metadata_with_rating = get_unified_metadata(test_file, normalized_rating_max_value=100)
             assert metadata_with_rating.get(UnifiedMetadataKey.RATING) == 75
             
             # 3. Delete rating by setting to None
@@ -72,7 +72,7 @@ class TestRatingWorkflows:
             update_file_metadata(test_file.path, rating_deletion, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
             
             # 4. Verify rating was deleted
-            metadata_after_deletion = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            metadata_after_deletion = get_unified_metadata(test_file, normalized_rating_max_value=100)
             assert metadata_after_deletion.get(UnifiedMetadataKey.RATING) is None
             
             # 5. Add rating with 255 scale
@@ -82,14 +82,14 @@ class TestRatingWorkflows:
             update_file_metadata(test_file.path, rating_metadata_255, normalized_rating_max_value=255, metadata_format=MetadataFormat.ID3V2)
             
             # 6. Verify rating was added with 255 scale
-            metadata_with_rating_255 = get_merged_unified_metadata(test_file, normalized_rating_max_value=255)
+            metadata_with_rating_255 = get_unified_metadata(test_file, normalized_rating_max_value=255)
             assert metadata_with_rating_255.get(UnifiedMetadataKey.RATING) == 191
             
             # 7. Delete rating with 255 scale
             update_file_metadata(test_file.path, rating_deletion, normalized_rating_max_value=255, metadata_format=MetadataFormat.ID3V2)
             
             # 8. Verify rating was deleted
-            final_metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=255)
+            final_metadata = get_unified_metadata(test_file, normalized_rating_max_value=255)
             assert final_metadata.get(UnifiedMetadataKey.RATING) is None
 
     def test_complete_rating_cleanup_workflow(self):
@@ -109,7 +109,7 @@ class TestRatingWorkflows:
             update_file_metadata(test_file.path, comprehensive_metadata, normalized_rating_max_value=100)
             
             # 2. Verify all metadata exists
-            full_metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            full_metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             assert full_metadata.get(UnifiedMetadataKey.RATING) == 85
             assert full_metadata.get(UnifiedMetadataKey.BPM) == 130
             assert full_metadata.get(UnifiedMetadataKey.COMMENT) == "Rating cleanup test"
@@ -119,7 +119,7 @@ class TestRatingWorkflows:
             assert delete_result is True
             
             # 4. Verify all metadata including rating was deleted
-            cleaned_metadata = get_merged_unified_metadata(test_file, normalized_rating_max_value=100)
+            cleaned_metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             assert cleaned_metadata.get(UnifiedMetadataKey.RATING) is None
             assert cleaned_metadata.get(UnifiedMetadataKey.BPM) is None
             assert cleaned_metadata.get(UnifiedMetadataKey.COMMENT) is None or cleaned_metadata.get(UnifiedMetadataKey.COMMENT) != "Rating cleanup test"

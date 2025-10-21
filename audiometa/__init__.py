@@ -96,7 +96,7 @@ def get_single_format_app_metadata(
     Get metadata from a specific format only.
     
     This function reads metadata from only the specified format, unlike
-    get_merged_unified_metadata which reads from all available formats.
+    get_unified_metadata which reads from all available formats.
     
     Args:
         file: Audio file path or AudioFile object
@@ -133,7 +133,7 @@ def get_single_format_app_metadata(
     return manager.get_app_metadata()
 
 
-def get_merged_unified_metadata(
+def get_unified_metadata(
         file: FILE_TYPE, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None) -> AppMetadata:
     """
     Get all available metadata from an audio file, merging data from multiple formats.
@@ -156,15 +156,15 @@ def get_merged_unified_metadata(
         
     Examples:
         # Get all metadata with raw rating values
-        metadata = get_merged_unified_metadata("song.mp3")
+        metadata = get_unified_metadata("song.mp3")
         print(metadata.get(UnifiedMetadataKey.TITLE))
         
         # Get all metadata with normalized ratings (0-100 scale)
-        metadata = get_merged_unified_metadata("song.mp3", normalized_rating_max_value=100)
+        metadata = get_unified_metadata("song.mp3", normalized_rating_max_value=100)
         print(metadata.get(UnifiedMetadataKey.RATING))  # Returns 0-100
         
         # Get metadata from FLAC file
-        metadata = get_merged_unified_metadata("song.flac")
+        metadata = get_unified_metadata("song.flac")
         print(metadata.get(UnifiedMetadataKey.ARTISTS_NAMES))
     """
     if not isinstance(file, AudioFile):
@@ -753,7 +753,7 @@ def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_tec
         # Get complete metadata including headers and technical info
         full_metadata = get_full_metadata("song.mp3")
         
-        # Access unified metadata (same as get_merged_unified_metadata)
+        # Access unified metadata (same as get_unified_metadata)
         print(f"Title: {full_metadata['unified_metadata']['title']}")
         
         # Access technical information
@@ -790,8 +790,8 @@ def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_tec
         }
     }
     
-    # Get unified metadata (same as get_merged_unified_metadata)
-    result['unified_metadata'] = get_merged_unified_metadata(file)
+    # Get unified metadata (same as get_unified_metadata)
+    result['unified_metadata'] = get_unified_metadata(file)
     
     # Get technical information
     if include_technical:

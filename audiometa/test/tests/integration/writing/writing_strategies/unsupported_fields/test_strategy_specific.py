@@ -2,7 +2,7 @@ import pytest
 
 from audiometa import (
     update_file_metadata,
-    get_merged_unified_metadata,
+    get_unified_metadata,
 )
 from audiometa.exceptions import MetadataNotSupportedError
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -19,7 +19,7 @@ class TestStrategySpecific:
             "artist": "Original WAV Artist"
         }
         with TempFileWithMetadata(initial_metadata, "wav") as test_file:
-            initial_read = get_merged_unified_metadata(test_file)
+            initial_read = get_unified_metadata(test_file)
             assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"
             assert initial_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original WAV Artist"]
             
@@ -37,7 +37,7 @@ class TestStrategySpecific:
             assert "Fields not supported by riff format" in str(exc_info.value)
             assert "BPM" in str(exc_info.value)
             
-            final_read = get_merged_unified_metadata(test_file)
+            final_read = get_unified_metadata(test_file)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original WAV Artist"]  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.BPM) is None  # Should not exist
@@ -48,7 +48,7 @@ class TestStrategySpecific:
             "artist": "Original WAV Artist"
         }
         with TempFileWithMetadata(initial_metadata, "wav") as test_file:
-            initial_read = get_merged_unified_metadata(test_file)
+            initial_read = get_unified_metadata(test_file)
             assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"
             assert initial_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original WAV Artist"]
             
@@ -66,7 +66,7 @@ class TestStrategySpecific:
             assert "Fields not supported by riff format" in str(exc_info.value)
             assert "BPM" in str(exc_info.value)
             
-            final_read = get_merged_unified_metadata(test_file)
+            final_read = get_unified_metadata(test_file)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original WAV Artist"]  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.BPM) is None  # Should not exist
@@ -77,7 +77,7 @@ class TestStrategySpecific:
             "artist": "Original WAV Artist"
         }
         with TempFileWithMetadata(initial_metadata, "wav") as test_file:
-            initial_read = get_merged_unified_metadata(test_file)
+            initial_read = get_unified_metadata(test_file)
             assert initial_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"
             assert initial_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original WAV Artist"]
             
@@ -97,7 +97,7 @@ class TestStrategySpecific:
             
             # With fail_on_unsupported_field=True, the operation should be atomic
             # No writing should occur, so file should remain unchanged
-            final_read = get_merged_unified_metadata(test_file)
+            final_read = get_unified_metadata(test_file)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Original WAV Artist"]  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist
