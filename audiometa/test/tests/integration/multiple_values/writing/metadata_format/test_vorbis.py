@@ -28,5 +28,24 @@ class TestMultipleEntriesVorbis:
             assert "Artist Two" in raw_output
             assert "Artist Three" in raw_output
             
+    def test_with_existing_artists_fields(self):
+        # Start with an existing artist field
+        with TempFileWithMetadata({}, "flac") as test_file:
+            # create an existing value using setter
+            VorbisMetadataSetter.set_artists(test_file.path, ["Existing 1; Existing 2"])
+            verification = VorbisMetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "ARTIST")
+            raw_output = verification['raw_output']
+            assert "Existing 1; Existing 2" in raw_output
+
+            metadata = {UnifiedMetadataKey.ARTISTS_NAMES: ["Existing 1", "New 2"]}
+            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
+
+            verification = VorbisMetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "ARTIST")
+            assert verification['actual_count'] == 2
+            raw_output = verification['raw_output']
+            assert "Existing 1" in raw_output
+            assert "New 2" in raw_output
+            assert "Existing 2" not in raw_output
+            
             
             
