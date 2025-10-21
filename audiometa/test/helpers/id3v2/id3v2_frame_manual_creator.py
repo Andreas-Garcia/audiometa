@@ -86,13 +86,15 @@ class ManualID3v2FrameCreator:
             # ID3v2.3: Use ISO-8859-1 or UTF-16 (we'll use UTF-16 for broader compatibility)
             encoding = 1  # UTF-16 with BOM
             text_bytes = text.encode('utf-16')
+            null_terminator = b'\x00\x00'  # UTF-16 null terminator
         else:  # ID3v2.4
             # ID3v2.4: Use UTF-8
             encoding = 3
             text_bytes = text.encode('utf-8')
+            null_terminator = b'\x00'  # UTF-8 null terminator
         
         # Frame data: encoding byte + text + null terminator
-        frame_data = struct.pack('B', encoding) + text_bytes + b'\x00'
+        frame_data = struct.pack('B', encoding) + text_bytes + null_terminator
         
         # Frame header: ID (4 bytes) + size (4 bytes) + flags (2 bytes)
         frame_id_bytes = frame_id.encode('ascii')
