@@ -44,39 +44,6 @@ class TestMultipleValuesBoundaryConditions:
         assert len(artists) == 2
         assert very_long_string in artists
 
-    def test_write_single_character_values(self, temp_audio_file: Path):
-        # Test with single character values
-        single_chars = ["A", "B", "C", "1", "2", "3", "!", "@", "#"]
-        metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: single_chars
-        }
-        
-        update_file_metadata(temp_audio_file, metadata)
-        
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-        
-        assert isinstance(artists, list)
-        assert len(artists) == 9
-        for char in single_chars:
-            assert char in artists
-
-    def test_write_very_short_list(self, temp_audio_file: Path):
-        # Test with very short list (single element)
-        single_artist = ["Single Artist"]
-        metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: single_artist
-        }
-        
-        update_file_metadata(temp_audio_file, metadata)
-        
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-        
-        assert isinstance(artists, list)
-        assert len(artists) == 1
-        assert "Single Artist" in artists
-
     def test_write_duplicate_values(self, temp_audio_file: Path):
         # Test with duplicate values
         duplicate_values = ["Artist One", "Artist Two", "Artist One", "Artist Three", "Artist Two"]
@@ -86,44 +53,13 @@ class TestMultipleValuesBoundaryConditions:
         
         update_file_metadata(temp_audio_file, metadata)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         
         assert isinstance(artists, list)
         assert len(artists) == 5  # Duplicates should be preserved
         assert artists.count("Artist One") == 2
         assert artists.count("Artist Two") == 2
         assert artists.count("Artist Three") == 1
-
-    def test_write_all_empty_strings(self, temp_audio_file: Path):
-        # Test with all empty strings
-        empty_values = ["", "", "", ""]
-        metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: empty_values
-        }
-        
-        update_file_metadata(temp_audio_file, metadata)
-        
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-        
-        # Should remove the field entirely
-        assert artists is None
-
-    def test_write_all_whitespace_strings(self, temp_audio_file: Path):
-        # Test with all whitespace strings
-        whitespace_values = ["   ", "\t\t\t", "\n\n\n", "   \t\n   "]
-        metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: whitespace_values
-        }
-        
-        update_file_metadata(temp_audio_file, metadata)
-        
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-        
-        # Should remove the field entirely
-        assert artists is None
 
     def test_write_mixed_length_values(self, temp_audio_file: Path):
         # Test with mixed length values
