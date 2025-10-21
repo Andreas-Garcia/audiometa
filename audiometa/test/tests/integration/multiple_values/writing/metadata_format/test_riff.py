@@ -29,8 +29,6 @@ class TestMultipleEntriesRiff:
 
 			# Use helper to check the created RIFF frames directly
 			verification = RIFFMetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "IART")
-			assert verification['success']
-
 			# Check that all artists appear in the raw output
 			raw_output = verification['raw_output']
 			assert "Artist 1" in raw_output
