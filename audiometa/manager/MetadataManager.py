@@ -13,7 +13,7 @@ from ..utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMet
 
 
 # Separators in order of priority for multi-value metadata fields
-METADATA_MULTI_VALUE_SEPARATORS = ("//", "\\\\", ";", "\\", "/", ",")
+METADATA_MULTI_VALUE_SEPARATORS = ("//", "\\\\", "\\", ";", "/", ",")
 
 
 T = TypeVar('T', str, int)
@@ -137,18 +137,18 @@ class MetadataManager:
         if not first_value:
             return []
             
-        # Process all separators in sequence (same logic as base MetadataManager)
-        # but only for the single entry (legacy data detection)
-        current_values = [first_value]
+        # Find the highest-priority separator that actually exists in the value.
+        # We should only split on that separator (legacy single-entry fields that
+        # used one specific separator) rather than splitting on every known
+        # separator sequentially which can produce incorrect fragmentation when
+        # lower-priority separators appear inside values.
         for separator in METADATA_MULTI_VALUE_SEPARATORS:
-            new_values = []
-            for val in current_values:
-                new_values.extend(val.split(separator))
-            current_values = new_values
-            
-        # Clean up and filter empty values
-        parsed_values = [val.strip() for val in current_values if val.strip()]
-        return parsed_values
+            if separator in first_value:
+                parts = [p.strip() for p in first_value.split(separator) if p.strip()]
+                return parts
+
+        # No known separator found; return the single trimmed value as list
+        return [first_value.strip()]
 
     def _extract_and_regroup_raw_metadata_unique_entries(
             self, raw_metadata_with_potential_duplicate_keys: RawMetadataDict):
