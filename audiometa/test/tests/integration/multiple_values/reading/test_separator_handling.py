@@ -1,11 +1,9 @@
-import pytest
 
 from audiometa import get_specific_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
-from test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGetter
-from test.helpers.id3v2.id3v2_metadata_setter import ID3v2MetadataSetter
-from utils.MetadataFormat import MetadataFormat
+from audiometa.test.helpers.id3v2.id3v2_metadata_setter import ID3v2MetadataSetter
+from audiometa.utils.MetadataFormat import MetadataFormat
 
 
 class TestSeparatorHandling:
