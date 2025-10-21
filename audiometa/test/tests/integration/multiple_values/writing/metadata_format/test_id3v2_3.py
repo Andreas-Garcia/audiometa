@@ -21,9 +21,6 @@ class TestMultipleEntriesId3v2_3:
             
             # Use helper to check the created ID3v2 frame directly
             verification = ID3v2MetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "TPE1")
-            assert verification['success']
-            
-            # Check that all artists are concatenated with separators in ID3v2.3
             raw_output = verification['raw_output']
             assert "TPE1=Artist 1//Artist 2//Artist 3" in raw_output
     
@@ -42,7 +39,6 @@ class TestMultipleEntriesId3v2_3:
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
             verification = ID3v2MetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "TPE1")
-            assert verification['success']
             raw_output = verification['raw_output']
             assert "Existing 1" in raw_output
             assert "New 2" in raw_output

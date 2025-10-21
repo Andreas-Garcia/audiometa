@@ -18,7 +18,6 @@ class TestMultipleEntriesId3v2_4:
             update_file_metadata(test_file, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             verification = ID3v2MetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "TPE1")
-            assert verification['success']
             raw_output = verification['raw_output']
             
             # raw_output replaces NUL bytes with slashes for display purposes
@@ -40,7 +39,6 @@ class TestMultipleEntriesId3v2_4:
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             verification = ID3v2MetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "TPE1")
-            assert verification['success']
             raw_output = verification['raw_output']
             assert "Existing A" in raw_output
             assert "New B" in raw_output

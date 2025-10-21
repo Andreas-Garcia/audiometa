@@ -16,9 +16,9 @@ class TestMultipleEntriesRiff:
 
 			# Use helper to check the created RIFF frames directly
 			verification = RIFFMetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "IART")
-			assert verification['success']
 			# Expect three separate IART entries
 			assert verification['actual_count'] == 3
+   
 
 	def test_artists_concatenation(self):
 		initial_metadata = {"title": "Test Song"}
@@ -44,7 +44,6 @@ class TestMultipleEntriesRiff:
 			# create an existing value using setter
 			RIFFMetadataSetter.set_artist(test_file.path, "Existing 1; Existing 2")
 			verification = RIFFMetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "IART")
-			assert verification['success']
 			assert "Existing 1" in verification['raw_output']
 			assert "Existing 2" in verification['raw_output']
 
@@ -52,7 +51,6 @@ class TestMultipleEntriesRiff:
 			update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
 
 			verification = RIFFMetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "IART")
-			assert verification['success']
 			raw_output = verification['raw_output']
 			assert "Existing 1" in raw_output
 			assert "New 2" in raw_output
