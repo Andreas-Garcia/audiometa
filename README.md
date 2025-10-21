@@ -102,13 +102,13 @@ A comprehensive Python library for reading and writing audio metadata across mul
       - [Format-Specific Rating Writing](#format-specific-rating-writing)
     - [Why Rating Profiles Matter](#why-rating-profiles-matter)
   - [Error Handling](#error-handling)
+  - [Track Number Formats](#track-number-formats)
 - [Metadata Field Reference](#metadata-field-reference)
   - [Metadata Support by Format](#metadata-support-by-format)
-  - [Track Number Formats](#track-number-formats)
-    - [ID3v2 Format (MP3, WAV, FLAC)](#id3v2-format-mp3-wav-flac)
-    - [ID3v1 Format (MP3, FLAC, WAV)](#id3v1-format-mp3-flac-wav)
-    - [Vorbis Format (FLAC)](#vorbis-format-flac)
-    - [RIFF Format (WAV)](#riff-format-wav)
+    - [ID3v2](#id3v2-format-mp3-wav-flac)
+    - [ID3v1](#id3v1-format-mp3-flac-wav)
+    - [Vorbis](#vorbis-format-flac)
+    - [RIFF](#riff-format-wav)
     - [Edge Case Handling](#edge-case-handling)
   - [Metadata Writing Strategy](#metadata-writing-strategy)
     - [Default Behavior](#default-behavior)
@@ -1695,6 +1695,60 @@ except MetadataNotSupportedError:
     print("Metadata field not supported for this format")
 ```
 
+### Track Number Formats
+
+The library handles different track number formats across audio metadata standards:
+
+#### ID3v2 Format
+
+- **Format**: `"track/total"` (e.g., `"5/12"`, `"99/99"`)
+- **Parsing**: Library extracts only the track number (first part before `/`)
+- **Why extract only the track number?**
+  - **Industry Standard**: This is the standard practice used by Mutagen, eyed3, and most audio players
+  - **ID3v2 Specification**: The specification allows both simple (`"5"`) and complex (`"5/12"`) formats
+  - **User Experience**: Users typically care about "track 5" rather than "track 5 of 12"
+  - **Compatibility**: Works consistently across different tagging software and players
+  - **Consistency**: Provides uniform behavior regardless of how the file was originally tagged
+- **Examples**:
+  - `"5/12"` → Track number: `5`
+  - `"99/99"` → Track number: `99`
+  - `"1"` → Track number: `1` (simple format also supported)
+
+#### ID3v1 Format
+
+- **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
+- **Parsing**: Direct conversion to integer
+- **Examples**:
+  - `"5"` → Track number: `5`
+  - `"12"` → Track number: `12`
+
+#### Vorbis Format
+
+- **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
+- **Parsing**: Direct conversion to integer
+- **Examples**:
+  - `"5"` → Track number: `5`
+  - `"12"` → Track number: `12`
+
+#### RIFF Format
+
+- **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
+- **Parsing**: Direct conversion to integer
+- **Examples**:
+  - `"5"` → Track number: `5`
+  - `"12"` → Track number: `12`
+
+#### Edge Case Handling
+
+The library gracefully handles common edge cases:
+
+- `"5/"` → Track number: `5` (trailing slash ignored)
+- `"/12"` → Track number: `None` (no track number before slash)
+- `"abc/def"` → Track number: `None` (non-numeric values)
+- `""` → Track number: `None` (empty string)
+- `"5/12/15"` → Track number: `5` (takes first part before first slash)
+- `"5-12"` → `ValueError` (different separator, no slash)
+
 ## Metadata Field Reference
 
 The library supports a comprehensive set of metadata fields across different audio formats. The table below shows which fields are supported by each format:
@@ -1760,60 +1814,6 @@ The library supports a comprehensive set of metadata fields across different aud
 | Involved People   |               | ✓ (Format)   | ✓ (Format)   | ✓ (Format)    |                   |
 | Musicians         |               | ✓ (Format)   | ✓ (Format)   | ✓ (Format)    |                   |
 | Part of Set       |               | ✓ (Format)   | ✓ (Format)   | ✓ (Format)    |                   |
-
-### Track Number Formats
-
-The library handles different track number formats across audio metadata standards:
-
-#### ID3v2 Format (MP3, WAV, FLAC)
-
-- **Format**: `"track/total"` (e.g., `"5/12"`, `"99/99"`)
-- **Parsing**: Library extracts only the track number (first part before `/`)
-- **Why extract only the track number?**
-  - **Industry Standard**: This is the standard practice used by Mutagen, eyed3, and most audio players
-  - **ID3v2 Specification**: The specification allows both simple (`"5"`) and complex (`"5/12"`) formats
-  - **User Experience**: Users typically care about "track 5" rather than "track 5 of 12"
-  - **Compatibility**: Works consistently across different tagging software and players
-  - **Consistency**: Provides uniform behavior regardless of how the file was originally tagged
-- **Examples**:
-  - `"5/12"` → Track number: `5`
-  - `"99/99"` → Track number: `99`
-  - `"1"` → Track number: `1` (simple format also supported)
-
-#### ID3v1 Format (MP3, FLAC, WAV)
-
-- **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
-- **Parsing**: Direct conversion to integer
-- **Examples**:
-  - `"5"` → Track number: `5`
-  - `"12"` → Track number: `12`
-
-#### Vorbis Format (FLAC)
-
-- **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
-- **Parsing**: Direct conversion to integer
-- **Examples**:
-  - `"5"` → Track number: `5`
-  - `"12"` → Track number: `12`
-
-#### RIFF Format (WAV)
-
-- **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
-- **Parsing**: Direct conversion to integer
-- **Examples**:
-  - `"5"` → Track number: `5`
-  - `"12"` → Track number: `12`
-
-#### Edge Case Handling
-
-The library gracefully handles common edge cases:
-
-- `"5/"` → Track number: `5` (trailing slash ignored)
-- `"/12"` → Track number: `None` (no track number before slash)
-- `"abc/def"` → Track number: `None` (non-numeric values)
-- `""` → Track number: `None` (empty string)
-- `"5/12/15"` → Track number: `5` (takes first part before first slash)
-- `"5-12"` → `ValueError` (different separator, no slash)
 
 ### Metadata Writing Strategy
 
