@@ -4,6 +4,8 @@ from audiometa import update_file_metadata, get_merged_unified_metadata, get_sin
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.vorbis.vorbis_metadata_inspector import VorbisMetadataInspector
+from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataSetter
 
 
 class TestMultipleEntriesVorbis:
@@ -16,12 +18,15 @@ class TestMultipleEntriesVorbis:
             
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
             
-            # Read back using unified function
-            unified_metadata = get_merged_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+            # verify against multiple entries in vorbis metadata not using the API
+            verification = VorbisMetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "ARTIST")
+
+            # For Vorbis we expect separate ARTIST entries, ensure there are three
+            assert verification['actual_count'] == 3
+            raw_output = verification['raw_output']
+            assert "Artist One" in raw_output
+            assert "Artist Two" in raw_output
+            assert "Artist Three" in raw_output
             
-            assert isinstance(artists, list)
-            assert len(artists) == 3
-            assert "Artist One" in artists
-            assert "Artist Two" in artists
-            assert "Artist Three" in artists
+            
+            
