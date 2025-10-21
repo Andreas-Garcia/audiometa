@@ -248,7 +248,7 @@ class TestMultipleFormatPreservation:
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "Updated ID3v2 Title",
                 UnifiedMetadataKey.ARTISTS: ["Updated ID3v2 Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "ID3v2 Album"
+                UnifiedMetadataKey.ALBUM: "ID3v2 Album"
             }
             update_metadata(
                 test_file.path, 
@@ -263,7 +263,7 @@ class TestMultipleFormatPreservation:
             assert id3v1_after.get(UnifiedMetadataKey.ARTISTS) == ["ID3v1 Artist"]
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "Updated ID3v2 Title"
             assert id3v2_after.get(UnifiedMetadataKey.ARTISTS) == ["Updated ID3v2 Artist"]
-            assert id3v2_after.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v2 Album"
+            assert id3v2_after.get(UnifiedMetadataKey.ALBUM) == "ID3v2 Album"
 
     def test_preserve_strategy_with_none_values(self):
         with TempFileWithMetadata({"title": "Original Title", "artist": "Original Artist"}, "mp3") as test_file:

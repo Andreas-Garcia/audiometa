@@ -87,7 +87,7 @@ class TestId3v24Reading:
             unicode_metadata = {
                 UnifiedMetadataKey.TITLE: "Test 中文 العربية русский 🎵",
                 UnifiedMetadataKey.ARTISTS: ["Artist 日本語 한국어"],
-                UnifiedMetadataKey.ALBUM_NAME: "Album Ελληνικά ภาษาไทย"
+                UnifiedMetadataKey.ALBUM: "Album Ελληνικά ภาษาไทย"
             }
             
             update_metadata(test_file.path, unicode_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
@@ -96,7 +96,7 @@ class TestId3v24Reading:
             metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test 中文 العربية русский 🎵"
             assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Artist 日本語 한국어"]
-            assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Album Ελληνικά ภาษาไทย"
+            assert metadata.get(UnifiedMetadataKey.ALBUM) == "Album Ελληνικά ภาษาไทย"
 
     def test_id3v2_4_multiple_artists_support(self):
         with TempFileWithMetadata({}, "id3v2.4") as test_file:
@@ -144,7 +144,7 @@ class TestId3v24Reading:
             id3v1_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v1 Title",
                 UnifiedMetadataKey.ARTISTS: ["ID3v1 Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "ID3v1 Album"
+                UnifiedMetadataKey.ALBUM: "ID3v1 Album"
             }
             update_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
             
@@ -176,7 +176,7 @@ class TestId3v24Reading:
             complex_metadata = {
                 UnifiedMetadataKey.TITLE: "Complex Title with Special Characters: äöü ñç 中文",
                 UnifiedMetadataKey.ARTISTS: ["Artist with UTF-8: 日本語", "Another Artist: العربية"],
-                UnifiedMetadataKey.ALBUM_NAME: "Album with Emojis: 🎵🎶🎤",
+                UnifiedMetadataKey.ALBUM: "Album with Emojis: 🎵🎶🎤",
                 UnifiedMetadataKey.GENRES_NAMES: ["Genre 1", "Genre 2", "Genre 3"],
                 UnifiedMetadataKey.COMMENT: "Comment with Unicode: русский język"
             }
@@ -188,7 +188,7 @@ class TestId3v24Reading:
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Complex Title with Special Characters: äöü ñç 中文"
             assert "Artist with UTF-8: 日本語" in metadata.get(UnifiedMetadataKey.ARTISTS)
             assert "Another Artist: العربية" in metadata.get(UnifiedMetadataKey.ARTISTS)
-            assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Album with Emojis: 🎵🎶🎤"
+            assert metadata.get(UnifiedMetadataKey.ALBUM) == "Album with Emojis: 🎵🎶🎤"
 
     def test_id3v2_4_vs_id3v2_3_differences(self):
         # Create two files, one with ID3v2.3 and one with ID3v2.4

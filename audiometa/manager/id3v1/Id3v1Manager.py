@@ -61,7 +61,7 @@ class Id3v1Manager(MetadataManager):
         metadata_keys_direct_map_read: dict = {
             UnifiedMetadataKey.TITLE: Id3v1RawMetadataKey.TITLE,
             UnifiedMetadataKey.ARTISTS: Id3v1RawMetadataKey.ARTISTS_NAMES_STR,
-            UnifiedMetadataKey.ALBUM_NAME: Id3v1RawMetadataKey.ALBUM_NAME,
+            UnifiedMetadataKey.ALBUM: Id3v1RawMetadataKey.ALBUM,
             UnifiedMetadataKey.RELEASE_DATE: Id3v1RawMetadataKey.YEAR,
             UnifiedMetadataKey.TRACK_NUMBER: Id3v1RawMetadataKey.TRACK_NUMBER,
             UnifiedMetadataKey.COMMENT: Id3v1RawMetadataKey.COMMENT,
@@ -70,7 +70,7 @@ class Id3v1Manager(MetadataManager):
         metadata_keys_direct_map_write: dict = {
             UnifiedMetadataKey.TITLE: Id3v1RawMetadataKey.TITLE,
             UnifiedMetadataKey.ARTISTS: Id3v1RawMetadataKey.ARTISTS_NAMES_STR,
-            UnifiedMetadataKey.ALBUM_NAME: Id3v1RawMetadataKey.ALBUM_NAME,
+            UnifiedMetadataKey.ALBUM: Id3v1RawMetadataKey.ALBUM,
             UnifiedMetadataKey.RELEASE_DATE: Id3v1RawMetadataKey.YEAR,
             UnifiedMetadataKey.TRACK_NUMBER: Id3v1RawMetadataKey.TRACK_NUMBER,
             UnifiedMetadataKey.COMMENT: Id3v1RawMetadataKey.COMMENT,
@@ -187,7 +187,7 @@ class Id3v1Manager(MetadataManager):
             else:
                 artists_str = str(app_metadata_value)
             value = self._truncate_string(artists_str, 30)
-        elif raw_metadata_key == Id3v1RawMetadataKey.ALBUM_NAME:
+        elif raw_metadata_key == Id3v1RawMetadataKey.ALBUM:
             value = self._truncate_string(str(app_metadata_value), 30)
         elif raw_metadata_key == Id3v1RawMetadataKey.YEAR:
             value = self._truncate_string(str(app_metadata_value), 4)
@@ -251,7 +251,7 @@ class Id3v1Manager(MetadataManager):
             tag_data[33:33+len(artist_bytes)] = artist_bytes
         
         # Album (bytes 63-92, 30 chars max)
-        album = app_metadata.get(UnifiedMetadataKey.ALBUM_NAME)
+        album = app_metadata.get(UnifiedMetadataKey.ALBUM)
         if album is not None:
             album_bytes = self._truncate_string(str(album), 30).encode('latin-1', errors='ignore')
             tag_data[63:63+len(album_bytes)] = album_bytes

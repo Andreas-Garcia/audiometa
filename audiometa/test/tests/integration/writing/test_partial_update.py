@@ -30,7 +30,7 @@ class TestMetadataWriting:
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             # Get original metadata
             original_metadata = get_unified_metadata(test_file.path)
-            original_album = original_metadata.get(UnifiedMetadataKey.ALBUM_NAME)
+            original_album = original_metadata.get(UnifiedMetadataKey.ALBUM)
             
             # Update only title using app's function (this is what we're testing)
             test_metadata = {
@@ -43,4 +43,4 @@ class TestMetadataWriting:
             # Title should be updated
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Partial Update Title"
             # Other fields should remain unchanged
-            assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == original_album
+            assert updated_metadata.get(UnifiedMetadataKey.ALBUM) == original_album

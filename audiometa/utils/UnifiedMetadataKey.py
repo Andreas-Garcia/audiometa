@@ -5,7 +5,7 @@ from enum import Enum
 class UnifiedMetadataKey(str, Enum):
     TITLE = 'title'
     ARTISTS = 'artists'
-    ALBUM_NAME = 'album_name'
+    ALBUM = 'album'
     ALBUM_ARTISTS = 'album_artists_names'
     GENRES_NAMES = 'genres_names'
     RATING = 'rating'
@@ -37,7 +37,7 @@ class UnifiedMetadataKey(str, Enum):
         APP_METADATA_KEYS_OPTIONAL_TYPES_MAP = {
             UnifiedMetadataKey.TITLE: str,
             UnifiedMetadataKey.ARTISTS: list[str],
-            UnifiedMetadataKey.ALBUM_NAME: str,
+            UnifiedMetadataKey.ALBUM: str,
             UnifiedMetadataKey.ALBUM_ARTISTS: list[str],
             UnifiedMetadataKey.GENRES_NAMES: list[str],
             UnifiedMetadataKey.RATING: int,

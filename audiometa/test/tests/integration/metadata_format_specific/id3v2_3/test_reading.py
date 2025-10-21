@@ -28,7 +28,7 @@ class TestId3v23Reading:
             metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2.3 Extended Test Title - This is a longer title than ID3v1 can handle"
             assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["ID3v2.3 Test Artist"]
-            assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v2.3 Test Album"
+            assert metadata.get(UnifiedMetadataKey.ALBUM) == "ID3v2.3 Test Album"
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Electronic"]
 
     def test_id3v2_3_metadata_reading_mp3(self):
@@ -42,7 +42,7 @@ class TestId3v23Reading:
             assert isinstance(metadata, dict)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2.3 Metadata Reading Test"
             assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
-            assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
+            assert metadata.get(UnifiedMetadataKey.ALBUM) == "Test Album"
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Electronic"]
 
     def test_single_format_id3v2_3_extraction(self):
@@ -55,7 +55,7 @@ class TestId3v23Reading:
             assert isinstance(id3v2_3_metadata, dict)
             assert id3v2_3_metadata.get(UnifiedMetadataKey.TITLE) == "Single Format Test Title"
             assert id3v2_3_metadata.get(UnifiedMetadataKey.ARTISTS) == ["Single Format Artist"]
-            assert id3v2_3_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Single Format Album"
+            assert id3v2_3_metadata.get(UnifiedMetadataKey.ALBUM) == "Single Format Album"
 
     def test_id3v2_3_version_specific_behavior(self):
         with TempFileWithMetadata({}, "id3v2.3") as test_file:
@@ -69,7 +69,7 @@ class TestId3v23Reading:
             assert isinstance(metadata, dict)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Version Specific Test"
             assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
-            assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
+            assert metadata.get(UnifiedMetadataKey.ALBUM) == "Test Album"
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
             
             # ID3v2.3 uses TYER for year instead of ID3v2.4's TDRC
@@ -117,13 +117,13 @@ class TestId3v23Reading:
             assert id3v2_3_metadata_result is not None
             assert id3v2_3_metadata_result.get(UnifiedMetadataKey.TITLE) == "ID3v2.3 Long Title That Exceeds ID3v1 Limits"
             assert id3v2_3_metadata_result.get(UnifiedMetadataKey.ARTISTS) == ["ID3v2.3 Artist"]
-            assert id3v2_3_metadata_result.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v2.3 Album"
+            assert id3v2_3_metadata_result.get(UnifiedMetadataKey.ALBUM) == "ID3v2.3 Album"
             
             # Verify ID3v1 metadata is present
             assert id3v1_metadata_result is not None
             assert id3v1_metadata_result.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
             assert id3v1_metadata_result.get(UnifiedMetadataKey.ARTISTS) == ["ID3v1 Artist"]
-            assert id3v1_metadata_result.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v1 Album"
+            assert id3v1_metadata_result.get(UnifiedMetadataKey.ALBUM) == "ID3v1 Album"
             
             # Test merged metadata (should prioritize ID3v2.3 over ID3v1)
             merged_metadata = get_unified_metadata(test_file.path)
@@ -139,4 +139,4 @@ class TestId3v23Reading:
             metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title with ASCII"
             assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Artist Name"]
-            assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Album Name"
+            assert metadata.get(UnifiedMetadataKey.ALBUM) == "Album Name"

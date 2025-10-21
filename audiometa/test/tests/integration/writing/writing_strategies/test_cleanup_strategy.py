@@ -42,7 +42,7 @@ class TestCleanupStrategy:
             riff_metadata = {
                 UnifiedMetadataKey.TITLE: "RIFF Title",
                 UnifiedMetadataKey.ARTISTS: ["RIFF Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "RIFF Album"
+                UnifiedMetadataKey.ALBUM: "RIFF Album"
             }
             update_metadata(test_file, riff_metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
             
@@ -74,7 +74,7 @@ class TestCleanupStrategy:
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v2 Title",
                 UnifiedMetadataKey.ARTISTS: ["ID3v2 Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "ID3v2 Album"
+                UnifiedMetadataKey.ALBUM: "ID3v2 Album"
             }
             update_metadata(test_file.path, id3v2_metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
             

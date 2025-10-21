@@ -36,7 +36,7 @@ class TestFormatSpecificWorkflows:
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "Integration Test Title",
                 UnifiedMetadataKey.ARTISTS: ["Integration Test Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "Integration Test Album",
+                UnifiedMetadataKey.ALBUM: "Integration Test Album",
                 UnifiedMetadataKey.RATING: 90,
                 UnifiedMetadataKey.BPM: 130
             }
@@ -46,7 +46,7 @@ class TestFormatSpecificWorkflows:
             updated_metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Integration Test Title"
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) == ["Integration Test Artist"]
-            assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Integration Test Album"
+            assert updated_metadata.get(UnifiedMetadataKey.ALBUM) == "Integration Test Album"
             assert updated_metadata.get(UnifiedMetadataKey.RATING) == 90
             assert updated_metadata.get(UnifiedMetadataKey.BPM) == 130
             
@@ -83,7 +83,7 @@ class TestFormatSpecificWorkflows:
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "FLAC Integration Test Title",
                 UnifiedMetadataKey.ARTISTS: ["FLAC Integration Test Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "FLAC Integration Test Album",
+                UnifiedMetadataKey.ALBUM: "FLAC Integration Test Album",
                 UnifiedMetadataKey.RATING: 80,
                 UnifiedMetadataKey.BPM: 140
             }
@@ -93,7 +93,7 @@ class TestFormatSpecificWorkflows:
             updated_metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "FLAC Integration Test Title"
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) == ["FLAC Integration Test Artist"]
-            assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "FLAC Integration Test Album"
+            assert updated_metadata.get(UnifiedMetadataKey.ALBUM) == "FLAC Integration Test Album"
             assert updated_metadata.get(UnifiedMetadataKey.RATING) == 80
             assert updated_metadata.get(UnifiedMetadataKey.BPM) == 140
             
@@ -122,7 +122,7 @@ class TestFormatSpecificWorkflows:
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "WAV Integration Test Title",
                 UnifiedMetadataKey.ARTISTS: ["WAV Integration Test Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "WAV Integration Test Album"
+                UnifiedMetadataKey.ALBUM: "WAV Integration Test Album"
             }
             update_metadata(test_file.path, test_metadata)
             
@@ -130,7 +130,7 @@ class TestFormatSpecificWorkflows:
             updated_metadata = get_unified_metadata(test_file)
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "WAV Integration Test Title"
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) == ["WAV Integration Test Artist"]
-            assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "WAV Integration Test Album"
+            assert updated_metadata.get(UnifiedMetadataKey.ALBUM) == "WAV Integration Test Album"
             
             # 4. Test technical information
             bitrate = get_bitrate(test_file)

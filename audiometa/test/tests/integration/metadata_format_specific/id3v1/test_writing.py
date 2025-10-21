@@ -20,7 +20,7 @@ class TestId3v1Writing:
                 # Basic metadata commonly supported across formats
                 UnifiedMetadataKey.TITLE: "Test Song Title",
                 UnifiedMetadataKey.ARTISTS: ["Test Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "Test Album",
+                UnifiedMetadataKey.ALBUM: "Test Album",
                 UnifiedMetadataKey.GENRES_NAMES: "Test Genre",
                 UnifiedMetadataKey.RATING: 8
             }
@@ -33,7 +33,7 @@ class TestId3v1Writing:
             # Basic metadata assertions
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Song Title"
             assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
-            assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
+            assert metadata.get(UnifiedMetadataKey.ALBUM) == "Test Album"
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Test Genre"]
             assert metadata.get(UnifiedMetadataKey.RATING) == 0
 
@@ -43,7 +43,7 @@ class TestId3v1Writing:
                 # Basic metadata commonly supported across formats
                 UnifiedMetadataKey.TITLE: "Written Song Title",
                 UnifiedMetadataKey.ARTISTS: ["Written Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "Written Album",
+                UnifiedMetadataKey.ALBUM: "Written Album",
                 UnifiedMetadataKey.GENRES_NAMES: ["Written Genre"],
                 UnifiedMetadataKey.RATING: 9
             }
@@ -56,6 +56,6 @@ class TestId3v1Writing:
             # Basic metadata assertions
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Written Song Title"
             assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Written Artist"]
-            assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Written Album"
+            assert metadata.get(UnifiedMetadataKey.ALBUM) == "Written Album"
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Written Genre"]
             assert metadata.get(UnifiedMetadataKey.RATING) == 0

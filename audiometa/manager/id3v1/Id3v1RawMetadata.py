@@ -83,7 +83,7 @@ class Id3v1RawMetadata(FileType):
         if tag.artists_names_str:
             self.tags[Id3v1RawMetadataKey.ARTISTS_NAMES_STR] = [tag.artists_names_str]
         if tag.album_name:
-            self.tags[Id3v1RawMetadataKey.ALBUM_NAME] = [tag.album_name]
+            self.tags[Id3v1RawMetadataKey.ALBUM] = [tag.album_name]
         if tag.year:
             self.tags[Id3v1RawMetadataKey.YEAR] = [tag.year]
         if tag.genre_code is not None:
@@ -147,7 +147,7 @@ class Id3v1RawMetadata(FileType):
         tag_data[33:33+len(artist_bytes)] = artist_bytes
         
         # Album (bytes 63-92, 30 chars max)
-        album = self.tags.get(Id3v1RawMetadataKey.ALBUM_NAME, [''])[0]
+        album = self.tags.get(Id3v1RawMetadataKey.ALBUM, [''])[0]
         album_bytes = self._truncate_string(album, 30).encode('latin-1', errors='ignore')
         tag_data[63:63+len(album_bytes)] = album_bytes
         

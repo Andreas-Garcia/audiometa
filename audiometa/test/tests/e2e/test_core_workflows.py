@@ -42,7 +42,7 @@ class TestCoreWorkflows:
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "New Title",
                 UnifiedMetadataKey.ARTISTS: ["New Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "New Album",
+                UnifiedMetadataKey.ALBUM: "New Album",
                 UnifiedMetadataKey.GENRES_NAMES: "Rock",
                 UnifiedMetadataKey.COMMENT: "Test comment"
             }
@@ -54,7 +54,7 @@ class TestCoreWorkflows:
             metadata = get_unified_metadata(test_file)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "New Title"
             assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["New Artist"]
-            assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "New Album"
+            assert metadata.get(UnifiedMetadataKey.ALBUM) == "New Album"
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
             assert metadata.get(UnifiedMetadataKey.COMMENT) == "Test comment"
     
@@ -78,7 +78,7 @@ class TestCoreWorkflows:
                 with TempFileWithMetadata(initial_metadata, format_type) as test_file:
                     # Update metadata using functional API (this is what we're testing)
                     test_metadata = {
-                        UnifiedMetadataKey.ALBUM_NAME: "Batch Album",
+                        UnifiedMetadataKey.ALBUM: "Batch Album",
                         UnifiedMetadataKey.COMMENT: "Batch processing test"
                     }
                     update_metadata(test_file.path, test_metadata)
@@ -108,7 +108,7 @@ class TestCoreWorkflows:
         test_metadata = {
             UnifiedMetadataKey.TITLE: "Cross Format Deletion",
             UnifiedMetadataKey.ARTISTS: ["Cross Format Artist"],
-            UnifiedMetadataKey.ALBUM_NAME: "Cross Format Album"
+            UnifiedMetadataKey.ALBUM: "Cross Format Album"
         }
         
         sample_files = [

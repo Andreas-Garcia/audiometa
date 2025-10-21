@@ -316,7 +316,7 @@ from audiometa import get_unified_metadata
 metadata = get_unified_metadata("path/to/your/audio.mp3")
 print(f"Title: {metadata.get(UnifiedMetadataKey.TITLE, 'Unknown')}")
 print(f"Artist: {metadata.get(UnifiedMetadataKey.ARTISTS, ['Unknown'])}")
-print(f"Album: {metadata.get(UnifiedMetadataKey.ALBUM_NAME, 'Unknown')}")
+print(f"Album: {metadata.get(UnifiedMetadataKey.ALBUM, 'Unknown')}")
 ```
 
 ### Writing Metadata
@@ -330,7 +330,7 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 new_metadata = {
     UnifiedMetadataKey.TITLE: 'New Song Title',
     UnifiedMetadataKey.ARTISTS: ['Artist Name'],
-    UnifiedMetadataKey.ALBUM_NAME: 'Album Name',
+    UnifiedMetadataKey.ALBUM: 'Album Name',
     UnifiedMetadataKey.RATING: 85,
 }
 update_metadata("path/to/your/audio.mp3", new_metadata)
@@ -714,7 +714,7 @@ When writing, metadata should be provided as a dictionary with keys correspondin
 metadata = {
     UnifiedMetadataKey.TITLE: 'Song Title',
     UnifiedMetadataKey.ARTISTS: ['Artist 1', 'Artist 2'],
-    UnifiedMetadataKey.ALBUM_NAME: 'Album Name',
+    UnifiedMetadataKey.ALBUM: 'Album Name',
     UnifiedMetadataKey.YEAR: 2024,
     UnifiedMetadataKey.GENRES_NAMES: ['Rock'],
     UnifiedMetadataKey.RATING: 85,
@@ -1151,7 +1151,7 @@ The library intelligently handles multiple values across different metadata form
 Fields are classified based on their intended use:
 
 - **Semantically Multi-Value Fields**: Fields that can logically contain multiple values (e.g., `ARTISTS`, `GENRES_NAMES`). They can be stored as multiple entries or concatenated values.
-- **Semantically Single-Value Fields**: Fields that are intended to hold a single value (e.g., `TITLE`, `ALBUM_NAME`). They are typically stored as a single entry but some formats may allow multiple entries.
+- **Semantically Single-Value Fields**: Fields that are intended to hold a single value (e.g., `TITLE`, `ALBUM`). They are typically stored as a single entry but some formats may allow multiple entries.
 
 #### Semantically Single-Value Fields
 

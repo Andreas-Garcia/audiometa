@@ -34,14 +34,14 @@ class TestUserScenarios:
             with TempFileWithMetadata(basic_metadata, format_type) as test_file:
                 # Set consistent metadata for organization using app's function (this is what we're testing)
                 test_metadata = {
-                    UnifiedMetadataKey.ALBUM_NAME: "My Music Library",
+                    UnifiedMetadataKey.ALBUM: "My Music Library",
                     UnifiedMetadataKey.TITLE: f"Track {i + 1}"
                 }
                 update_metadata(test_file.path, test_metadata)
                 
                 # Verify the organization worked
                 metadata = get_unified_metadata(test_file.path)
-                assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "My Music Library"
+                assert metadata.get(UnifiedMetadataKey.ALBUM) == "My Music Library"
                 assert metadata.get(UnifiedMetadataKey.TITLE) == f"Track {i + 1}"
     
     def test_metadata_import_export_workflow(self, sample_mp3_file):
@@ -58,7 +58,7 @@ class TestUserScenarios:
             metadata = {
                 'title': current_metadata.get(UnifiedMetadataKey.TITLE),
                 'artist': current_metadata.get(UnifiedMetadataKey.ARTISTS),
-                'album': current_metadata.get(UnifiedMetadataKey.ALBUM_NAME)
+                'album': current_metadata.get(UnifiedMetadataKey.ALBUM)
             }
             
             # Simulate external metadata update
@@ -69,7 +69,7 @@ class TestUserScenarios:
             test_metadata = {
                 UnifiedMetadataKey.TITLE: metadata['title'],
                 UnifiedMetadataKey.ARTISTS: metadata['artist'],
-                UnifiedMetadataKey.ALBUM_NAME: metadata['album']
+                UnifiedMetadataKey.ALBUM: metadata['album']
             }
             update_metadata(test_file.path, test_metadata)
             
@@ -96,14 +96,14 @@ class TestUserScenarios:
             # 2. User decides to clean up sensitive metadata
             cleanup_metadata = {
                 UnifiedMetadataKey.COMMENT: None,  # Remove personal comment
-                UnifiedMetadataKey.ALBUM_NAME: "Generic Album"  # Replace personal album
+                UnifiedMetadataKey.ALBUM: "Generic Album"  # Replace personal album
             }
             update_metadata(test_file.path, cleanup_metadata)
             
             # 3. Verify sensitive data was removed
             cleaned_metadata = get_unified_metadata(test_file)
             assert cleaned_metadata.get(UnifiedMetadataKey.COMMENT) is None
-            assert cleaned_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Generic Album"
+            assert cleaned_metadata.get(UnifiedMetadataKey.ALBUM) == "Generic Album"
             assert cleaned_metadata.get(UnifiedMetadataKey.TITLE) == "Personal Music Track"  # Title remains
             
             # 4. User decides to remove all metadata for complete privacy
@@ -141,7 +141,7 @@ class TestUserScenarios:
             correct_metadata = {
                 UnifiedMetadataKey.TITLE: "Correct Title",
                 UnifiedMetadataKey.ARTISTS: ["Correct Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "Correct Album"
+                UnifiedMetadataKey.ALBUM: "Correct Album"
             }
             update_metadata(test_file.path, correct_metadata)
             
@@ -149,7 +149,7 @@ class TestUserScenarios:
             final_metadata = get_unified_metadata(test_file)
             assert final_metadata.get(UnifiedMetadataKey.TITLE) == "Correct Title"
             assert final_metadata.get(UnifiedMetadataKey.ARTISTS) == ["Correct Artist"]
-            assert final_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Correct Album"
+            assert final_metadata.get(UnifiedMetadataKey.ALBUM) == "Correct Album"
     
     def test_cross_format_compatibility(self, sample_mp3_file, sample_flac_file, sample_wav_file, temp_audio_file):
         # Test that metadata works consistently across MP3, FLAC, etc.
@@ -157,7 +157,7 @@ class TestUserScenarios:
         test_metadata = {
             UnifiedMetadataKey.TITLE: 'Cross Format Test',
             UnifiedMetadataKey.ARTISTS: ['Test Artist'],
-            UnifiedMetadataKey.ALBUM_NAME: 'Test Album'
+            UnifiedMetadataKey.ALBUM: 'Test Album'
         }
         
         sample_files = [
@@ -180,4 +180,4 @@ class TestUserScenarios:
                 metadata = get_unified_metadata(test_file.path)
                 assert metadata.get(UnifiedMetadataKey.TITLE) == test_metadata[UnifiedMetadataKey.TITLE]
                 assert metadata.get(UnifiedMetadataKey.ARTISTS) == test_metadata[UnifiedMetadataKey.ARTISTS]
-                assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == test_metadata[UnifiedMetadataKey.ALBUM_NAME]
+                assert metadata.get(UnifiedMetadataKey.ALBUM) == test_metadata[UnifiedMetadataKey.ALBUM]

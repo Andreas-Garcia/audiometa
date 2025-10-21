@@ -201,7 +201,7 @@ class TestVorbisGenreReading:
             assert genres == ["Rock", "Alternative", "Indie"]
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
             assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
-            assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
+            assert metadata.get(UnifiedMetadataKey.ALBUM) == "Test Album"
 
     def test_vorbis_genre_edge_case_single_character(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:

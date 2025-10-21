@@ -46,7 +46,7 @@ class VorbisManager(RatingSupportingMetadataManager):
     class VorbisKey(RawMetadataKey):
         TITLE = 'title'
         ARTIST_NAME = 'artist'
-        ALBUM_NAME = 'album'
+        ALBUM = 'album'
         ALBUM_ARTISTS = 'albumartist'
         GENRES_NAMES = 'genre'
         RATING = 'rating'
@@ -71,7 +71,7 @@ class VorbisManager(RatingSupportingMetadataManager):
         metadata_keys_direct_map_read = {
             UnifiedMetadataKey.TITLE: self.VorbisKey.TITLE,
             UnifiedMetadataKey.ARTISTS: self.VorbisKey.ARTIST_NAME,
-            UnifiedMetadataKey.ALBUM_NAME: self.VorbisKey.ALBUM_NAME,
+            UnifiedMetadataKey.ALBUM: self.VorbisKey.ALBUM,
             UnifiedMetadataKey.ALBUM_ARTISTS: self.VorbisKey.ALBUM_ARTISTS,
             UnifiedMetadataKey.GENRES_NAMES: self.VorbisKey.GENRES_NAMES,
             UnifiedMetadataKey.RATING: None,
@@ -85,7 +85,7 @@ class VorbisManager(RatingSupportingMetadataManager):
         metadata_keys_direct_map_write = {
             UnifiedMetadataKey.TITLE: self.VorbisKey.TITLE,
             UnifiedMetadataKey.ARTISTS: self.VorbisKey.ARTIST_NAME,
-            UnifiedMetadataKey.ALBUM_NAME: self.VorbisKey.ALBUM_NAME,
+            UnifiedMetadataKey.ALBUM: self.VorbisKey.ALBUM,
             UnifiedMetadataKey.ALBUM_ARTISTS: self.VorbisKey.ALBUM_ARTISTS,
             UnifiedMetadataKey.GENRES_NAMES: self.VorbisKey.GENRES_NAMES,
             UnifiedMetadataKey.RATING: None,

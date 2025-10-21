@@ -22,7 +22,7 @@ class TestVorbisWriting:
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "Test Title FLAC",
                 UnifiedMetadataKey.ARTISTS: ["Test Artist FLAC"],
-                UnifiedMetadataKey.ALBUM_NAME: "Test Album FLAC",
+                UnifiedMetadataKey.ALBUM: "Test Album FLAC",
                 UnifiedMetadataKey.GENRES_NAMES: ["Test Genre FLAC"],
                 UnifiedMetadataKey.RATING: 10
             }
@@ -30,7 +30,7 @@ class TestVorbisWriting:
             metadata = get_unified_metadata(test_file.path, normalized_rating_max_value=10)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title FLAC"
             assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Test Artist FLAC"]
-            assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album FLAC"
+            assert metadata.get(UnifiedMetadataKey.ALBUM) == "Test Album FLAC"
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Test Genre FLAC"]
             assert metadata.get(UnifiedMetadataKey.RATING) == 1
 
@@ -40,7 +40,7 @@ class TestVorbisWriting:
                 # Basic metadata commonly supported across formats
                 UnifiedMetadataKey.TITLE: "Test Song Title",
                 UnifiedMetadataKey.ARTISTS: ["Test Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "Test Album",
+                UnifiedMetadataKey.ALBUM: "Test Album",
                 UnifiedMetadataKey.GENRES_NAMES: ["Test Genre"],
                 UnifiedMetadataKey.RATING: 8
             }
@@ -53,7 +53,7 @@ class TestVorbisWriting:
             # Basic metadata assertions
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Song Title"
             assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
-            assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
+            assert metadata.get(UnifiedMetadataKey.ALBUM) == "Test Album"
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Test Genre"]
             assert metadata.get(UnifiedMetadataKey.RATING) == 0
 
@@ -63,7 +63,7 @@ class TestVorbisWriting:
                 # Basic metadata commonly supported across formats
                 UnifiedMetadataKey.TITLE: "Written Song Title",
                 UnifiedMetadataKey.ARTISTS: ["Written Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "Written Album",
+                UnifiedMetadataKey.ALBUM: "Written Album",
                 UnifiedMetadataKey.GENRES_NAMES: ["Written Genre"],
                 UnifiedMetadataKey.RATING: 9
             }
@@ -76,7 +76,7 @@ class TestVorbisWriting:
             # Basic metadata assertions
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Written Song Title"
             assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Written Artist"]
-            assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Written Album"
+            assert metadata.get(UnifiedMetadataKey.ALBUM) == "Written Album"
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Written Genre"]
             assert metadata.get(UnifiedMetadataKey.RATING) == 0
 
@@ -86,7 +86,7 @@ class TestVorbisWriting:
             initial_metadata = {
                 UnifiedMetadataKey.TITLE: "Test FLAC Title",
                 UnifiedMetadataKey.ARTISTS: ["Test FLAC Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "Test FLAC Album",
+                UnifiedMetadataKey.ALBUM: "Test FLAC Album",
                 UnifiedMetadataKey.BPM: 140
             }
             update_metadata(test_file.path, initial_metadata)
@@ -95,7 +95,7 @@ class TestVorbisWriting:
             metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test FLAC Title"
             assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Test FLAC Artist"]
-            assert metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test FLAC Album"
+            assert metadata.get(UnifiedMetadataKey.ALBUM) == "Test FLAC Album"
             assert metadata.get(UnifiedMetadataKey.BPM) == 140
             
             # Now set some fields to None
@@ -112,7 +112,7 @@ class TestVorbisWriting:
             
             # Verify other fields are still present
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) == ["Test FLAC Artist"]
-            assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "Test FLAC Album"
+            assert updated_metadata.get(UnifiedMetadataKey.ALBUM) == "Test FLAC Album"
             
             # Verify at Vorbis level that fields were actually deleted
             vorbis_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.VORBIS)

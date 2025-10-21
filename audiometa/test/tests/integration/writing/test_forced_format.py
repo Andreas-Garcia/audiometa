@@ -95,7 +95,7 @@ class TestForcedFormat:
             supported_metadata = {
                 UnifiedMetadataKey.TITLE: "New RIFF Title",
                 UnifiedMetadataKey.ARTISTS: ["New RIFF Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "New RIFF Album"
+                UnifiedMetadataKey.ALBUM: "New RIFF Album"
             }
             
             # This should succeed because all fields are supported by RIFF
@@ -106,7 +106,7 @@ class TestForcedFormat:
             riff_metadata = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
             assert riff_metadata.get(UnifiedMetadataKey.TITLE) == "New RIFF Title"
             assert riff_metadata.get(UnifiedMetadataKey.ARTISTS) == ["New RIFF Artist"]
-            assert riff_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "New RIFF Album"
+            assert riff_metadata.get(UnifiedMetadataKey.ALBUM) == "New RIFF Album"
 
     def test_forced_format_parameter_conflict_error(self):
         # Create WAV file with basic metadata
@@ -260,7 +260,7 @@ class TestForcedFormat:
                 UnifiedMetadataKey.TITLE: "New Title",  # Supported
                 UnifiedMetadataKey.ARTISTS: ["New Artist"],  # Supported
                 UnifiedMetadataKey.BPM: 120,  # NOT supported by RIFF
-                UnifiedMetadataKey.ALBUM_NAME: "New Album"  # Supported
+                UnifiedMetadataKey.ALBUM: "New Album"  # Supported
             }
             
             # This should fail because BPM is not supported by RIFF
@@ -273,4 +273,4 @@ class TestForcedFormat:
             assert final_metadata.get(UnifiedMetadataKey.TITLE) == "Original Title"
             assert final_metadata.get(UnifiedMetadataKey.ARTISTS) == ["Original Artist"]
             assert final_metadata.get(UnifiedMetadataKey.BPM) is None
-            assert final_metadata.get(UnifiedMetadataKey.ALBUM_NAME) is None
+            assert final_metadata.get(UnifiedMetadataKey.ALBUM) is None

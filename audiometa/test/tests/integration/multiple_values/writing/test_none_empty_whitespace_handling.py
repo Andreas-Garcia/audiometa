@@ -152,7 +152,7 @@ class TestNoneEmptyWhitespaceHandling:
         metadata = {
             UnifiedMetadataKey.TITLE: None,
             UnifiedMetadataKey.ARTISTS: None,
-            UnifiedMetadataKey.ALBUM_NAME: None
+            UnifiedMetadataKey.ALBUM: None
         }
         update_metadata(temp_audio_file, metadata)
         

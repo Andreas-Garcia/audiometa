@@ -34,7 +34,7 @@ class TestDefaultWritingFormat:
         test_metadata = {
             UnifiedMetadataKey.TITLE: "MP3 Test Title",
             UnifiedMetadataKey.ARTISTS: ["MP3 Test Artist"],
-            UnifiedMetadataKey.ALBUM_NAME: "MP3 Test Album",
+            UnifiedMetadataKey.ALBUM: "MP3 Test Album",
             UnifiedMetadataKey.BPM: 120
         }
         
@@ -46,7 +46,7 @@ class TestDefaultWritingFormat:
             id3v2_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
             assert id3v2_metadata.get(UnifiedMetadataKey.TITLE) == "MP3 Test Title"
             assert id3v2_metadata.get(UnifiedMetadataKey.ARTISTS) == ["MP3 Test Artist"]
-            assert id3v2_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "MP3 Test Album"
+            assert id3v2_metadata.get(UnifiedMetadataKey.ALBUM) == "MP3 Test Album"
             assert id3v2_metadata.get(UnifiedMetadataKey.BPM) == 120
         
             # Verify that merged metadata (which follows priority order) returns ID3v2 data
@@ -62,7 +62,7 @@ class TestDefaultWritingFormat:
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "MP3 Default Version Test Title",
                 UnifiedMetadataKey.ARTISTS: ["MP3 Default Version Test Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "MP3 Default Version Test Album"
+                UnifiedMetadataKey.ALBUM: "MP3 Default Version Test Album"
             }
             
             # Update metadata using default format (should be ID3v2.3)
@@ -78,7 +78,7 @@ class TestDefaultWritingFormat:
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "FLAC Test Title",
                 UnifiedMetadataKey.ARTISTS: ["FLAC Test Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "FLAC Test Album",
+                UnifiedMetadataKey.ALBUM: "FLAC Test Album",
                 UnifiedMetadataKey.BPM: 140
             }
             
@@ -89,7 +89,7 @@ class TestDefaultWritingFormat:
             vorbis_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.VORBIS)
             assert vorbis_metadata.get(UnifiedMetadataKey.TITLE) == "FLAC Test Title"
             assert vorbis_metadata.get(UnifiedMetadataKey.ARTISTS) == ["FLAC Test Artist"]
-            assert vorbis_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "FLAC Test Album"
+            assert vorbis_metadata.get(UnifiedMetadataKey.ALBUM) == "FLAC Test Album"
             assert vorbis_metadata.get(UnifiedMetadataKey.BPM) == 140
             
             # Verify that merged metadata (which follows priority order) returns Vorbis data
@@ -103,7 +103,7 @@ class TestDefaultWritingFormat:
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "WAV Test Title",
                 UnifiedMetadataKey.ARTISTS: ["WAV Test Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "WAV Test Album",
+                UnifiedMetadataKey.ALBUM: "WAV Test Album",
                 UnifiedMetadataKey.GENRES_NAMES: ["Test Genre"]
             }
             
@@ -114,7 +114,7 @@ class TestDefaultWritingFormat:
             riff_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
             assert riff_metadata.get(UnifiedMetadataKey.TITLE) == "WAV Test Title"
             assert riff_metadata.get(UnifiedMetadataKey.ARTISTS) == ["WAV Test Artist"]
-            assert riff_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "WAV Test Album"
+            assert riff_metadata.get(UnifiedMetadataKey.ALBUM) == "WAV Test Album"
             assert riff_metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Test Genre"]
             
             # Verify that merged metadata (which follows priority order) returns RIFF data

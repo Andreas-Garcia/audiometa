@@ -44,7 +44,7 @@ class TestSyncStrategy:
             sync_metadata = {
                 UnifiedMetadataKey.TITLE: "Synced Title",
                 UnifiedMetadataKey.ARTISTS: ["Synced Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "Synced Album"
+                UnifiedMetadataKey.ALBUM: "Synced Album"
             }
             update_metadata(test_file, sync_metadata, 
                                metadata_strategy=MetadataWritingStrategy.SYNC)
@@ -104,7 +104,7 @@ class TestSyncStrategy:
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "Synced Title",
                 UnifiedMetadataKey.ARTISTS: ["Synced Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "Synced Album"
+                UnifiedMetadataKey.ALBUM: "Synced Album"
             }
             update_metadata(test_file, id3v2_metadata, metadata_strategy=MetadataWritingStrategy.SYNC)
             
@@ -159,7 +159,7 @@ class TestSyncStrategy:
             sync_metadata = {
                 UnifiedMetadataKey.TITLE: long_title,
                 UnifiedMetadataKey.ARTISTS: ["Long Artist Name That Exceeds Limits"],
-                UnifiedMetadataKey.ALBUM_NAME: "Long Album Name That Exceeds Limits"
+                UnifiedMetadataKey.ALBUM: "Long Album Name That Exceeds Limits"
             }
             update_metadata(test_file, sync_metadata, metadata_strategy=MetadataWritingStrategy.SYNC)
             
@@ -167,13 +167,13 @@ class TestSyncStrategy:
             riff_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.RIFF)
             assert riff_after.get(UnifiedMetadataKey.TITLE) == long_title
             assert riff_after.get(UnifiedMetadataKey.ARTISTS) == ["Long Artist Name That Exceeds Limits"]
-            assert riff_after.get(UnifiedMetadataKey.ALBUM_NAME) == "Long Album Name That Exceeds Limits"
+            assert riff_after.get(UnifiedMetadataKey.ALBUM) == "Long Album Name That Exceeds Limits"
             
             # Verify ID3v1 metadata is truncated (ID3v1 has 30-char field limits)
             id3v1_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V1)
             id3v1_title = id3v1_after.get(UnifiedMetadataKey.TITLE)
             id3v1_artist = id3v1_after.get(UnifiedMetadataKey.ARTISTS)[0] if id3v1_after.get(UnifiedMetadataKey.ARTISTS) else ""
-            id3v1_album = id3v1_after.get(UnifiedMetadataKey.ALBUM_NAME)
+            id3v1_album = id3v1_after.get(UnifiedMetadataKey.ALBUM)
             
             # Verify truncation occurred (should be shorter than original)
             assert len(id3v1_title) < len(long_title), f"ID3v1 title should be truncated: {id3v1_title}"

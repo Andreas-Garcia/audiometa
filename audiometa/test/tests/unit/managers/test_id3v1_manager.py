@@ -50,7 +50,7 @@ class TestId3v1Manager:
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v1 Test Title",
                 UnifiedMetadataKey.ARTISTS: ["ID3v1 Test Artist"],
-                UnifiedMetadataKey.ALBUM_NAME: "ID3v1 Test Album"
+                UnifiedMetadataKey.ALBUM: "ID3v1 Test Album"
             }
             
             # ID3v1 manager should successfully update metadata
@@ -60,7 +60,7 @@ class TestId3v1Manager:
             updated_metadata = manager.get_app_metadata()
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v1 Test Title"
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) == ["ID3v1 Test Artist"]
-            assert updated_metadata.get(UnifiedMetadataKey.ALBUM_NAME) == "ID3v1 Test Album"
+            assert updated_metadata.get(UnifiedMetadataKey.ALBUM) == "ID3v1 Test Album"
 
     def test_id3v1_manager_write_unsupported_fields_raises_error(self):
         # Copy sample file to temp location for testing
