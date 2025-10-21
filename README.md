@@ -22,7 +22,6 @@ A comprehensive Python library for reading and writing audio metadata across mul
 - [Quick Start](#quick-start)
   - [Reading Metadata](#reading-metadata)
   - [Writing Metadata](#writing-metadata)
-    - [Format-specific writing](#format-specific-writing)
   - [Deleting Metadata](#deleting-metadata)
     - [1. Delete All Metadata (Complete Removal)](#1-delete-all-metadata-complete-removal)
     - [2. Remove Specific Fields (Selective Removal)](#2-remove-specific-fields-selective-removal)
@@ -333,7 +332,7 @@ new_metadata = {
 update_metadata("path/to/your/audio.mp3", new_metadata)
 ```
 
-#### Format-specific Writing
+**Format-specific Writing**
 
 from audiometa.utils.MetadataFormat import MetadataFormat
 update_metadata("song.wav", new_metadata, metadata_format=MetadataFormat.RIFF)
