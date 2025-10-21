@@ -27,7 +27,7 @@ class TestEmptyWhitespaceHandling:
         artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         assert artists is None
 
-    def test_write_none_removes_field(self, temp_audio_file: Path):
+    def test_write_list_with_none_removes_field(self, temp_audio_file: Path):
         # First write some metadata
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"]
@@ -40,7 +40,7 @@ class TestEmptyWhitespaceHandling:
         
         # Now write None (should remove the field)
         metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: None
+            UnifiedMetadataKey.ARTISTS_NAMES: [None, None]
         }
         update_file_metadata(temp_audio_file, metadata)
         
