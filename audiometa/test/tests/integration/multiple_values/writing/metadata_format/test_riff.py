@@ -9,7 +9,7 @@ from audiometa.test.helpers.riff.riff_metadata_setter import RIFFMetadataSetter
 
 
 class TestMultipleEntriesRiff:
-	def test_write_multiple_artists_riff(self):
+	def test_write_multiple_artists(self):
 		metadata = {UnifiedMetadataKey.ARTISTS_NAMES: ["Artist 1", "Artist 2", "Artist 3"]}
 		with TempFileWithMetadata({}, "wav") as test_file:
 			update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
