@@ -8,7 +8,7 @@ class ID3v1MetadataGetter:
     """Utilities for inspecting ID3v1 metadata in audio files."""
     
     @staticmethod
-    def get_raw_metadata(file_path: Path, field_name: str) -> Dict[str, Any]:
+    def get_raw_metadata(file_path: Path) -> Dict[str, Any]:
         """Return the raw metadata for a specific ID3v1 field."""
         with open(file_path, 'rb') as f:
             f.seek(-128, 2)  # Seek to last 128 bytes (ID3v1 tag location)
