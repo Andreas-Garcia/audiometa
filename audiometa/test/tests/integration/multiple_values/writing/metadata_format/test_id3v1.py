@@ -7,7 +7,7 @@ from audiometa.test.helpers.id3v1.id3v1_metadata_setter import ID3v1MetadataSett
 
 
 class TestMultipleEntriesId3v1:
-    def test_id3v1_artists_concatenation(self):
+    def test_id3v1_artists_concatenation_default_comma(self):
         initial_metadata = {"title": "Test Song"}
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             metadata = {
@@ -19,27 +19,25 @@ class TestMultipleEntriesId3v1:
             # Use helper to check the created ID3v1 artist field directly
             raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file.path)
             artists = raw_metadata.get("artist", "")
-            assert "Artist 1;Artist 2" in artists or "Artist 2;Artist 1" in artists
+            assert "Artist 1,Artist 2" in artists or "Artist 2,Artist 1" in artists
             
     
     def test_with_existing_artists_field(self):
-        # Start with an existing artist field
-        initial_metadata = {"artist": "Existing Artist"}
-        with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
+        with TempFileWithMetadata({}, "mp3") as test_file:
             ID3v1MetadataSetter.set_artist(test_file.path, "Existing 1; Existing 2")
-            assert ID3v1MetadataGetter.inspect_artist_field(test_file.path)['has_data']
+            raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file.path)
+            assert "Existing 1; Existing 2" in raw_metadata.get("artist", "")
             
             # Now update with multiple artists
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Existing 1", "New 2"]
             }
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
-            inspection = ID3v1MetadataGetter.inspect_artist_field(test_file.path)
-            assert inspection['has_data']
-            artist_value = inspection['artist_value']
-            assert "Existing 1" in artist_value
-            assert "New 2" in artist_value
-            assert inspection['contains_separators']
+            raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file.path)
+            artists = raw_metadata.get("artist", "")
+            assert "Existing 1" in artists
+            assert "New 2" in artists
+            assert "Existing 2" not in artists
     
     def test_id3v1_separator_priority(self):
         # Each test case: values, expected separator
@@ -58,11 +56,11 @@ class TestMultipleEntriesId3v1:
                     UnifiedMetadataKey.ARTISTS_NAMES: values
                 }
                 update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
-                inspection = ID3v1MetadataGetter.inspect_artist_field(test_file.path)
-                assert inspection['has_data']
-                artist_value = inspection['artist_value']
+                raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file.path)
+                artists = raw_metadata.get("artist", "")
+                
                 # Check that the expected separator is used
-                assert expected_sep in artist_value
+                assert expected_sep in artists
                 # Check that all values are present as substrings
                 for v in values:
-                    assert v in artist_value
+                    assert v in artists
