@@ -29,4 +29,14 @@ class ID3v1MetadataGetter:
             'genre': (127, 128, 1)     # byte 127
         }
         
-        return field_info
+        metadata = {}
+        for field, (start, end, max_chars) in field_info.items():
+            raw_bytes = data[start:end]
+            if field in ['title', 'artist', 'album', 'year', 'comment']:
+                metadata[field] = raw_bytes.decode('latin-1').rstrip('\x00')
+            elif field == 'track':
+                metadata[field] = raw_bytes[0] if raw_bytes and raw_bytes[0] != 0 else None
+            elif field == 'genre':
+                metadata[field] = raw_bytes[0] if raw_bytes else 0
+        
+        return metadata
