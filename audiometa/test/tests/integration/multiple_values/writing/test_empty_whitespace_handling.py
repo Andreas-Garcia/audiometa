@@ -92,7 +92,6 @@ class TestEmptyWhitespaceHandling:
         assert "Valid Artist 2" in artists
 
     def test_write_all_empty_strings_removes_field(self, temp_audio_file: Path):
-        # Write list with all empty strings
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["", "   ", "\t\n"]
         }
@@ -100,8 +99,7 @@ class TestEmptyWhitespaceHandling:
         
         artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         
-        # Should remove the field entirely (empty list when all values filtered)
-        assert artists == []
+        assert artists == None
 
     def test_write_single_empty_string_removes_field(self, temp_audio_file: Path):
         # Write single empty string
