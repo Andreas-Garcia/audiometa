@@ -4,7 +4,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.riff.riff_metadata_setter import RIFFMetadataSetter
-from test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
+from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
 
 
 class TestRiff:

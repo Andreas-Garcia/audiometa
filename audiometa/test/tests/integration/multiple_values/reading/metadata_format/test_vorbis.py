@@ -2,7 +2,7 @@
 from audiometa import get_specific_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataSetter
-from test.helpers.vorbis.vorbis_metadata_getter import VorbisMetadataGetter
+from audiometa.test.helpers.vorbis.vorbis_metadata_getter import VorbisMetadataGetter
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 

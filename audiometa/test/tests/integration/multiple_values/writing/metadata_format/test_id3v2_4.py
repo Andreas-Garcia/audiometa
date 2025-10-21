@@ -4,7 +4,7 @@ from audiometa import update_file_metadata, get_merged_unified_metadata, get_sin
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
-from audiometa.test.helpers.id3v2.id3v2_metadata_inspector import ID3v2MetadataInspector
+from audiometa.test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGetter, get_raw_metadata
 from audiometa.test.helpers.id3v2.id3v2_metadata_setter import ID3v2MetadataSetter
 
 
@@ -17,7 +17,8 @@ class TestMultipleEntriesId3v2_4:
             
             update_file_metadata(test_file, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
-            verification = ID3v2MetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "TPE1")
+            raw_metadata = get_raw_metadata(test_file.path)
+            verification = {'raw_output': raw_metadata.get("TPE1", "")}
             raw_output = verification['raw_output']
             
             # raw_output replaces NUL bytes with slashes for display purposes
@@ -27,7 +28,8 @@ class TestMultipleEntriesId3v2_4:
         initial_metadata = {"artist": "Existing Artist"}
         with TempFileWithMetadata(initial_metadata, "id3v2.4") as test_file:
             ID3v2MetadataSetter.set_artist(test_file.path, "Existing A\0Existing B", version="2.4")
-            verification = ID3v2MetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "TPE1")
+            raw_metadata = get_raw_metadata(test_file.path)
+            verification = {'raw_output': raw_metadata.get("TPE1", "")}
             raw_output = verification['raw_output']
             
             # raw_output replaces NUL bytes with slashes for display purposes
@@ -38,7 +40,8 @@ class TestMultipleEntriesId3v2_4:
             }
             update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
-            verification = ID3v2MetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "TPE1")
+            raw_metadata = get_raw_metadata(test_file.path)
+            verification = {'raw_output': raw_metadata.get("TPE1", "")}
             raw_output = verification['raw_output']
             assert "Existing A" in raw_output
             assert "New B" in raw_output
