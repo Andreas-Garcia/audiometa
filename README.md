@@ -453,6 +453,33 @@ audiometa delete music/ --recursive
 
 ### Reading Metadata
 
+#### Reading Priorities (Tag Precedence)
+
+When the same metadata tag exists in multiple formats within the same file, the library follows file-specific precedence orders for reading:
+
+#### FLAC Files
+
+1. **Vorbis** (highest precedence)
+2. **ID3v2**
+3. **ID3v1** (lowest precedence, legacy format)
+
+#### MP3 Files
+
+1. **ID3v2** (highest precedence)
+2. **ID3v1** (lowest precedence, legacy format)
+
+#### WAV Files
+
+1. **RIFF** (highest precedence)
+2. **ID3v2**
+3. **ID3v1** (lowest precedence, legacy format)
+
+**Examples**:
+
+- For MP3 files: If a title exists in both ID3v1 and ID3v2, the ID3v2 title will be returned.
+- For WAV files: If a title exists in both RIFF and ID3v2, the RIFF title will be returned.
+- For FLAC files: If a title exists in both Vorbis and ID3v2, the Vorbis title will be returned.
+
 #### `get_merged_unified_metadata(file_path)`
 
 Reads all metadata from a file and returns a unified dictionary.
@@ -1645,90 +1672,6 @@ The library gracefully handles common edge cases:
 - `""` → Track number: `None` (empty string)
 - `"5/12/15"` → Track number: `5` (takes first part before first slash)
 - `"5-12"` → `ValueError` (different separator, no slash)
-
-### ID3v2 Multiple Entries Specification
-
-The ID3v2 specification has different rules for handling multiple values depending on the version:
-
-#### ID3v2.3 (Default - Maximum Compatibility)
-
-- **Multiple Frames**: ❌ **NOT supported** - Only one frame per type allowed
-- **Multiple Values**: Uses concatenation within a single frame with separators
-- **Example**: `"Artist One;Artist Two;Artist Three"` in a single `TPE1` frame
-- **Why**: ID3v2.3 specification limits each frame type to one instance per tag
-- **Compatibility**: Maximum compatibility with older players and devices
-
-#### ID3v2.4 (Modern Features)
-
-- **Multiple Values**: ✅ **Supported** - Single frame with null-separated values (per specification)
-- **Multiple Frames**: Uses single frame with multiple text strings
-- **Example**: One `TPE1` frame containing: `"Artist One\0Artist Two\0Artist Three"`
-- **Why**: ID3v2.4 specification § 4.2 allows multiple strings in text frames separated by null terminators
-- **Compatibility**: Spec-compliant ID3v2.4 behavior, supported by modern players
-
-#### Library Behavior
-
-The library automatically adapts based on the ID3v2 version:
-
-- **ID3v2.3 (default)**: Uses concatenation with smart separator selection
-- **ID3v2.4**: Uses single frame with null-separated values when `id3v2_version=(2, 4, 0)` is specified
-
-```python
-from audiometa import update_file_metadata
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-
-# ID3v2.3 (default) - uses concatenation with separators
-update_file_metadata("song.mp3", {
-    UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"]
-})
-# Result: Single TPE1 frame with "Artist One;Artist Two"
-
-# ID3v2.4 - uses null-separated values in single frame
-update_file_metadata("song.mp3", {
-    UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"]
-}, id3v2_version=(2, 4, 0))
-# Result: Single TPE1 frame with "Artist One\0Artist Two" (null-separated per spec)
-```
-
-### Legend
-
-- ✓: Supported
-- (30): Fixed 30-character field (ID3v1 limitation)
-- (#): Numeric value or code
-- (Format): Limited by the audio format's native capabilities
-- (10MB#): Maximum 10 megabytes binary data
-- (~8M): Approximately 8 million characters (format limit)
-- (~1M): Approximately 1 million characters (format limit)
-- (\*): Non-standard implementation (IRTD chunk for RIFF rating)
-
-**AudioMeta Support Column**: Shows the library's unified interface capabilities. The library does not impose artificial limits - it respects each format's native capabilities. Text fields can be as long as the format allows, and numeric ranges follow the format's specifications. The library provides consistent UTF-8 encoding and normalized rating handling (0-10 scale) across all supported formats.
-
-### Reading Priorities (Tag Precedence)
-
-When the same metadata tag exists in multiple formats within the same file, the library follows file-specific precedence orders for reading:
-
-#### FLAC Files
-
-1. **Vorbis** (highest precedence)
-2. **ID3v2**
-3. **ID3v1** (lowest precedence, legacy format)
-
-#### MP3 Files
-
-1. **ID3v2** (highest precedence)
-2. **ID3v1** (lowest precedence, legacy format)
-
-#### WAV Files
-
-1. **RIFF** (highest precedence)
-2. **ID3v2**
-3. **ID3v1** (lowest precedence, legacy format)
-
-**Examples**:
-
-- For MP3 files: If a title exists in both ID3v1 and ID3v2, the ID3v2 title will be returned.
-- For WAV files: If a title exists in both RIFF and ID3v2, the RIFF title will be returned.
-- For FLAC files: If a title exists in both Vorbis and ID3v2, the Vorbis title will be returned.
 
 ### Writing Defaults by Audio Format
 
