@@ -48,6 +48,8 @@ A comprehensive Python library for reading and writing audio metadata across mul
 - [Development](#development)
   - [Setup Development Environment](#setup-development-environment)
   - [Running Tests](#running-tests)
+  - [Code Formatting](#code-formatting)
+  - [Commit Message Conventions](#commit-message-conventions)
 - [License](#license)
 - [Contributing](#contributing)
 - [Changelog](#changelog)
