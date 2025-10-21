@@ -50,6 +50,10 @@ A comprehensive Python library for reading and writing audio metadata across mul
     - [Writing Strategies](#writing-strategies)
       - [Available Strategies](#available-strategies)
       - [Usage Examples](#usage-examples)
+      - [Default Behavior](#default-behavior)
+      - [Metadata Strategy Options](#metadata-strategy-options)
+      - [Forced Format Behavior](#forced-format-behavior)
+      - [Strategy Benefits](#strategy-benefits)
   - [Deleting Metadata](#deleting-metadata)
     - [`delete_all_metadata(file_path, tag_format=None)`](#delete_all_metadatafile_path-tag_formatnone)
   - [AudioFile Class](#audiofile-class)
@@ -110,12 +114,6 @@ A comprehensive Python library for reading and writing audio metadata across mul
     - [Vorbis](#vorbis-format-flac)
     - [RIFF](#riff-format-wav)
     - [Edge Case Handling](#edge-case-handling)
-  - [Metadata Writing Strategy](#metadata-writing-strategy)
-    - [Default Behavior](#default-behavior)
-    - [Metadata Strategy Options](#metadata-strategy-options)
-    - [Forced Format Behavior](#forced-format-behavior)
-    - [Usage Examples](#usage-examples)
-    - [Strategy Benefits](#strategy-benefits)
   - [Unsupported Metadata Handling](#unsupported-metadata-handling)
     - [Format-Specific Limitations](#format-specific-limitations)
     - [Atomic Write Operations](#atomic-write-operations)
@@ -937,6 +935,125 @@ update_file_metadata("song.wav", {"title": "New Title"},
 update_file_metadata("song.wav", {"title": "New Title"},
                     metadata_strategy=MetadataWritingStrategy.PRESERVE)
 ```
+
+#### Default Behavior
+
+By default, the library uses the **SYNC strategy** which writes metadata to the native format and synchronizes other metadata formats that are already present. This provides the best user experience by writing metadata where possible and handling unsupported fields gracefully.
+
+- **MP3 files**: Writes to ID3v2 and syncs other formats
+- **FLAC files**: Writes to Vorbis comments and syncs other formats
+- **WAV files**: Writes to RIFF and syncs other formats
+
+#### Metadata Strategy Options
+
+You can control metadata writing behavior using the `metadata_strategy` parameter:
+
+**Available Strategies:**
+
+1. **`SYNC` (Default)**: Write to native format and synchronize other metadata formats that are already present. Handles unsupported fields gracefully with warnings.
+2. **`PRESERVE`**: Write to native format only, preserve existing metadata in other formats. Handles unsupported fields gracefully with warnings.
+3. **`CLEANUP`**: Write to native format and remove all non-native metadata formats. Handles unsupported fields gracefully with warnings.
+
+#### Forced Format Behavior
+
+When you specify a `metadata_format` parameter, you **cannot** also specify a `metadata_strategy`:
+
+- **Write only to the specified format**: Other formats are left completely untouched
+- **Fail fast on unsupported fields**: Raises `MetadataNotSupportedError` for any unsupported metadata
+- **Predictable behavior**: No side effects on other metadata formats
+
+```python
+# Correct usage - specify only the format
+update_file_metadata("song.mp3", metadata,
+                    metadata_format=MetadataFormat.RIFF)  # Writes only to RIFF, ignores ID3v2
+
+# This will raise MetadataWritingConflictParametersError - cannot specify both parameters
+update_file_metadata("song.mp3", metadata,
+                    metadata_format=MetadataFormat.RIFF,
+                    metadata_strategy=MetadataWritingStrategy.CLEANUP)  # Raises MetadataWritingConflictParametersError
+```
+
+#### Usage Examples
+
+**Default Behavior (SYNC strategy)**
+
+```python
+from audiometa import update_file_metadata
+
+# WAV file with existing ID3v1 tags (30-char limit)
+update_file_metadata("song.wav", {"title": "This is a Very Long Title That Exceeds ID3v1 Limits"})
+
+# Result:
+# - RIFF tags: Updated with full title (native format)
+# - ID3v1 tags: Synchronized with truncated title (30 chars max)
+# - When reading: RIFF title is returned (higher precedence)
+# Note: ID3v1 title becomes "This is a Very Long Title Th" (truncated)
+```
+
+**CLEANUP Strategy - Remove Non-Native Formats**
+
+```python
+from audiometa import update_file_metadata
+from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
+
+# Clean up WAV file - remove ID3v2, keep only RIFF
+update_file_metadata("song.wav", {"title": "New Title"},
+                    metadata_strategy=MetadataWritingStrategy.CLEANUP)
+
+# Result:
+# - ID3v2 tags: Removed completely
+# - RIFF tags: Updated with new metadata
+# - When reading: Only RIFF metadata available
+```
+
+**SYNC Strategy - Synchronize All Existing Formats**
+
+```python
+# Synchronize all existing metadata formats with same values
+update_file_metadata("song.wav", {"title": "New Title"},
+                    metadata_strategy=MetadataWritingStrategy.SYNC)
+
+# Result:
+# - RIFF tags: Synchronized with new metadata (native format)
+# - ID3v2 tags: Synchronized with new metadata (if present)
+# - ID3v1 tags: Synchronized with new metadata (if present)
+# - When reading: RIFF title is returned (highest precedence)
+# Note: SYNC preserves and updates ALL existing metadata formats
+```
+
+**Format-Specific Writing**
+
+```python
+from audiometa.utils.MetadataFormat import MetadataFormat
+
+# Write specifically to ID3v2 format (even for WAV files)
+update_file_metadata("song.wav", {"title": "New Title"},
+                    metadata_format=MetadataFormat.ID3V2)
+
+# Write specifically to RIFF format
+update_file_metadata("song.wav", {"title": "New Title"},
+                    metadata_format=MetadataFormat.RIFF)
+```
+
+#### Strategy Benefits
+
+**PRESERVE (Default)**
+
+- **Maximum Compatibility**: Older players can still read legacy formats
+- **Non-Destructive**: Never loses existing metadata
+- **Safe**: Default behavior that won't break existing workflows
+
+**CLEANUP**
+
+- **Best Practice**: Uses only native format for each file type
+- **Clean Files**: Removes format confusion and reduces file size
+- **Standards Compliant**: Follows established audio metadata standards
+
+**SYNC**
+
+- **Consistency**: Keeps all formats synchronized
+- **Compatibility**: Maintains support for different players
+- **Convenience**: Single update affects all existing formats
 
 ### Writing Defaults by Audio Format
 
@@ -1814,129 +1931,6 @@ The library supports a comprehensive set of metadata fields across different aud
 | Involved People   |               | ✓ (Format)   | ✓ (Format)   | ✓ (Format)    |                   |
 | Musicians         |               | ✓ (Format)   | ✓ (Format)   | ✓ (Format)    |                   |
 | Part of Set       |               | ✓ (Format)   | ✓ (Format)   | ✓ (Format)    |                   |
-
-### Metadata Writing Strategy
-
-The library provides flexible control over how metadata is written to files that may already contain metadata in other formats. You can choose the strategy that best fits your needs.
-
-#### Default Behavior
-
-By default, the library uses the **SYNC strategy** which writes metadata to the native format and synchronizes other metadata formats that are already present. This provides the best user experience by writing metadata where possible and handling unsupported fields gracefully.
-
-- **MP3 files**: Writes to ID3v2 and syncs other formats
-- **FLAC files**: Writes to Vorbis comments and syncs other formats
-- **WAV files**: Writes to RIFF and syncs other formats
-
-#### Metadata Strategy Options
-
-You can control metadata writing behavior using the `metadata_strategy` parameter:
-
-**Available Strategies:**
-
-1. **`SYNC` (Default)**: Write to native format and synchronize other metadata formats that are already present. Handles unsupported fields gracefully with warnings.
-2. **`PRESERVE`**: Write to native format only, preserve existing metadata in other formats. Handles unsupported fields gracefully with warnings.
-3. **`CLEANUP`**: Write to native format and remove all non-native metadata formats. Handles unsupported fields gracefully with warnings.
-
-#### Forced Format Behavior
-
-When you specify a `metadata_format` parameter, you **cannot** also specify a `metadata_strategy`:
-
-- **Write only to the specified format**: Other formats are left completely untouched
-- **Fail fast on unsupported fields**: Raises `MetadataNotSupportedError` for any unsupported metadata
-- **Predictable behavior**: No side effects on other metadata formats
-
-```python
-# Correct usage - specify only the format
-update_file_metadata("song.mp3", metadata,
-                    metadata_format=MetadataFormat.RIFF)  # Writes only to RIFF, ignores ID3v2
-
-# This will raise MetadataWritingConflictParametersError - cannot specify both parameters
-update_file_metadata("song.mp3", metadata,
-                    metadata_format=MetadataFormat.RIFF,
-                    metadata_strategy=MetadataWritingStrategy.CLEANUP)  # Raises MetadataWritingConflictParametersError
-```
-
-#### Usage Examples
-
-**Default Behavior (SYNC strategy)**
-
-```python
-from audiometa import update_file_metadata
-
-# WAV file with existing ID3v1 tags (30-char limit)
-update_file_metadata("song.wav", {"title": "This is a Very Long Title That Exceeds ID3v1 Limits"})
-
-# Result:
-# - RIFF tags: Updated with full title (native format)
-# - ID3v1 tags: Synchronized with truncated title (30 chars max)
-# - When reading: RIFF title is returned (higher precedence)
-# Note: ID3v1 title becomes "This is a Very Long Title Th" (truncated)
-```
-
-**CLEANUP Strategy - Remove Non-Native Formats**
-
-```python
-from audiometa import update_file_metadata
-from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
-
-# Clean up WAV file - remove ID3v2, keep only RIFF
-update_file_metadata("song.wav", {"title": "New Title"},
-                    metadata_strategy=MetadataWritingStrategy.CLEANUP)
-
-# Result:
-# - ID3v2 tags: Removed completely
-# - RIFF tags: Updated with new metadata
-# - When reading: Only RIFF metadata available
-```
-
-**SYNC Strategy - Synchronize All Existing Formats**
-
-```python
-# Synchronize all existing metadata formats with same values
-update_file_metadata("song.wav", {"title": "New Title"},
-                    metadata_strategy=MetadataWritingStrategy.SYNC)
-
-# Result:
-# - RIFF tags: Synchronized with new metadata (native format)
-# - ID3v2 tags: Synchronized with new metadata (if present)
-# - ID3v1 tags: Synchronized with new metadata (if present)
-# - When reading: RIFF title is returned (highest precedence)
-# Note: SYNC preserves and updates ALL existing metadata formats
-```
-
-**Format-Specific Writing**
-
-```python
-from audiometa.utils.MetadataFormat import MetadataFormat
-
-# Write specifically to ID3v2 format (even for WAV files)
-update_file_metadata("song.wav", {"title": "New Title"},
-                    metadata_format=MetadataFormat.ID3V2)
-
-# Write specifically to RIFF format
-update_file_metadata("song.wav", {"title": "New Title"},
-                    metadata_format=MetadataFormat.RIFF)
-```
-
-#### Strategy Benefits
-
-**PRESERVE (Default)**
-
-- **Maximum Compatibility**: Older players can still read legacy formats
-- **Non-Destructive**: Never loses existing metadata
-- **Safe**: Default behavior that won't break existing workflows
-
-**CLEANUP**
-
-- **Best Practice**: Uses only native format for each file type
-- **Clean Files**: Removes format confusion and reduces file size
-- **Standards Compliant**: Follows established audio metadata standards
-
-**SYNC**
-
-- **Consistency**: Keeps all formats synchronized
-- **Compatibility**: Maintains support for different players
-- **Convenience**: Single update affects all existing formats
 
 ### Unsupported Metadata Handling
 
