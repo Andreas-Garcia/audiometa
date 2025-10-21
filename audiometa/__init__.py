@@ -90,85 +90,65 @@ def _get_metadata_managers(
     return managers
 
 
-def get_single_format_app_metadata(
-        file: FILE_TYPE, tag_format: MetadataFormat, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None) -> AppMetadata:
-    """
-    Get metadata from a specific format only.
-    
-    This function reads metadata from only the specified format, unlike
-    get_unified_metadata which reads from all available formats.
-    
-    Args:
-        file: Audio file path or AudioFile object
-        tag_format: Specific metadata format to read from
-        normalized_rating_max_value: Maximum value for rating normalization (0-10 scale).
-            When provided, ratings are normalized to this scale. Defaults to None (raw values).
-        id3v2_version: ID3v2 version tuple for ID3v2-specific operations
-        
-    Returns:
-        Dictionary containing metadata from the specified format only
-        
-    Raises:
-        FileTypeNotSupportedError: If the file format is not supported
-        FileNotFoundError: If the file does not exist
-        
-    Examples:
-        # Get only ID3v2 metadata
-        metadata = get_single_format_app_metadata("song.mp3", MetadataFormat.ID3V2)
-        print(metadata.get(UnifiedMetadataKey.TITLE))
-        
-        # Get only Vorbis metadata from FLAC
-        metadata = get_single_format_app_metadata("song.flac", MetadataFormat.VORBIS)
-        print(metadata.get(UnifiedMetadataKey.ARTISTS_NAMES))
-        
-        # Get ID3v2 metadata with normalized ratings
-        metadata = get_single_format_app_metadata("song.mp3", MetadataFormat.ID3V2, normalized_rating_max_value=100)
-        print(metadata.get(UnifiedMetadataKey.RATING))  # Returns 0-100
-    """
-    if not isinstance(file, AudioFile):
-        file = AudioFile(file)
-
-    manager = _get_metadata_manager(
-        file=file, tag_format=tag_format, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
-    return manager.get_app_metadata()
-
-
 def get_unified_metadata(
-        file: FILE_TYPE, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None) -> AppMetadata:
+        file: FILE_TYPE, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None, metadata_format: MetadataFormat | None = None) -> AppMetadata:
     """
-    Get all available metadata from an audio file, merging data from multiple formats.
+    Get metadata from a file, either unified across all formats or from a specific format only.
     
-    This function reads metadata from all available formats (ID3v1, ID3v2, Vorbis, RIFF)
-    and returns a unified dictionary with the best available data for each field.
+    When metadata_format is None (default), this function reads metadata from all available 
+    formats (ID3v1, ID3v2, Vorbis, RIFF) and returns a unified dictionary with the best 
+    available data for each field.
+    
+    When metadata_format is specified, this function reads metadata from only the specified 
+    format, returning data from that format only.
     
     Args:
         file: Audio file path or AudioFile object
         normalized_rating_max_value: Maximum value for rating normalization (0-10 scale).
             When provided, ratings are normalized to this scale. Defaults to None (raw values).
         id3v2_version: ID3v2 version tuple for ID3v2-specific operations
+        metadata_format: Specific metadata format to read from. If None, reads from all available formats.
         
     Returns:
-        Dictionary containing all available metadata fields
+        Dictionary containing metadata fields
         
     Raises:
         FileTypeNotSupportedError: If the file format is not supported
         FileNotFoundError: If the file does not exist
         
     Examples:
-        # Get all metadata with raw rating values
+        # Get all metadata with raw rating values (unified)
         metadata = get_unified_metadata("song.mp3")
         print(metadata.get(UnifiedMetadataKey.TITLE))
         
-        # Get all metadata with normalized ratings (0-100 scale)
+        # Get all metadata with normalized ratings (unified)
         metadata = get_unified_metadata("song.mp3", normalized_rating_max_value=100)
         print(metadata.get(UnifiedMetadataKey.RATING))  # Returns 0-100
         
-        # Get metadata from FLAC file
+        # Get metadata from FLAC file (unified)
         metadata = get_unified_metadata("song.flac")
         print(metadata.get(UnifiedMetadataKey.ARTISTS_NAMES))
+        
+        # Get only ID3v2 metadata
+        metadata = get_unified_metadata("song.mp3", metadata_format=MetadataFormat.ID3V2)
+        print(metadata.get(UnifiedMetadataKey.TITLE))
+        
+        # Get only Vorbis metadata from FLAC
+        metadata = get_unified_metadata("song.flac", metadata_format=MetadataFormat.VORBIS)
+        print(metadata.get(UnifiedMetadataKey.ARTISTS_NAMES))
+        
+        # Get ID3v2 metadata with normalized ratings
+        metadata = get_unified_metadata("song.mp3", metadata_format=MetadataFormat.ID3V2, normalized_rating_max_value=100)
+        print(metadata.get(UnifiedMetadataKey.RATING))  # Returns 0-100
     """
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
+
+    # If specific format requested, return data from that format only
+    if metadata_format is not None:
+        manager = _get_metadata_manager(
+            file=file, tag_format=metadata_format, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
+        return manager.get_app_metadata()
 
     # Get all available managers for this file type
     all_managers = _get_metadata_managers(file=file, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)

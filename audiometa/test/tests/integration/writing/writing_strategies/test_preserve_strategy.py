@@ -7,11 +7,7 @@ and preserves existing metadata in other formats.
 import pytest
 from pathlib import Path
 
-from audiometa import (
-    update_metadata,
-    get_single_format_app_metadata,
-    get_unified_metadata,
-)
+from audiometa import update_metadata, get_unified_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -36,7 +32,7 @@ class TestPreserveStrategy:
             test_file.set_id3v2_album("ID3v2 Album")
             
             # Verify ID3v2 metadata was written
-            id3v2_result = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+            id3v2_result = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
             assert id3v2_result.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
             
             # Now write RIFF metadata with PRESERVE strategy (default)
@@ -49,8 +45,8 @@ class TestPreserveStrategy:
             update_metadata(test_file, riff_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
             
             # Verify both formats exist
-            id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
-            riff_after = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
+            id3v2_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
+            riff_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.RIFF)
             
             # ID3v2 should be preserved (unchanged)
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
@@ -70,7 +66,7 @@ class TestPreserveStrategy:
             test_file.set_id3v1_album("ID3v1 Album")
             
             # Verify ID3v1 metadata was written
-            id3v1_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+            id3v1_result = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             assert id3v1_result.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
             
             # Now write ID3v2 metadata with PRESERVE strategy
@@ -83,11 +79,11 @@ class TestPreserveStrategy:
             
             # Verify ID3v1 metadata behavior with PRESERVE strategy
             # ID3v1 should be preserved (not overwritten) with PRESERVE strategy
-            id3v1_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+            id3v1_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             assert id3v1_after.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"  # ID3v1 was preserved
             
             # Verify ID3v2 metadata was written
-            id3v2_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+            id3v2_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
             
             # Merged metadata should prefer ID3v2 (higher precedence)

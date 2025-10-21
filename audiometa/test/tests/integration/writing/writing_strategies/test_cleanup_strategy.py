@@ -9,7 +9,6 @@ from pathlib import Path
 
 from audiometa import (
     update_metadata,
-    get_single_format_app_metadata,
     get_unified_metadata,
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -36,7 +35,7 @@ class TestCleanupStrategy:
             test_file.set_id3v2_album("ID3v2 Album")
             
             # Verify ID3v2 metadata was written
-            id3v2_result = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+            id3v2_result = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
             assert id3v2_result.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
             
             # Now write RIFF metadata with CLEANUP strategy
@@ -48,11 +47,11 @@ class TestCleanupStrategy:
             update_metadata(test_file, riff_metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
             
             # Verify ID3v2 was removed
-            id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+            id3v2_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) is None
             
             # Verify RIFF has new metadata
-            riff_after = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
+            riff_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.RIFF)
             assert riff_after.get(UnifiedMetadataKey.TITLE) == "RIFF Title"
             
             # Merged metadata should only have RIFF (ID3v2 was cleaned up)
@@ -68,7 +67,7 @@ class TestCleanupStrategy:
             test_file.set_id3v1_album("ID3v1 Album")
             
             # Verify ID3v1 metadata was written
-            id3v1_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+            id3v1_result = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             assert id3v1_result.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
             
             # Now write ID3v2 metadata with CLEANUP strategy
@@ -81,11 +80,11 @@ class TestCleanupStrategy:
             
             # Verify ID3v1 metadata behavior with CLEANUP strategy
             # ID3v1 should be removed (cleaned up) with CLEANUP strategy
-            id3v1_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+            id3v1_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             assert id3v1_after.get(UnifiedMetadataKey.TITLE) is None  # ID3v1 was cleaned up
             
             # Verify ID3v2 metadata was written
-            id3v2_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+            id3v2_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
             
             # Merged metadata should prefer ID3v2 (higher precedence)
