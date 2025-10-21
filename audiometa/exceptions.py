@@ -71,7 +71,7 @@ class InvalidMetadataTypeError(TypeError):
     """Raised when a metadata field value has an unexpected type.
 
     Attributes:
-        field: str - the unified metadata field name (e.g. 'artists_names')
+        field: str - the unified metadata field name (e.g. 'artists')
         expected_type: str - human-readable expected type (e.g. 'list[str]')
         actual_type: str - name of the actual type received
         value: object - the actual value passed

@@ -4,7 +4,7 @@ from enum import Enum
 
 class UnifiedMetadataKey(str, Enum):
     TITLE = 'title'
-    ARTISTS = 'artists_names'
+    ARTISTS = 'artists'
     ALBUM_NAME = 'album_name'
     ALBUM_ARTISTS = 'album_artists_names'
     GENRES_NAMES = 'genre_name'

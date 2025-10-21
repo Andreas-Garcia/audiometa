@@ -524,7 +524,7 @@ full_metadata = get_full_metadata("song.mp3")
 
 # Access unified metadata (same as get_unified_metadata)
 print(f"Title: {full_metadata['unified_metadata']['title']}")
-print(f"Artists: {full_metadata['unified_metadata']['artists_names']}")
+print(f"Artists: {full_metadata['unified_metadata']['artists']}")
 
 # Access technical information
 print(f"Duration: {full_metadata['technical_info']['duration_seconds']} seconds")
@@ -562,7 +562,7 @@ A comprehensive dictionary containing:
     'unified_metadata': {
         # Same as get_unified_metadata() result
         'title': 'Song Title',
-        'artists_names': ['Artist 1', 'Artist 2'],
+        'artists': ['Artist 1', 'Artist 2'],
         'album_name': 'Album Name',
         # ... all other metadata fields
     },
@@ -586,13 +586,13 @@ A comprehensive dictionary containing:
         'id3v2': {
             # ID3v2 specific metadata (if present)
             'title': 'Song Title',
-            'artists_names': ['Artist 1', 'Artist 2'],
+            'artists': ['Artist 1', 'Artist 2'],
             # ... other ID3v2 fields
         },
         'vorbis': {
             # Vorbis specific metadata (if present)
             'title': 'Song Title',
-            'artists_names': ['Artist 1', 'Artist 2'],
+            'artists': ['Artist 1', 'Artist 2'],
             # ... other Vorbis fields
         },
         'riff': {
@@ -1025,7 +1025,7 @@ delete_all_metadata("song.mp3")
 delete_all_metadata("song.wav", tag_format=MetadataFormat.ID3V2)  # Only removes ID3v2, keeps RIFF
 
 # Remove only title and artist - use None values
-update_metadata("song.mp3", {"title": None, "artists_names": None})
+update_metadata("song.mp3", {"title": None, "artists": None})
 ```
 
 ### AudioFile Class
