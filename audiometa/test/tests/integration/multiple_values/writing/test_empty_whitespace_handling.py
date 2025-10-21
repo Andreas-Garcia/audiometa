@@ -123,9 +123,7 @@ class TestEmptyWhitespaceHandling:
         update_file_metadata(temp_audio_file, metadata)
         
         artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
-        
-        # Should remove the field entirely (empty list when all values filtered)
-        assert artists == []
+        assert artists is None
 
     def test_write_trimmed_whitespace_preserved(self, temp_audio_file: Path):
         # Write strings with leading/trailing whitespace that should be preserved
