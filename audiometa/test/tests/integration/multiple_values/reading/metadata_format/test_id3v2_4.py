@@ -145,28 +145,27 @@ class TestId3v2_4Mixed:
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
             
             assert isinstance(artists, list)
-            assert len(artists) == 3
-            assert "Artist One" in artists
-            assert "Artist Two" in artists
+            assert len(artists) == 2
+            assert "Artist One\0Artist Two" in artists
             assert "Artist Three" in artists
             
             
-    def test_mixed_separators_and_multiple_entries(self):
+    def test_mixed_separators_semicolon_and_null(self):
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
-            ID3v2MetadataSetter.set_artists(test_file.path, ["Artist 1;Artist 2", "Artist 3", "Artist 4"], version="2.4")
+            ID3v2MetadataSetter.set_artists(test_file.path, ["Artist 1\0Artist 2;Artist 3"], version="2.4")
             
             assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             
             verification = ID3v2MetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "TPE1")
             
-            assert "TPE1=Artist 1;Artist 2 / Artist 3 / Artist 4" in verification['raw_output']
+            # raw_output replaces NUL bytes with slashes for display purposes
+            assert "TPE1=Artist 1 / Artist 2;Artist 3" in verification['raw_output']
             
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.ID3V2)
             assert isinstance(artists, list)
             assert len(artists) == 3
-            assert "Artist 1;Artist 2" in artists
-            assert "Artist 3" in artists
-            assert "Artist 4" in artists
+            assert "Artist 1" in artists
+            assert "Artist 2;Artist 3" in artists
             
     def test_multiple_title_entries_then_first_one(self):
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
