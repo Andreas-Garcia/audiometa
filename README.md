@@ -314,9 +314,9 @@ from audiometa import get_unified_metadata
 
 # Read all metadata from a file
 metadata = get_unified_metadata("path/to/your/audio.mp3")
-print(f"Title: {metadata.get(UnifiedMetadataKey.TITLE.value, 'Unknown')}")
-print(f"Artist: {metadata.get(UnifiedMetadataKey.ARTISTS_NAMES.value, ['Unknown'])}")
-print(f"Album: {metadata.get(UnifiedMetadataKey.ALBUM_NAME.value, 'Unknown')}")
+print(f"Title: {metadata.get(UnifiedMetadataKey.TITLE, 'Unknown')}")
+print(f"Artist: {metadata.get(UnifiedMetadataKey.ARTISTS_NAMES, ['Unknown'])}")
+print(f"Album: {metadata.get(UnifiedMetadataKey.ALBUM_NAME, 'Unknown')}")
 ```
 
 ### Writing Metadata
@@ -479,8 +479,8 @@ from audiometa import get_unified_metadata
 
 # Read all metadata (unified across all formats)
 metadata = get_unified_metadata("song.mp3")
-print(metadata['title'])  # Song title
-print(metadata['artists_names'])  # List of artists
+print(metadata[UnifiedMetadataKey.TITLE])  # Song title
+print(metadata[UnifiedMetadataKey.ARTISTS_NAMES])  # List of artists
 
 # Read only ID3v2 metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -1052,7 +1052,7 @@ if audio_file.file_extension == '.flac':
 
 # Get metadata using the object
 metadata = audio_file.get_unified_metadata()
-print(f"Title: {metadata.get('title', 'Unknown')}")
+print(f"Title: {metadata.get(UnifiedMetadataKey.TITLE, 'Unknown')}")
 ```
 
 ## Error Handling
@@ -1672,7 +1672,7 @@ AudioMeta ensures that ratings work across different players:
 ```python
 # Read a file rated in Windows Media Player
 metadata = get_unified_metadata("windows_rated.mp3")
-print(f"Rating: {metadata['rating']}")  # 6.0 (3 stars)
+print(f"Rating: {metadata[UnifiedMetadataKey.RATING]}")  # 6.0 (3 stars)
 
 # Write the same rating to a FLAC file
 update_metadata("new_song.flac", {"rating": 6})
@@ -1706,7 +1706,7 @@ files = [
 
 for file_path in files:
     metadata = get_unified_metadata(file_path)
-    print(f"{file_path}: {metadata['rating']}")  # All show 6.0
+    print(f"{file_path}: {metadata[UnifiedMetadataKey.RATING]}")  # All show 6.0
 ```
 
 **Writing for Maximum Compatibility**
