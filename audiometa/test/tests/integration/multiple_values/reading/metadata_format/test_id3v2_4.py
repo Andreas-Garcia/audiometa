@@ -3,7 +3,7 @@ from audiometa import get_specific_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
-from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter, ID3v2MetadataGetter, ID3V2HeaderVerifier, get_raw_metadata
+from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter, ID3v2MetadataGetter, ID3V2HeaderVerifier
 
 
 class TestId3v2_4Mixed:
@@ -14,7 +14,7 @@ class TestId3v2_4Mixed:
             
             assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             
-            raw_metadata = get_raw_metadata(test_file.path)
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
             assert "TPE1=Artist One / Artist Two / Artist Three" in verification['raw_output']
             
@@ -33,7 +33,7 @@ class TestId3v2_4Mixed:
 
             assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
 
-            raw_metadata = get_raw_metadata(test_file.path)
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
             assert "TPE1=Artist One / Artist Two / Artist Three" in verification['raw_output']
 
@@ -52,7 +52,7 @@ class TestId3v2_4Mixed:
 
             assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
 
-            raw_metadata = get_raw_metadata(test_file.path)
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
             assert "TPE1=Artist One / Artist Two / Artist Three" in verification['raw_output']
 
@@ -71,7 +71,7 @@ class TestId3v2_4Mixed:
 
             assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
 
-            raw_metadata = get_raw_metadata(test_file.path)
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
             assert "TPE1=Artist One / Artist Two / Artist Three" in verification['raw_output']
 
@@ -90,7 +90,7 @@ class TestId3v2_4Mixed:
 
             assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
 
-            raw_metadata = get_raw_metadata(test_file.path)
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
             assert "TPE1=Artist One / Artist Two / Artist Three" in verification['raw_output']
 
@@ -108,7 +108,7 @@ class TestId3v2_4Mixed:
             
             assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             
-            raw_metadata = get_raw_metadata(test_file.path)
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
             assert "TPE1=Artist One;Artist Two;Artist Three" in verification['raw_output']
             
@@ -127,7 +127,7 @@ class TestId3v2_4Mixed:
             
             assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             
-            raw_metadata = get_raw_metadata(test_file.path)
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
             assert "TPE1=Artist One / Artist Two / Artist Three" in verification['raw_output']
             
@@ -180,7 +180,7 @@ class TestId3v2_4Mixed:
             
             assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
 
-            raw_metadata = get_raw_metadata(test_file.path)
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             verification = {'raw_output': raw_metadata.get("TIT2", "")}
             
             assert "TIT2=Title One / Title Two / Title Three" in verification['raw_output']
