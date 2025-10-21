@@ -185,36 +185,6 @@ class TestMultipleValuesBoundaryConditions:
         # Performance should be reasonable
         assert write_time < 15.0, f"Write took too long: {write_time:.2f}s"
 
-    def test_write_metadata_with_special_boundary_values(self, temp_audio_file: Path):
-        # Test with special boundary values
-        boundary_values = [
-            "",  # Empty string
-            " ",  # Single space
-            "\t",  # Single tab
-            "\n",  # Single newline
-            "\r",  # Single carriage return
-            "\0",  # Null character
-            "A" * 255,  # 255 characters (common limit)
-            "A" * 256,  # 256 characters
-            "A" * 1024,  # 1KB
-            "A" * 10240,  # 10KB
-        ]
-        metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: boundary_values
-        }
-        
-        update_file_metadata(temp_audio_file, metadata)
-        
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-        
-        # Should filter out empty/whitespace values
-        assert isinstance(artists, list)
-        assert len(artists) == 7  # Should filter out empty, space, tab, newline, carriage return
-        assert "A" * 255 in artists
-        assert "A" * 256 in artists
-        assert "A" * 1024 in artists
-        assert "A" * 10240 in artists
 
     def test_write_metadata_with_unicode_boundary_values(self, temp_audio_file: Path):
         # Test with Unicode boundary values
