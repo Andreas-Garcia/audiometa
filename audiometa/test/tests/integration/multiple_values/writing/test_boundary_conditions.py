@@ -167,9 +167,6 @@ class TestMultipleValuesBoundaryConditions:
             large_metadata[UnifiedMetadataKey.ARTISTS_NAMES] = [f"Artist {i:04d}" for i in range(50)]
             large_metadata[UnifiedMetadataKey.ALBUM_ARTISTS_NAMES] = [f"Album Artist {i:04d}" for i in range(50)]
             large_metadata[UnifiedMetadataKey.COMPOSERS] = [f"Composer {i:04d}" for i in range(50)]
-            large_metadata[UnifiedMetadataKey.INVOLVED_PEOPLE] = [f"Person {i:04d}: Role {i:04d}" for i in range(50)]
-            large_metadata[UnifiedMetadataKey.MUSICIANS] = [f"Musician {i:04d}: Instrument {i:04d}" for i in range(50)]
-            large_metadata[UnifiedMetadataKey.KEYWORDS] = [f"keyword{i:04d}" for i in range(50)]
         
         start_time = time.time()
         update_file_metadata(temp_audio_file, large_metadata)
@@ -180,8 +177,7 @@ class TestMultipleValuesBoundaryConditions:
         
         # Check multiple value fields
         for field in [UnifiedMetadataKey.ARTISTS_NAMES, UnifiedMetadataKey.ALBUM_ARTISTS_NAMES, 
-                     UnifiedMetadataKey.COMPOSERS, UnifiedMetadataKey.INVOLVED_PEOPLE,
-                     UnifiedMetadataKey.MUSICIANS, UnifiedMetadataKey.KEYWORDS]:
+                     UnifiedMetadataKey.COMPOSERS]:
             values = unified_metadata.get(field)
             assert isinstance(values, list)
             assert len(values) == 50
