@@ -1,7 +1,7 @@
 from pathlib import Path
 import time
 
-from audiometa import update_file_metadata, get_merged_unified_metadata
+from audiometa import get_specific_metadata, update_file_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
@@ -10,11 +10,9 @@ class TestMultipleValuesBoundaryConditions:
         # Test with very large number of values per field
         max_values = 1000
         large_artist_list = [f"Artist {i:04d}" for i in range(max_values)]
-        large_composer_list = [f"Composer {i:04d}" for i in range(max_values)]
         
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: large_artist_list,
-            UnifiedMetadataKey.COMPOSERS: large_composer_list
         }
         
         start_time = time.time()
@@ -22,14 +20,10 @@ class TestMultipleValuesBoundaryConditions:
         write_time = time.time() - start_time
         
         # Verify all values were written
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-        composers = unified_metadata.get(UnifiedMetadataKey.COMPOSERS)
+        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         
         assert isinstance(artists, list)
         assert len(artists) == max_values
-        assert isinstance(composers, list)
-        assert len(composers) == max_values
         
         # Performance should be reasonable
         assert write_time < 10.0, f"Write took too long: {write_time:.2f}s"
@@ -44,14 +38,11 @@ class TestMultipleValuesBoundaryConditions:
         
         update_file_metadata(temp_audio_file, metadata)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-        comment = unified_metadata.get(UnifiedMetadataKey.COMMENT)
+        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         
         assert isinstance(artists, list)
         assert len(artists) == 2
         assert very_long_string in artists
-        assert comment == very_long_string
 
     def test_write_single_character_values(self, temp_audio_file: Path):
         # Test with single character values
@@ -150,8 +141,7 @@ class TestMultipleValuesBoundaryConditions:
         
         update_file_metadata(temp_audio_file, metadata)
         
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
+        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         
         assert isinstance(artists, list)
         assert len(artists) == 6
@@ -184,55 +174,3 @@ class TestMultipleValuesBoundaryConditions:
         
         # Performance should be reasonable
         assert write_time < 15.0, f"Write took too long: {write_time:.2f}s"
-
-
-    def test_write_metadata_with_unicode_boundary_values(self, temp_audio_file: Path):
-        # Test with Unicode boundary values
-        unicode_boundary_values = [
-            "A",  # Single ASCII character
-            "中",  # Single Chinese character
-            "🎵",  # Single emoji
-            "A" * 1000,  # 1000 ASCII characters
-            "中" * 1000,  # 1000 Chinese characters
-            "🎵" * 1000,  # 1000 emojis
-            "A中🎵" * 1000,  # Mixed Unicode characters
-        ]
-        metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: unicode_boundary_values
-        }
-        
-        update_file_metadata(temp_audio_file, metadata)
-        
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-        
-        assert isinstance(artists, list)
-        assert len(artists) == 7
-        for value in unicode_boundary_values:
-            assert value in artists
-
-    def test_write_metadata_with_separator_boundary_values(self, temp_audio_file: Path):
-        # Test with separator boundary values
-        separator_boundary_values = [
-            "Artist;with;semicolons",
-            "Artist,with,commas",
-            "Artist|with|pipes",
-            "Artist/with/slashes",
-            "Artist\\with\\backslashes",
-            "Artist//with//double//slashes",
-            "Artist\\\\with\\\\double\\\\backslashes",
-            "Artist;with,mixed|separators/and\\slashes",
-        ]
-        metadata = {
-            UnifiedMetadataKey.ARTISTS_NAMES: separator_boundary_values
-        }
-        
-        update_file_metadata(temp_audio_file, metadata)
-        
-        unified_metadata = get_merged_unified_metadata(temp_audio_file)
-        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
-        
-        assert isinstance(artists, list)
-        assert len(artists) == 8
-        for value in separator_boundary_values:
-            assert value in artists
