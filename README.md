@@ -470,7 +470,9 @@ When the same metadata tag exists in multiple formats within the same file, the 
 
 #### `get_unified_metadata(file_path, metadata_format=None)`
 
-Reads all metadata from a file and returns a unified dictionary. If `metadata_format` is specified, reads only from that format.
+Reads all metadata from a file and returns a unified dictionary.
+If `metadata_format` is specified, reads only from that format.
+If not specified, uses priority order across all formats.
 
 ```python
 from audiometa import get_unified_metadata
