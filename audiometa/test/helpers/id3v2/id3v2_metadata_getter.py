@@ -14,7 +14,7 @@ class ID3v2MetadataGetter:
     Static helper for getting ID3v2 metadata fields from an audio file using external tools.
     """
     @staticmethod
-    def _get_id3v2_output(file_path):
+    def _get_raw_metadata(file_path):
         """
         Runs id3v2 tool and returns its output as a string.
         """
@@ -26,7 +26,7 @@ class ID3v2MetadataGetter:
         """
         Returns a dictionary of ID3v2 metadata fields using id3v2 tool output.
         """
-        output = ID3v2MetadataGetter._get_id3v2_output(file_path)
+        output = ID3v2MetadataGetter._get_raw_metadata(file_path)
         metadata = {}
         for line in output.splitlines():
             if line.startswith("TIT2 (Title):"):

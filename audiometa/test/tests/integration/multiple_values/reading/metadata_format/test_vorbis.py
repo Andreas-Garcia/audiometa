@@ -2,7 +2,7 @@
 from audiometa import get_specific_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataSetter
-from audiometa.test.helpers.vorbis.vorbis_metadata_inspector import VorbisMetadataInspector
+from test.helpers.vorbis.vorbis_metadata_getter import VorbisMetadataGetter
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
@@ -24,7 +24,7 @@ class TestVorbis:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             VorbisMetadataSetter.set_artists(test_file.path, ["One", "Two", "Three"])
             
-            verification = VorbisMetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "ARTIST")
+            verification = VorbisMetadataGetter.get_raw_metadata(test_file.path, "ARTIST")
             assert verification["actual_count"] == 3, f"Expected 3 separate ARTIST entries, found {verification['actual_count']}"
             
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS_NAMES, metadata_format=MetadataFormat.VORBIS)
@@ -39,7 +39,7 @@ class TestVorbis:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             VorbisMetadataSetter.set_artists(test_file.path, ["Artist 1;Artist 2", "Artist 3", "Artist 4"])
             
-            verification = VorbisMetadataInspector.inspect_multiple_entries_in_raw_data(test_file.path, "ARTIST")
+            verification = VorbisMetadataGetter.get_raw_metadata(test_file.path, "ARTIST")
             
             assert "ARTIST=Artist 1;Artist" in verification['raw_output'] 
             assert "ARTIST=Artist 3" in verification['raw_output']
