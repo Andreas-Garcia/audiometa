@@ -38,6 +38,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
   - [Writing Metadata (API Reference)](#writing-metadata-api-reference)
     - [Metadata Dictionary Structure](#metadata-dictionary-structure)
     - [Metadata Types Checking](#metadata-types-checking)
+    - [Validation behavior](#validation-behavior)
     - [`update_metadata(file_path, metadata, **options)`](#update_metadatafile_path-metadata-options)
     - [Writing Strategies](#writing-strategies)
       - [Available Strategies](#available-strategies)
@@ -113,14 +114,14 @@ A comprehensive Python library for reading and writing audio metadata across mul
   - [None vs Empty String Handling](#none-vs-empty-string-handling)
     - [Example](#example)
 - [Command Line Interface](#command-line-interface)
-  - [Installation](#installation)
+  - [Installation](#cli-installation)
   - [Basic Usage](#basic-usage)
-    - [Reading Metadata](#reading-metadata)
-    - [Writing Metadata](#writing-metadata)
-    - [Deleting Metadata](#deleting-metadata)
+    - [Reading Metadata](#cli-reading-metadata)
+    - [Writing Metadata](#cli-writing-metadata)
+    - [Deleting Metadata](#cli-deleting-metadata)
   - [Advanced Options](#advanced-options)
     - [Output Control](#output-control)
-    - [Error Handling](#error-handling)
+    - [Error Handling](#cli-error-handling)
     - [Batch Processing](#batch-processing)
   - [Output Formats](#output-formats)
   - [Examples](#examples)
@@ -732,7 +733,7 @@ metadata = {
 
 The library performs type checking on metadata values to ensure they conform to expected types.
 
-## Validation behavior
+### Validation behavior {#validation-behavior}
 
 The library validates metadata value types passed to `update_metadata` when keys are provided as `UnifiedMetadataKey` instances. Rules:
 
@@ -1948,7 +1949,7 @@ print(title)  # Output: "" (field exists but empty)
 
 AudioMeta provides a powerful command-line interface for quick metadata operations without writing Python code.
 
-### Installation
+### Installation {#cli-installation}
 
 After installing the package, the `audiometa` command will be available:
 
@@ -1959,7 +1960,7 @@ audiometa --help
 
 ### Basic Usage
 
-#### Reading Metadata
+#### Reading Metadata {#cli-reading-metadata}
 
 ```bash
 # Read full metadata from a file
@@ -1980,7 +1981,7 @@ audiometa read song.mp3 --format yaml
 audiometa read song.mp3 --output metadata.json
 ```
 
-#### Writing Metadata
+#### Writing Metadata {#cli-writing-metadata}
 
 ```bash
 # Write basic metadata
@@ -1993,7 +1994,7 @@ audiometa write song.mp3 --title "Song Title" --artist "Artist" --album "Album" 
 audiometa write *.mp3 --artist "New Artist"
 ```
 
-#### Deleting Metadata
+#### Deleting Metadata {#cli-deleting-metadata}
 
 ```bash
 # Delete all metadata from a file
@@ -2018,7 +2019,7 @@ audiometa read song.mp3 --no-headers
 audiometa read song.mp3 --output metadata.json
 ```
 
-#### Error Handling
+#### Error Handling {#cli-error-handling}
 
 ```bash
 # Continue processing other files on error
