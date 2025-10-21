@@ -23,8 +23,8 @@ A comprehensive Python library for reading and writing audio metadata across mul
   - [Reading Metadata](#reading-metadata)
   - [Writing Metadata](#writing-metadata)
   - [Deleting Metadata](#deleting-metadata)
-    - [Delete All Metadata (Complete Removal)](#1-delete-all-metadata-complete-removal)
-    - [Remove Specific Fields (Selective Removal)](#2-remove-specific-fields-selective-removal)
+    - [Delete All Metadata (Complete Removal)](#delete-all-metadata-complete-removal)
+    - [Remove Specific Fields (Selective Removal)](#remove-specific-fields-selective-removal)
     - [Comparison Table](#comparison-table)
     - [Example Scenarios](#example-scenarios)
   - [Working with AudioFile](#working-with-audiofile)
@@ -115,7 +115,13 @@ A comprehensive Python library for reading and writing audio metadata across mul
 - [Command Line Interface](#command-line-interface)
   - [Installation](#installation)
   - [Basic Usage](#basic-usage)
+    - [Reading Metadata](#reading-metadata)
+    - [Writing Metadata](#writing-metadata)
+    - [Deleting Metadata](#deleting-metadata)
   - [Advanced Options](#advanced-options)
+    - [Output Control](#output-control)
+    - [Error Handling](#error-handling)
+    - [Batch Processing](#batch-processing)
   - [Output Formats](#output-formats)
   - [Examples](#examples)
 - [Requirements](#requirements)
@@ -434,7 +440,7 @@ print(f"File extension: {audio_file.file_extension}")
 
 ## Core API Reference
 
-### Reading Metadata
+### Reading Metadata (API Reference)
 
 #### Reading Priorities (Tag Precedence)
 
@@ -703,7 +709,7 @@ print(f"Audio data ratio: {(full_info['technical_info']['file_size_bytes'] - ful
 - Technical information is cached to avoid repeated file system calls
 - Use `include_headers=False` or `include_technical=False` to improve performance if you don't need all information
 
-### Writing Metadata
+### Writing Metadata (API Reference)
 
 #### Metadata Dictionary Structure
 
@@ -982,7 +988,7 @@ update_metadata("song.mp3", {"title": "Song Title"},
 2. **Automatic Fallback**: If ID3v2.4 fails, tries ID3v2.3
 3. **Manual Override**: You can specify exact version when needed
 
-### Deleting Metadata
+### Deleting Metadata (API Reference)
 
 #### `delete_all_metadata(file_path, tag_format=None)`
 
