@@ -31,8 +31,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
 - [Core API Reference](#core-api-reference)
   - [Reading Metadata (API Reference)](#reading-metadata-api-reference)
     - [Reading Priorities (Tag Precedence)](#reading-priorities-tag-precedence)
-    - [`get_unified_metadata(file_path)`](#get_unified_metadatafile_path)
-    - [`get_single_format_app_metadata(file_path, format)`](#get_single_format_app_metadatafile_path-format)
+    - [`get_unified_metadata(file_path, metadata_format=None)`](#get_unified_metadatafile_path-metadata_formatnone)
     - [`get_specific_metadata(file_path, field, metadata_format=None)`](#get_specific_metadatafile_path-field-metadata_formatnone)
     - [`get_full_metadata(file_path, include_headers=True, include_technical=True)`](#get_full_metadatafile_path-include_headerstrue-include_technicaltrue)
   - [Writing Metadata (API Reference)](#writing-metadata-api-reference)
@@ -469,30 +468,24 @@ When the same metadata tag exists in multiple formats within the same file, the 
 - For WAV files: If a title exists in both RIFF and ID3v2, the RIFF title will be returned.
 - For FLAC files: If a title exists in both Vorbis and ID3v2, the Vorbis title will be returned.
 
-#### `get_unified_metadata(file_path)`
+#### `get_unified_metadata(file_path, metadata_format=None)`
 
-Reads all metadata from a file and returns a unified dictionary.
+Reads all metadata from a file and returns a unified dictionary. If `metadata_format` is specified, reads only from that format.
 
 ```python
 from audiometa import get_unified_metadata
 
+# Read all metadata (unified across all formats)
 metadata = get_unified_metadata("song.mp3")
 print(metadata['title'])  # Song title
 print(metadata['artists_names'])  # List of artists
-```
-
-#### `get_single_format_app_metadata(file_path, format)`
-
-Reads metadata from a specific format only.
-
-```python
-from audiometa import get_single_format_app_metadata, MetadataFormat
 
 # Read only ID3v2 metadata
-id3v2_metadata = get_single_format_app_metadata("song.mp3", MetadataFormat.ID3V2)
+from audiometa.utils.MetadataFormat import MetadataFormat
+id3v2_metadata = get_unified_metadata("song.mp3", metadata_format=MetadataFormat.ID3V2)
 
 # Read only Vorbis metadata
-vorbis_metadata = get_single_format_app_metadata("song.flac", MetadataFormat.VORBIS)
+vorbis_metadata = get_unified_metadata("song.flac", metadata_format=MetadataFormat.VORBIS)
 ```
 
 #### `get_specific_metadata(file_path, field, metadata_format=None)`
