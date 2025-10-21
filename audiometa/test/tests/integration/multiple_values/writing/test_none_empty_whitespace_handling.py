@@ -5,7 +5,28 @@ from audiometa import update_file_metadata, get_merged_unified_metadata, get_spe
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
-class TestEmptyWhitespaceHandling:
+class TestNoneEmptyWhitespaceHandling:
+    def test_none_removes_fields(self, temp_audio_file: Path):
+        # First write some metadata
+        metadata = {
+            UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"]
+        }
+        update_file_metadata(temp_audio_file, metadata)
+        
+        # Verify it was written
+        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
+        assert artists is not None
+        
+        # Now write None (should remove the field)
+        metadata = {
+            UnifiedMetadataKey.ARTISTS_NAMES: None
+        }
+        update_file_metadata(temp_audio_file, metadata)
+        
+        # Verify field was removed
+        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
+        assert artists is None
+        
     def test_write_empty_list_removes_field(self, temp_audio_file: Path):
         # First write some metadata
         metadata = {
