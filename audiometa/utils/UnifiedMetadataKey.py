@@ -24,9 +24,8 @@ class UnifiedMetadataKey(str, Enum):
         multi_value_fields = {
             UnifiedMetadataKey.ARTISTS_NAMES,
             UnifiedMetadataKey.ALBUM_ARTISTS_NAMES,
-            # Only fields that semantically make sense to have multiple values
-            UnifiedMetadataKey.GENRES_NAMES,  # Multiple genres make sense
-            UnifiedMetadataKey.COMPOSERS,    # Multiple composers make sense
+            UnifiedMetadataKey.GENRES_NAMES,
+            UnifiedMetadataKey.COMPOSERS,
         }
         
         result = self in multi_value_fields
