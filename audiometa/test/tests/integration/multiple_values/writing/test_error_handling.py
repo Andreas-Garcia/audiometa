@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from audiometa import update_file_metadata, get_merged_unified_metadata
+from audiometa import update_file_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from exceptions import InvalidMetadataTypeError
 
