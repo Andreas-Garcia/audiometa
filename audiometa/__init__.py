@@ -290,15 +290,7 @@ def _validate_app_metadata_types(app_metadata: AppMetadata) -> None:
     if not app_metadata:
         return
 
-    # Lazy import for typing helpers to avoid top-level overhead
-    try:
-        from typing import get_origin, get_args
-    except Exception:
-        # Python <3.8 fallback (should not happen in supported environments)
-        def get_origin(x):
-            return getattr(x, '__origin__', None)
-        def get_args(x):
-            return getattr(x, '__args__', ())
+    from typing import get_origin, get_args
 
     for key, value in app_metadata.items():
         # Allow None to mean "remove this field"
@@ -308,8 +300,7 @@ def _validate_app_metadata_types(app_metadata: AppMetadata) -> None:
         try:
             expected_type = key.get_optional_type()
         except Exception:
-            # If no optional type defined for this key, skip validation here
-            continue
+            raise TypeError(f'Cannot determine expected type for key: {key.value}')
 
         origin = get_origin(expected_type)
         if origin == list:
