@@ -8,7 +8,7 @@ import pytest
 from pathlib import Path
 
 from audiometa import (
-    update_file_metadata,
+    update_metadata,
     get_single_format_app_metadata,
     get_unified_metadata,
 )
@@ -46,7 +46,7 @@ class TestPreserveStrategy:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "RIFF Album"
             }
-            update_file_metadata(test_file, riff_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
+            update_metadata(test_file, riff_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
             
             # Verify both formats exist
             id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
@@ -79,7 +79,7 @@ class TestPreserveStrategy:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "ID3v2 Album"
             }
-            update_file_metadata(test_file.path, id3v2_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
+            update_metadata(test_file.path, id3v2_metadata, metadata_strategy=MetadataWritingStrategy.PRESERVE)
             
             # Verify ID3v1 metadata behavior with PRESERVE strategy
             # ID3v1 should be preserved (not overwritten) with PRESERVE strategy

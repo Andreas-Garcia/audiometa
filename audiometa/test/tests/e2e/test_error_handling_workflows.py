@@ -9,7 +9,7 @@ from pathlib import Path
 
 from audiometa import (
     get_unified_metadata,
-    update_file_metadata,
+    update_metadata,
     delete_all_metadata,
     get_bitrate,
     get_duration_in_sec
@@ -31,11 +31,11 @@ class TestErrorHandlingWorkflows:
         with TempFileWithMetadata(initial_metadata, "mp3") as test_file:
             # Test invalid operations - try to update with rating without normalized_rating_max_value
             with pytest.raises(Exception):  # ConfigurationError
-                update_file_metadata(test_file.path, {UnifiedMetadataKey.RATING: 75})  # Missing normalized_rating_max_value
+                update_metadata(test_file.path, {UnifiedMetadataKey.RATING: 75})  # Missing normalized_rating_max_value
         
             # Test recovery after errors
             test_metadata = {UnifiedMetadataKey.TITLE: "Recovery Test"}
-            update_file_metadata(test_file.path, test_metadata)
+            update_metadata(test_file.path, test_metadata)
         
             # Verify the file is still usable
             metadata = get_unified_metadata(test_file)
@@ -52,7 +52,7 @@ class TestErrorHandlingWorkflows:
             get_unified_metadata(str(test_file))
         
         with pytest.raises(Exception):  # FileTypeNotSupportedError
-            update_file_metadata(str(test_file), {UnifiedMetadataKey.TITLE: "Test"})
+            update_metadata(str(test_file), {UnifiedMetadataKey.TITLE: "Test"})
         
         with pytest.raises(Exception):  # FileTypeNotSupportedError
             delete_all_metadata(str(test_file))
@@ -121,7 +121,7 @@ class TestErrorHandlingWorkflows:
             new_metadata = {
                 UnifiedMetadataKey.TITLE: "New Title After Deletion"
             }
-            update_file_metadata(test_file.path, new_metadata)
+            update_metadata(test_file.path, new_metadata)
             
             # 5. Verify new metadata was added successfully
             new_metadata_result = get_unified_metadata(test_file)

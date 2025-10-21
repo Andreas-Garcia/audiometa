@@ -513,7 +513,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             # Save ID3v2 while preserving ID3v1
             self._save_with_id3v1_preservation(file_path, id3v1_data)
 
-    def update_file_metadata(self, app_metadata: AppMetadata):
+    def update_metadata(self, app_metadata: AppMetadata):
         """Override to use custom save method with version control and ID3v1 preservation."""
         if not self.metadata_keys_direct_map_write:
             raise MetadataNotSupportedError('This format does not support metadata modification')

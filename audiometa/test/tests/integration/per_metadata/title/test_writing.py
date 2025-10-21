@@ -44,21 +44,21 @@ class TestTitleWriting:
                 assert title == test_title
 
     def test_id3v1(self):
-        from audiometa import update_file_metadata
+        from audiometa import update_metadata
         from audiometa.utils.MetadataFormat import MetadataFormat
         
         with TempFileWithMetadata({}, "mp3") as test_file:
             test_title = "Test Title ID3v1"
             test_metadata = {UnifiedMetadataKey.TITLE: test_title}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
             title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
             assert title == test_title
 
     def test_invalid_type_raises(self):
         from audiometa.exceptions import InvalidMetadataTypeError
-        from audiometa import update_file_metadata
+        from audiometa import update_metadata
 
         with TempFileWithMetadata({}, "mp3") as test_file:
             bad_metadata = {UnifiedMetadataKey.TITLE: 123}
             with pytest.raises(InvalidMetadataTypeError):
-                update_file_metadata(test_file.path, bad_metadata)
+                update_metadata(test_file.path, bad_metadata)

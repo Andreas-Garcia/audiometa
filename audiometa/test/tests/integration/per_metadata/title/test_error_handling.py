@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
 
-from audiometa import get_specific_metadata, update_file_metadata
+from audiometa import get_specific_metadata, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError
 
@@ -18,7 +18,7 @@ class TestTitleErrorHandling:
             get_specific_metadata(str(temp_audio_file), UnifiedMetadataKey.TITLE)
         
         with pytest.raises(FileTypeNotSupportedError):
-            update_file_metadata(str(temp_audio_file), {UnifiedMetadataKey.TITLE: "Test Title"})
+            update_metadata(str(temp_audio_file), {UnifiedMetadataKey.TITLE: "Test Title"})
 
     def test_title_nonexistent_file(self):
         nonexistent_file = "nonexistent_file.mp3"
@@ -27,18 +27,18 @@ class TestTitleErrorHandling:
             get_specific_metadata(nonexistent_file, UnifiedMetadataKey.TITLE)
         
         with pytest.raises(FileNotFoundError):
-            update_file_metadata(nonexistent_file, {UnifiedMetadataKey.TITLE: "Test Title"})
+            update_metadata(nonexistent_file, {UnifiedMetadataKey.TITLE: "Test Title"})
 
     def test_title_empty_values(self, sample_mp3_file: Path, temp_audio_file: Path):
         # Test with empty title values
         temp_audio_file.write_bytes(sample_mp3_file.read_bytes())
         
         # Empty string should be handled gracefully
-        update_file_metadata(temp_audio_file, {UnifiedMetadataKey.TITLE: ""})
+        update_metadata(temp_audio_file, {UnifiedMetadataKey.TITLE: ""})
         title = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE)
         assert title == "" or title is None
         
         # None should be handled gracefully
-        update_file_metadata(temp_audio_file, {UnifiedMetadataKey.TITLE: None})
+        update_metadata(temp_audio_file, {UnifiedMetadataKey.TITLE: None})
         title = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE)
         assert title is None or title == ""

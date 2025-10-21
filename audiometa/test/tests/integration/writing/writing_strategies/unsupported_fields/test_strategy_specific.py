@@ -1,7 +1,7 @@
 import pytest
 
 from audiometa import (
-    update_file_metadata,
+    update_metadata,
     get_unified_metadata,
 )
 from audiometa.exceptions import MetadataNotSupportedError
@@ -30,7 +30,7 @@ class TestStrategySpecific:
             }
             
             with pytest.raises(MetadataNotSupportedError) as exc_info:
-                update_file_metadata(test_file.path, test_metadata, 
+                update_metadata(test_file.path, test_metadata, 
                                    metadata_strategy=MetadataWritingStrategy.PRESERVE,
                                    fail_on_unsupported_field=True)
             
@@ -59,7 +59,7 @@ class TestStrategySpecific:
             }
             
             with pytest.raises(MetadataNotSupportedError) as exc_info:
-                update_file_metadata(test_file.path, test_metadata, 
+                update_metadata(test_file.path, test_metadata, 
                                    metadata_strategy=MetadataWritingStrategy.CLEANUP,
                                    fail_on_unsupported_field=True)
             
@@ -88,7 +88,7 @@ class TestStrategySpecific:
             }
             
             with pytest.raises(MetadataNotSupportedError) as exc_info:
-                update_file_metadata(test_file.path, test_metadata, 
+                update_metadata(test_file.path, test_metadata, 
                                    metadata_strategy=MetadataWritingStrategy.SYNC,
                                    fail_on_unsupported_field=True)
             

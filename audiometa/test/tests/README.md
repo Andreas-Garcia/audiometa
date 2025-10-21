@@ -402,7 +402,7 @@ metadata = get_unified_metadata(file_path)
 title = get_specific_metadata(file_path, UnifiedMetadataKey.TITLE)
 
 # For writing metadata
-update_file_metadata(file_path, metadata_dict)
+update_metadata(file_path, metadata_dict)
 
 # For file operations
 duration = get_duration_in_sec(file_path)
@@ -437,7 +437,7 @@ def test_write_metadata_using_temp_file():
         new_metadata = {
             UnifiedMetadataKey.TITLE: "New Title"
         }
-        update_file_metadata(test_file.path, new_metadata)
+        update_metadata(test_file.path, new_metadata)
 
         # Verify by reading back
         metadata = get_unified_metadata(test_file.path)
@@ -491,7 +491,7 @@ def test_basic_read_write_operations(temp_audio_file: Path):
         UnifiedMetadataKey.TITLE: "Test Title",
         UnifiedMetadataKey.ARTISTS_NAMES: ["Test Artist"]
     }
-    update_file_metadata(temp_audio_file, test_metadata)
+    update_metadata(temp_audio_file, test_metadata)
 
     # Test reading metadata
     metadata = get_unified_metadata(temp_audio_file)

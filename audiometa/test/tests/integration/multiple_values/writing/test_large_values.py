@@ -1,7 +1,7 @@
 from pathlib import Path
 import time
 
-from audiometa import get_specific_metadata, update_file_metadata
+from audiometa import get_specific_metadata, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
@@ -16,7 +16,7 @@ class TestMultipleValuesBoundaryConditions:
         }
         
         start_time = time.time()
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         write_time = time.time() - start_time
         
         # Verify all values were written
@@ -36,7 +36,7 @@ class TestMultipleValuesBoundaryConditions:
             UnifiedMetadataKey.COMMENT: very_long_string
         }
         
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         
@@ -58,7 +58,7 @@ class TestMultipleValuesBoundaryConditions:
             UnifiedMetadataKey.ARTISTS_NAMES: mixed_lengths
         }
         
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         
@@ -75,7 +75,7 @@ class TestMultipleValuesBoundaryConditions:
         for i in range(100):
             large_metadata[UnifiedMetadataKey.ARTISTS_NAMES] = [f"Artist {i:04d}" for i in range(50)]        
         start_time = time.time()
-        update_file_metadata(temp_audio_file, large_metadata)
+        update_metadata(temp_audio_file, large_metadata)
         write_time = time.time() - start_time
         
         artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from audiometa import get_specific_metadata, update_file_metadata
+from audiometa import get_specific_metadata, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
@@ -12,7 +12,7 @@ class TestMultipleValuesDuplicateValues:
             UnifiedMetadataKey.ARTISTS_NAMES: duplicate_values
         }
         
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         

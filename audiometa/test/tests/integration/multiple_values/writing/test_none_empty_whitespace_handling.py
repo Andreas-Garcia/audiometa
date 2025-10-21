@@ -1,7 +1,7 @@
 
 from pathlib import Path
 
-from audiometa import update_file_metadata, get_unified_metadata, get_specific_metadata
+from audiometa import update_metadata, get_unified_metadata, get_specific_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
@@ -11,7 +11,7 @@ class TestNoneEmptyWhitespaceHandling:
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"]
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         # Verify it was written
         artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
@@ -21,7 +21,7 @@ class TestNoneEmptyWhitespaceHandling:
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: None
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         # Verify field was removed
         artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
@@ -32,7 +32,7 @@ class TestNoneEmptyWhitespaceHandling:
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"]
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         # Verify it was written
         artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
@@ -42,7 +42,7 @@ class TestNoneEmptyWhitespaceHandling:
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: []
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         # Verify field was removed
         artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
@@ -53,7 +53,7 @@ class TestNoneEmptyWhitespaceHandling:
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["", "Valid Artist", ""]
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         
@@ -67,7 +67,7 @@ class TestNoneEmptyWhitespaceHandling:
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["   ", "Valid Artist", "\t\n"]
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         
@@ -81,7 +81,7 @@ class TestNoneEmptyWhitespaceHandling:
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["", "   ", "Valid Artist 1", "\t", "Valid Artist 2", "\n"]
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         
@@ -95,7 +95,7 @@ class TestNoneEmptyWhitespaceHandling:
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["", "   ", "\t\n"]
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         
@@ -106,7 +106,7 @@ class TestNoneEmptyWhitespaceHandling:
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: [""]
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         
@@ -118,7 +118,7 @@ class TestNoneEmptyWhitespaceHandling:
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["   "]
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         assert artists is None
@@ -128,7 +128,7 @@ class TestNoneEmptyWhitespaceHandling:
         metadata = {
             UnifiedMetadataKey.ARTISTS_NAMES: ["  Artist with spaces  ", "Another Artist"]
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS_NAMES)
         
@@ -141,7 +141,7 @@ class TestNoneEmptyWhitespaceHandling:
     def test_write_empty_metadata_dict(self, temp_audio_file: Path):
         # Write empty metadata dictionary
         metadata = {}
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         # Should not raise an error
         unified_metadata = get_unified_metadata(temp_audio_file)
@@ -154,7 +154,7 @@ class TestNoneEmptyWhitespaceHandling:
             UnifiedMetadataKey.ARTISTS_NAMES: None,
             UnifiedMetadataKey.ALBUM_NAME: None
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         # Should not raise an error
         unified_metadata = get_unified_metadata(temp_audio_file)

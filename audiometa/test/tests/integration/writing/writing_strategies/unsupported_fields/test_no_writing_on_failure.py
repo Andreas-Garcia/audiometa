@@ -1,7 +1,7 @@
 import pytest
 
 from audiometa import (
-    update_file_metadata,
+    update_metadata,
     get_unified_metadata,
 )
 from audiometa.exceptions import MetadataNotSupportedError
@@ -29,7 +29,7 @@ class TestNoWritingOnFailure:
             }
             
             with pytest.raises(MetadataNotSupportedError):
-                update_file_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
+                update_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
             
             final_read = get_unified_metadata(test_file)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original Title"  # Should be unchanged
@@ -53,7 +53,7 @@ class TestNoWritingOnFailure:
             }
             
             with pytest.raises(MetadataNotSupportedError):
-                update_file_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
+                update_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
             
             final_read = get_unified_metadata(test_file)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original MP3 Title"  # Should be unchanged
@@ -77,7 +77,7 @@ class TestNoWritingOnFailure:
             }
             
             with pytest.raises(MetadataNotSupportedError):
-                update_file_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
+                update_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
             
             final_read = get_unified_metadata(test_file)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original FLAC Title"  # Should be unchanged
@@ -101,7 +101,7 @@ class TestNoWritingOnFailure:
             }
             
             with pytest.raises(MetadataNotSupportedError):
-                update_file_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
+                update_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
             
             final_read = get_unified_metadata(test_file)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"  # Should be unchanged

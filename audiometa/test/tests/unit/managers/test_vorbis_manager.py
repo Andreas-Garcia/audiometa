@@ -40,7 +40,7 @@ class TestVorbisManager:
                 UnifiedMetadataKey.BPM: 140
             }
             
-            manager.update_file_metadata(test_metadata)
+            manager.update_metadata(test_metadata)
             
             # Verify metadata was updated
             updated_metadata = manager.get_app_metadata()

@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import get_specific_metadata, update_file_metadata
+from audiometa import get_specific_metadata, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -12,7 +12,7 @@ class TestBpmWriting:
         with TempFileWithMetadata({}, "mp3") as test_file:
             test_bpm = 128
             test_metadata = {UnifiedMetadataKey.BPM: test_bpm}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
             bpm = get_specific_metadata(test_file.path, UnifiedMetadataKey.BPM)
             assert bpm == test_bpm
 
@@ -25,13 +25,13 @@ class TestBpmWriting:
         
             # RIFF format raises exception for unsupported metadata when format is forced
             with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
-                update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
+                update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
 
     def test_vorbis(self):
         with TempFileWithMetadata({}, "flac") as test_file:
             test_bpm = 140
             test_metadata = {UnifiedMetadataKey.BPM: test_bpm}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
             bpm = get_specific_metadata(test_file.path, UnifiedMetadataKey.BPM)
             assert bpm == test_bpm
 
@@ -44,7 +44,7 @@ class TestBpmWriting:
         
             # ID3v1 format raises exception for unsupported metadata when format is forced
             with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.BPM metadata not supported by this format"):
-                update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
+                update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
 
     def test_invalid_type_raises(self):
         from audiometa.exceptions import InvalidMetadataTypeError
@@ -52,4 +52,4 @@ class TestBpmWriting:
         with TempFileWithMetadata({}, "mp3") as test_file:
             bad_metadata = {UnifiedMetadataKey.BPM: "not-an-int"}
             with pytest.raises(InvalidMetadataTypeError):
-                update_file_metadata(test_file.path, bad_metadata)
+                update_metadata(test_file.path, bad_metadata)

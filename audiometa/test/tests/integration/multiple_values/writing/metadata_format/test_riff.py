@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from audiometa import update_file_metadata, get_unified_metadata, get_single_format_app_metadata
+from audiometa import update_metadata, get_unified_metadata, get_single_format_app_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -12,7 +12,7 @@ class TestMultipleEntriesRiff:
 	def test_write_multiple_artists(self):
 		metadata = {UnifiedMetadataKey.ARTISTS_NAMES: ["Artist 1", "Artist 2", "Artist 3"]}
 		with TempFileWithMetadata({}, "wav") as test_file:
-			update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
+			update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
 
 			# Use helper to check the created RIFF frames directly
 			verification = RIFFMetadataGetter.get_raw_metadata(test_file.path, "IART")
@@ -25,7 +25,7 @@ class TestMultipleEntriesRiff:
 		with TempFileWithMetadata(initial_metadata, "wav") as test_file:
 			metadata = {UnifiedMetadataKey.ARTISTS_NAMES: ["Artist 1", "Artist 2", "Artist 3"]}
 
-			update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
+			update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
 
 			# Use helper to check the created RIFF frames directly
 			verification = RIFFMetadataGetter.get_raw_metadata(test_file.path, "IART")
@@ -46,7 +46,7 @@ class TestMultipleEntriesRiff:
 			assert "Existing 2" in verification['raw_output']
 
 			metadata = {UnifiedMetadataKey.ARTISTS_NAMES: ["Existing 1", "New 2"]}
-			update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
+			update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
 
 			verification = RIFFMetadataGetter.get_raw_metadata(test_file.path, "IART")
 			raw_output = verification['raw_output']

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from audiometa import update_file_metadata, get_unified_metadata, get_single_format_app_metadata
+from audiometa import update_metadata, get_unified_metadata, get_single_format_app_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -11,12 +11,12 @@ from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataS
 class TestMultipleEntriesVorbis:
     def test_write_multiple_artists(self):
         with TempFileWithMetadata({}, "flac") as test_file:
-            # Write multiple artists using update_file_metadata
+            # Write multiple artists using update_metadata
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two", "Artist Three"]
             }
             
-            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
+            update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
             
             # verify against multiple entries in vorbis metadata not using the API
             verification = VorbisMetadataGetter.get_raw_metadata(test_file.path, "ARTIST")
@@ -38,7 +38,7 @@ class TestMultipleEntriesVorbis:
             assert "Existing 1; Existing 2" in raw_output
 
             metadata = {UnifiedMetadataKey.ARTISTS_NAMES: ["Existing 1", "New 2"]}
-            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
+            update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
 
             verification = VorbisMetadataGetter.get_raw_metadata(test_file.path, "ARTIST")
             assert verification['actual_count'] == 2

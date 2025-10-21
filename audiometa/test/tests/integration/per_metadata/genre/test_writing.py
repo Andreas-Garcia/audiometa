@@ -2,7 +2,7 @@ import pytest
 
 
 
-from audiometa import get_unified_metadata, update_file_metadata
+from audiometa import get_unified_metadata, update_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -14,7 +14,7 @@ class TestGenreWriting:
         with TempFileWithMetadata({}, "mp3") as test_file:
             test_genre = "Test Genre ID3v2"
             test_metadata = {UnifiedMetadataKey.GENRES_NAMES: test_genre}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
             metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == [test_genre]
 
@@ -22,7 +22,7 @@ class TestGenreWriting:
         with TempFileWithMetadata({}, "wav") as test_file:
             test_genre = "Rock"
             test_metadata = {UnifiedMetadataKey.GENRES_NAMES: test_genre}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
             metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == [test_genre]
 
@@ -30,7 +30,7 @@ class TestGenreWriting:
         with TempFileWithMetadata({}, "flac") as test_file:
             test_genre = "Test Genre Vorbis"
             test_metadata = {UnifiedMetadataKey.GENRES_NAMES: test_genre}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
             metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == [test_genre]
 
@@ -38,7 +38,7 @@ class TestGenreWriting:
         with TempFileWithMetadata({}, "mp3") as test_file:
             test_genre = "Rock"
             test_metadata = {UnifiedMetadataKey.GENRES_NAMES: test_genre}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
             metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == [test_genre]
 
@@ -48,4 +48,4 @@ class TestGenreWriting:
         with TempFileWithMetadata({}, "mp3") as test_file:
             bad_metadata = {UnifiedMetadataKey.GENRES_NAMES: 123}
             with pytest.raises(InvalidMetadataTypeError):
-                update_file_metadata(test_file.path, bad_metadata)
+                update_metadata(test_file.path, bad_metadata)

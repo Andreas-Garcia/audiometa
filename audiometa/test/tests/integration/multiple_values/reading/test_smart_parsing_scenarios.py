@@ -1,5 +1,5 @@
 
-from audiometa import get_unified_metadata, update_file_metadata
+from audiometa import get_unified_metadata, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -21,7 +21,7 @@ class TestSmartParsingScenarios:
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist; with; semicolons", "Artist Three"]
             }
-            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2)
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)
@@ -43,7 +43,7 @@ class TestSmartParsingScenarios:
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist; with; semicolons", "Artist Three"]
             }
-            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
+            update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)
@@ -65,7 +65,7 @@ class TestSmartParsingScenarios:
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist; with; semicolons", "Artist Three"]
             }
-            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
+            update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)
@@ -87,7 +87,7 @@ class TestSmartParsingScenarios:
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist; with; semicolons", "Artist Three"]
             }
-            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
+            update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)
@@ -107,7 +107,7 @@ class TestSmartParsingScenarios:
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One;Artist Two;Artist Three"]
             }
-            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2)
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)
@@ -127,7 +127,7 @@ class TestSmartParsingScenarios:
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One;Artist Two;Artist Three"]
             }
-            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
+            update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)
@@ -147,7 +147,7 @@ class TestSmartParsingScenarios:
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One;Artist Two;Artist Three"]
             }
-            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
+            update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)
@@ -167,7 +167,7 @@ class TestSmartParsingScenarios:
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One;Artist Two;Artist Three"]
             }
-            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
+            update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)
@@ -187,7 +187,7 @@ class TestSmartParsingScenarios:
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One;Artist Two"]
             }
-            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
+            update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)
@@ -206,7 +206,7 @@ class TestSmartParsingScenarios:
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One;Artist Two"]
             }
-            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
+            update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)
@@ -227,7 +227,7 @@ class TestSmartParsingScenarios:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist; with; semicolons", "Artist Three"],
                 UnifiedMetadataKey.COMPOSERS: ["Composer One;Composer Two;Composer Three"]
             }
-            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2)
             
             # Read metadata
             unified_metadata = get_unified_metadata(test_file.path)

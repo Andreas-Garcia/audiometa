@@ -72,7 +72,7 @@ class RatingSupportingMetadataManager(MetadataManager):
         star_rating_base_10 = (int)((normalized_rating * 10)/self.normalized_rating_max_value)
         return self.rating_write_profile[star_rating_base_10]
 
-    def update_file_metadata(self, app_metadata: AppMetadata):
+    def update_metadata(self, app_metadata: AppMetadata):
         if UnifiedMetadataKey.RATING in list(app_metadata.keys()):
             # Check if rating is supported by this format first
             if (not self.metadata_keys_direct_map_write or 
@@ -107,4 +107,4 @@ class RatingSupportingMetadataManager(MetadataManager):
                             raise InvalidRatingValueError(f"Invalid rating value: {value}. Expected a numeric value.")
                     # If value is None, let the individual managers handle the removal
 
-        super().update_file_metadata(app_metadata)
+        super().update_metadata(app_metadata)

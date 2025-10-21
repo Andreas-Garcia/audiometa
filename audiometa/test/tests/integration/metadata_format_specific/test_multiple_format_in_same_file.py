@@ -14,7 +14,7 @@ from audiometa import (
     get_unified_metadata,
     get_single_format_app_metadata,
     get_specific_metadata,
-    update_file_metadata,
+    update_metadata,
     AudioFile
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -67,8 +67,8 @@ class TestConflictingMetadata:
             }
             
             # Write RIFF first, then ID3v2
-            update_file_metadata(test_file.path, riff_metadata, metadata_format=MetadataFormat.RIFF)
-            update_file_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, riff_metadata, metadata_format=MetadataFormat.RIFF)
+            update_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
             
             # Merged metadata should prefer RIFF (WAV native format)
             merged_metadata = get_unified_metadata(test_file.path)
@@ -98,8 +98,8 @@ class TestConflictingMetadata:
             }
             
             # Write ID3v2 first, then Vorbis
-            update_file_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
-            update_file_metadata(test_file.path, vorbis_metadata, metadata_format=MetadataFormat.VORBIS)
+            update_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, vorbis_metadata, metadata_format=MetadataFormat.VORBIS)
             
             # Merged metadata should prefer Vorbis
             merged_metadata = get_unified_metadata(test_file.path)
@@ -123,13 +123,13 @@ class TestConflictingMetadata:
                 UnifiedMetadataKey.RELEASE_DATE: "2023",
                 UnifiedMetadataKey.GENRES_NAMES: "Rock"
             }
-            update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
+            update_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
             id3v2_metadata = {
                 UnifiedMetadataKey.TITLE: "ID3v2 Title",
                 UnifiedMetadataKey.ALBUM_NAME: "ID3v2 Album"
             }
             
-            update_file_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
             
             merged_metadata = get_unified_metadata(test_file.path)
             
@@ -154,12 +154,12 @@ class TestConflictingMetadata:
                 UnifiedMetadataKey.RELEASE_DATE: "2023",
                 UnifiedMetadataKey.GENRES_NAMES: "Rock"
             }
-            update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
+            update_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
             
             # Test ID3v2 rating precedence
             id3v2_metadata = {UnifiedMetadataKey.RATING: 1}
             
-            update_file_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2, normalized_rating_max_value=10)
+            update_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2, normalized_rating_max_value=10)
             
             merged_metadata = get_unified_metadata(test_file.path, normalized_rating_max_value=10)
             
@@ -182,10 +182,10 @@ class TestConflictingMetadata:
                 UnifiedMetadataKey.RELEASE_DATE: "2023",
                 UnifiedMetadataKey.GENRES_NAMES: "Rock"
             }
-            update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
+            update_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
             id3v2_metadata = {UnifiedMetadataKey.TITLE: "ID3v2 Title"}
             
-            update_file_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
             
             # Test with AudioFile object
             audio_file = AudioFile(test_file.path)

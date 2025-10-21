@@ -10,7 +10,7 @@ from pathlib import Path
 from audiometa import (
     AudioFile,
     get_unified_metadata,
-    update_file_metadata,
+    update_metadata,
     delete_all_metadata,
     get_bitrate,
     get_duration_in_sec
@@ -48,7 +48,7 @@ class TestCoreWorkflows:
             }
             
             # Save changes
-            update_file_metadata(test_file.path, test_metadata)
+            update_metadata(test_file.path, test_metadata)
             
             # Verify persistence by reloading
             metadata = get_unified_metadata(test_file)
@@ -81,7 +81,7 @@ class TestCoreWorkflows:
                         UnifiedMetadataKey.ALBUM_NAME: "Batch Album",
                         UnifiedMetadataKey.COMMENT: "Batch processing test"
                     }
-                    update_file_metadata(test_file.path, test_metadata)
+                    update_metadata(test_file.path, test_metadata)
                     results.append(("success", file_path))
             except Exception as e:
                 results.append(("error", file_path, str(e)))
@@ -125,7 +125,7 @@ class TestCoreWorkflows:
             }
             with TempFileWithMetadata(initial_metadata, format_type) as test_file:
                 # Add metadata using app's function
-                update_file_metadata(test_file.path, test_metadata)
+                update_metadata(test_file.path, test_metadata)
                 
                 # Verify metadata was added
                 added_metadata = get_unified_metadata(test_file)
@@ -160,7 +160,7 @@ class TestCoreWorkflows:
                 UnifiedMetadataKey.BPM: 128,
                 UnifiedMetadataKey.COMMENT: "Cleanup test comment"
             }
-            update_file_metadata(test_file.path, additional_metadata, normalized_rating_max_value=100)
+            update_metadata(test_file.path, additional_metadata, normalized_rating_max_value=100)
             
             # 3. Verify all metadata exists
             full_metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)

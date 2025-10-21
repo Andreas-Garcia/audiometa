@@ -1,7 +1,7 @@
 import pytest
 
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
-from audiometa import get_specific_metadata, update_file_metadata
+from audiometa import get_specific_metadata, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 
@@ -13,7 +13,7 @@ class TestCommentDeleting:
             test_file.set_id3v2_comment("Test comment")
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) == "Test comment"
         
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.ID3V2)
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) is None
 
     def test_delete_comment_id3v1(self):
@@ -21,7 +21,7 @@ class TestCommentDeleting:
             test_file.set_id3v1_comment("Test comment")
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) == "Test comment"
         
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.ID3V1)
+            update_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.ID3V1)
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) is None
 
     def test_delete_comment_riff(self):
@@ -29,7 +29,7 @@ class TestCommentDeleting:
             test_file.set_riff_comment("Test comment")
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) == "Test comment"
             
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.RIFF)
+            update_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.RIFF)
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) is None
 
     def test_delete_comment_vorbis(self):
@@ -37,7 +37,7 @@ class TestCommentDeleting:
             test_file.set_vorbis_comment("Test comment")
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) == "Test comment"
         
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.VORBIS)
+            update_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.VORBIS)
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) is None
 
     def test_delete_comment_preserves_other_fields(self):
@@ -46,8 +46,8 @@ class TestCommentDeleting:
             test_file.set_id3v2_title("Test Title")
             test_file.set_id3v2_artist("Test Artist")
         
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.ID3V2)
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.ID3V2)
         
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) is None
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) == "Test Title"
@@ -55,11 +55,11 @@ class TestCommentDeleting:
 
     def test_delete_comment_already_none(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.ID3V2)
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) is None
 
     def test_delete_comment_empty_string(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             test_file.set_id3v2_comment("")
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.ID3V2)
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) is None

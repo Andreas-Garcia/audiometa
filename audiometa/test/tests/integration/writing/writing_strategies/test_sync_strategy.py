@@ -8,7 +8,7 @@ import pytest
 from pathlib import Path
 
 from audiometa import (
-    update_file_metadata,
+    update_metadata,
     get_single_format_app_metadata,
     get_unified_metadata,
 )
@@ -47,7 +47,7 @@ class TestSyncStrategy:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Synced Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "Synced Album"
             }
-            update_file_metadata(test_file, sync_metadata, 
+            update_metadata(test_file, sync_metadata, 
                                metadata_strategy=MetadataWritingStrategy.SYNC)
             
             # Verify both formats have the synced metadata
@@ -75,7 +75,7 @@ class TestSyncStrategy:
                 UnifiedMetadataKey.TITLE: "RIFF Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Artist"]
             }
-            update_file_metadata(test_file, riff_metadata)
+            update_metadata(test_file, riff_metadata)
             
             # Verify both formats exist (SYNC strategy should sync both)
             id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
@@ -107,7 +107,7 @@ class TestSyncStrategy:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Synced Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "Synced Album"
             }
-            update_file_metadata(test_file, id3v2_metadata, metadata_strategy=MetadataWritingStrategy.SYNC)
+            update_metadata(test_file, id3v2_metadata, metadata_strategy=MetadataWritingStrategy.SYNC)
             
             # Verify ID3v1 metadata behavior with different strategies
             # When ID3v2 is written, it overwrites the ID3v1 tag
@@ -135,7 +135,7 @@ class TestSyncStrategy:
             assert id3v1_result.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
             
             # Modify ID3v1 metadata directly should succeed
-            update_file_metadata(str(test_file), {
+            update_metadata(str(test_file), {
                 UnifiedMetadataKey.TITLE: "New Title"
             }, metadata_format=MetadataFormat.ID3V1)
             
@@ -162,7 +162,7 @@ class TestSyncStrategy:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Long Artist Name That Exceeds Limits"],
                 UnifiedMetadataKey.ALBUM_NAME: "Long Album Name That Exceeds Limits"
             }
-            update_file_metadata(test_file, sync_metadata, metadata_strategy=MetadataWritingStrategy.SYNC)
+            update_metadata(test_file, sync_metadata, metadata_strategy=MetadataWritingStrategy.SYNC)
             
             # Verify RIFF metadata has full values (no truncation)
             riff_after = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)

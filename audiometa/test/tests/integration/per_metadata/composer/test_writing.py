@@ -2,7 +2,7 @@ import pytest
 
 
 
-from audiometa import get_specific_metadata, update_file_metadata
+from audiometa import get_specific_metadata, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -14,7 +14,7 @@ class TestComposerWriting:
         with TempFileWithMetadata({}, "mp3") as test_file:
             test_composer = "Test Composer ID3v2"
             test_metadata = {UnifiedMetadataKey.COMPOSERS: test_composer}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
             composer = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMPOSERS)
             assert composer == [test_composer]
 
@@ -22,7 +22,7 @@ class TestComposerWriting:
         with TempFileWithMetadata({}, "wav") as test_file:
             test_composer = "Test Composer RIFF"
             test_metadata = {UnifiedMetadataKey.COMPOSERS: test_composer}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
             composer = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMPOSERS)
             assert composer == [test_composer]
 
@@ -30,7 +30,7 @@ class TestComposerWriting:
         with TempFileWithMetadata({}, "flac") as test_file:
             test_composer = "Test Composer Vorbis"
             test_metadata = {UnifiedMetadataKey.COMPOSERS: test_composer}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
             composer = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMPOSERS)
             assert composer == [test_composer]
 
@@ -40,4 +40,4 @@ class TestComposerWriting:
         with TempFileWithMetadata({}, "mp3") as test_file:
             bad_metadata = {UnifiedMetadataKey.COMPOSERS: 12345}
             with pytest.raises(InvalidMetadataTypeError):
-                update_file_metadata(test_file.path, bad_metadata)
+                update_metadata(test_file.path, bad_metadata)

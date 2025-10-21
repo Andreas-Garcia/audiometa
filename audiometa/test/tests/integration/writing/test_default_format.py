@@ -17,7 +17,7 @@ import tempfile
 import shutil
 
 from audiometa import (
-    update_file_metadata,
+    update_metadata,
     get_single_format_app_metadata,
     get_unified_metadata
 )
@@ -40,7 +40,7 @@ class TestDefaultWritingFormat:
         
         with TempFileWithMetadata({}, "mp3") as test_file:
             # Update metadata using default format (should be ID3v2)
-            update_file_metadata(test_file.path, test_metadata)
+            update_metadata(test_file.path, test_metadata)
             
             # Verify metadata was written to ID3v2 format
             id3v2_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
@@ -66,7 +66,7 @@ class TestDefaultWritingFormat:
             }
             
             # Update metadata using default format (should be ID3v2.3)
-            update_file_metadata(test_file.path, test_metadata)
+            update_metadata(test_file.path, test_metadata)
             
             # Verify that the file now contains ID3v2.3 tags (default version)
             id3_tags = ID3(test_file.path)
@@ -83,7 +83,7 @@ class TestDefaultWritingFormat:
             }
             
             # Update metadata using default format (should be Vorbis)
-            update_file_metadata(test_file.path, test_metadata)
+            update_metadata(test_file.path, test_metadata)
             
             # Verify metadata was written to Vorbis format
             vorbis_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.VORBIS)
@@ -108,7 +108,7 @@ class TestDefaultWritingFormat:
             }
             
             # Update metadata using default format (should be RIFF)
-            update_file_metadata(test_file.path, test_metadata)
+            update_metadata(test_file.path, test_metadata)
             
             # Verify metadata was written to RIFF format
             riff_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
@@ -153,7 +153,7 @@ class TestDefaultWritingFormat:
                 }
                 
                 # Write using default format
-                update_file_metadata(test_file.path, test_metadata)
+                update_metadata(test_file.path, test_metadata)
                 
                 # Verify it was written to the expected default format
                 default_metadata = get_single_format_app_metadata(test_file.path, expected_format)
@@ -169,7 +169,7 @@ class TestDefaultWritingFormat:
             }
             
             # Write directly to ID3v1 format
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
             
             # Verify ID3v1 was written
             id3v1_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
@@ -180,7 +180,7 @@ class TestDefaultWritingFormat:
         test_metadata2 = {
             UnifiedMetadataKey.TITLE: "ID3v2 Test Title"
         }
-        update_file_metadata(temp_audio_file, test_metadata2)
+        update_metadata(temp_audio_file, test_metadata2)
         
         # Verify ID3v2 was written (default behavior)
         id3v2_metadata = get_single_format_app_metadata(temp_audio_file, MetadataFormat.ID3V2)

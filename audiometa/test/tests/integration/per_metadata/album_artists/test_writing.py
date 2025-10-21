@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import get_unified_metadata, update_file_metadata
+from audiometa import get_unified_metadata, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -12,7 +12,7 @@ class TestAlbumArtistsWriting:
         test_album_artists = ["Album Artist 1", "Album Artist 2"]
         test_metadata = {UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: test_album_artists}
         with TempFileWithMetadata({}, "mp3") as test_file:
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
             metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.ALBUM_ARTISTS_NAMES) == test_album_artists
 
@@ -20,7 +20,7 @@ class TestAlbumArtistsWriting:
         test_album_artists = ["RIFF Album Artist 1", "RIFF Album Artist 2"]
         test_metadata = {UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: test_album_artists}
         with TempFileWithMetadata({}, "wav") as test_file:
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
             metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.ALBUM_ARTISTS_NAMES) == test_album_artists
 
@@ -28,7 +28,7 @@ class TestAlbumArtistsWriting:
         test_album_artists = ["Vorbis Album Artist 1", "Vorbis Album Artist 2"]
         test_metadata = {UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: test_album_artists}
         with TempFileWithMetadata({}, "flac") as test_file:
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
             metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.ALBUM_ARTISTS_NAMES) == test_album_artists
 
@@ -40,7 +40,7 @@ class TestAlbumArtistsWriting:
         with TempFileWithMetadata({}, "mp3") as test_file:
             # ID3v1 format raises exception for unsupported metadata
             with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.ALBUM_ARTISTS_NAMES metadata not supported by this format"):
-                update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
+                update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
 
     def test_invalid_type_raises(self):
         from audiometa.exceptions import InvalidMetadataTypeError
@@ -48,6 +48,6 @@ class TestAlbumArtistsWriting:
         with TempFileWithMetadata({}, "mp3") as test_file:
             # Single-string shorthand should be accepted and normalized to a list on read
             shorthand_metadata = {UnifiedMetadataKey.ALBUM_ARTISTS_NAMES: "Single Album Artist"}
-            update_file_metadata(test_file.path, shorthand_metadata)
+            update_metadata(test_file.path, shorthand_metadata)
             metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.ALBUM_ARTISTS_NAMES) == ["Single Album Artist"]

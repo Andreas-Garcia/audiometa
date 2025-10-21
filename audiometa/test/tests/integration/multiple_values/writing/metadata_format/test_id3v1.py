@@ -1,4 +1,4 @@
-from audiometa import update_file_metadata
+from audiometa import update_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -14,7 +14,7 @@ class TestMultipleEntriesId3v1:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist 1", "Artist 2"]
             }
             
-            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
+            update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
             
             # Use helper to check the created ID3v1 artist field directly
             raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file.path)
@@ -32,7 +32,7 @@ class TestMultipleEntriesId3v1:
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Existing 1", "New 2"]
             }
-            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
+            update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
             raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file.path)
             artists = raw_metadata.get("artist", "")
             assert "Existing 1" in artists
@@ -55,7 +55,7 @@ class TestMultipleEntriesId3v1:
                 metadata = {
                     UnifiedMetadataKey.ARTISTS_NAMES: values
                 }
-                update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
+                update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
                 raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file.path)
                 artists = raw_metadata.get("artist", "")
                 

@@ -54,7 +54,7 @@ class TestId3v1Manager:
             }
             
             # ID3v1 manager should successfully update metadata
-            manager.update_file_metadata(test_metadata)
+            manager.update_metadata(test_metadata)
             
             # Verify the metadata was written correctly
             updated_metadata = manager.get_app_metadata()
@@ -77,4 +77,4 @@ class TestId3v1Manager:
             
             # ID3v1 manager should raise error when trying to write unsupported fields
             with pytest.raises(MetadataNotSupportedError):
-                manager.update_file_metadata(unsupported_metadata)
+                manager.update_metadata(unsupported_metadata)

@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import get_specific_metadata, update_file_metadata
+from audiometa import get_specific_metadata, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -14,7 +14,7 @@ class TestAlbumDeleting:
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
             
             # Delete metadata using library API
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.ALBUM_NAME: None}, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, {UnifiedMetadataKey.ALBUM_NAME: None}, metadata_format=MetadataFormat.ID3V2)
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ALBUM_NAME) is None
 
     def test_delete_album_id3v1(self):
@@ -23,7 +23,7 @@ class TestAlbumDeleting:
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
             
             # Delete metadata using library API
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.ALBUM_NAME: None}, metadata_format=MetadataFormat.ID3V1)
+            update_metadata(test_file.path, {UnifiedMetadataKey.ALBUM_NAME: None}, metadata_format=MetadataFormat.ID3V1)
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ALBUM_NAME) is None
 
     def test_delete_album_riff(self):
@@ -32,7 +32,7 @@ class TestAlbumDeleting:
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
             
             # Delete metadata using library API
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.ALBUM_NAME: None}, metadata_format=MetadataFormat.RIFF)
+            update_metadata(test_file.path, {UnifiedMetadataKey.ALBUM_NAME: None}, metadata_format=MetadataFormat.RIFF)
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ALBUM_NAME) is None
 
     def test_delete_album_vorbis(self):
@@ -41,7 +41,7 @@ class TestAlbumDeleting:
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ALBUM_NAME) == "Test Album"
             
             # Delete metadata using library API
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.ALBUM_NAME: None}, metadata_format=MetadataFormat.VORBIS)
+            update_metadata(test_file.path, {UnifiedMetadataKey.ALBUM_NAME: None}, metadata_format=MetadataFormat.VORBIS)
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ALBUM_NAME) is None
 
     def test_delete_album_preserves_other_fields(self):
@@ -51,7 +51,7 @@ class TestAlbumDeleting:
             test_file.set_id3v2_artist("Test Artist")
             
             # Delete only album using library API
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.ALBUM_NAME: None}, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, {UnifiedMetadataKey.ALBUM_NAME: None}, metadata_format=MetadataFormat.ID3V2)
             
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ALBUM_NAME) is None
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) == "Test Title"
@@ -60,12 +60,12 @@ class TestAlbumDeleting:
     def test_delete_album_already_none(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             # Try to delete album that doesn't exist
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.ALBUM_NAME: None}, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, {UnifiedMetadataKey.ALBUM_NAME: None}, metadata_format=MetadataFormat.ID3V2)
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ALBUM_NAME) is None
 
     def test_delete_album_empty_string(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             test_file.set_id3v2_album("")
             # Delete the empty album using library API
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.ALBUM_NAME: None}, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, {UnifiedMetadataKey.ALBUM_NAME: None}, metadata_format=MetadataFormat.ID3V2)
             assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ALBUM_NAME) is None

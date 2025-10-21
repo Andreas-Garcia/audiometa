@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import get_specific_metadata, update_file_metadata
+from audiometa import get_specific_metadata, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -12,7 +12,7 @@ class TestPublisherWriting:
         with TempFileWithMetadata({}, "mp3") as test_file:
             test_publisher = "Test Publisher ID3v2"
             test_metadata = {UnifiedMetadataKey.PUBLISHER: test_publisher}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
             publisher = get_specific_metadata(test_file.path, UnifiedMetadataKey.PUBLISHER)
             assert publisher == test_publisher
 
@@ -25,7 +25,7 @@ class TestPublisherWriting:
         
             # RIFF format raises exception for unsupported metadata
             with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.PUBLISHER metadata not supported by RIFF format"):
-                update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
+                update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
 
     def test_vorbis(self):
         from audiometa.exceptions import MetadataNotSupportedError
@@ -36,7 +36,7 @@ class TestPublisherWriting:
         
             # Vorbis format raises exception for unsupported metadata
             with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.PUBLISHER metadata not supported by this format"):
-                update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
+                update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
 
     def test_invalid_type_raises(self):
         from audiometa.exceptions import InvalidMetadataTypeError
@@ -44,4 +44,4 @@ class TestPublisherWriting:
         with TempFileWithMetadata({}, "mp3") as test_file:
             bad_metadata = {UnifiedMetadataKey.PUBLISHER: 123}
             with pytest.raises(InvalidMetadataTypeError):
-                update_file_metadata(test_file.path, bad_metadata)
+                update_metadata(test_file.path, bad_metadata)

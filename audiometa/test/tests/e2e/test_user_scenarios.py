@@ -8,7 +8,7 @@ These tests simulate how actual users would interact with the library
 in real-world applications.
 """
 import pytest
-from audiometa import get_unified_metadata, update_file_metadata
+from audiometa import get_unified_metadata, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
@@ -37,7 +37,7 @@ class TestUserScenarios:
                     UnifiedMetadataKey.ALBUM_NAME: "My Music Library",
                     UnifiedMetadataKey.TITLE: f"Track {i + 1}"
                 }
-                update_file_metadata(test_file.path, test_metadata)
+                update_metadata(test_file.path, test_metadata)
                 
                 # Verify the organization worked
                 metadata = get_unified_metadata(test_file.path)
@@ -71,7 +71,7 @@ class TestUserScenarios:
                 UnifiedMetadataKey.ARTISTS_NAMES: metadata['artist'],
                 UnifiedMetadataKey.ALBUM_NAME: metadata['album']
             }
-            update_file_metadata(test_file.path, test_metadata)
+            update_metadata(test_file.path, test_metadata)
             
             # Verify the import worked
             updated_metadata = get_unified_metadata(test_file.path)
@@ -98,7 +98,7 @@ class TestUserScenarios:
                 UnifiedMetadataKey.COMMENT: None,  # Remove personal comment
                 UnifiedMetadataKey.ALBUM_NAME: "Generic Album"  # Replace personal album
             }
-            update_file_metadata(test_file.path, cleanup_metadata)
+            update_metadata(test_file.path, cleanup_metadata)
             
             # 3. Verify sensitive data was removed
             cleaned_metadata = get_unified_metadata(test_file)
@@ -143,7 +143,7 @@ class TestUserScenarios:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Correct Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "Correct Album"
             }
-            update_file_metadata(test_file.path, correct_metadata)
+            update_metadata(test_file.path, correct_metadata)
             
             # 5. Verify correct metadata was added
             final_metadata = get_unified_metadata(test_file)
@@ -174,7 +174,7 @@ class TestUserScenarios:
             }
             with TempFileWithMetadata(basic_metadata, format_type) as test_file:
                 # Set metadata using app's function (this is what we're testing)
-                update_file_metadata(test_file.path, test_metadata)
+                update_metadata(test_file.path, test_metadata)
                 
                 # Verify metadata was set correctly
                 metadata = get_unified_metadata(test_file.path)

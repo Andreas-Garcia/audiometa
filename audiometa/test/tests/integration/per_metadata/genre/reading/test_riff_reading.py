@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import get_specific_metadata, update_file_metadata
+from audiometa import get_specific_metadata, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -139,7 +139,7 @@ class TestRiffGenreParsing:
 
     def test_riff_genre_code_mode_vs_text_mode(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            update_file_metadata(test_file.path, {
+            update_metadata(test_file.path, {
                 UnifiedMetadataKey.GENRES_NAMES: "Rock"
             }, metadata_format=MetadataFormat.RIFF)
             
@@ -172,7 +172,7 @@ class TestRiffGenreWriting:
 
     def test_riff_writes_single_genre_from_list(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            update_file_metadata(test_file.path, {
+            update_metadata(test_file.path, {
                 UnifiedMetadataKey.GENRES_NAMES: ["Rock", "Alternative", "Indie"]
             }, metadata_format=MetadataFormat.RIFF)
             
@@ -182,7 +182,7 @@ class TestRiffGenreWriting:
 
     def test_riff_writes_genre_code_from_name(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            update_file_metadata(test_file.path, {
+            update_metadata(test_file.path, {
                 UnifiedMetadataKey.GENRES_NAMES: "Rock"
             }, metadata_format=MetadataFormat.RIFF)
             
@@ -192,7 +192,7 @@ class TestRiffGenreWriting:
 
     def test_riff_writes_unknown_genre_as_code_255(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            update_file_metadata(test_file.path, {
+            update_metadata(test_file.path, {
                 UnifiedMetadataKey.GENRES_NAMES: "Unknown Genre"
             }, metadata_format=MetadataFormat.RIFF)
             
@@ -202,7 +202,7 @@ class TestRiffGenreWriting:
 
     def test_riff_handles_empty_genre_list(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            update_file_metadata(test_file.path, {
+            update_metadata(test_file.path, {
                 UnifiedMetadataKey.GENRES_NAMES: []
             }, metadata_format=MetadataFormat.RIFF)
             

@@ -9,7 +9,7 @@ from pathlib import Path
 
 from audiometa import (
     get_unified_metadata,
-    update_file_metadata,
+    update_metadata,
     delete_all_metadata,
 )
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -44,7 +44,7 @@ class TestDeletionWorkflows:
                 UnifiedMetadataKey.BPM: 120,
                 UnifiedMetadataKey.COMMENT: "Updated comment"
             }
-            update_file_metadata(test_file.path, additional_metadata, normalized_rating_max_value=100)
+            update_metadata(test_file.path, additional_metadata, normalized_rating_max_value=100)
             
             # 3. Verify metadata was added
             updated_metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
@@ -82,7 +82,7 @@ class TestDeletionWorkflows:
                 UnifiedMetadataKey.BPM: 140,
                 UnifiedMetadataKey.COMMENT: "FLAC comment"
             }
-            update_file_metadata(test_file.path, additional_metadata, normalized_rating_max_value=100)
+            update_metadata(test_file.path, additional_metadata, normalized_rating_max_value=100)
             
             # 3. Delete all metadata
             delete_result = delete_all_metadata(test_file)
@@ -110,7 +110,7 @@ class TestDeletionWorkflows:
             additional_metadata = {
                 UnifiedMetadataKey.COMMENT: "WAV comment"
             }
-            update_file_metadata(test_file.path, additional_metadata)
+            update_metadata(test_file.path, additional_metadata)
             
             # 3. Delete all metadata
             delete_result = delete_all_metadata(test_file)
@@ -142,7 +142,7 @@ class TestDeletionWorkflows:
                 UnifiedMetadataKey.TITLE: None,
                 UnifiedMetadataKey.ARTISTS_NAMES: None
             }
-            update_file_metadata(test_file.path, deletion_metadata)
+            update_metadata(test_file.path, deletion_metadata)
             
             # 3. Verify specific fields were deleted while others remain
             updated_metadata = get_unified_metadata(test_file)
@@ -156,7 +156,7 @@ class TestDeletionWorkflows:
                 UnifiedMetadataKey.RELEASE_DATE: None,
                 UnifiedMetadataKey.GENRES_NAMES: None
             }
-            update_file_metadata(test_file.path, remaining_deletion)
+            update_metadata(test_file.path, remaining_deletion)
             
             # 5. Verify all metadata is now deleted
             final_metadata = get_unified_metadata(test_file)
@@ -186,7 +186,7 @@ class TestDeletionWorkflows:
             }
             with TempFileWithMetadata(initial_metadata, format_type) as test_file:
                 # Add metadata using app's function
-                update_file_metadata(test_file.path, test_metadata)
+                update_metadata(test_file.path, test_metadata)
                 
                 # Verify metadata was added
                 added_metadata = get_unified_metadata(test_file)
@@ -213,12 +213,12 @@ class TestDeletionWorkflows:
                 UnifiedMetadataKey.TITLE: "ID3v2 Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Artist"]
             }
-            update_file_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
             
             id3v1_metadata = {
                 UnifiedMetadataKey.ALBUM_NAME: "ID3v1 Album"
             }
-            update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
+            update_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
             
             # 2. Verify both formats have metadata
             combined_metadata = get_unified_metadata(test_file)
@@ -230,7 +230,7 @@ class TestDeletionWorkflows:
                 UnifiedMetadataKey.TITLE: None,
                 UnifiedMetadataKey.ARTISTS_NAMES: None
             }
-            update_file_metadata(test_file.path, id3v2_deletion, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, id3v2_deletion, metadata_format=MetadataFormat.ID3V2)
             
             # 4. Verify ID3v2 metadata is deleted but ID3v1 remains
             after_id3v2_deletion = get_unified_metadata(test_file)
@@ -241,7 +241,7 @@ class TestDeletionWorkflows:
             id3v1_deletion = {
                 UnifiedMetadataKey.ALBUM_NAME: None
             }
-            update_file_metadata(test_file.path, id3v1_deletion, metadata_format=MetadataFormat.ID3V1)
+            update_metadata(test_file.path, id3v1_deletion, metadata_format=MetadataFormat.ID3V1)
             
             # 6. Verify all metadata is now deleted
             final_metadata = get_unified_metadata(test_file)
@@ -258,7 +258,7 @@ class TestDeletionWorkflows:
             delete_all_metadata(str(test_file))
         
         with pytest.raises(Exception):  # FileTypeNotSupportedError
-            update_file_metadata(str(test_file), {UnifiedMetadataKey.TITLE: None})
+            update_metadata(str(test_file), {UnifiedMetadataKey.TITLE: None})
 
     def test_deletion_with_rating_normalization_workflow(self):
         # E2e test for deletion with rating normalization
@@ -272,7 +272,7 @@ class TestDeletionWorkflows:
             rating_metadata = {
                 UnifiedMetadataKey.RATING: 80
             }
-            update_file_metadata(test_file.path, rating_metadata, normalized_rating_max_value=100)
+            update_metadata(test_file.path, rating_metadata, normalized_rating_max_value=100)
             
             # 2. Verify rating was added
             metadata_with_rating = get_unified_metadata(test_file, normalized_rating_max_value=100)
@@ -282,7 +282,7 @@ class TestDeletionWorkflows:
             rating_deletion = {
                 UnifiedMetadataKey.RATING: None
             }
-            update_file_metadata(test_file.path, rating_deletion, normalized_rating_max_value=100)
+            update_metadata(test_file.path, rating_deletion, normalized_rating_max_value=100)
             
             # 4. Verify rating was deleted
             metadata_after_deletion = get_unified_metadata(test_file, normalized_rating_max_value=100)
@@ -311,7 +311,7 @@ class TestDeletionWorkflows:
                         UnifiedMetadataKey.ALBUM_NAME: f"Batch Album {format_type.upper()}",
                         UnifiedMetadataKey.COMMENT: f"Batch comment for {format_type}"
                     }
-                    update_file_metadata(test_file.path, additional_metadata)
+                    update_metadata(test_file.path, additional_metadata)
                     
                     # Verify metadata was added
                     added_metadata = get_unified_metadata(test_file)

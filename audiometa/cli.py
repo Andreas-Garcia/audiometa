@@ -10,7 +10,7 @@ from typing import Any, Dict, List
 from audiometa import (
     get_full_metadata,
     get_unified_metadata,
-    update_file_metadata,
+    update_metadata,
     delete_all_metadata,
     UnifiedMetadataKey,
 )
@@ -131,7 +131,7 @@ def write_metadata(args) -> None:
     
     for file_path in files:
         try:
-            update_file_metadata(file_path, metadata)
+            update_metadata(file_path, metadata)
             print(f"Updated metadata for {file_path}")
             
         except (FileTypeNotSupportedError, FileNotFoundError) as e:

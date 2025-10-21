@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import get_specific_metadata, update_file_metadata
+from audiometa import get_specific_metadata, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -12,7 +12,7 @@ class TestCommentWriting:
         with TempFileWithMetadata({}, "mp3") as test_file:
             test_comment = "Test Comment ID3v2"
             test_metadata = {UnifiedMetadataKey.COMMENT: test_comment}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
             comment = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT)
             assert comment == test_comment
 
@@ -20,7 +20,7 @@ class TestCommentWriting:
         with TempFileWithMetadata({}, "wav") as test_file:
             test_comment = "Test Comment RIFF"
             test_metadata = {UnifiedMetadataKey.COMMENT: test_comment}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
             comment = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT)
             assert comment == test_comment
 
@@ -28,7 +28,7 @@ class TestCommentWriting:
         with TempFileWithMetadata({}, "flac") as test_file:
             test_comment = "Test Comment Vorbis"
             test_metadata = {UnifiedMetadataKey.COMMENT: test_comment}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
             comment = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT)
             assert comment == test_comment
 
@@ -36,7 +36,7 @@ class TestCommentWriting:
         with TempFileWithMetadata({}, "mp3") as test_file:
             test_comment = "Test Comment ID3v1"
             test_metadata = {UnifiedMetadataKey.COMMENT: test_comment}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
             comment = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT)
             assert comment == test_comment
 
@@ -46,4 +46,4 @@ class TestCommentWriting:
         with TempFileWithMetadata({}, "mp3") as test_file:
             bad_metadata = {UnifiedMetadataKey.COMMENT: 12345}
             with pytest.raises(InvalidMetadataTypeError):
-                update_file_metadata(test_file.path, bad_metadata)
+                update_metadata(test_file.path, bad_metadata)

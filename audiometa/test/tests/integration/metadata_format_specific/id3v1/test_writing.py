@@ -5,7 +5,7 @@ from pathlib import Path
 
 from audiometa import (
     get_unified_metadata,
-    update_file_metadata
+    update_metadata
 )
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -25,7 +25,7 @@ class TestId3v1Writing:
                 UnifiedMetadataKey.RATING: 8
             }
             
-            update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
+            update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
             
             # Verify all fields
             metadata = get_unified_metadata(test_file.path, normalized_rating_max_value=10)
@@ -48,7 +48,7 @@ class TestId3v1Writing:
                 UnifiedMetadataKey.RATING: 9
             }
             
-            update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
+            update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
             
             # Verify all fields were written
             metadata = get_unified_metadata(test_file.path, normalized_rating_max_value=10)

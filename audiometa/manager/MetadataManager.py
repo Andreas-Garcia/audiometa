@@ -275,7 +275,7 @@ class MetadataManager:
             'chunk_structure': {}
         }
 
-    def update_file_metadata(self, app_metadata: AppMetadata):
+    def update_metadata(self, app_metadata: AppMetadata):
         if not self.metadata_keys_direct_map_write:
             raise MetadataNotSupportedError('This format does not support metadata modification')
 

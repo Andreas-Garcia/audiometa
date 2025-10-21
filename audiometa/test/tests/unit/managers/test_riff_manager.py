@@ -37,7 +37,7 @@ class TestRiffManager:
                 UnifiedMetadataKey.ALBUM_NAME: "RIFF Test Album"
             }
             
-            manager.update_file_metadata(test_metadata)
+            manager.update_metadata(test_metadata)
             
             # Verify metadata was updated
             updated_metadata = manager.get_app_metadata()
@@ -56,7 +56,7 @@ class TestRiffManager:
             }
             
             # This should work without raising an exception
-            manager.update_file_metadata(test_metadata)
+            manager.update_metadata(test_metadata)
             
             # Verify metadata was updated
             updated_metadata = manager.get_app_metadata()

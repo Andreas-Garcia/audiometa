@@ -7,7 +7,7 @@ instead of the app's update functions, preventing circular dependencies.
 import pytest
 
 from audiometa import (
-    update_file_metadata,
+    update_metadata,
     get_unified_metadata
 )
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -37,7 +37,7 @@ class TestMetadataWriting:
                 UnifiedMetadataKey.TITLE: "Partial Update Title"
             }
             
-            update_file_metadata(test_file.path, test_metadata)
+            update_metadata(test_file.path, test_metadata)
             updated_metadata = get_unified_metadata(test_file.path)
             
             # Title should be updated

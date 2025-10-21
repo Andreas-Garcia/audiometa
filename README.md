@@ -46,7 +46,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
     - [Writing Defaults by Audio Format](#writing-defaults-by-audio-format)
     - [Metadata Dictionary Structure](#metadata-dictionary-structure)
     - [Metadata Types Checking](#metadata-types-checking)
-    - [`update_file_metadata(file_path, metadata, **options)`](#update_file_metadatafile_path-metadata-options)
+    - [`update_metadata(file_path, metadata, **options)`](#update_metadatafile_path-metadata-options)
     - [Writing Strategies](#writing-strategies)
       - [Available Strategies](#available-strategies)
       - [Usage Examples](#usage-examples)
@@ -319,7 +319,7 @@ print(f"Album: {metadata.get(UnifiedMetadataKey.ALBUM_NAME.value, 'Unknown')}")
 ### Writing Metadata
 
 ```python
-from audiometa import update_file_metadata
+from audiometa import update_metadata
 
 # Update metadata (use UnifiedMetadataKey for explicit typing)
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -330,13 +330,13 @@ new_metadata = {
     UnifiedMetadataKey.ALBUM_NAME: 'Album Name',
     UnifiedMetadataKey.RATING: 85,
 }
-update_file_metadata("path/to/your/audio.mp3", new_metadata)
+update_metadata("path/to/your/audio.mp3", new_metadata)
 ```
 
-#### Format-specific writing
+#### Format-specific Writing
 
 from audiometa.utils.MetadataFormat import MetadataFormat
-update_file_metadata("song.wav", new_metadata, metadata_format=MetadataFormat.RIFF)
+update_metadata("song.wav", new_metadata, metadata_format=MetadataFormat.RIFF)
 
 ### Deleting Metadata
 
@@ -367,10 +367,10 @@ success = delete_all_metadata("song.wav", tag_format=MetadataFormat.ID3V2)
 #### 2. Remove Specific Fields (Selective Removal)
 
 ```python
-from audiometa import update_file_metadata, UnifiedMetadataKey
+from audiometa import update_metadata, UnifiedMetadataKey
 
 # Remove only specific fields by setting them to None
-update_file_metadata("path/to/your/audio.mp3", {
+update_metadata("path/to/your/audio.mp3", {
     UnifiedMetadataKey.TITLE: None,        # Remove title field
     UnifiedMetadataKey.ARTISTS_NAMES: None # Remove artist field
     # Other fields remain unchanged
@@ -412,7 +412,7 @@ delete_all_metadata("personal_recording.mp3")
 
 ```python
 # Remove only personal info, keep technical metadata
-update_file_metadata("song.mp3", {
+update_metadata("song.mp3", {
     UnifiedMetadataKey.TITLE: None,           # Remove title
     UnifiedMetadataKey.ARTISTS_NAMES: None,   # Remove artist
     # Keep album, genre, year, etc.
@@ -843,7 +843,7 @@ The library performs type checking on metadata values to ensure they conform to 
 
 ## Validation behavior
 
-The library validates metadata value types passed to `update_file_metadata` when keys are provided as `UnifiedMetadataKey` instances. Rules:
+The library validates metadata value types passed to `update_metadata` when keys are provided as `UnifiedMetadataKey` instances. Rules:
 
 - `None` values are allowed and indicate field removal.
 - For fields whose expected type is `list[...]` (for example `ARTISTS_NAMES` or `GENRES_NAMES`) the validator accepts either a `list` of the inner type or a single shorthand value of the inner type (e.g., a single `str`) for convenience; read operations will normalize to lists for multi-valued fields.
@@ -852,17 +852,17 @@ The library validates metadata value types passed to `update_file_metadata` when
 
 Note: the validator currently uses the `UnifiedMetadataKey` enum to determine expected types. Calls that use plain string keys (the older examples in this README) are accepted by the API but are not validated by this mechanism unless you pass `UnifiedMetadataKey` instances. You can continue using string keys, or prefer `UnifiedMetadataKey` for explicit validation and IDE-friendly code.
 
-#### `update_file_metadata(file_path, metadata, **options)`
+#### `update_metadata(file_path, metadata, **options)`
 
 Updates metadata in a file.
 
 ```python
-from audiometa import update_file_metadata
+from audiometa import update_metadata
 
 # Basic writing (recommended: use UnifiedMetadataKey constants)
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
-update_file_metadata("song.mp3", {
+update_metadata("song.mp3", {
     UnifiedMetadataKey.TITLE: 'New Title',
     UnifiedMetadataKey.ARTISTS_NAMES: ['Artist Name'],
     UnifiedMetadataKey.RATING: 85
@@ -870,13 +870,13 @@ update_file_metadata("song.mp3", {
 
 # Format-specific writing
 from audiometa.utils.MetadataFormat import MetadataFormat
-update_file_metadata("song.wav", metadata, metadata_format=MetadataFormat.RIFF)
+update_metadata("song.wav", metadata, metadata_format=MetadataFormat.RIFF)
 
 # Advanced examples
 
 # Write to a specific ID3v2 version (e.g., ID3v2.4)
 from audiometa.utils.MetadataFormat import MetadataFormat
-update_file_metadata(
+update_metadata(
     "song.mp3",
     metadata,
     metadata_format=MetadataFormat.ID3V2,
@@ -884,7 +884,7 @@ update_file_metadata(
 )
 
 # Write to ID3v2.3 (default)
-update_file_metadata(
+update_metadata(
     "song.mp3",
     metadata,
     metadata_format=MetadataFormat.ID3V2
@@ -892,7 +892,7 @@ update_file_metadata(
 
 # Use writing strategy and specify ID3v2 version
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
-update_file_metadata(
+update_metadata(
     "song.mp3",
     metadata,
     metadata_strategy=MetadataWritingStrategy.SYNC,
@@ -904,7 +904,7 @@ Note: The `id3v2_version` parameter lets you choose which ID3v2 version to targe
 """
 # Strategy-based writing
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
-update_file_metadata("song.mp3", metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
+update_metadata("song.mp3", metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
 ```
 
 #### Writing Strategies
@@ -920,19 +920,19 @@ The library provides flexible control over how metadata is written to files that
 ##### Usage Examples
 
 ```python
-from audiometa import update_file_metadata
+from audiometa import update_metadata
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 
 # SYNC strategy (default) - synchronize all existing formats
-update_file_metadata("song.wav", {"title": "New Title"},
+update_metadata("song.wav", {"title": "New Title"},
                     metadata_strategy=MetadataWritingStrategy.SYNC)
 
 # CLEANUP strategy - remove non-native formats
-update_file_metadata("song.wav", {"title": "New Title"},
+update_metadata("song.wav", {"title": "New Title"},
                     metadata_strategy=MetadataWritingStrategy.CLEANUP)
 
 # PRESERVE strategy - keep other formats unchanged
-update_file_metadata("song.wav", {"title": "New Title"},
+update_metadata("song.wav", {"title": "New Title"},
                     metadata_strategy=MetadataWritingStrategy.PRESERVE)
 ```
 
@@ -964,11 +964,11 @@ When you specify a `metadata_format` parameter, you **cannot** also specify a `m
 
 ```python
 # Correct usage - specify only the format
-update_file_metadata("song.mp3", metadata,
+update_metadata("song.mp3", metadata,
                     metadata_format=MetadataFormat.RIFF)  # Writes only to RIFF, ignores ID3v2
 
 # This will raise MetadataWritingConflictParametersError - cannot specify both parameters
-update_file_metadata("song.mp3", metadata,
+update_metadata("song.mp3", metadata,
                     metadata_format=MetadataFormat.RIFF,
                     metadata_strategy=MetadataWritingStrategy.CLEANUP)  # Raises MetadataWritingConflictParametersError
 ```
@@ -978,10 +978,10 @@ update_file_metadata("song.mp3", metadata,
 **Default Behavior (SYNC strategy)**
 
 ```python
-from audiometa import update_file_metadata
+from audiometa import update_metadata
 
 # WAV file with existing ID3v1 tags (30-char limit)
-update_file_metadata("song.wav", {"title": "This is a Very Long Title That Exceeds ID3v1 Limits"})
+update_metadata("song.wav", {"title": "This is a Very Long Title That Exceeds ID3v1 Limits"})
 
 # Result:
 # - RIFF tags: Updated with full title (native format)
@@ -993,11 +993,11 @@ update_file_metadata("song.wav", {"title": "This is a Very Long Title That Excee
 **CLEANUP Strategy - Remove Non-Native Formats**
 
 ```python
-from audiometa import update_file_metadata
+from audiometa import update_metadata
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 
 # Clean up WAV file - remove ID3v2, keep only RIFF
-update_file_metadata("song.wav", {"title": "New Title"},
+update_metadata("song.wav", {"title": "New Title"},
                     metadata_strategy=MetadataWritingStrategy.CLEANUP)
 
 # Result:
@@ -1010,7 +1010,7 @@ update_file_metadata("song.wav", {"title": "New Title"},
 
 ```python
 # Synchronize all existing metadata formats with same values
-update_file_metadata("song.wav", {"title": "New Title"},
+update_metadata("song.wav", {"title": "New Title"},
                     metadata_strategy=MetadataWritingStrategy.SYNC)
 
 # Result:
@@ -1027,11 +1027,11 @@ update_file_metadata("song.wav", {"title": "New Title"},
 from audiometa.utils.MetadataFormat import MetadataFormat
 
 # Write specifically to ID3v2 format (even for WAV files)
-update_file_metadata("song.wav", {"title": "New Title"},
+update_metadata("song.wav", {"title": "New Title"},
                     metadata_format=MetadataFormat.ID3V2)
 
 # Write specifically to RIFF format
-update_file_metadata("song.wav", {"title": "New Title"},
+update_metadata("song.wav", {"title": "New Title"},
                     metadata_format=MetadataFormat.RIFF)
 ```
 
@@ -1080,14 +1080,14 @@ The library automatically selects appropriate default metadata formats for diffe
 When writing to MP3 files, the library intelligently selects the best ID3v2 version:
 
 ```python
-from audiometa import update_file_metadata
+from audiometa import update_metadata
 
 # The library automatically chooses ID3v2.4 for MP3 files
-update_file_metadata("song.mp3", {"title": "Song Title"})
+update_metadata("song.mp3", {"title": "Song Title"})
 
 # You can override the version if needed
 from audiometa.utils.MetadataFormat import MetadataFormat
-update_file_metadata("song.mp3", {"title": "Song Title"},
+update_metadata("song.mp3", {"title": "Song Title"},
                     metadata_format=MetadataFormat.ID3V2_3)  # Force ID3v2.3
 ```
 
@@ -1139,7 +1139,7 @@ delete_all_metadata("song.mp3")
 delete_all_metadata("song.wav", tag_format=MetadataFormat.ID3V2)  # Only removes ID3v2, keeps RIFF
 
 # Remove only title and artist - use None values
-update_file_metadata("song.mp3", {"title": None, "artists_names": None})
+update_metadata("song.mp3", {"title": None, "artists_names": None})
 ```
 
 ### AudioFile Class
@@ -1429,7 +1429,7 @@ The library automatically converts genre names to appropriate codes when writing
 
 ```python
 # Writing genres - automatic conversion
-update_file_metadata("song.mp3", {
+update_metadata("song.mp3", {
     UnifiedMetadataKey.GENRES_NAMES: ["Rock", "Alternative"]
 })
 
@@ -1458,7 +1458,7 @@ genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
 
 ```python
 # All formats accept lists
-update_file_metadata("song.mp3", {
+update_metadata("song.mp3", {
     UnifiedMetadataKey.GENRES_NAMES: ["Rock", "Alternative", "Indie"]
 })
 
@@ -1582,7 +1582,7 @@ rock_code = find_genre_code("Rock")  # Returns 17
 ```python
 # Recommended approach
 genres = ["Rock", "Alternative", "Indie"]
-update_file_metadata("song.mp3", {
+update_metadata("song.mp3", {
     UnifiedMetadataKey.GENRES_NAMES: genres
 })
 
@@ -1660,16 +1660,16 @@ rating = metadata.get('rating')  # Always returns 0-10 scale regardless of sourc
 **Writing with Profile Compatibility**
 
 ```python
-from audiometa import update_file_metadata
+from audiometa import update_metadata
 
 # AudioMeta automatically uses the most compatible profile for each format
-update_file_metadata("song.mp3", {"rating": 6})   # Uses Profile A (128)
-update_file_metadata("song.flac", {"rating": 6})  # Uses Profile B (60)
-update_file_metadata("song.wav", {"rating": 6})   # Uses Profile A (128)
+update_metadata("song.mp3", {"rating": 6})   # Uses Profile A (128)
+update_metadata("song.flac", {"rating": 6})  # Uses Profile B (60)
+update_metadata("song.wav", {"rating": 6})   # Uses Profile A (128)
 
 # Half-star ratings are also supported:
-update_file_metadata("song.mp3", {"rating": 7})   # 3.5 stars → Profile A (186)
-update_file_metadata("song.flac", {"rating": 5})  # 2.5 stars → Profile B (50)
+update_metadata("song.mp3", {"rating": 7})   # 3.5 stars → Profile A (186)
+update_metadata("song.flac", {"rating": 5})  # 2.5 stars → Profile B (50)
 ```
 
 #### Half-Star Rating Support
@@ -1682,9 +1682,9 @@ metadata = get_unified_metadata("half_star_rated.mp3")
 rating = metadata.get('rating')  # Could be 1.0, 3.0, 5.0, 7.0, 9.0 for half-stars
 
 # Writing half-star ratings
-update_file_metadata("song.mp3", {"rating": 7})   # 3.5 stars
-update_file_metadata("song.flac", {"rating": 5})  # 2.5 stars
-update_file_metadata("song.wav", {"rating": 9})   # 4.5 stars
+update_metadata("song.mp3", {"rating": 7})   # 3.5 stars
+update_metadata("song.flac", {"rating": 5})  # 2.5 stars
+update_metadata("song.wav", {"rating": 9})   # 4.5 stars
 ```
 
 **Format Support for Half-Stars:**
@@ -1704,7 +1704,7 @@ metadata = get_unified_metadata("windows_rated.mp3")
 print(f"Rating: {metadata['rating']}")  # 6.0 (3 stars)
 
 # Write the same rating to a FLAC file
-update_file_metadata("new_song.flac", {"rating": 6})
+update_metadata("new_song.flac", {"rating": 6})
 
 # The FLAC file will now show 3 stars in any FLAC-compatible player
 # The MP3 file will continue to show 3 stars in Windows Media Player
@@ -1742,9 +1742,9 @@ for file_path in files:
 
 ```python
 # Write a 4-star rating (8.0) to different formats
-update_file_metadata("song.mp3", {"rating": 8})   # Writes 196 (Profile A)
-update_file_metadata("song.flac", {"rating": 8})   # Writes 80 (Profile B)
-update_file_metadata("song.wav", {"rating": 8})    # Writes 196 (Profile A)
+update_metadata("song.mp3", {"rating": 8})   # Writes 196 (Profile A)
+update_metadata("song.flac", {"rating": 8})   # Writes 80 (Profile B)
+update_metadata("song.wav", {"rating": 8})    # Writes 196 (Profile A)
 
 # All files will show 4 stars in their respective players
 ```
@@ -1762,7 +1762,7 @@ update_file_metadata("song.wav", {"rating": 8})    # Writes 196 (Profile A)
 # 8 = 4 stars
 # 10 = 5 stars
 
-update_file_metadata("song.mp3", {"rating": 8})  # 4 stars
+update_metadata("song.mp3", {"rating": 8})  # 4 stars
 ```
 
 **Format-Specific Rating Writing**
@@ -1771,9 +1771,9 @@ update_file_metadata("song.mp3", {"rating": 8})  # 4 stars
 from audiometa.utils.MetadataFormat import MetadataFormat
 
 # Force a specific format (useful for compatibility testing)
-update_file_metadata("song.wav", {"rating": 6},
+update_metadata("song.wav", {"rating": 6},
                     metadata_format=MetadataFormat.ID3V2)  # Uses Profile A
-update_file_metadata("song.wav", {"rating": 6},
+update_metadata("song.wav", {"rating": 6},
                     metadata_format=MetadataFormat.RIFF)   # Uses Profile A
 ```
 
@@ -1968,26 +1968,26 @@ This atomic behavior is crucial for:
 #### Example: Handling Unsupported Metadata
 
 ```python
-from audiometa import update_file_metadata
+from audiometa import update_metadata
 from audiometa.exceptions import MetadataNotSupportedError
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 
 # All strategies - handle unsupported fields gracefully with warnings
-update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120})
+update_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120})
 # Result: Writes title and rating to RIFF, logs warning about BPM, continues
 
-update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
+update_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
                     metadata_strategy=MetadataWritingStrategy.PRESERVE)
 # Result: Writes title and rating to RIFF, logs warning about BPM, preserves other formats
 
-update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
+update_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
                     metadata_strategy=MetadataWritingStrategy.CLEANUP)
 # Result: Writes title and rating to RIFF, logs warning about BPM, removes other formats
 
 # Forced format - always fails fast for unsupported fields, no writing performed
 try:
-    update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
+    update_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
                         metadata_format=MetadataFormat.RIFF)
 except MetadataNotSupportedError as e:
     print(f"BPM not supported in RIFF format: {e}")
@@ -1995,7 +1995,7 @@ except MetadataNotSupportedError as e:
 
 # Strategies with fail_on_unsupported_field=True - atomic operation, no writing on failure
 try:
-    update_file_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
+    update_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
                         metadata_strategy=MetadataWritingStrategy.SYNC,
                         fail_on_unsupported_field=True)
 except MetadataNotSupportedError as e:
@@ -2011,7 +2011,7 @@ print(f"Original title: {original_metadata.get('title')}")  # e.g., "Original Ti
 
 # Attempt to write metadata with unsupported field
 try:
-    update_file_metadata("song.wav", {
+    update_metadata("song.wav", {
         "title": "New Title",      # This would be supported
         "rating": 85,              # This would be supported
         "bpm": 120                 # This is NOT supported by RIFF format
@@ -2038,19 +2038,19 @@ The library handles `None` and empty string values differently across audio form
 #### Example
 
 ```python
-from audiometa import update_file_metadata, get_specific_metadata
+from audiometa import update_metadata, get_specific_metadata
 
 # MP3 file - same behavior for None and empty string
-update_file_metadata("song.mp3", {"title": None})
+update_metadata("song.mp3", {"title": None})
 title = get_specific_metadata("song.mp3", "title")
 print(title)  # Output: None (field removed)
 
 # FLAC file - different behavior for None vs empty string
-update_file_metadata("song.flac", {"title": None})
+update_metadata("song.flac", {"title": None})
 title = get_specific_metadata("song.flac", "title")
 print(title)  # Output: None (field removed)
 
-update_file_metadata("song.flac", {"title": ""})
+update_metadata("song.flac", {"title": ""})
 title = get_specific_metadata("song.flac", "title")
 print(title)  # Output: "" (field exists but empty)
 ```

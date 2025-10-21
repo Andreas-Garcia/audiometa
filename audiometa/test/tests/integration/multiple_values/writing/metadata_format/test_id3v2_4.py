@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from audiometa import update_file_metadata, get_unified_metadata, get_single_format_app_metadata
+from audiometa import update_metadata, get_unified_metadata, get_single_format_app_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -15,7 +15,7 @@ class TestMultipleEntriesId3v2_4:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist One", "Artist Two"]
             }
             
-            update_file_metadata(test_file, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
+            update_metadata(test_file, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
@@ -38,7 +38,7 @@ class TestMultipleEntriesId3v2_4:
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Existing A", "New B"]
             }
-            update_file_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
+            update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             verification = {'raw_output': raw_metadata.get("TPE1", "")}

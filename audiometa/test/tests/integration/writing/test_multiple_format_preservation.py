@@ -8,7 +8,7 @@ import pytest
 from pathlib import Path
 
 from audiometa import (
-    update_file_metadata,
+    update_metadata,
     get_single_format_app_metadata,
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -37,7 +37,7 @@ class TestMultipleFormatPreservation:
                 UnifiedMetadataKey.TITLE: "ID3v1 Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v1 Artist"]
             }
-            update_file_metadata(
+            update_metadata(
                 test_file.path, 
                 id3v1_metadata, 
                 metadata_format=MetadataFormat.ID3V1
@@ -61,7 +61,7 @@ class TestMultipleFormatPreservation:
                 UnifiedMetadataKey.TITLE: "ID3v2 Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Artist"]
             }
-            update_file_metadata(
+            update_metadata(
                 test_file.path, 
                 id3v2_metadata, 
                 metadata_format=MetadataFormat.ID3V2
@@ -88,7 +88,7 @@ class TestMultipleFormatPreservation:
                 UnifiedMetadataKey.TITLE: "RIFF Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Artist"]
             }
-            update_file_metadata(
+            update_metadata(
                 test_file.path, 
                 riff_metadata, 
                 metadata_format=MetadataFormat.RIFF
@@ -113,7 +113,7 @@ class TestMultipleFormatPreservation:
                 UnifiedMetadataKey.TITLE: "ID3v1 Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v1 Artist"]
             }
-            update_file_metadata(
+            update_metadata(
                 test_file.path, 
                 id3v1_metadata, 
                 metadata_format=MetadataFormat.ID3V1
@@ -141,7 +141,7 @@ class TestMultipleFormatPreservation:
                 UnifiedMetadataKey.TITLE: "RIFF Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["RIFF Artist"]
             }
-            update_file_metadata(
+            update_metadata(
                 test_file.path, 
                 riff_metadata, 
                 metadata_format=MetadataFormat.RIFF
@@ -166,7 +166,7 @@ class TestMultipleFormatPreservation:
                 UnifiedMetadataKey.TITLE: "ID3v2 Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Artist"]
             }
-            update_file_metadata(
+            update_metadata(
                 test_file.path, 
                 id3v2_metadata, 
                 metadata_format=MetadataFormat.ID3V2
@@ -194,7 +194,7 @@ class TestMultipleFormatPreservation:
                 UnifiedMetadataKey.TITLE: "Vorbis Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Vorbis Artist"]
             }
-            update_file_metadata(
+            update_metadata(
                 test_file.path, 
                 vorbis_metadata, 
                 metadata_format=MetadataFormat.VORBIS
@@ -219,7 +219,7 @@ class TestMultipleFormatPreservation:
                 UnifiedMetadataKey.TITLE: "ID3v2 Title",
                 UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Artist"]
             }
-            update_file_metadata(
+            update_metadata(
                 test_file.path, 
                 id3v2_metadata, 
                 metadata_format=MetadataFormat.ID3V2
@@ -250,7 +250,7 @@ class TestMultipleFormatPreservation:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Updated ID3v2 Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "ID3v2 Album"
             }
-            update_file_metadata(
+            update_metadata(
                 test_file.path, 
                 id3v2_metadata, 
                 metadata_format=MetadataFormat.ID3V2
@@ -279,7 +279,7 @@ class TestMultipleFormatPreservation:
                 UnifiedMetadataKey.TITLE: None,  # This should not affect ID3v1
                 UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v2 Artist"]
             }
-            update_file_metadata(
+            update_metadata(
                 test_file.path, 
                 id3v2_metadata, 
                 metadata_format=MetadataFormat.ID3V2

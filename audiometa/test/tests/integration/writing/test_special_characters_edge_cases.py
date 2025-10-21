@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from audiometa import update_file_metadata, get_unified_metadata
+from audiometa import update_metadata, get_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
@@ -10,7 +10,7 @@ class TestSpecialCharactersEdgeCases:
             UnifiedMetadataKey.ARTISTS_NAMES: ["François", "José", "Müller", "北京"],
             UnifiedMetadataKey.TITLE: "Café Music 音乐"
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -31,7 +31,7 @@ class TestSpecialCharactersEdgeCases:
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist & Co.", "Band (feat. Singer)", "Group - The Band"],
             UnifiedMetadataKey.TITLE: "Song (Remix) - Special Edition"
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -51,7 +51,7 @@ class TestSpecialCharactersEdgeCases:
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist's Band", "The \"Quoted\" Band", "It's a Band"],
             UnifiedMetadataKey.TITLE: "Don't Stop \"Believing\""
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -71,7 +71,7 @@ class TestSpecialCharactersEdgeCases:
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist\twith\ttabs", "Band\nwith\nnewlines", "Group\rwith\rcarriage"],
             UnifiedMetadataKey.TITLE: "Song\twith\ttabs"
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -92,7 +92,7 @@ class TestSpecialCharactersEdgeCases:
             UnifiedMetadataKey.ARTISTS_NAMES: [long_string, "Short Artist"],
             UnifiedMetadataKey.TITLE: "B" * 500
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -111,7 +111,7 @@ class TestSpecialCharactersEdgeCases:
             UnifiedMetadataKey.ARTISTS_NAMES: ["ASCII Artist", "Français", "Русский", "العربية", "中文"],
             UnifiedMetadataKey.TITLE: "Mixed 编码 Title"
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -133,7 +133,7 @@ class TestSpecialCharactersEdgeCases:
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist; with; semicolons", "Band, with, commas", "Group|with|pipes"],
             UnifiedMetadataKey.TITLE: "Song; with; separators"
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -153,7 +153,7 @@ class TestSpecialCharactersEdgeCases:
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist <tag>", "Band &amp; Co.", "Group &lt;test&gt;"],
             UnifiedMetadataKey.TITLE: "Song &amp; Title"
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -173,7 +173,7 @@ class TestSpecialCharactersEdgeCases:
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist 🎵", "Band 🎸", "Group 🎤"],
             UnifiedMetadataKey.TITLE: "Song 🎶 with 🎵 emojis"
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -193,7 +193,7 @@ class TestSpecialCharactersEdgeCases:
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist\x00with\x00nulls", "Normal Artist"],
             UnifiedMetadataKey.TITLE: "Normal Title"
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)
@@ -216,7 +216,7 @@ class TestSpecialCharactersEdgeCases:
             ],
             UnifiedMetadataKey.TITLE: "Mixed Special 🎵 Characters & \"Quotes\""
         }
-        update_file_metadata(temp_audio_file, metadata)
+        update_metadata(temp_audio_file, metadata)
         
         unified_metadata = get_unified_metadata(temp_audio_file)
         artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS_NAMES)

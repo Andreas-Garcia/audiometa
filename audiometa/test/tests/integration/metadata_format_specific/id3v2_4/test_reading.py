@@ -6,7 +6,7 @@ from audiometa import (
     get_single_format_app_metadata,
     get_specific_metadata,
     AudioFile,
-    update_file_metadata
+    update_metadata
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -90,7 +90,7 @@ class TestId3v24Reading:
                 UnifiedMetadataKey.ALBUM_NAME: "Album Ελληνικά ภาษาไทย"
             }
             
-            update_file_metadata(test_file.path, unicode_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
+            update_metadata(test_file.path, unicode_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             # Verify the Unicode characters are preserved
             metadata = get_unified_metadata(test_file.path)
@@ -146,7 +146,7 @@ class TestId3v24Reading:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["ID3v1 Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "ID3v1 Album"
             }
-            update_file_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
+            update_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
             
             # Test that we can read both ID3v2.4 and ID3v1 metadata
             id3v2_4_metadata_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
@@ -181,7 +181,7 @@ class TestId3v24Reading:
                 UnifiedMetadataKey.COMMENT: "Comment with Unicode: русский język"
             }
             
-            update_file_metadata(test_file.path, complex_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
+            update_metadata(test_file.path, complex_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             # Verify all complex metadata is preserved
             metadata = get_unified_metadata(test_file.path)
@@ -201,8 +201,8 @@ class TestId3v24Reading:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Artist 日本語"],
             }
             
-            update_file_metadata(id3v23_file.path, unicode_test_data, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
-            update_file_metadata(id3v24_file.path, unicode_test_data, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
+            update_metadata(id3v23_file.path, unicode_test_data, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
+            update_metadata(id3v24_file.path, unicode_test_data, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             # Both should preserve the Unicode characters, but ID3v2.4 should handle them more efficiently
             id3v23_metadata = get_unified_metadata(id3v23_file.path)

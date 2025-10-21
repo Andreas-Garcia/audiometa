@@ -2,7 +2,7 @@ import pytest
 import warnings
 
 from audiometa import (
-    update_file_metadata,
+    update_metadata,
     get_unified_metadata,
 )
 from audiometa.exceptions import MetadataNotSupportedError
@@ -21,7 +21,7 @@ class TestFailBehavior:
             }
             
             with pytest.raises(MetadataNotSupportedError) as exc_info:
-                update_file_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
+                update_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
             
             assert "Fields not supported by any format" in str(exc_info.value)
             assert "REPLAYGAIN" in str(exc_info.value)
@@ -35,7 +35,7 @@ class TestFailBehavior:
             
             with warnings.catch_warnings(record=True) as w:
                 warnings.simplefilter("always")
-                update_file_metadata(test_file.path, test_metadata)  # fail_on_unsupported_field=False by default
+                update_metadata(test_file.path, test_metadata)  # fail_on_unsupported_field=False by default
                 
                 assert len(w) > 0
                 warning_messages = [str(warning.message) for warning in w]

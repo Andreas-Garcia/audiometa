@@ -1,7 +1,7 @@
 
 import pytest
 
-from audiometa import get_specific_metadata, update_file_metadata
+from audiometa import get_specific_metadata, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -13,7 +13,7 @@ class TestLanguageWriting:
         with TempFileWithMetadata({}, "mp3") as test_file:
             test_language = "en"
             test_metadata = {UnifiedMetadataKey.LANGUAGE: test_language}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
             language = get_specific_metadata(test_file.path, UnifiedMetadataKey.LANGUAGE)
             assert language == test_language
 
@@ -21,7 +21,7 @@ class TestLanguageWriting:
         with TempFileWithMetadata({}, "wav") as test_file:
             test_language = "fr"
             test_metadata = {UnifiedMetadataKey.LANGUAGE: test_language}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
             language = get_specific_metadata(test_file.path, UnifiedMetadataKey.LANGUAGE)
             assert language == test_language
 
@@ -29,7 +29,7 @@ class TestLanguageWriting:
         with TempFileWithMetadata({}, "flac") as test_file:
             test_language = "de"
             test_metadata = {UnifiedMetadataKey.LANGUAGE: test_language}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
             language = get_specific_metadata(test_file.path, UnifiedMetadataKey.LANGUAGE)
             assert language == test_language
 
@@ -39,4 +39,4 @@ class TestLanguageWriting:
         with TempFileWithMetadata({}, "mp3") as test_file:
             bad_metadata = {UnifiedMetadataKey.LANGUAGE: 123}
             with pytest.raises(InvalidMetadataTypeError):
-                update_file_metadata(test_file.path, bad_metadata)
+                update_metadata(test_file.path, bad_metadata)

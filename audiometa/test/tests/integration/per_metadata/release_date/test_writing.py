@@ -2,7 +2,7 @@ import pytest
 
 
 
-from audiometa import get_specific_metadata, update_file_metadata
+from audiometa import get_specific_metadata, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -14,7 +14,7 @@ class TestReleaseDateWriting:
         with TempFileWithMetadata({}, "mp3") as test_file:
             test_release_date = "2024-01-01"
             test_metadata = {UnifiedMetadataKey.RELEASE_DATE: test_release_date}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
             release_date = get_specific_metadata(test_file.path, UnifiedMetadataKey.RELEASE_DATE)
             assert release_date == test_release_date
 
@@ -22,7 +22,7 @@ class TestReleaseDateWriting:
         with TempFileWithMetadata({}, "wav") as test_file:
             test_release_date = "2024-02-01"
             test_metadata = {UnifiedMetadataKey.RELEASE_DATE: test_release_date}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
             release_date = get_specific_metadata(test_file.path, UnifiedMetadataKey.RELEASE_DATE)
             assert release_date == test_release_date
 
@@ -30,7 +30,7 @@ class TestReleaseDateWriting:
         with TempFileWithMetadata({}, "flac") as test_file:
             test_release_date = "2024-03-01"
             test_metadata = {UnifiedMetadataKey.RELEASE_DATE: test_release_date}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
             release_date = get_specific_metadata(test_file.path, UnifiedMetadataKey.RELEASE_DATE)
             assert release_date == test_release_date
 
@@ -38,7 +38,7 @@ class TestReleaseDateWriting:
         with TempFileWithMetadata({}, "mp3") as test_file:
             test_release_date = "2024"
             test_metadata = {UnifiedMetadataKey.RELEASE_DATE: test_release_date}
-            update_file_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
             release_date = get_specific_metadata(test_file.path, UnifiedMetadataKey.RELEASE_DATE)
             assert release_date == test_release_date
 
@@ -48,4 +48,4 @@ class TestReleaseDateWriting:
         with TempFileWithMetadata({}, "mp3") as test_file:
             bad_metadata = {UnifiedMetadataKey.RELEASE_DATE: 20240101}
             with pytest.raises(InvalidMetadataTypeError):
-                update_file_metadata(test_file.path, bad_metadata)
+                update_metadata(test_file.path, bad_metadata)

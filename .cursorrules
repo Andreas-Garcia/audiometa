@@ -165,7 +165,7 @@ def test_wav_sync_multiple_values(self, sample_wav_file: Path, temp_audio_file: 
 def test_wav_sync_multiple_values(self, sample_wav_file: Path, temp_audio_file: Path):
     with TempFileWithMetadata({"title": "Initial Title"}, "wav") as test_file:
         # Set up metadata
-        update_file_metadata(test_file.path, metadata)
+        update_metadata(test_file.path, metadata)
 
         # Verify results
         result = get_unified_metadata(test_file.path)
@@ -223,7 +223,7 @@ def test_metadata_writing(self):
 def test_wav_sync_multiple_values(self, sample_wav_file: Path, temp_audio_file: Path):
     with TempFileWithMetadata({"title": "Initial Title"}, "wav") as test_file:
         # Set up metadata
-        update_file_metadata(test_file.path, metadata)
+        update_metadata(test_file.path, metadata)
 
         # Verify results
         result = get_unified_metadata(test_file.path)
@@ -234,7 +234,7 @@ def test_wav_sync_multiple_values(self, sample_wav_file: Path, temp_audio_file: 
 
 #### All Tests Must Use External Tools for Initial Data Setup
 
-For tests that verify **reading, writing, or deleting functionality**, NEVER use the library's own `update_file_metadata()` function to set up initial test data. This ensures proper test isolation and prevents testing the library's own writing logic when testing other functionality.
+For tests that verify **reading, writing, or deleting functionality**, NEVER use the library's own `update_metadata()` function to set up initial test data. This ensures proper test isolation and prevents testing the library's own writing logic when testing other functionality.
 
 #### ❌ WRONG - Poor test isolation:
 
@@ -242,7 +242,7 @@ For tests that verify **reading, writing, or deleting functionality**, NEVER use
 def test_id3v1_genre_reading(self):
     with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
         # ❌ Using our own library to set metadata - poor test isolation
-        update_file_metadata(test_file.path, {
+        update_metadata(test_file.path, {
             UnifiedMetadataKey.GENRES_NAMES: ["Rock"]
         }, metadata_format=MetadataFormat.ID3V1)
 
@@ -253,10 +253,10 @@ def test_id3v1_genre_reading(self):
 def test_delete_lyrics_id3v2(self):
     with TempFileWithMetadata({}, "mp3") as test_file:
         # ❌ Using our own library to set initial data - poor test isolation
-        update_file_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: "Test lyrics"})
+        update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: "Test lyrics"})
 
         # Testing deletion - but we used our own writing logic to set up!
-        update_file_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None})
+        update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None})
         assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LYRICS) is None
 ```
 
@@ -278,7 +278,7 @@ def test_delete_lyrics_id3v2(self):
         test_file.set_id3v2_lyrics("Test lyrics")
 
         # Test deletion using our library
-        update_file_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None})
+        update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None})
         assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LYRICS) is None
 ```
 
@@ -302,8 +302,8 @@ def test_id3v1_genre_reading(self):
 #### When to Use Each Approach
 
 - **Reading tests**: Use `TempFileWithMetadata` methods for initial data setup
-- **Writing tests**: Use `TempFileWithMetadata` methods for initial data setup, then test `update_file_metadata()` functionality
-- **Deleting tests**: Use `TempFileWithMetadata` methods for initial data setup, then test deletion using library API (`update_file_metadata()` with `None` values)
+- **Writing tests**: Use `TempFileWithMetadata` methods for initial data setup, then test `update_metadata()` functionality
+- **Deleting tests**: Use `TempFileWithMetadata` methods for initial data setup, then test deletion using library API (`update_metadata()` with `None` values)
 - **Integration tests**: Use `TempFileWithMetadata` methods consistently
 - **Unit tests**: Use mocks and direct object instantiation
 
@@ -321,7 +321,7 @@ def test_delete_comment_riff(self):
         assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) == "Test comment"
 
         # ✅ Test deletion using library API - this is what we're testing
-        update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.RIFF)
+        update_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.RIFF)
         assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) is None
 ```
 
@@ -344,7 +344,7 @@ def test_read_comment_riff(self):
 def test_write_comment_riff(self):
     with TempFileWithMetadata({}, "wav") as test_file:
         # ✅ Test writing using library API - this is what we're testing
-        update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: "Test comment"}, metadata_format=MetadataFormat.RIFF)
+        update_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: "Test comment"}, metadata_format=MetadataFormat.RIFF)
 
         # ✅ Use helper method for verification - not testing reading functionality
         comment = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT)
@@ -357,10 +357,10 @@ def test_write_comment_riff(self):
 def test_delete_comment_riff(self):
     with TempFileWithMetadata({}, "wav") as test_file:
         # ❌ Using library API for setup when testing deletion
-        update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: "Test comment"}, metadata_format=MetadataFormat.RIFF)
+        update_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: "Test comment"}, metadata_format=MetadataFormat.RIFF)
 
         # ✅ This is correct - testing deletion
-        update_file_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.RIFF)
+        update_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.RIFF)
         assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) is None
 ```
 

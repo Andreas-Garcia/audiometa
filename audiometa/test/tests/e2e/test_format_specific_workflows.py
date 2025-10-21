@@ -8,7 +8,7 @@ import pytest
 
 from audiometa import (
     get_unified_metadata,
-    update_file_metadata,
+    update_metadata,
     delete_all_metadata,
     get_bitrate,
     get_duration_in_sec
@@ -40,7 +40,7 @@ class TestFormatSpecificWorkflows:
                 UnifiedMetadataKey.RATING: 90,
                 UnifiedMetadataKey.BPM: 130
             }
-            update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
+            update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
             
             # 3. Verify metadata was updated
             updated_metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
@@ -87,7 +87,7 @@ class TestFormatSpecificWorkflows:
                 UnifiedMetadataKey.RATING: 80,
                 UnifiedMetadataKey.BPM: 140
             }
-            update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
+            update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
             
             # 3. Verify metadata was updated
             updated_metadata = get_unified_metadata(test_file, normalized_rating_max_value=100)
@@ -124,7 +124,7 @@ class TestFormatSpecificWorkflows:
                 UnifiedMetadataKey.ARTISTS_NAMES: ["WAV Integration Test Artist"],
                 UnifiedMetadataKey.ALBUM_NAME: "WAV Integration Test Album"
             }
-            update_file_metadata(test_file.path, test_metadata)
+            update_metadata(test_file.path, test_metadata)
             
             # 3. Verify metadata was updated
             updated_metadata = get_unified_metadata(test_file)

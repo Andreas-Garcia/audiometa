@@ -4,7 +4,7 @@ from pathlib import Path
 from audiometa import (
     delete_all_metadata,
     get_single_format_app_metadata,
-    update_file_metadata
+    update_metadata
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey

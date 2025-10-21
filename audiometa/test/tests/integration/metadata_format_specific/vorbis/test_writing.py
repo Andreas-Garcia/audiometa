@@ -7,7 +7,7 @@ from audiometa import (
     get_unified_metadata,
     get_single_format_app_metadata,
     get_specific_metadata,
-    update_file_metadata
+    update_metadata
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -26,7 +26,7 @@ class TestVorbisWriting:
                 UnifiedMetadataKey.GENRES_NAMES: ["Test Genre FLAC"],
                 UnifiedMetadataKey.RATING: 10
             }
-            update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
+            update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
             metadata = get_unified_metadata(test_file.path, normalized_rating_max_value=10)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title FLAC"
             assert metadata.get(UnifiedMetadataKey.ARTISTS_NAMES) == ["Test Artist FLAC"]
@@ -45,7 +45,7 @@ class TestVorbisWriting:
                 UnifiedMetadataKey.RATING: 8
             }
             
-            update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
+            update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
             
             # Verify all fields
             metadata = get_unified_metadata(test_file.path, normalized_rating_max_value=10)
@@ -68,7 +68,7 @@ class TestVorbisWriting:
                 UnifiedMetadataKey.RATING: 9
             }
             
-            update_file_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
+            update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100)
             
             # Verify all fields were written
             metadata = get_unified_metadata(test_file.path, normalized_rating_max_value=10)
@@ -89,7 +89,7 @@ class TestVorbisWriting:
                 UnifiedMetadataKey.ALBUM_NAME: "Test FLAC Album",
                 UnifiedMetadataKey.BPM: 140
             }
-            update_file_metadata(test_file.path, initial_metadata)
+            update_metadata(test_file.path, initial_metadata)
             
             # Verify metadata was written
             metadata = get_unified_metadata(test_file.path)
@@ -103,7 +103,7 @@ class TestVorbisWriting:
                 UnifiedMetadataKey.TITLE: None,
                 UnifiedMetadataKey.BPM: None
             }
-            update_file_metadata(test_file.path, none_metadata)
+            update_metadata(test_file.path, none_metadata)
             
             # Verify fields were removed (return None because they don't exist)
             updated_metadata = get_unified_metadata(test_file.path)
@@ -122,16 +122,16 @@ class TestVorbisWriting:
     def test_none_vs_empty_string_behavior_vorbis(self):
         with TempFileWithMetadata({}, "flac") as test_file:
             # Set a field to empty string - should create empty field
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: ""})
+            update_metadata(test_file.path, {UnifiedMetadataKey.TITLE: ""})
             title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
             assert title == ""  # Empty string creates empty field
             
             # Set the same field to None - should remove field
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: None})
+            update_metadata(test_file.path, {UnifiedMetadataKey.TITLE: None})
             title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
             assert title is None  # None removes field
             
             # Set it back to empty string - should create empty field again
-            update_file_metadata(test_file.path, {UnifiedMetadataKey.TITLE: ""})
+            update_metadata(test_file.path, {UnifiedMetadataKey.TITLE: ""})
             title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
             assert title == ""  # Empty string creates empty field

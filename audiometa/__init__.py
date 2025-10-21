@@ -319,7 +319,7 @@ def _validate_app_metadata_types(app_metadata: AppMetadata) -> None:
                 raise InvalidMetadataTypeError(key.value, getattr(expected_type, '__name__', str(expected_type)), value)
 
 
-def update_file_metadata(
+def update_metadata(
         file: FILE_TYPE, app_metadata: AppMetadata, normalized_rating_max_value: int | None = None, 
         id3v2_version: tuple[int, int, int] | None = None, metadata_strategy: MetadataWritingStrategy | None = None,
         metadata_format: MetadataFormat | None = None, fail_on_unsupported_field: bool = False) -> None:
@@ -371,23 +371,23 @@ def update_file_metadata(
             UnifiedMetadataKey.TITLE: "New Title",
             UnifiedMetadataKey.ARTISTS_NAMES: ["Artist Name"]
         }
-        update_file_metadata("song.mp3", metadata)
+        update_metadata("song.mp3", metadata)
         
         # Update with rating normalization
         metadata = {
             UnifiedMetadataKey.TITLE: "New Title",
             UnifiedMetadataKey.RATING: 75  # Will be normalized to 0-100 scale
         }
-        update_file_metadata("song.mp3", metadata, normalized_rating_max_value=100)
+        update_metadata("song.mp3", metadata, normalized_rating_max_value=100)
         
         # Clean up other formats (remove ID3v1, keep only ID3v2)
-        update_file_metadata("song.mp3", metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
+        update_metadata("song.mp3", metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
         
         # Write to specific format
-        update_file_metadata("song.mp3", metadata, metadata_format=MetadataFormat.ID3V2)
+        update_metadata("song.mp3", metadata, metadata_format=MetadataFormat.ID3V2)
         
         # Remove specific fields by setting them to None
-        update_file_metadata("song.mp3", {
+        update_metadata("song.mp3", {
             UnifiedMetadataKey.TITLE: None,        # Removes title field
             UnifiedMetadataKey.ARTISTS_NAMES: None # Removes artist field
         })
@@ -433,7 +433,7 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
         all_managers = _get_metadata_managers(
             file=file, tag_formats=[target_format_actual], normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
         target_manager = all_managers[target_format_actual]
-        target_manager.update_file_metadata(app_metadata)
+        target_manager.update_metadata(app_metadata)
         return
     
     # Get all available managers for this file type
@@ -470,7 +470,7 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
                 app_metadata = filtered_metadata
         
         # Then write to target format
-        target_manager.update_file_metadata(app_metadata)
+        target_manager.update_metadata(app_metadata)
         
     elif strategy == MetadataWritingStrategy.SYNC:
         # For SYNC, we need to write to all available formats
@@ -491,7 +491,7 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
         # Write to target format first
         target_manager = all_managers[target_format_actual]
         try:
-            target_manager.update_file_metadata(app_metadata)
+            target_manager.update_metadata(app_metadata)
         except MetadataNotSupportedError as e:
             # For SYNC strategy, log warning but continue with other formats
             warnings.warn(f"Format {target_format_actual} doesn't support some metadata fields: {e}")
@@ -507,7 +507,7 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
         # Note: We need to be careful about the order to avoid conflicts
         for fmt, manager in other_managers.items():
             try:
-                manager.update_file_metadata(app_metadata)
+                manager.update_metadata(app_metadata)
             except MetadataNotSupportedError as e:
                 # For SYNC strategy, log warning but continue with other formats
                 warnings.warn(f"Format {fmt} doesn't support some metadata fields: {e}")
@@ -545,13 +545,13 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
                 app_metadata = filtered_metadata
         
         # Write to target format
-        target_manager.update_file_metadata(app_metadata)
+        target_manager.update_metadata(app_metadata)
         
         # Restore preserved metadata from other formats
         for fmt, metadata in preserved_metadata.items():
             try:
                 manager = other_managers[fmt]
-                manager.update_file_metadata(metadata)
+                manager.update_metadata(metadata)
             except Exception:
                 # Some managers might not support writing or might fail for other reasons
                 pass
@@ -601,7 +601,7 @@ def delete_all_metadata(file, tag_format: MetadataFormat | None = None, id3v2_ve
         - File size optimization (remove all metadata headers)
         - Format cleanup (remove specific format metadata)
         
-        For selective field removal, use update_file_metadata with None values instead.
+        For selective field removal, use update_metadata with None values instead.
     """
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
