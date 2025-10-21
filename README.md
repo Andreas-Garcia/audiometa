@@ -23,8 +23,8 @@ A comprehensive Python library for reading and writing audio metadata across mul
   - [Reading Metadata](#reading-metadata)
   - [Writing Metadata](#writing-metadata)
   - [Deleting Metadata](#deleting-metadata)
-    - [1. Delete All Metadata (Complete Removal)](#1-delete-all-metadata-complete-removal)
-    - [2. Remove Specific Fields (Selective Removal)](#2-remove-specific-fields-selective-removal)
+    - [Delete All Metadata (Complete Removal)](#1-delete-all-metadata-complete-removal)
+    - [Remove Specific Fields (Selective Removal)](#2-remove-specific-fields-selective-removal)
     - [Comparison Table](#comparison-table)
     - [Example Scenarios](#example-scenarios)
   - [Working with AudioFile](#working-with-audiofile)
@@ -341,7 +341,7 @@ update_metadata("song.wav", new_metadata, metadata_format=MetadataFormat.RIFF)
 
 There are two ways to remove metadata from audio files:
 
-#### 1. Delete All Metadata (Complete Removal)
+#### Delete All Metadata (Complete Removal)
 
 ```python
 from audiometa import delete_all_metadata
@@ -363,7 +363,7 @@ success = delete_all_metadata("song.wav", tag_format=MetadataFormat.ID3V2)
 - RIFF INFO chunks are completely removed
 - File size is significantly reduced
 
-#### 2. Remove Specific Fields (Selective Removal)
+#### Remove Specific Fields (Selective Removal)
 
 ```python
 from audiometa import update_metadata, UnifiedMetadataKey
