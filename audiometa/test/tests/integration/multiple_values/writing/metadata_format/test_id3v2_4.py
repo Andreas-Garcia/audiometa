@@ -32,7 +32,7 @@ class TestMultipleEntriesId3v2_4:
             raw_output = verification['raw_output']
             
             # raw_output replaces NUL bytes with slashes for display purposes
-            assert "TPE1=Existing A \ Existing B" in raw_output
+            assert "TPE1=Existing A / Existing B" in raw_output
             
             metadata = {
                 UnifiedMetadataKey.ARTISTS_NAMES: ["Existing A", "New B"]
@@ -45,4 +45,4 @@ class TestMultipleEntriesId3v2_4:
             assert "Existing A" in raw_output
             assert "New B" in raw_output
             # Should contain null separator in ID3v2.4
-            assert " \ " in raw_output
+            assert " / " in raw_output
