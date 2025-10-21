@@ -4,7 +4,7 @@ import pytest
 
 from audiometa import update_file_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from exceptions import InvalidMetadataTypeError
+from audiometa.exceptions import InvalidMetadataTypeError
 
 
 class TestMultipleValuesErrorHandling:
