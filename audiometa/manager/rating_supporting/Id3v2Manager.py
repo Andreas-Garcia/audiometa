@@ -1,5 +1,6 @@
 
 from typing import Type, cast
+import warnings
 
 from mutagen._file import FileType as MutagenMetadata
 from mutagen.id3 import ID3
@@ -378,7 +379,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                     # Filter out None and empty values
                     valid_values = [value for value in app_metadata_value if value is not None and value != ""]
                     if valid_values:
-                        self._add_id3_frame_multi_value(raw_mutagen_metadata_id3, text_frame_class, raw_metadata_key, valid_values)
+                        self._add_id3_frame_v24_multi(raw_mutagen_metadata_id3, text_frame_class, valid_values)
                     return
                 
                 # For ID3v2.3, use concatenation with separators (ID3v2.3 doesn't support null-separated values)
@@ -424,13 +425,13 @@ class Id3v2Manager(RatingSupportingMetadataManager):
 
 
 
-    def _add_id3_frame_multi_value(self, raw_mutagen_metadata_id3: ID3, text_frame_class, raw_metadata_key: RawMetadataKey, values: list[str]):
-        """Add a single ID3 frame with multiple text values (ID3v2.4 specification compliant).
-        
-        Per ID3v2.4 spec § 4.2: Text frames can contain multiple strings separated by null terminators.
-        This creates one frame with multiple null-separated values, which is the correct ID3v2.4 behavior.
+    def _add_id3_frame_v24_multi(self, raw_mutagen_metadata_id3: ID3, text_frame_class, values: list[str]):
+        """ID3v2.4: add a single text frame containing multiple null-separated values.
+
+        Mutagen accepts a list for the `text` parameter and will write it as
+        null-separated strings in a single frame which matches the ID3v2.4 spec.
         """
-        # Add all frames with multiple text values (mutagen handles null separation automatically)
+        # Add one frame with multiple text values (mutagen handles null separation)
         raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=values))
 
     def _preserve_id3v1_metadata(self, file_path: str) -> bytes | None:
