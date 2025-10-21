@@ -38,40 +38,27 @@ class ID3v2MetadataInspector:
             - raw_output: Raw mid3v2 output
             - entries: List of individual entries found
         """
-        try:
-            result = subprocess.run(
-                ['mid3v2', '-l', str(file_path)],
-                capture_output=True, text=True, check=True
-            )
-            raw_output = result.stdout
-            
-            # Count occurrences of the tag
-            tag_pattern = f"{tag_name}="
-            actual_count = raw_output.count(tag_pattern)
-            has_multiple = actual_count > 1
-            
-            # Extract individual entries
-            entries = []
-            for line in raw_output.split('\n'):
-                if line.strip().startswith(tag_pattern):
-                    entries.append(line.strip())
-            
-            return {
-                'success': True,
-                'actual_count': actual_count,
-                'has_multiple': has_multiple,
-                'raw_output': raw_output,
-                'entries': entries,
-                'tag_name': tag_name
-            }
-            
-        except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            return {
-                'success': False,
-                'error': str(e),
-                'actual_count': 0,
-                'has_multiple': False,
-                'raw_output': '',
-                'entries': [],
-                'tag_name': tag_name
-            }
+        result = subprocess.run(
+            ['mid3v2', '-l', str(file_path)],
+            capture_output=True, text=True, check=True
+        )
+        raw_output = result.stdout
+        
+        # Count occurrences of the tag
+        tag_pattern = f"{tag_name}="
+        actual_count = raw_output.count(tag_pattern)
+        has_multiple = actual_count > 1
+        
+        # Extract individual entries
+        entries = []
+        for line in raw_output.split('\n'):
+            if line.strip().startswith(tag_pattern):
+                entries.append(line.strip())
+        
+        return {
+            'actual_count': actual_count,
+            'has_multiple': has_multiple,
+            'raw_output': raw_output,
+            'entries': entries,
+            'tag_name': tag_name
+        }

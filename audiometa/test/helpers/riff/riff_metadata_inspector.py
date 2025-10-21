@@ -44,51 +44,37 @@ class RIFFMetadataInspector:
             - raw_output: Raw output from inspection tool
             - entries: List of individual entries found
         """
-        try:
-            # Use exiftool to inspect RIFF metadata
-            result = subprocess.run(
-                ['exiftool', '-a', '-G', str(file_path)],
-                capture_output=True, text=True, check=True
-            )
-            raw_output = result.stdout
-            
-            # Map RIFF chunk ID to exiftool display name
-            display_name = RIFFMetadataInspector.RIFF_TAG_TO_EXIFTOOL_NAME.get(tag_name, tag_name)
-            
-            # Count occurrences of the tag - RIFF tags appear as [RIFF] DisplayName
-            # Note: exiftool output has variable spacing, so we need to be flexible
-            lines = raw_output.split('\n')
-            matching_lines = []
-            for line in lines:
-                # Look for lines that start with [RIFF] and contain our display name
-                if line.startswith('[RIFF]') and display_name in line:
-                    # Make sure it's the actual field name, not part of a value
-                    # Format is: [RIFF]<spaces>FieldName<spaces>: Value
-                    parts = line.split(':', 1)
-                    if len(parts) >= 1:
-                        field_part = parts[0].strip()
-                        if field_part.endswith(display_name):
-                            matching_lines.append(line)
-            actual_count = len(matching_lines)
-            has_multiple = actual_count > 1
-            
-            return {
-                'success': True,
-                'actual_count': actual_count,
-                'has_multiple': has_multiple,
-                'raw_output': raw_output,
-                'entries': matching_lines,
-                'tag_name': tag_name
-            }
-            
-        except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            # Fallback: Basic check indicating limited support
-            return {
-                'success': False,
-                'error': f'exiftool not available for RIFF verification: {e}',
-                'actual_count': 0,
-                'has_multiple': False,
-                'raw_output': '',
-                'entries': [],
-                'tag_name': tag_name
-            }
+        # Use exiftool to inspect RIFF metadata
+        result = subprocess.run(
+            ['exiftool', '-a', '-G', str(file_path)],
+            capture_output=True, text=True, check=True
+        )
+        raw_output = result.stdout
+        
+        # Map RIFF chunk ID to exiftool display name
+        display_name = RIFFMetadataInspector.RIFF_TAG_TO_EXIFTOOL_NAME.get(tag_name, tag_name)
+        
+        # Count occurrences of the tag - RIFF tags appear as [RIFF] DisplayName
+        # Note: exiftool output has variable spacing, so we need to be flexible
+        lines = raw_output.split('\n')
+        matching_lines = []
+        for line in lines:
+            # Look for lines that start with [RIFF] and contain our display name
+            if line.startswith('[RIFF]') and display_name in line:
+                # Make sure it's the actual field name, not part of a value
+                # Format is: [RIFF]<spaces>FieldName<spaces>: Value
+                parts = line.split(':', 1)
+                if len(parts) >= 1:
+                    field_part = parts[0].strip()
+                    if field_part.endswith(display_name):
+                        matching_lines.append(line)
+        actual_count = len(matching_lines)
+        has_multiple = actual_count > 1
+        
+        return {
+            'actual_count': actual_count,
+            'has_multiple': has_multiple,
+            'raw_output': raw_output,
+            'entries': matching_lines,
+            'tag_name': tag_name
+        }
