@@ -13,13 +13,10 @@ class ID3v2MetadataGetter:
         result = run_external_tool(["mid3v2", "--list-raw", str(file_path)], "mid3v2")
         return result.stdout
 
-
     @staticmethod
     def get_artists(file_path):
         metadata = ID3v2MetadataGetter.get_metadata(file_path)
         return metadata.get('artists', [])
-
-
 
     @staticmethod
     def get_title(file_path):
