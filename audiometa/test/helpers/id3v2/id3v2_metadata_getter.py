@@ -91,35 +91,35 @@ class ID3v2MetadataGetter:
 
     @staticmethod
     def get_artists(file_path):
-        metadata = ID3v2MetadataGetter.get_metadata(file_path)
+        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path)
         return metadata.get('artists', [])
 
     @staticmethod
     def get_title(file_path):
-        metadata = ID3v2MetadataGetter.get_metadata(file_path)
+        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path)
         return metadata.get('title')
 
     @staticmethod
     def get_album(file_path):
-        metadata = ID3v2MetadataGetter.get_metadata(file_path)
+        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path)
         return metadata.get('album')
 
     @staticmethod
     def get_year(file_path):
-        metadata = ID3v2MetadataGetter.get_metadata(file_path)
+        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path)
         return metadata.get('year')
 
     @staticmethod
-    def get_genre(file_path):
-        metadata = ID3v2MetadataGetter.get_metadata(file_path)
+    def get_genres(file_path):
+        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path)
         return metadata.get('genre')
 
     @staticmethod
     def get_comment(file_path):
-        metadata = ID3v2MetadataGetter.get_metadata(file_path)
+        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path)
         return metadata.get('comment')
 
     @staticmethod
     def get_track(file_path):
-        metadata = ID3v2MetadataGetter.get_metadata(file_path)
+        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path)
         return metadata.get('track')
