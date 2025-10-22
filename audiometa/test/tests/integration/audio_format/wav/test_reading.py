@@ -20,7 +20,7 @@ class TestWavReading:
             from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
             ID3v2MetadataSetter.set_title(test_file.path, "ID3v2.3 Long Title That Exceeds RIFF Limits")
 
-            metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2, version=[2, 3, 0])
+            metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2, version=(2, 3, 0))
             assert isinstance(metadata, dict)
             assert UnifiedMetadataKey.TITLE in metadata
             assert metadata[UnifiedMetadataKey.TITLE] == "ID3v2.3 Long Title That Exceeds RIFF Limits"
@@ -31,7 +31,7 @@ class TestWavReading:
             from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
             ID3v2MetadataSetter.set_title(test_file.path, "ID3v2.4 Long Title That Exceeds RIFF Limits")
 
-            metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2, version=[2, 4, 0])
+            metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2, version=(2, 4, 0))
             assert isinstance(metadata, dict)
             assert UnifiedMetadataKey.TITLE in metadata
             assert metadata[UnifiedMetadataKey.TITLE] == "ID3v2.4 Long Title That Exceeds RIFF Limits"

@@ -522,16 +522,16 @@ vorbis_metadata = get_unified_metadata("song.flac", metadata_format=MetadataForm
 
 #### Reading All Metadata From A ID3v2 Format With Version
 
-**`get_unified_metadata(file_path, metadata_format=MetadataFormat.ID3V2), id3v2_version=[2, 3, 0])`**
+**`get_unified_metadata(file_path, metadata_format=MetadataFormat.ID3V2), id3v2_version=(2, 3, 0))`**
 
 ```python
 
 # Read only ID3v2.3 metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
-id3v2_3_metadata = get_unified_metadata("song.mp3", metadata_format=MetadataFormat.ID3V2, id3v2_version=[2, 3, 0])
+id3v2_3_metadata = get_unified_metadata("song.mp3", metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
 
 # Read only ID3v2.4 metadata
-id3v2_4_metadata = get_unified_metadata("song.mp3", metadata_format=MetadataFormat.ID3V2, id3v2_version=[2, 4, 0])
+id3v2_4_metadata = get_unified_metadata("song.mp3", metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
 ```
 
 #### Reading Specific Metadata Fields
