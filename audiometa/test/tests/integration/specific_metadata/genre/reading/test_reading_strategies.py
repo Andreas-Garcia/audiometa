@@ -89,7 +89,11 @@ class TestID3v2GenreReadingStrategies:
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set genre with one code and one code+text
             ID3v2MetadataSetter.set_genres(test_file.path, ["(17)", "(6)Grunge"], in_separate_frames=True, version="2.4")
-            
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
+
+            assert "TCON(encoding=<Encoding.UTF8: 3>, text=['(17)'])" in raw_metadata
+            assert "TCON(encoding=<Encoding.UTF8: 3>, text=['(6)Grunge'])" in raw_metadata
+
             # Read via API
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
