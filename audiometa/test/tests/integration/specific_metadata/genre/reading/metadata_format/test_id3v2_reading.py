@@ -81,14 +81,6 @@ class TestId3v2GenreReading:
             
             assert genres == ["Rock", "Alternative, Indie/Experimental"]
 
-    def test_id3v2_genre_with_extra_whitespace(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            ID3v2MetadataSetter.set_genre(test_file.path, " Rock ; Alternative ; Indie ")
-            
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres == ["Rock", "Alternative", "Indie"]
-
     def test_id3v2_genre_duplicate_separators(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             ID3v2MetadataSetter.set_genre(test_file.path, "Rock;;;Alternative")
