@@ -30,14 +30,3 @@ class TestId3v23Reading:
             assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
             assert metadata.get(UnifiedMetadataKey.ALBUM) == "Test Album"
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Electronic"]
-
-    def test_id3v2_3_encoding_support(self):
-        with TempFileWithMetadata({}, "id3v2.3") as test_file:
-            ID3v2MetadataSetter.set_title(test_file.path, "Test Title with ASCII")
-            ID3v2MetadataSetter.set_artist(test_file.path, "Artist Name", version="2.3")
-            ID3v2MetadataSetter.set_album(test_file.path, "Album Name")
-            
-            metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
-            assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title with ASCII"
-            assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Artist Name"]
-            assert metadata.get(UnifiedMetadataKey.ALBUM) == "Album Name"

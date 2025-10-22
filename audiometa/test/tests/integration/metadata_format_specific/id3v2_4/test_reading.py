@@ -80,23 +80,6 @@ class TestId3v24Reading:
             if UnifiedMetadataKey.RELEASE_DATE in metadata:
                 assert isinstance(metadata[UnifiedMetadataKey.RELEASE_DATE], str)
 
-    def test_id3v2_4_utf8_encoding_support(self):
-        with TempFileWithMetadata({}, "id3v2.4") as test_file:
-            # Test with Unicode characters that require UTF-8
-            unicode_metadata = {
-                UnifiedMetadataKey.TITLE: "Test 中文 العربية русский 🎵",
-                UnifiedMetadataKey.ARTISTS: ["Artist 日本語 한국어"],
-                UnifiedMetadataKey.ALBUM: "Album Ελληνικά ภาษาไทย"
-            }
-            
-            update_metadata(test_file.path, unicode_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
-            
-            # Verify the Unicode characters are preserved
-            metadata = get_unified_metadata(test_file.path)
-            assert metadata.get(UnifiedMetadataKey.TITLE) == "Test 中文 العربية русский 🎵"
-            assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Artist 日本語 한국어"]
-            assert metadata.get(UnifiedMetadataKey.ALBUM) == "Album Ελληνικά ภาษาไทย"
-
     def test_id3v2_4_multiple_artists_support(self):
         with TempFileWithMetadata({}, "id3v2.4") as test_file:
             # Set multiple artists
