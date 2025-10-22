@@ -1390,22 +1390,142 @@ AudioMeta provides comprehensive genre support across all audio formats, with in
 
 #### Genre Support by Format
 
-| Format            | Multiple Genres | Genre Codes | Custom Genres | Notes                                                                      |
-| ----------------- | --------------- | ----------- | ------------- | -------------------------------------------------------------------------- |
-| **ID3v2 (MP3)**   | ✅              | ✅          | ✅            | Full support for multiple genres and custom names                          |
-| **Vorbis (FLAC)** | ✅              | ❌          | ✅            | Text-based genres with separator support                                   |
-| **RIFF (WAV)**    | ✅\*            | ✅          | ✅\*          | Text mode: multiple genres via separators; Code mode: single genre (0-147) |
-| **ID3v1**         | ❌              | ✅          | ❌            | Single genre with code conversion                                          |
+| Format      | Multiple Genres | Genre Codes | Custom Genres | Notes                                                                      |
+| ----------- | --------------- | ----------- | ------------- | -------------------------------------------------------------------------- |
+| **ID3v1**   | ❌              | ✅          | ❌            | Single genre with code conversion                                          |
+| **ID3v2.3** | ✅              | ✅          | ✅            | Custom genres after codes (e.g., "(4)Eurodisco")                           |
+| **ID3v2.4** | ✅              | ✅          | ✅            | Full support for multiple genres and custom names                          |
+| **Vorbis**  | ✅              | ❌          | ✅            | Text-based genres with separator support                                   |
+| **RIFF**    | ✅\*            | ✅          | ✅\*          | Text mode: multiple genres via separators; Code mode: single genre (0-147) |
+
+#### ID3v1 Format
+
+ID3v1 provides the most limited genre support with a fixed set of predefined genres.
+
+**Genre Storage:**
+
+- **Format**: Single byte numeric code (0-255)
+- **Multiple Genres**: Not supported - only one genre per file
+- **Custom Genres**: Not supported - must use predefined codes
+- **Code Range**: 0-147 standard, 148-191 Winamp extensions, 192-255 unused
+
+**Examples:**
+
+- Code `17` → "Rock"
+- Code `255` → Unknown/unspecified genre
+
+**Reading Behavior:**
+
+- Numeric code is converted to genre name using lookup table
+- Only the first genre from any list is used
+- Unknown codes return generic "Unknown" or are mapped to code 255
+
+#### ID3v2.3 Format
+
+ID3v2.3 uses the TCON (Content type) frame for genre information, following the ID3v2.3.0 specification.
+
+**Genre Storage:**
+
+- **Format**: Numeric string with optional parentheses notation
+- **Multiple Genres**: Supported via consecutive parentheses (e.g., "(51)(39)")
+- **Custom Genres**: Can be added after genre codes (e.g., "(4)Eurodisco")
+- **Text Genres**: Direct text without parentheses also supported
+
+**Examples:**
+
+- `"(17)"` → Rock (code 17)
+- `"(51)(39)"` → Trance + Cover (multiple codes)
+- `"(4)Eurodisco"` → Custom genre "Eurodisco" (code 4 is unused)
+- `"Rock"` → Direct text genre
+
+**Reading Behavior:**
+
+- Parentheses are parsed to extract genre codes and custom names
+- Multiple codes are converted to genre names using the ID3v1 genre map
+- Custom genres after codes are preserved as-is
+- Direct text genres are used directly
+
+#### ID3v2.4 Format
+
+ID3v2.4 provides the most flexible genre support among ID3v2 versions.
+
+**Genre Storage:**
+
+- **Format**: UTF-8 encoded text with null-byte separation for multiple values
+- **Multiple Genres**: Full support using null-separated values
+- **Custom Genres**: Unlimited custom genre names
+- **Backward Compatibility**: Can still use ID3v2.3 style parentheses notation
+
+**Examples:**
+
+- `"Rock\0Alternative\0Indie"` → Multiple text genres
+- `"(17)\0(18)\0Techno"` → Mixed codes and custom genres
+- `"Electronic/Dance"` → Single genre with subgenres
+
+**Reading Behavior:**
+
+- Null-separated values are split into individual genres
+- Parentheses notation is parsed for backward compatibility
+- All genres are returned as a unified list
+
+#### Vorbis Format
+
+Vorbis comments (used in FLAC files) provide text-based genre storage with full Unicode support.
+
+**Genre Storage:**
+
+- **Format**: UTF-8 text comments
+- **Multiple Genres**: Supported via semicolon separation or multiple GENRE fields
+- **Custom Genres**: Full support for any Unicode text
+- **Field Name**: Typically "GENRE" (case-insensitive)
+
+**Examples:**
+
+- `"GENRE=Rock; Alternative; Indie"` → Semicolon-separated genres
+- Multiple fields: `"GENRE=Rock"` and `"GENRE=Alternative"`
+- `"GENRE=Электронная музыка"` → Unicode genres supported
+
+**Reading Behavior:**
+
+- Multiple GENRE fields are combined
+- Semicolon-separated values in single fields are split
+- All text is preserved as-is (no code conversion)
+
+#### RIFF Format
+
+RIFF INFO chunks (used in WAV files) support both numeric codes and text genres.
+
+**Genre Storage:**
+
+- **Format**: IGNR chunk containing either numeric code or text
+- **Multiple Genres**: Limited - typically single value, but text mode can use separators
+- **Custom Genres**: Supported in text mode only
+- **Code Range**: 0-147 (ID3v1 compatible)
+
+**Examples:**
+
+- Separator parsing attempts to extract multiple genres from text
+
+- Code mode: `17` → Rock
+- Text mode: `"Rock; Alternative"` → Multiple genres (non-standard but used)
+- Mixed: `"17; Electronic"` → Code and custom genre
+
+**Reading Behavior:**
+
+- Numeric values are converted to genre names using ID3v1 map
+- Text values are used directly
 
 #### ID3v1 Genre Code System
 
-ID3v1 uses a standardized genre code system with 192 predefined genres:
+ID3v1 uses a standardized genre code system (also used by RIFF) with 192 predefined genres:
 
 - **Genres 0-79**: Original ID3v1 specification
 - **Genres 80-125**: Winamp extensions
 - **Genres 126-147**: Other players' extensions
 - **Genres 148-191**: Winamp 5.6 extensions (November 2010)
 - **Code 255**: Unknown/unspecified genre
+
+An exhaustive list of all genre codes is available [here](audiometa/utils/id3v1_genre_code_map.py).
 
 **Popular Genres:**
 
@@ -1441,33 +1561,6 @@ update_metadata("song.mp3", {
 1. **Exact Match**: Case-insensitive exact name match
 2. **Partial Match**: Genre name contained in standard name
 3. **Fallback**: Code 255 (unknown) if no match found
-
-#### Multiple Genre Handling
-
-**Reading Multiple Genres:**
-
-```python
-metadata = get_unified_metadata("song.mp3")
-genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
-# Returns: ['Rock', 'Alternative', 'Indie'] (list)
-```
-
-**Writing Multiple Genres:**
-
-```python
-# All formats accept lists
-update_metadata("song.mp3", {
-    UnifiedMetadataKey.GENRES_NAMES: ["Rock", "Alternative", "Indie"]
-})
-
-# Format-specific behavior:
-# - ID3v2: Stores all genres as separate frames
-# - Vorbis: Stores as semicolon-separated values
-# - RIFF: Uses first genre only (code-based)
-# - ID3v1: Uses first genre only (code-based)
-```
-
-#### Format-Specific Limitations
 
 **RIFF/WAV Format:**
 
@@ -1570,24 +1663,29 @@ def find_genre_code(name):
 rock_code = find_genre_code("Rock")  # Returns 17
 ```
 
-#### Best Practices
+#### Multiple Genre Handling
 
-1. **Use Descriptive Names**: Write genres as readable text, let the library handle conversion
-2. **Order Matters**: For single-genre formats, the first genre in the list is used
-3. **Format Awareness**: Check format capabilities before writing multiple genres
-4. **Fallback Handling**: Unknown genres gracefully fall back to "Unknown" (code 255)
+**Reading Multiple Genres:**
 
 ```python
-# Recommended approach
-genres = ["Rock", "Alternative", "Indie"]
+metadata = get_unified_metadata("song.mp3")
+genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
+# Returns: ['Rock', 'Alternative', 'Indie'] (list)
+```
+
+**Writing Multiple Genres:**
+
+```python
+# All formats accept lists
 update_metadata("song.mp3", {
-    UnifiedMetadataKey.GENRES_NAMES: genres
+    UnifiedMetadataKey.GENRES_NAMES: ["Rock", "Alternative", "Indie"]
 })
 
-# The library automatically:
-# - Converts to codes for ID3v1/RIFF
-# - Stores as text for ID3v2/Vorbis
-# - Handles format limitations gracefully
+# Format-specific behavior:
+# - ID3v2: Stores all genres as separate frames
+# - Vorbis: Stores as semicolon-separated values
+# - RIFF: Uses first genre only (code-based)
+# - ID3v1: Uses first genre only (code-based)
 ```
 
 ### Rating Profiles
