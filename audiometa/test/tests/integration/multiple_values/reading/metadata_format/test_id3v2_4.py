@@ -3,7 +3,7 @@ from audiometa import get_specific_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
-from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter, ID3v2MetadataGetter, ID3V2HeaderVerifier
+from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter, ID3v2MetadataGetter, ID3v2HeaderVerifier
 
 
 class TestId3v2_4Mixed:
@@ -12,7 +12,7 @@ class TestId3v2_4Mixed:
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             ID3v2MetadataSetter.set_artist(test_file.path, "Artist One\x00Artist Two\x00Artist Three", version="2.4")
             
-            assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
+            assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
@@ -31,7 +31,7 @@ class TestId3v2_4Mixed:
             # Use a single NUL in the Python string; encoding=0 will encode it as a single 0x00
             ID3v2MetadataSetter.write_tpe1_with_encoding(test_file.path, "Artist One\x00Artist Two\x00Artist Three", encoding=0)
 
-            assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
+            assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
 
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
@@ -50,7 +50,7 @@ class TestId3v2_4Mixed:
             # Using a Python string with '\x00' — when encoded as UTF-16 it will become two zero bytes
             ID3v2MetadataSetter.write_tpe1_with_encoding(test_file.path, "Artist One\x00Artist Two\x00Artist Three", encoding=1)
 
-            assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
+            assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
 
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
@@ -69,7 +69,7 @@ class TestId3v2_4Mixed:
             # ID3v2.4 with encoding=2 (UTF-16BE without BOM) — separator becomes two NUL bytes after encoding.
             ID3v2MetadataSetter.write_tpe1_with_encoding(test_file.path, "Artist One\x00Artist Two\x00Artist Three", encoding=2)
 
-            assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
+            assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
 
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
@@ -88,7 +88,7 @@ class TestId3v2_4Mixed:
             # ID3v2.4 with encoding=3 (UTF-8) — separator is a single NUL byte.
             ID3v2MetadataSetter.write_tpe1_with_encoding(test_file.path, "Artist One\x00Artist Two\x00Artist Three", encoding=3)
 
-            assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
+            assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
 
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
@@ -106,7 +106,7 @@ class TestId3v2_4Mixed:
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             ID3v2MetadataSetter.set_artist(test_file.path, "Artist One;Artist Two;Artist Three", version="2.4")
             
-            assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
+            assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
@@ -125,7 +125,7 @@ class TestId3v2_4Mixed:
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             ID3v2MetadataSetter.set_artists(test_file.path, ["Artist One", "Artist Two", "Artist Three"], in_separate_frames=False, version="2.4", separator=" / ")
             
-            assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
+            assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             verification = {'raw_output': raw_metadata.get("TPE1", "")}
@@ -143,7 +143,7 @@ class TestId3v2_4Mixed:
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             ID3v2MetadataSetter.set_artists(test_file.path, ["Artist One\0Artist Two", "Artist Three"], in_separate_frames=True, version="2.4")
             
-            assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
+            assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             
             verification = ID3v2MetadataGetter.get_multiple_entries_from_raw_data(test_file.path, "TPE1")
             assert "TPE1=Artist One\0Artist Two" in verification['raw_output']
@@ -161,7 +161,7 @@ class TestId3v2_4Mixed:
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             ID3v2MetadataSetter.set_artists(test_file.path, ["Artist 1\0Artist 2;Artist 3"], version="2.4")
             
-            assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
+            assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             
             verification = ID3v2MetadataGetter.get_multiple_entries_from_raw_data(test_file.path, "TPE1")
             
@@ -178,7 +178,7 @@ class TestId3v2_4Mixed:
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             ID3v2MetadataSetter.set_titles(test_file.path, ["Title One", "Title Two", "Title Three"], in_separate_frames=True, version="2.4")
             
-            assert ID3V2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
+            assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
 
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             verification = {'raw_output': raw_metadata.get("TIT2", "")}

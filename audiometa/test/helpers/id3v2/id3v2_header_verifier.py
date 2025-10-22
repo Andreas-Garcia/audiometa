@@ -3,7 +3,7 @@
 from pathlib import Path
 
 
-class ID3V2HeaderVerifier:
+class ID3v2HeaderVerifier:
     """Utilities for verifying ID3 metadata headers in audio files."""
     
     @staticmethod
