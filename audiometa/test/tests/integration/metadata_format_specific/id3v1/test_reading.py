@@ -5,7 +5,6 @@ from pathlib import Path
 
 from audiometa import (
     get_unified_metadata,
-    get_single_format_app_metadata,
     get_specific_metadata,
     AudioFile
 )
@@ -70,4 +69,4 @@ class TestId3v1Reading:
         temp_audio_file.write_bytes(b"fake audio content")
         
         with pytest.raises(FileTypeNotSupportedError):
-            get_single_format_app_metadata(str(temp_audio_file), MetadataFormat.ID3V1)
+            get_unified_metadata(str(temp_audio_file), metadata_format=MetadataFormat.ID3V1)

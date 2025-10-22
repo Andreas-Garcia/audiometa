@@ -2,7 +2,7 @@ import pytest
 
 from audiometa import (
     delete_all_metadata,
-    get_single_format_app_metadata
+    get_unified_metadata
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -19,8 +19,8 @@ class TestDeleteAllMetadataAllFormats:
             test_file.set_id3v2_artist("ID3v2 Artist")
             
             # Verify both formats have metadata before deletion
-            id3v2_before = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
-            id3v1_before = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+            id3v2_before = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
+            id3v1_before = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             assert id3v2_before.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
             assert id3v1_before.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
             
@@ -29,8 +29,8 @@ class TestDeleteAllMetadataAllFormats:
             assert result is True
             
             # Verify both formats were deleted
-            id3v2_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
-            id3v1_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+            id3v2_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
+            id3v1_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) is None
             assert id3v1_after.get(UnifiedMetadataKey.TITLE) is None
 
@@ -41,8 +41,8 @@ class TestDeleteAllMetadataAllFormats:
             test_file.set_id3v2_artist("ID3v2 Artist")
             
             # Verify both formats have metadata before deletion
-            id3v2_before = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
-            id3v1_before = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+            id3v2_before = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
+            id3v1_before = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             assert id3v2_before.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
             assert id3v1_before.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
             
@@ -51,8 +51,8 @@ class TestDeleteAllMetadataAllFormats:
             assert result is True
             
             # Verify both formats were deleted
-            id3v2_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
-            id3v1_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+            id3v2_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
+            id3v1_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) is None
             assert id3v1_after.get(UnifiedMetadataKey.TITLE) is None
 
@@ -63,8 +63,8 @@ class TestDeleteAllMetadataAllFormats:
             test_file.set_id3v2_artist("ID3v2 Artist")
             
             # Verify both formats have metadata before deletion
-            id3v2_before = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
-            id3v1_before = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+            id3v2_before = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
+            id3v1_before = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             assert id3v2_before.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
             assert id3v1_before.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
             
@@ -73,8 +73,8 @@ class TestDeleteAllMetadataAllFormats:
             assert result is True
             
             # Verify both formats were deleted
-            id3v2_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
-            id3v1_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+            id3v2_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
+            id3v1_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) is None
             assert id3v1_after.get(UnifiedMetadataKey.TITLE) is None
 
@@ -85,8 +85,8 @@ class TestDeleteAllMetadataAllFormats:
             test_file.set_id3v2_artist("ID3v2 Artist")
             
             # Verify both formats have metadata before deletion
-            id3v2_before = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
-            id3v1_before = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+            id3v2_before = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
+            id3v1_before = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             assert id3v2_before.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
             assert id3v1_before.get(UnifiedMetadataKey.TITLE) == "ID3v1 Title"
             
@@ -95,7 +95,7 @@ class TestDeleteAllMetadataAllFormats:
             assert result is True
             
             # Verify both formats were deleted
-            id3v2_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
-            id3v1_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+            id3v2_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
+            id3v1_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) is None
             assert id3v1_after.get(UnifiedMetadataKey.TITLE) is None

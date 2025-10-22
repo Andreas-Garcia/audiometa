@@ -8,7 +8,6 @@ import pytest
 
 from audiometa import (
     get_unified_metadata,
-    get_single_format_app_metadata,
     get_specific_metadata,
     update_metadata
 )
@@ -93,7 +92,7 @@ class TestId3v24Writing:
             
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) == ["Test ID3v2.4 Artist"]
             
-            id3v2_4_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+            id3v2_4_metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             assert id3v2_4_metadata.get(UnifiedMetadataKey.TITLE) is None
             assert id3v2_4_metadata.get(UnifiedMetadataKey.ALBUM) is None
 
@@ -160,8 +159,8 @@ class TestId3v24Writing:
             }
             update_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
             
-            id3v2_4_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
-            id3v1_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+            id3v2_4_result = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
+            id3v1_result = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             
             assert id3v2_4_result.get(UnifiedMetadataKey.TITLE) == "ID3v2.4 Title"
             assert id3v2_4_result.get(UnifiedMetadataKey.ARTISTS) == ["ID3v2.4 Artist"]

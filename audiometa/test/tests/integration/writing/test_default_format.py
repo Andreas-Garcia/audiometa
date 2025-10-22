@@ -18,7 +18,6 @@ import shutil
 
 from audiometa import (
     update_metadata,
-    get_single_format_app_metadata,
     get_unified_metadata
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -43,7 +42,7 @@ class TestDefaultWritingFormat:
             update_metadata(test_file.path, test_metadata)
             
             # Verify metadata was written to ID3v2 format
-            id3v2_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+            id3v2_metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             assert id3v2_metadata.get(UnifiedMetadataKey.TITLE) == "MP3 Test Title"
             assert id3v2_metadata.get(UnifiedMetadataKey.ARTISTS) == ["MP3 Test Artist"]
             assert id3v2_metadata.get(UnifiedMetadataKey.ALBUM) == "MP3 Test Album"
@@ -86,7 +85,7 @@ class TestDefaultWritingFormat:
             update_metadata(test_file.path, test_metadata)
             
             # Verify metadata was written to Vorbis format
-            vorbis_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.VORBIS)
+            vorbis_metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.VORBIS)
             assert vorbis_metadata.get(UnifiedMetadataKey.TITLE) == "FLAC Test Title"
             assert vorbis_metadata.get(UnifiedMetadataKey.ARTISTS) == ["FLAC Test Artist"]
             assert vorbis_metadata.get(UnifiedMetadataKey.ALBUM) == "FLAC Test Album"
@@ -111,7 +110,7 @@ class TestDefaultWritingFormat:
             update_metadata(test_file.path, test_metadata)
             
             # Verify metadata was written to RIFF format
-            riff_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
+            riff_metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.RIFF)
             assert riff_metadata.get(UnifiedMetadataKey.TITLE) == "WAV Test Title"
             assert riff_metadata.get(UnifiedMetadataKey.ARTISTS) == ["WAV Test Artist"]
             assert riff_metadata.get(UnifiedMetadataKey.ALBUM) == "WAV Test Album"
@@ -156,7 +155,7 @@ class TestDefaultWritingFormat:
                 update_metadata(test_file.path, test_metadata)
                 
                 # Verify it was written to the expected default format
-                default_metadata = get_single_format_app_metadata(test_file.path, expected_format)
+                default_metadata = get_unified_metadata(test_file.path, expected_format)
                 assert default_metadata.get(UnifiedMetadataKey.TITLE) == f"{file_type} Default Test"
                 assert default_metadata.get(UnifiedMetadataKey.ARTISTS) == [f"{file_type} Artist"]
 
@@ -172,7 +171,7 @@ class TestDefaultWritingFormat:
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
             
             # Verify ID3v1 was written
-            id3v1_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+            id3v1_metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             assert id3v1_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v1 Test Title"
             assert id3v1_metadata.get(UnifiedMetadataKey.ARTISTS) == ["ID3v1 Test Artist"]
         
@@ -183,7 +182,7 @@ class TestDefaultWritingFormat:
         update_metadata(temp_audio_file, test_metadata2)
         
         # Verify ID3v2 was written (default behavior)
-        id3v2_metadata = get_single_format_app_metadata(temp_audio_file, MetadataFormat.ID3V2)
+        id3v2_metadata = get_unified_metadata(temp_audio_file, metadata_format=MetadataFormat.ID3V2)
         assert id3v2_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2 Test Title"
 
     @pytest.mark.parametrize("audio_format,expected_default", [

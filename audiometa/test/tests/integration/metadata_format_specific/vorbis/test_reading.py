@@ -4,7 +4,6 @@ import pytest
 
 from audiometa import (
     get_unified_metadata,
-    get_single_format_app_metadata,
     AudioFile
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -34,7 +33,7 @@ class TestVorbisReading:
         assert len(metadata[UnifiedMetadataKey.TITLE]) > 30
 
     def test_single_format_vorbis_extraction(self, metadata_vorbis_small_flac):
-        vorbis_metadata = get_single_format_app_metadata(metadata_vorbis_small_flac, MetadataFormat.VORBIS)
+        vorbis_metadata = get_unified_metadata(metadata_vorbis_small_flac, metadata_format=MetadataFormat.VORBIS)
         assert isinstance(vorbis_metadata, dict)
         assert UnifiedMetadataKey.TITLE in vorbis_metadata
 

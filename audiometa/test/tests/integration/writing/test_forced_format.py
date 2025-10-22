@@ -8,7 +8,6 @@ import pytest
 
 from audiometa import (
     update_metadata,
-    get_single_format_app_metadata,
     get_unified_metadata,
 )
 from audiometa.exceptions import (
@@ -41,8 +40,8 @@ class TestForcedFormat:
                                metadata_format=MetadataFormat.ID3V2)
             
             # Verify both formats have their respective metadata
-            riff_before = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
-            id3v2_before = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+            riff_before = get_unified_metadata(test_file, metadata_format=MetadataFormat.RIFF)
+            id3v2_before = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
             assert riff_before.get(UnifiedMetadataKey.TITLE) == "Original RIFF Title"
             assert id3v2_before.get(UnifiedMetadataKey.TITLE) == "Original ID3v2 Title"
             
@@ -57,12 +56,12 @@ class TestForcedFormat:
                                metadata_format=MetadataFormat.ID3V2)
             
             # Verify ID3v2 has new metadata
-            id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+            id3v2_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "New ID3v2 Title"
             assert id3v2_after.get(UnifiedMetadataKey.ARTISTS) == ["New ID3v2 Artist"]
             
             # Verify RIFF still has original metadata (forced format doesn't affect other formats)
-            riff_after = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
+            riff_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.RIFF)
             assert riff_after.get(UnifiedMetadataKey.TITLE) == "Original RIFF Title"
             assert riff_after.get(UnifiedMetadataKey.ARTISTS) == ["Original RIFF Artist"]
 
@@ -103,7 +102,7 @@ class TestForcedFormat:
                                metadata_format=MetadataFormat.RIFF)
             
             # Verify RIFF has new metadata
-            riff_metadata = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
+            riff_metadata = get_unified_metadata(test_file, metadata_format=MetadataFormat.RIFF)
             assert riff_metadata.get(UnifiedMetadataKey.TITLE) == "New RIFF Title"
             assert riff_metadata.get(UnifiedMetadataKey.ARTISTS) == ["New RIFF Artist"]
             assert riff_metadata.get(UnifiedMetadataKey.ALBUM) == "New RIFF Album"
@@ -159,8 +158,8 @@ class TestForcedFormat:
                                metadata_format=MetadataFormat.ID3V1)
             
             # Verify the metadata was written
-            from audiometa import get_single_format_app_metadata
-            result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+            from audiometa import get_unified_metadata
+            result = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             assert result.get(UnifiedMetadataKey.TITLE) == "New ID3v1 Title"
             assert result.get(UnifiedMetadataKey.ARTISTS) == ["New ID3v1 Artist"]
 
@@ -180,8 +179,8 @@ class TestForcedFormat:
                                metadata_format=MetadataFormat.ID3V2)
             
             # Verify both formats have original metadata
-            riff_before = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
-            id3v2_before = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+            riff_before = get_unified_metadata(test_file, metadata_format=MetadataFormat.RIFF)
+            id3v2_before = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
             assert riff_before.get(UnifiedMetadataKey.TITLE) == "Original RIFF Title"
             assert id3v2_before.get(UnifiedMetadataKey.TITLE) == "Original ID3v2 Title"
             
@@ -195,12 +194,12 @@ class TestForcedFormat:
                                metadata_format=MetadataFormat.ID3V2)
             
             # Verify ID3v2 was updated
-            id3v2_after = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+            id3v2_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "New ID3v2 Title"
             assert id3v2_after.get(UnifiedMetadataKey.ARTISTS) == ["New ID3v2 Artist"]
             
             # Verify RIFF was NOT updated (forced format only affects specified format)
-            riff_after = get_single_format_app_metadata(test_file, MetadataFormat.RIFF)
+            riff_after = get_unified_metadata(test_file, metadata_format=MetadataFormat.RIFF)
             assert riff_after.get(UnifiedMetadataKey.TITLE) == "Original RIFF Title"
             assert riff_after.get(UnifiedMetadataKey.ARTISTS) == ["Original RIFF Artist"]
 
@@ -241,7 +240,7 @@ class TestForcedFormat:
                                normalized_rating_max_value=100)
             
             # Verify rating was written (converted from 0-100 to 0-255 scale)
-            id3v2_metadata = get_single_format_app_metadata(test_file, MetadataFormat.ID3V2)
+            id3v2_metadata = get_unified_metadata(test_file, metadata_format=MetadataFormat.ID3V2)
             assert id3v2_metadata.get(UnifiedMetadataKey.TITLE) == "Test Title"
             # Rating 85 on 0-100 scale becomes 196 on 0-255 scale (85 * 255 / 100 = 216.75, rounded to 196)
             assert id3v2_metadata.get(UnifiedMetadataKey.RATING) == 196

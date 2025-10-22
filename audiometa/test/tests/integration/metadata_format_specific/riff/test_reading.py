@@ -5,7 +5,6 @@ from pathlib import Path
 
 from audiometa import (
     get_unified_metadata,
-    get_single_format_app_metadata,
     AudioFile
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -35,7 +34,7 @@ class TestRiffReading:
         assert len(metadata[UnifiedMetadataKey.TITLE]) > 30
 
     def test_single_format_riff_extraction(self, metadata_riff_small_wav):
-        riff_metadata = get_single_format_app_metadata(metadata_riff_small_wav, MetadataFormat.RIFF)
+        riff_metadata = get_unified_metadata(metadata_riff_small_wav, metadata_format=MetadataFormat.RIFF)
         assert isinstance(riff_metadata, dict)
         assert UnifiedMetadataKey.TITLE in riff_metadata
 
@@ -62,7 +61,7 @@ class TestRiffReading:
         
         # Test that the RIFF manager can process the file without errors
         # Even if there's no RIFF metadata, the manager should handle the structure gracefully
-        riff_metadata = get_single_format_app_metadata(metadata_id3v2_and_riff_small_wav, MetadataFormat.RIFF)
+        riff_metadata = get_unified_metadata(metadata_id3v2_and_riff_small_wav, metadata_format=MetadataFormat.RIFF)
         assert isinstance(riff_metadata, dict)
         # The file may not have RIFF metadata, so we just verify it returns a dict without errors
         
@@ -79,4 +78,4 @@ class TestRiffReading:
         temp_audio_file.write_bytes(b"fake audio content")
         
         with pytest.raises(FileTypeNotSupportedError):
-            get_single_format_app_metadata(str(temp_audio_file), MetadataFormat.RIFF)
+            get_unified_metadata(str(temp_audio_file), metadata_format=MetadataFormat.RIFF)

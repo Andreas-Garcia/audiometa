@@ -6,7 +6,6 @@ from pathlib import Path
 from audiometa import (
     AudioFile,
     get_unified_metadata,
-    get_single_format_app_metadata,
     get_specific_metadata
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -25,7 +24,7 @@ class TestAudioFileIntegration:
         assert isinstance(metadata, dict)
         
         # Test single format with AudioFile object
-        id3v2_metadata = get_single_format_app_metadata(audio_file, MetadataFormat.ID3V2)
+        id3v2_metadata = get_unified_metadata(audio_file, metadata_format=MetadataFormat.ID3V2)
         assert isinstance(id3v2_metadata, dict)
         
         # Test specific metadata with AudioFile object

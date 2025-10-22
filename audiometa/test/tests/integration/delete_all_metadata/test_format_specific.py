@@ -3,7 +3,7 @@ from pathlib import Path
 
 from audiometa import (
     delete_all_metadata,
-    get_single_format_app_metadata,
+    get_unified_metadata,
     update_metadata
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -22,7 +22,7 @@ class TestDeleteAllMetadataFormatSpecific:
             result = delete_all_metadata(test_file.path, tag_format=MetadataFormat.ID3V2)
             assert result is True
             
-            id3v2_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+            id3v2_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) is None
             assert id3v2_after.get(UnifiedMetadataKey.ARTISTS) in [None, []]
 
@@ -34,7 +34,7 @@ class TestDeleteAllMetadataFormatSpecific:
             result = delete_all_metadata(test_file.path, tag_format=MetadataFormat.ID3V1)
             assert result is True
             
-            id3v1_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+            id3v1_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             assert id3v1_after.get(UnifiedMetadataKey.TITLE) is None
             assert id3v1_after.get(UnifiedMetadataKey.ARTISTS) in [None, []]
 
@@ -62,8 +62,8 @@ class TestDeleteAllMetadataFormatSpecific:
             test_file.set_id3v2_album("Test ID3v2 Album")
             
             # Verify both formats have metadata before deletion
-            riff_before = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
-            id3v2_before = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+            riff_before = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.RIFF)
+            id3v2_before = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             assert riff_before.get(UnifiedMetadataKey.TITLE) == "Test RIFF Title"
             assert id3v2_before.get(UnifiedMetadataKey.TITLE) == "Test ID3v2 Title"
             
@@ -72,7 +72,7 @@ class TestDeleteAllMetadataFormatSpecific:
             assert result is True
             
             # Verify RIFF was deleted but ID3v2 was preserved
-            riff_after = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
-            id3v2_after = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+            riff_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.RIFF)
+            id3v2_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             assert riff_after.get(UnifiedMetadataKey.TITLE) is None
             assert id3v2_after.get(UnifiedMetadataKey.TITLE) == "Test ID3v2 Title"

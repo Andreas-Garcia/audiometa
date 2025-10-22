@@ -4,7 +4,6 @@ from pathlib import Path
 
 from audiometa import (
     get_unified_metadata,
-    get_single_format_app_metadata,
     get_specific_metadata,
     AudioFile
 )
@@ -25,7 +24,7 @@ class TestId3v23Reading:
             test_file.set_id3v2_album("ID3v2.3 Test Album")
             test_file.set_id3v2_genre("Electronic")
             
-            metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+            metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2.3 Extended Test Title - This is a longer title than ID3v1 can handle"
             assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["ID3v2.3 Test Artist"]
             assert metadata.get(UnifiedMetadataKey.ALBUM) == "ID3v2.3 Test Album"
@@ -38,7 +37,7 @@ class TestId3v23Reading:
             test_file.set_id3v2_album("Test Album")
             test_file.set_id3v2_genre("Electronic")
             
-            metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+            metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             assert isinstance(metadata, dict)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2.3 Metadata Reading Test"
             assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
@@ -51,7 +50,7 @@ class TestId3v23Reading:
             test_file.set_id3v2_artist("Single Format Artist")
             test_file.set_id3v2_album("Single Format Album")
             
-            id3v2_3_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+            id3v2_3_metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             assert isinstance(id3v2_3_metadata, dict)
             assert id3v2_3_metadata.get(UnifiedMetadataKey.TITLE) == "Single Format Test Title"
             assert id3v2_3_metadata.get(UnifiedMetadataKey.ARTISTS) == ["Single Format Artist"]
@@ -65,7 +64,7 @@ class TestId3v23Reading:
             test_file.set_id3v2_genre("Rock")
             
             # Test that ID3v2.3 specific metadata is present
-            metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+            metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             assert isinstance(metadata, dict)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Version Specific Test"
             assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
@@ -81,7 +80,7 @@ class TestId3v23Reading:
             artists = ["Artist One", "Artist Two", "Artist Three"]
             ID3v2MetadataSetter.set_artists(test_file.path, artists)
             
-            metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+            metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             retrieved_artists = metadata.get(UnifiedMetadataKey.ARTISTS)
             
             assert isinstance(retrieved_artists, list)
@@ -95,7 +94,7 @@ class TestId3v23Reading:
         temp_audio_file.write_bytes(b"fake audio content")
         
         with pytest.raises(FileTypeNotSupportedError):
-            get_single_format_app_metadata(str(temp_audio_file), MetadataFormat.ID3V2)
+            get_unified_metadata(str(temp_audio_file), metadata_format=MetadataFormat.ID3V2)
 
     def test_id3v2_3_with_other_formats(self):
         with TempFileWithMetadata({}, "id3v2.3") as test_file:
@@ -110,8 +109,8 @@ class TestId3v23Reading:
             test_file.set_id3v1_album("ID3v1 Album")
             
             # Test that we can read both ID3v2.3 and ID3v1 metadata
-            id3v2_3_metadata_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
-            id3v1_metadata_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+            id3v2_3_metadata_result = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
+            id3v1_metadata_result = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             
             # Verify ID3v2.3 metadata is present
             assert id3v2_3_metadata_result is not None
@@ -136,7 +135,7 @@ class TestId3v23Reading:
             test_file.set_id3v2_artist("Artist Name")
             test_file.set_id3v2_album("Album Name")
             
-            metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+            metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title with ASCII"
             assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Artist Name"]
             assert metadata.get(UnifiedMetadataKey.ALBUM) == "Album Name"

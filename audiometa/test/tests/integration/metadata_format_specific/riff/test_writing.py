@@ -8,7 +8,6 @@ import pytest
 
 from audiometa import (
     get_unified_metadata,
-    get_single_format_app_metadata,
     get_specific_metadata,
     update_metadata
 )
@@ -132,7 +131,7 @@ class TestRiffWriting:
                         assert updated_metadata.get(UnifiedMetadataKey.ALBUM) == "Test WAV Album"
             
                         # Verify at RIFF level that fields were actually removed
-                        riff_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.RIFF)
+                        riff_metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.RIFF)
                         assert riff_metadata.get(UnifiedMetadataKey.TITLE) is None
 
     def test_none_vs_empty_string_behavior_riff(self, temp_audio_file):

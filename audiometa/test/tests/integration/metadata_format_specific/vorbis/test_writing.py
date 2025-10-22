@@ -5,7 +5,6 @@ from pathlib import Path
 
 from audiometa import (
     get_unified_metadata,
-    get_single_format_app_metadata,
     get_specific_metadata,
     update_metadata
 )
@@ -115,7 +114,7 @@ class TestVorbisWriting:
             assert updated_metadata.get(UnifiedMetadataKey.ALBUM) == "Test FLAC Album"
             
             # Verify at Vorbis level that fields were actually deleted
-            vorbis_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.VORBIS)
+            vorbis_metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.VORBIS)
             assert vorbis_metadata.get(UnifiedMetadataKey.TITLE) is None
             assert vorbis_metadata.get(UnifiedMetadataKey.BPM) is None
 

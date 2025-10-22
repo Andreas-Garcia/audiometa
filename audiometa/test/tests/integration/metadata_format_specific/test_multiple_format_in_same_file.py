@@ -12,7 +12,6 @@ from pathlib import Path
 
 from audiometa import (
     get_unified_metadata,
-    get_single_format_app_metadata,
     get_specific_metadata,
     update_metadata,
     AudioFile
@@ -35,8 +34,8 @@ class TestConflictingMetadata:
         assert merged_metadata.get(UnifiedMetadataKey.ALBUM) is not None
         
         # Individual format extraction should work
-        id3v1_data = get_single_format_app_metadata(metadata_id3v1_and_id3v2_mp3, MetadataFormat.ID3V1)
-        id3v2_data = get_single_format_app_metadata(metadata_id3v1_and_id3v2_mp3, MetadataFormat.ID3V2)
+        id3v1_data = get_unified_metadata(metadata_id3v1_and_id3v2_mp3, metadata_format=MetadataFormat.ID3V1)
+        id3v2_data = get_unified_metadata(metadata_id3v1_and_id3v2_mp3, metadata_format=MetadataFormat.ID3V2)
         
         # Both formats should have data
         assert id3v1_data.get(UnifiedMetadataKey.TITLE) is not None

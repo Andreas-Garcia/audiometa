@@ -3,7 +3,6 @@ from pathlib import Path
 
 from audiometa import (
     get_unified_metadata,
-    get_single_format_app_metadata,
     get_specific_metadata,
     AudioFile,
     update_metadata
@@ -43,7 +42,7 @@ class TestId3v24Reading:
             # Set test metadata
             test_file.set_id3v2_4_max_metadata()
             
-            id3v2_4_metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+            id3v2_4_metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             assert isinstance(id3v2_4_metadata, dict)
             assert UnifiedMetadataKey.TITLE in id3v2_4_metadata
 
@@ -64,7 +63,7 @@ class TestId3v24Reading:
             assert isinstance(title, str)
             
             # Test single format metadata
-            id3v2_4_metadata = get_single_format_app_metadata(audio_file, MetadataFormat.ID3V2)
+            id3v2_4_metadata = get_unified_metadata(audio_file, metadata_format=MetadataFormat.ID3V2)
             assert isinstance(id3v2_4_metadata, dict)
 
     def test_id3v2_4_version_specific_behavior(self):
@@ -73,7 +72,7 @@ class TestId3v24Reading:
             test_file.set_id3v2_4_max_metadata()
             
             # Test that ID3v2.4 specific metadata is present
-            metadata = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
+            metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             assert isinstance(metadata, dict)
             
             # ID3v2.4 uses TDRC for recording time instead of ID3v2.3's TYER
@@ -133,7 +132,7 @@ class TestId3v24Reading:
         temp_audio_file.write_bytes(b"fake audio content")
         
         with pytest.raises(FileTypeNotSupportedError):
-            get_single_format_app_metadata(str(temp_audio_file), MetadataFormat.ID3V2)
+            get_unified_metadata(str(temp_audio_file), metadata_format=MetadataFormat.ID3V2)
 
     def test_id3v2_4_with_other_formats(self):
         with TempFileWithMetadata({}, "id3v2.4") as test_file:
@@ -149,8 +148,8 @@ class TestId3v24Reading:
             update_metadata(test_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
             
             # Test that we can read both ID3v2.4 and ID3v1 metadata
-            id3v2_4_metadata_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V2)
-            id3v1_metadata_result = get_single_format_app_metadata(test_file.path, MetadataFormat.ID3V1)
+            id3v2_4_metadata_result = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
+            id3v1_metadata_result = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             
             # Verify ID3v2.4 metadata is present
             assert id3v2_4_metadata_result is not None
