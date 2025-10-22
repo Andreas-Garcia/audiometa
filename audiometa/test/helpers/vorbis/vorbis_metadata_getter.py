@@ -14,3 +14,11 @@ class VorbisMetadataGetter:
             capture_output=True, text=True, check=True
         )
         return result.stdout
+    
+    @staticmethod
+    def get_title(file_path: Path) -> str:
+        raw_metadata = VorbisMetadataGetter.get_raw_metadata(file_path)
+        for line in raw_metadata.splitlines():
+            if 'TITLE=' in line:
+                return line.split('=')[1].strip()
+        return ""
