@@ -328,11 +328,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
 
                 if not frame_value.text:
                     continue
-
-                if frame_key == 'TCON':
-                    print(f"DEBUG: converting TCON text: {frame_value.text}")
-                    print(f"DEBUG: converting frame id: {id(frame_value)}")
-                    print(f"DEBUG: converting frame has _parse_genre: {hasattr(frame_value, '_parse_genre')}")
+                
                 result[frame_key] = frame_value.text
 
         return result
@@ -446,21 +442,11 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         Returns:
             The 128-byte ID3v1 tag data if present, None otherwise
         """
-        try:
-            with open(file_path, 'rb') as f:
-                f.seek(-128, 2)  # Seek to last 128 bytes
-                data = f.read(128)
-                if data.startswith(b'TAG'):
-                    print(f"DEBUG: Found ID3v1 data: {data[:10]}")
-                    # Decode the title to see what we're preserving
-                    title_bytes = data[3:33].strip(b'\0')
-                    title = title_bytes.decode('latin1', 'replace')
-                    print(f"DEBUG: ID3v1 title being preserved: \"{title}\"")
-                    return data
-                else:
-                    print(f"DEBUG: No ID3v1 data found, last 128 bytes: {data[:10]}")
-        except (IOError, OSError) as e:
-            print(f"DEBUG: Error reading ID3v1 data: {e}")
+        with open(file_path, 'rb') as f:
+            f.seek(-128, 2)  # Seek to last 128 bytes
+            data = f.read(128)
+            if data.startswith(b'TAG'):
+                return data
         return None
     
     def _save_with_id3v1_preservation(self, file_path: str, id3v1_data: bytes | None) -> None:
