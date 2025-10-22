@@ -107,7 +107,7 @@ class TestID3v2GenreReadingStrategies:
             
             assert genres == ["Rock", "Alternative"]
 
-    def test_single_entry_mixed_separators(self):
+    def test_multi_codes_with_text_with_separators(self):
         """Test single genre entry with mixed separators: '(17)Rock/(6)Blues' -> ['Rock', 'Blues']"""
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set genre with mixed separators
