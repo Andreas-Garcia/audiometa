@@ -761,11 +761,7 @@ metadata = {
 }
 ```
 
-#### Metadata Types Checking
-
-The library performs type checking on metadata values to ensure they conform to expected types.
-
-### Validation behavior {#validation-behavior}
+#### Validation
 
 The library validates metadata value types passed to `update_metadata` when keys are provided as `UnifiedMetadataKey` instances. Rules:
 
