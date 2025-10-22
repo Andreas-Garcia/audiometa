@@ -17,8 +17,13 @@ class VorbisMetadataGetter:
     
     @staticmethod
     def get_title(file_path: Path) -> str:
-        raw_metadata = VorbisMetadataGetter.get_raw_metadata(file_path)
-        for line in raw_metadata.splitlines():
-            if 'TITLE=' in line:
-                return line.split('=')[1].strip()
+        result = subprocess.run(
+            ['metaflac', '--show-tag=TITLE', str(file_path)],
+            capture_output=True, text=True, check=True
+        )
+        # Output is like "TITLE=Song Title\n"
+        lines = result.stdout.strip().split('\n')
+        if lines and '=' in lines[0]:
+            return lines[0].split('=', 1)[1]
         return ""
+    
