@@ -236,8 +236,12 @@ class MetadataManager:
             if converted:
                 converted_genres.append(converted)
 
-        # Step 4: Return list of genre names
-        return converted_genres if converted_genres else None
+        # Step 4: Return list of genre names (remove duplicates while preserving order)
+        unique_genres = []
+        for genre in converted_genres:
+            if genre not in unique_genres:
+                unique_genres.append(genre)
+        return unique_genres if unique_genres else None
 
     def _has_genre_codes_without_separators(self, genre_string: str) -> bool:
         """
@@ -265,19 +269,17 @@ class MetadataManager:
                   "(17)Rock(6)Blues" -> ["(17)Rock", "(6)Blues"]
         """
         import re
-        # Split on pattern: opening parenthesis after optional text
-        # This handles both "(17)(6)" and "(17)Rock(6)Blues"
-        parts = re.split(r'(\(\d+\))', genre_string)
-        # Filter out empty parts and reconstruct
-        result = []
-        current_part = ""
-        for part in parts:
-            if part.strip():
-                current_part += part
-                if current_part.startswith('(') and ')' in current_part:
-                    result.append(current_part)
-                    current_part = ""
-        return result
+        # Find all consecutive (number)text patterns
+        # Each match is a complete code or code+text unit
+        pattern = r'\(\d+\)[^(\d]*'
+        matches = re.findall(pattern, genre_string)
+        
+        if matches:
+            # Filter out any empty matches
+            return [match for match in matches if match]
+        
+        # Fallback: if no matches, return the original string
+        return [genre_string]
 
     def _parse_genre_separators(self, genre_string: str) -> list[str]:
         """
