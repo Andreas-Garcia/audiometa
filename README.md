@@ -1414,12 +1414,6 @@ ID3v1 provides the most limited genre support with a fixed set of predefined gen
 - Code `17` → "Rock"
 - Code `255` → Unknown/unspecified genre
 
-**Reading Behavior:**
-
-- Numeric code is converted to genre name using lookup table
-- Only the first genre from any list is used
-- Unknown codes return generic "Unknown" or are mapped to code 255
-
 #### ID3v2.3 Format
 
 ID3v2.3 uses the TCON (Content type) frame for genre information, following the ID3v2.3.0 specification.
@@ -1427,23 +1421,21 @@ ID3v2.3 uses the TCON (Content type) frame for genre information, following the 
 **Genre Storage:**
 
 - **Format**: Numeric string with optional parentheses notation
-- **Multiple Genres**: Supported via consecutive parentheses (e.g., "(51)(39)")
-- **Custom Genres**: Can be added after genre codes (e.g., "(4)Eurodisco")
-- **Text Genres**: Direct text without parentheses also supported
+- **Multiple Genres**:
+- Supported via consecutive parentheses (e.g., "(51)(39)") or with text (e.g., "(17)Rock(6)Blues")
+- Unofficially supported via separators (e.g., "(17)Rock/(6)Blues") or multiple entries
+- **Custom Genres**: Not officially supported, but widely used
 
 **Examples:**
 
 - `"(17)"` → Rock (code 17)
 - `"(51)(39)"` → Trance + Cover (multiple codes)
-- `"(4)Eurodisco"` → Custom genre "Eurodisco" (code 4 is unused)
-- `"Rock"` → Direct text genre
-
-**Reading Behavior:**
-
-- Parentheses are parsed to extract genre codes and custom names
-- Multiple codes are converted to genre names using the ID3v1 genre map
-- Custom genres after codes are preserved as-is
-- Direct text genres are used directly
+- `"(17)Rock(6)Blues"` → Rock + Blues (code + text)
+- `"(17)/(6)"` → Rock + Blues (separator-based, unofficial)
+- `"(17)Rock; (6)Blues"` → Rock + Blues (separator-based, unofficial)
+- `"Rock"` → Direct text genre (unofficial)
+- `"Rock/Blues"` → Multiple text genres (unofficial)
+- `"Grime"` → Direct custom genre (unofficial)
 
 #### ID3v2.4 Format
 
@@ -1452,21 +1444,24 @@ ID3v2.4 provides the most flexible genre support among ID3v2 versions.
 **Genre Storage:**
 
 - **Format**: UTF-8 encoded text with null-byte separation for multiple values
-- **Multiple Genres**: Full support using null-separated values
+- **Multiple Genres**:
+  - Full support using null-separated values
+  - Unofficially supports separators (e.g., "Rock/Blues") for compatibility
+  - Unofficially supports multiple TCON frames
 - **Custom Genres**: Unlimited custom genre names
-- **Backward Compatibility**: Can still use ID3v2.3 style parentheses notation
+- **Backward Compatibility**: Can still use ID3v2.3 style parentheses notation but isn't recommended
 
 **Examples:**
 
-- `"Rock\0Alternative\0Indie"` → Multiple text genres
-- `"(17)\0(18)\0Techno"` → Mixed codes and custom genres
-- `"Electronic/Dance"` → Single genre with subgenres
-
-**Reading Behavior:**
-
-- Null-separated values are split into individual genres
-- Parentheses notation is parsed for backward compatibility
-- All genres are returned as a unified list
+- `"Rock"` → Direct text genre
+- `"Rock/0Blues"` → Multiple text genres null-separated
+- `"Rock/Blues"` → Multiple text genres (separator-based, unofficial)
+- Multiple TCON frames: `"Rock"` and `"Alternative"` → Multiple genres (unofficial)
+- `"(17)"` → Rock (not recommended)
+- `"(51)(39)"` → Trance + Cover (not recommended)
+- `"(17)Rock(6)Blues"` → Rock + Blues (not recommended)
+- `"(17)/(6)"` → Rock + Blues (not recommended)
+- `"(17)Rock; (6)Blues"` → Rock + Blues (not recommended)
 
 #### Vorbis Format
 
@@ -1475,45 +1470,34 @@ Vorbis comments (used in FLAC files) provide text-based genre storage with full 
 **Genre Storage:**
 
 - **Format**: UTF-8 text comments
-- **Multiple Genres**: Supported via semicolon separation or multiple GENRE fields
-- **Custom Genres**: Full support for any Unicode text
-- **Field Name**: Typically "GENRE" (case-insensitive)
+- **Multiple Genres**:
+  - Multiple GENRE fields
+  - Separators (unofficial)
+- **Format**: Unlimited custom genre names
 
 **Examples:**
 
-- `"GENRE=Rock; Alternative; Indie"` → Semicolon-separated genres
-- Multiple fields: `"GENRE=Rock"` and `"GENRE=Alternative"`
-- `"GENRE=Электронная музыка"` → Unicode genres supported
-
-**Reading Behavior:**
-
-- Multiple GENRE fields are combined
-- Semicolon-separated values in single fields are split
-- All text is preserved as-is (no code conversion)
+- Multiple fields: `"GENRE=Rock"` and `"GENRE=Alternative"` (official)
+- `"GENRE=Rock; Alternative; Indie"` → Semicolon-separated genres (unofficial)
 
 #### RIFF Format
 
-RIFF INFO chunks (used in WAV files) support both numeric codes and text genres.
+RIFF INFO chunks support both numeric codes and text genres.
 
 **Genre Storage:**
 
-- **Format**: IGNR chunk containing either numeric code or text
-- **Multiple Genres**: Limited - typically single value, but text mode can use separators
-- **Custom Genres**: Supported in text mode only
-- **Code Range**: 0-147 (ID3v1 compatible)
+- **Format**: IGNR chunk containing either text (official) or numeric code (unofficial) or mixed (unofficial)
+- **Multiple Genres**:
+  - Limited - typically single value, but text mode can use separators
+  - Multiple entries can be present but are not standard
 
 **Examples:**
 
-- Separator parsing attempts to extract multiple genres from text
-
-- Code mode: `17` → Rock
-- Text mode: `"Rock; Alternative"` → Multiple genres (non-standard but used)
-- Mixed: `"17; Electronic"` → Code and custom genre
-
-**Reading Behavior:**
-
-- Numeric values are converted to genre names using ID3v1 map
-- Text values are used directly
+- `"Rock"` → Single genre (official)
+- `"Rock; Alternative; Indie"` → Multiple text genres (unofficial)
+- `"17"` → Rock (code 17, unofficial)
+- `"17; 20; 131"` → Rock + Alternative + Indie (codes with separators, unofficial)
+- `"Rock; 20; Indie"` → Mixed names and codes (unofficial)
 
 #### ID3v1 Genre Code System
 
@@ -1541,152 +1525,49 @@ An exhaustive list of all genre codes is available [here](audiometa/utils/id3v1_
 189: "Dubstep"
 ```
 
-#### Automatic Genre Conversion
+#### Reading and Writing Strategy
 
-The library automatically converts genre names to appropriate codes when writing to ID3v1 and RIFF formats:
+##### Reading Genres
 
-```python
-# Writing genres - automatic conversion
-update_metadata("song.mp3", {
-    UnifiedMetadataKey.GENRES_NAMES: ["Rock", "Alternative"]
-})
+When reading genres, AudioMeta intelligently handles all the variations across formats, returning a consistent list of genre names.
 
-# For ID3v1: Converts "Rock" to code 17 (takes first genre only)
-# For RIFF: Uses genre codes (0-147) or falls back to text mode
-# For ID3v2/Vorbis: Stores as text values
-```
+It proceeds as follows:
 
-**Conversion Logic:**
+1. Extract all genre entries from the file
+2. If one entry, applies separator parsing if needed:
+   1. If codes or code+text without separators (e.g., "(17)(6)", "(17)Rock(6)Blues", "(17)Rock(6)Blues", "(17)Rock(6)"), separate accordingly conserving codes and names
+   2. If text with separators (e.g., "Rock/Blues", "Rock; Alternative", "(17)Rock/(6)Blues"), split using smart separator logic
+3. Convert any genre codes or codes + names to names using the ID3v1 genre code map
+   1. For code + text entries, use text part only
+4. Return a list of unique genre names
 
-1. **Exact Match**: Case-insensitive exact name match
-2. **Partial Match**: Genre name contained in standard name
-3. **Fallback**: Code 255 (unknown) if no match found
+**Note**: According to global multi-value logic, if multiple genre entries are found, they are returned as-is without separator parsing.
 
-**RIFF/WAV Format:**
+##### Writing Genres
 
-- **Genre Code Mode (Preferred)**: Uses predefined codes (0-147)
-- **Text Mode (Less Common)**: Direct text storage (limited compatibility)
-- **Single Genre Only**: No multiple genre support
-- **No Custom Genres**: Limited to standard genre list
+When writing genres, AudioMeta uses a smart strategy based on the target format's capabilities:
 
-#### RIFF Genre Support
+###### Writing Genres for ID3v1
 
-RIFF supports two distinct genre modes, each with different capabilities and compatibility characteristics.
+- Selects the first genre from the provided list and converts it to the corresponding ID3v1 code
+- If no matching code is found, sets genre to `255` (unknown)
 
-**Genre Code Mode:**
+###### Writing Genres for ID3v2.3
 
-- **Format**: Single numeric value (0-147) stored in IGNR tag
-- **Compatibility**: High - works with older software and players
-- **Limitations**:
-  - Only predefined genres from ID3v1/RIFF standard list
-  - Single genre only
-  - No custom genres
-- **Example**: Code `17` = "Rock", Code `20` = "Alternative"
+- If all genres have corresponding ID3v1 codes, uses parentheses notation (with text if available)
+- If any genre lacks a code, uses separator-based text format with smart separator selection
 
-**Text Mode (Less Common):**
+###### Writing Genres for ID3v2.4
 
-- **Format**: Text string stored in IGNR tag
-- **Compatibility**: Lower - not all software recognizes this mode
-- **Capabilities**:
-  - Multiple genres via separators (real-world usage)
-  - Custom genre names
-  - Mixed genre codes and names
-  - More flexible than code mode
+- Writes all genres as null-separated text values
 
-**Common Multi-Genre Text Patterns:**
+###### Writing Genres for Vorbis
 
-- `"Rock; Alternative; Indie"` (semicolon-separated names)
-- `"Jazz, Fusion, Experimental"` (comma-separated names)
-- `"Electronic/Dance/Ambient"` (slash-separated names)
-- `"17; 20; 131"` (semicolon-separated codes)
-- `"8, 30, 26"` (comma-separated codes)
-- `"Rock; 20; Indie"` (mixed names and codes)
+- Writes each genre name as a separate GENRE entry
 
-**Why This Matters:**
-Many audio editing software and tagging tools write multiple genres to RIFF files using separators, even though it's not standardized. This creates a gap between what users write and what AudioMeta currently reads.
+###### Writing Genres for RIFF
 
-**Examples:**
-
-```python
-# Example 1: Genre names only
-# File contains: "Rock; Alternative; Indie" in IGNR tag
-metadata = get_unified_metadata("song.wav")
-genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
-# Currently returns: ["Rock"] (first genre only)
-# Future: Will return: ["Rock", "Alternative", "Indie"]
-
-# Example 2: Genre codes only
-# File contains: "17; 20; 131" in IGNR tag
-metadata = get_unified_metadata("song.wav")
-genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
-# Currently returns: ["Rock"] (first code converted to name)
-# Future: Will return: ["Rock", "Alternative", "Indie"]
-
-# Example 3: Mixed codes and names
-# File contains: "Rock; 20; Indie" in IGNR tag
-metadata = get_unified_metadata("song.wav")
-genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
-# Currently returns: ["Rock"] (first genre only)
-# Future: Will return: ["Rock", "Alternative", "Indie"]
-```
-
-**ID3v1 Format:**
-
-- **Single Genre Only**: Takes first genre from list
-- **Code-Based**: Converts names to numeric codes
-- **No Custom Genres**: Limited to predefined list
-- **30-Character Limit**: Genre names truncated if too long
-
-**ID3v2/Vorbis Formats:**
-
-- **Full Flexibility**: Multiple genres, custom names
-- **Text-Based**: No code conversion needed
-- **Separator Support**: Handles semicolon-separated values
-- **Unlimited**: No practical limits on genre count
-
-#### Working with Genre Codes
-
-```python
-from audiometa.utils.id3v1_genre_code_map import ID3V1_GENRE_CODE_MAP
-
-# Look up genre code
-genre_code = 17  # Rock
-genre_name = ID3V1_GENRE_CODE_MAP[genre_code]  # "Rock"
-
-# Find code by name
-def find_genre_code(name):
-    for code, genre in ID3V1_GENRE_CODE_MAP.items():
-        if genre and genre.lower() == name.lower():
-            return code
-    return None
-
-rock_code = find_genre_code("Rock")  # Returns 17
-```
-
-#### Multiple Genre Handling
-
-**Reading Multiple Genres:**
-
-```python
-metadata = get_unified_metadata("song.mp3")
-genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
-# Returns: ['Rock', 'Alternative', 'Indie'] (list)
-```
-
-**Writing Multiple Genres:**
-
-```python
-# All formats accept lists
-update_metadata("song.mp3", {
-    UnifiedMetadataKey.GENRES_NAMES: ["Rock", "Alternative", "Indie"]
-})
-
-# Format-specific behavior:
-# - ID3v2: Stores all genres as separate frames
-# - Vorbis: Stores as semicolon-separated values
-# - RIFF: Uses first genre only (code-based)
-# - ID3v1: Uses first genre only (code-based)
-```
+- Writes genres as text using smart separator selection
 
 ### Rating Profiles
 
