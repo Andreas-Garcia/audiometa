@@ -122,11 +122,8 @@ class ID3v2MetadataSetter:
         if separator is None:
             separator = ";" if version == "2.3" else "\x00"
         
-        # Combine values with the appropriate separator
-        combined_text = separator.join(values) if len(values) > 1 else values[0] if values else ""
-        
-        # Use mid3v2 for all cases
-        ID3v2MetadataSetter._set_single_frame_with_mid3v2(file_path, frame_id, combined_text, version)
+        # Use appropriate method for all cases
+        ID3v2MetadataSetter._set_single_frame_with_mid3v2(file_path, frame_id, values, version, separator)
     
     @staticmethod
     def _set_multiple_metadata_values(file_path: Path, frame_id: str, values: List[str], in_separate_frames: bool = False, version: str = "2.4", separator: str = None) -> None:
@@ -266,33 +263,48 @@ class ID3v2MetadataSetter:
             creator._write_id3v2_tag(file_path, frames, version)
     
     @staticmethod
-    def _set_single_frame_with_mid3v2(file_path: Path, frame_id: str, text: str, version: str) -> None:
-        """Internal helper: Create a single ID3v2 frame using appropriate tool based on version.
+    def _set_single_frame_with_mid3v2(file_path: Path, frame_id: str, alist: List[str], version: str, separator: str = None) -> None:
+        """Internal helper: Create a single ID3v2 frame using appropriate method based on version.
+        
+        For ID3v2.4, uses manual binary construction to handle null bytes in data.
+        For ID3v2.3, uses external id3v2 tool.
         
         Args:
             file_path: Path to the audio file
             frame_id: The ID3v2 frame identifier (e.g., 'TPE1', 'TCON', 'TCOM', 'TIT2')
-            text: Text value for the frame
+            alist: List of text values for the frame
             version: ID3v2 version to use (e.g., "2.3", "2.4")
+            separator: Separator to use between values. If None, uses default.
         """
-        # Map frame IDs to tool flags
-        flag_mapping = {
-            'TCON': '--genre',
-            'TIT2': '--song',
-            'TPE1': '--artist',
-            'TALB': '--album',
-            'TDRC': '--year',
-            'TRCK': '--track',
-            'COMM': '--comment'
-        }
+        # Determine separator if not provided
+        if separator is None:
+            separator = ";" if version == "2.3" else "\x00"
         
-        flag = flag_mapping.get(frame_id, f'--{frame_id.lower()}')
+        # Combine values with the appropriate separator
+        combined_text = separator.join(alist) if len(alist) > 1 else alist[0] if alist else ""
         
-        if version == "2.3":
-            command = ["id3v2", "--id3v2-only", flag, text, str(file_path)]
-            tool = "id3v2"
+        if version == "2.4":
+            # Use manual binary construction to handle null bytes in data
+            from .id3v2_frame_manual_creator import ManualID3v2FrameCreator
+            creator = ManualID3v2FrameCreator()
+            frame_data = creator._create_text_frame(frame_id, combined_text, version)
+            creator._write_id3v2_tag(file_path, [frame_data], version)
         else:
-            command = ["mid3v2", flag, text, str(file_path)]
-            tool = "mid3v2"
-        
-        run_external_tool(command, tool)
+            # Use external tool for 2.3
+            # Map frame IDs to tool flags
+            flag_mapping = {
+                'TCON': '--genre',
+                'TIT2': '--song',
+                'TPE1': '--artist',
+                'TALB': '--album',
+                'TDRC': '--year',
+                'TRCK': '--track',
+                'COMM': '--comment'
+            }
+            
+            flag = flag_mapping.get(frame_id, f'--{frame_id.lower()}')
+            
+            command = ["id3v2", "--id3v2-only", flag, combined_text, str(file_path)]
+            tool = "id3v2"
+            
+            run_external_tool(command, tool)
