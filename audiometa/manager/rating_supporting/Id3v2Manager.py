@@ -1,6 +1,5 @@
 
 from typing import Type, cast
-import warnings
 
 from mutagen._file import FileType as MutagenMetadata
 from mutagen.id3 import ID3
@@ -262,6 +261,32 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                          metadata_keys_direct_map_write=metadata_keys_direct_map_write,
                          rating_write_profile=RatingWriteProfile.BASE_255_NON_PROPORTIONAL,
                          normalized_rating_max_value=normalized_rating_max_value)
+        
+
+    def _restore_raw_tcon(self, id3: ID3) -> None:
+        """
+        Replace interpreted TCON frame data with its raw text content.
+        
+        Mutagen automatically maps genre codes like '(17)' to names like 'Rock'.
+        This function restores the original raw text (e.g., '(17)Rock(6)Blues')
+        so that custom logic can parse it instead.
+
+        Parameters
+        ----------
+        id3 : mutagen.id3.ID3
+            An ID3 tag object (already loaded).
+        """
+        if 'TCON' not in id3:
+            return  # No genre frame to restore
+
+        frame = id3['TCON']
+
+        # Get the raw text list (not interpreted genres) by calling the parent TextFrame's _text_from_data
+        raw_text = super(TCON, frame)._text_from_data(frame.data, frame.encoding)
+
+        # Rebuild the frame with the raw text so mutagen won’t interpret it
+        id3.delall('TCON')
+        id3.add(TCON(encoding=frame.encoding, text=raw_text))
 
     def _extract_mutagen_metadata(self) -> MutagenMetadata:
         try:
@@ -269,6 +294,11 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             # Upgrade to specified version if different
             if id3.version != self.id3v2_version:
                 id3.version = self.id3v2_version
+            
+            print(f"tcon before restore: {id3['TCON'].text if 'TCON' in id3 else 'N/A'}")
+            self._restore_raw_tcon(id3)
+            print(f"tcon after restore: {id3['TCON'].text if 'TCON' in id3 else 'N/A'}")
+
             return id3
         except ID3NoHeaderError:
             try:
