@@ -1390,13 +1390,13 @@ AudioMeta provides comprehensive genre support across all audio formats, with in
 
 #### Genre Support by Format
 
-| Format      | Multiple Genres | Genre Codes | Custom Genres | Notes                                                                      |
-| ----------- | --------------- | ----------- | ------------- | -------------------------------------------------------------------------- |
-| **ID3v1**   | ❌              | ✅          | ❌            | Single genre with code conversion                                          |
-| **ID3v2.3** | ✅              | ✅          | ✅            | Custom genres after codes (e.g., "(4)Eurodisco")                           |
-| **ID3v2.4** | ✅              | ✅          | ✅            | Full support for multiple genres and custom names                          |
-| **Vorbis**  | ✅              | ❌          | ✅            | Text-based genres with separator support                                   |
-| **RIFF**    | ✅\*            | ✅          | ✅\*          | Text mode: multiple genres via separators; Code mode: single genre (0-147) |
+| Format      | Multiple | Id3v1 Codes | Custom | Code + Text | Notes                                                                      |
+| ----------- | -------- | ----------- | ------ | ----------- | -------------------------------------------------------------------------- |
+| **ID3v1**   | ❌       | ✅          | ❌     | ❌          | Single genre with code conversion                                          |
+| **ID3v2.3** | ✅       | ✅          | ✅     | ✅          | Hybrid: codes or genres after codes or just text (non official)            |
+| **ID3v2.4** | ✅       | ✅          | ✅     | ✅          | Full support for multiple genres and custom names                          |
+| **Vorbis**  | ✅       | ❌          | ✅     | ❌          | Multi entries and separator support                                        |
+| **RIFF**    | ✅\*     | ✅          | ✅\*   | ✅          | Text mode: multiple genres via separators; Code mode: single genre (0-147) |
 
 #### ID3v1 Format
 
