@@ -40,3 +40,8 @@ class ID3v1MetadataGetter:
                 metadata[field] = raw_bytes[0] if raw_bytes else 0
         
         return metadata
+
+    @staticmethod
+    def get_title(file_path):
+        metadata = ID3v1MetadataGetter.get_raw_metadata(file_path)
+        return metadata.get('title', '')
