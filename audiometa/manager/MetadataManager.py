@@ -250,7 +250,7 @@ class MetadataManager:
         """
         import re
         # Pattern matches parentheses with digits, optionally followed by text, repeated
-        pattern = r'^\(\d+\)(?:\w*\(\d+\))*$'
+        pattern = r'^\(\d+\)(?:\w*\(\d+\))*\w*$'
         return bool(re.match(pattern, genre_string))
 
     def _has_genre_separators(self, genre_string: str) -> bool:
