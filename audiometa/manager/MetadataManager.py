@@ -187,7 +187,7 @@ class MetadataManager:
 
         This method implements the comprehensive genre reading strategy that handles:
         1. Multiple genre entries from the file
-        2. Separator parsing for single entries (codes, code+text, text with separators)
+        2. Separator parsing for single entries (text with separators, codes, code+text)
         3. ID3v1 genre code conversion
         4. Consistent list output of genre names
 
@@ -217,11 +217,11 @@ class MetadataManager:
             single_entry = genre_entries[0]
 
             # Check for codes or code+text without separators (e.g., "(17)(6)", "(17)Rock(6)Blues")
-            if self._has_genre_codes_without_separators(single_entry):
+            if self._has_genre_separators(single_entry):
+                parsed_genres = self._parse_genre_separators(single_entry)
+            elif self._has_genre_codes_without_separators(single_entry):
                 parsed_genres = self._parse_genre_codes_and_text(single_entry)
             # Check for text with separators (e.g., "Rock/Blues", "Rock; Alternative")
-            elif self._has_genre_separators(single_entry):
-                parsed_genres = self._parse_genre_separators(single_entry)
             else:
                 # No special parsing needed
                 parsed_genres = [single_entry]
@@ -259,8 +259,8 @@ class MetadataManager:
         Examples: "Rock/Blues", "Rock; Alternative", "(17)Rock/(6)Blues"
         """
         # Check for common separators
-        separators = ['//', '\\\\', '\\', ';', '/', ',']
-        return any(sep in genre_string for sep in separators)
+
+        return any(sep in genre_string for sep in METADATA_MULTI_VALUE_SEPARATORS)
 
     def _parse_genre_codes_and_text(self, genre_string: str) -> list[str]:
         """
