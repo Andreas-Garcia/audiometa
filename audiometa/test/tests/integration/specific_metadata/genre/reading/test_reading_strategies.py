@@ -18,7 +18,7 @@ class TestID3v2GenreReadingStrategies:
             
             # Validate raw metadata
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
-            assert "(17)(6)" in raw_metadata
+            assert '(17)(6)' in raw_metadata
             
             # Read via API
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
