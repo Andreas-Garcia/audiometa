@@ -9,19 +9,9 @@ class ID3v2MetadataGetter:
     """Helper class to get ID3v2 metadata from audio files using the id3v2 tool."""
     @staticmethod
     def get_raw_metadata(file_path):
-        """
-        Runs id3v2 tool and returns a dict of FRAMEID to value, e.g. {'TPE1': 'Artist One;Artist Two;Artist Three'}
-        """
-        result = run_external_tool(["id3v2", "-l", str(file_path)], "id3v2")
-        lines = result.stdout.splitlines()
-        metadata = {}
-        for line in lines:
-            # Match lines like: FRAMEID (Description): Value
-            if "(" in line and "):" in line:
-                frame_id = line.split(" ", 1)[0]
-                value = line.split("):", 1)[-1].strip()
-                metadata[frame_id] = value
-        return metadata
+        """Get the raw metadata from the audio file using mid3v2 tool."""
+        result = run_external_tool(["mid3v2", "--list-raw", str(file_path)], "mid3v2")
+        return result.stdout
 
 
     @staticmethod
@@ -60,4 +50,3 @@ class ID3v2MetadataGetter:
     def get_track(file_path):
         metadata = ID3v2MetadataGetter.get_metadata(file_path)
         return metadata.get('track')
-
