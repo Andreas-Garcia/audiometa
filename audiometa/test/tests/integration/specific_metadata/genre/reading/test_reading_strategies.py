@@ -65,8 +65,19 @@ class TestID3v2GenreReadingStrategies:
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock", "Blues"]
+
+    def test_one_code_and_one_code_text_in_single_entry(self):
+        """Test one code and one code+text: '(17)', '(6)Grunge' -> ['Rock', 'Grunge']"""
+        with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
+            # Set genre with one code and one code+text
+            ID3v2MetadataSetter.set_genres(test_file.path, ["(17)(6)Grunge"], version="2.4")
             
-    def test_one_code_and_one_code_text(self):
+            # Read via API
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
+            
+            assert genres == ["Rock", "Grunge"]
+            
+    def test_one_code_and_one_code_text_in_multi_entries(self):
         """Test one code and one code+text: '(17)', '(6)Grunge' -> ['Rock', 'Grunge']"""
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set genre with one code and one code+text
