@@ -139,7 +139,7 @@ class TestID3v2GenreReadingStrategies:
             # Should return as-is without parsing
             assert set(genres) == {"Rock/Grunge", "Blues"}
 
-    def test_code_to_name_conversion(self):
+    def test_code_to_name_conversion_with_unknown_code(self):
         """Test code conversion: '(17)' -> 'Rock', (unknown code) -> unknown code in parentheses should be converted as 'Unknown'"""
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set genre with known and unknown codes
