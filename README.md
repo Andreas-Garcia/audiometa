@@ -181,28 +181,28 @@ A comprehensive Python library for reading and writing audio metadata across mul
 
 ### Format Capabilities
 
-#### ID3v1
+#### ID3v1 Metadata Format
 
 - **Primary Support**: MP3 files (native format)
 - **Extended Support**: FLAC and WAV files with ID3v1 tags
 - **Limitations**: 30-character field limits, no album artist support
 - **Operations**: Full read/write support with direct file manipulation
 
-#### ID3v2
+#### ID3v2 Metadata Format
 
 - **Supported Formats**: MP3, WAV, FLAC
 - **Features**: All metadata fields, multiple artists, cover art, extended metadata
 - **Versions**: Supports ID3v2.3 and ID3v2.4
 - **Note**: Most versatile format, works across multiple file types
 
-#### Vorbis
+#### Vorbis Metadata Format
 
 - **Primary Support**: FLAC files (native Vorbis comments)
 - **Features**: Most metadata fields, multiple artists, cover art
 - **Limitations**: Some fields not supported (lyrics, etc.)
 - **Note**: Standard metadata format for FLAC files
 
-#### RIFF
+#### RIFF Metadata Format
 
 - **Strict Support**: WAV files only
 - **Features**: Most metadata fields including album artist, language, comments
@@ -466,18 +466,18 @@ print(f"File extension: {audio_file.file_extension}")
 
 When the same metadata tag exists in multiple formats within the same file, the library follows file-specific precedence orders for reading:
 
-#### FLAC Files
+#### FLAC Files Reading Priorities
 
 1. **Vorbis** (highest precedence)
 2. **ID3v2**
 3. **ID3v1** (lowest precedence, legacy format)
 
-#### MP3 Files
+#### MP3 Files Reading Priorities
 
 1. **ID3v2** (highest precedence)
 2. **ID3v1** (lowest precedence, legacy format)
 
-#### WAV Files
+#### WAV Files Reading Priorities
 
 1. **RIFF** (highest precedence)
 2. **ID3v2**
