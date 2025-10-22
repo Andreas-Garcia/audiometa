@@ -2,9 +2,11 @@ import pytest
 
 from audiometa import delete_all_metadata, update_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
-from audiometa.test.helpers.common.comprehensive_header_verifier import ComprehensiveHeaderVerifier
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from test.helpers.id3v1.id3v1_header_verifier import ID3v1HeaderVerifier
+from test.helpers.id3v2.id3v2_header_verifier import ID3v2HeaderVerifier
+from test.helpers.vorbis.vorbis_header_verifier import VorbisHeaderVerifier
 
 
 @pytest.mark.integration
@@ -22,19 +24,19 @@ class TestAudioFormatHeaderDeletion:
             id3v1_metadata = {UnifiedMetadataKey.ALBUM: "FLAC ID3v1 Album"}
             update_metadata(flac_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
 
-            headers = ComprehensiveHeaderVerifier.get_metadata_headers_present(flac_file.path)
-            assert headers['vorbis'], "FLAC should have Vorbis metadata header"
-            assert headers['id3v2'], "FLAC should have ID3v2 metadata header"
-            assert headers['id3v1'], "FLAC should have ID3v1 metadata header"
+            assert VorbisHeaderVerifier.has_vorbis_comments(flac_file.path)
+            assert ID3v1HeaderVerifier.has_id3v1_header(flac_file.path)
+            assert ID3v2HeaderVerifier.has_id3v2_header(flac_file.path)
         
             # Test header removal
             result = delete_all_metadata(flac_file.path)
             assert result is True
             
             # After deletion, headers should be removed
-            headers_after = ComprehensiveHeaderVerifier.get_metadata_headers_present(flac_file.path)
-            assert not any(headers_after.values()), "All FLAC metadata headers should be deleted"
-            
+            assert not VorbisHeaderVerifier.has_vorbis_comments(flac_file.path)
+            assert not ID3v1HeaderVerifier.has_id3v1_header(flac_file.path)
+            assert not ID3v2HeaderVerifier.has_id3v2_header(flac_file.path)
+
     def test_header_detection_wav(self):
         with TempFileWithMetadata({"title": "WAV Test"}, "wav") as wav_file:
             
@@ -47,18 +49,18 @@ class TestAudioFormatHeaderDeletion:
             id3v1_metadata = {UnifiedMetadataKey.ALBUM: "WAV ID3v1 Album"}
             update_metadata(wav_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
 
-            headers = ComprehensiveHeaderVerifier.get_metadata_headers_present(wav_file.path)
-            assert headers['id3v2'], "WAV should have ID3v2 metadata header"
-            assert headers['id3v1'], "WAV should have ID3v1 metadata header"
-            assert headers['riff'], "WAV should have RIFF metadata header"
+            assert VorbisHeaderVerifier.has_vorbis_comments(wav_file.path)
+            assert ID3v1HeaderVerifier.has_id3v1_header(wav_file.path)
+            assert ID3v2HeaderVerifier.has_id3v2_header(wav_file.path)
         
             # Test header removal
             result = delete_all_metadata(wav_file.path)
             assert result is True
             
             # After deletion, headers should be removed
-            headers_after = ComprehensiveHeaderVerifier.get_metadata_headers_present(wav_file.path)
-            assert not any(headers_after.values()), "All WAV metadata headers should be deleted"
+            assert not VorbisHeaderVerifier.has_vorbis_comments(wav_file.path)
+            assert not ID3v1HeaderVerifier.has_id3v1_header(wav_file.path)
+            assert not ID3v2HeaderVerifier.has_id3v2_header(wav_file.path)
             
     def test_header_detection_mp3(self):
         with TempFileWithMetadata({"title": "MP3 Test"}, "mp3") as mp3_file:
@@ -69,15 +71,13 @@ class TestAudioFormatHeaderDeletion:
             id3v1_metadata = {UnifiedMetadataKey.ALBUM: "MP3 ID3v1 Album"}
             update_metadata(mp3_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
 
-            headers = ComprehensiveHeaderVerifier.get_metadata_headers_present(mp3_file.path)
-            assert headers['id3v2'], "MP3 should have ID3v2 metadata header"
-            assert headers['id3v1'], "MP3 should have ID3v1 metadata header"
+            assert ID3v1HeaderVerifier.has_id3v1_header(mp3_file.path)
+            assert ID3v2HeaderVerifier.has_id3v2_header(mp3_file.path)
         
             # Test header removal
             result = delete_all_metadata(mp3_file.path)
             assert result is True
             
             # After deletion, headers should be removed
-            headers_after = ComprehensiveHeaderVerifier.get_metadata_headers_present(mp3_file.path)
-            assert not any(headers_after.values()), "All MP3 metadata headers should be deleted"
-            
+            assert not ID3v1HeaderVerifier.has_id3v1_header(mp3_file.path)
+            assert not ID3v2HeaderVerifier.has_id3v2_header(mp3_file.path)
