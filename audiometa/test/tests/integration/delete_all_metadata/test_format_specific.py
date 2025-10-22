@@ -1,14 +1,11 @@
 import pytest
-from pathlib import Path
 
-from audiometa import (
-    delete_all_metadata,
-    get_unified_metadata,
-    update_metadata
-)
+from audiometa import delete_all_metadata, get_unified_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
+from audiometa.test.helpers.id3v1 import ID3v1MetadataSetter
 
 
 @pytest.mark.integration
@@ -16,8 +13,7 @@ class TestDeleteAllMetadataFormatSpecific:
 
     def test_delete_all_metadata_format_specific_id3v2(self):
         with TempFileWithMetadata({"title": "Test Title", "artist": "Test Artist"}, "mp3") as test_file:
-            test_file.set_id3v2_title("Test ID3v2 Title")
-            test_file.set_id3v2_artist("Test ID3v2 Artist")
+            ID3v2MetadataSetter.set_metadata(test_file.path, {"title": "Test ID3v2 Title", "artist": "Test ID3v2 Artist"})
 
             result = delete_all_metadata(test_file.path, tag_format=MetadataFormat.ID3V2)
             assert result is True
@@ -28,8 +24,7 @@ class TestDeleteAllMetadataFormatSpecific:
 
     def test_delete_all_metadata_format_specific_id3v1(self):
         with TempFileWithMetadata({"title": "Test ID3v1 Title", "artist": "Test ID3v1 Artist"}, "id3v1") as test_file:
-            test_file.set_id3v1_title("Test ID3v1 Title")
-            test_file.set_id3v1_artist("Test ID3v1 Artist")
+            ID3v1MetadataSetter.set_metadata(test_file.path, {"title": "Test ID3v1 Title", "artist": "Test ID3v1 Artist"})
             
             result = delete_all_metadata(test_file.path, tag_format=MetadataFormat.ID3V1)
             assert result is True
@@ -57,9 +52,7 @@ class TestDeleteAllMetadataFormatSpecific:
         with TempFileWithMetadata({"title": "Test RIFF Title", "artist": "Test RIFF Artist"}, "wav") as test_file:
             # Create WAV file with both RIFF and ID3v2 metadata
             # Add ID3v2 metadata using TempFileWithMetadata methods
-            test_file.set_id3v2_title("Test ID3v2 Title")
-            test_file.set_id3v2_artist("Test ID3v2 Artist")
-            test_file.set_id3v2_album("Test ID3v2 Album")
+            ID3v2MetadataSetter.set_metadata(test_file.path, {"title": "Test ID3v2 Title", "artist": "Test ID3v2 Artist", "album": "Test ID3v2 Album"})
             
             # Verify both formats have metadata before deletion
             riff_before = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.RIFF)
