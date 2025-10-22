@@ -1,9 +1,6 @@
 import pytest
 
-from audiometa import (
-    delete_all_metadata,
-    get_unified_metadata
-)
+from audiometa import delete_all_metadata, get_unified_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
