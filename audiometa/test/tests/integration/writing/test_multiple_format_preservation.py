@@ -5,14 +5,12 @@ does not affect other formats. It covers the main working combinations.
 """
 
 import pytest
-from pathlib import Path
 
 from audiometa import (
     update_metadata,
     get_unified_metadata,
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
-from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
