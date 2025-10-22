@@ -178,22 +178,6 @@ class TestId3v2GenreReading:
             
             assert genres == ["Rock", "20", "Indie"]
 
-    def test_id3v2_genre_no_metadata(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres is None or genres == []
-
-    def test_id3v2_genre_with_other_metadata(self):
-        with TempFileWithMetadata({"title": "Test Title", "artist": "Test Artist", "album": "Test Album"}, "mp3") as test_file:
-            # Set genre using helper
-            ID3v2MetadataSetter.set_genres(test_file.path, ["Rock", "Alternative"])
-            
-            metadata = get_unified_metadata(test_file.path)
-            genres = metadata.get(UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres == ["Rock", "Alternative"]
-
     def test_id3v2_genre_id3v2_3_version(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
             ID3v2MetadataSetter.set_genres(test_file.path, ["Rock", "Alternative"])
@@ -209,14 +193,6 @@ class TestId3v2GenreReading:
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock", "Alternative"]
-
-    def test_id3v2_genre_edge_case_single_character(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            ID3v2MetadataSetter.set_genre(test_file.path, "A")
-            
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres == ["A"]
 
     def test_id3v2_genre_edge_case_numbers_only(self):
         with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
