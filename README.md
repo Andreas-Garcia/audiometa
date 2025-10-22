@@ -1196,12 +1196,12 @@ The following fields are treated as semantically multi-value:
 - `ALBUM_ARTISTS` - Multiple album artist names
 - `GENRES_NAMES` - Multiple genre classifications
 - `COMPOSERS` - Multiple composer names
-- `MUSICIANS` - Multiple musician credits (ID3v2.4)
-- `CONDUCTORS` - Multiple conductor names (ID3v2.4)
+- `MUSICIANS` - Multiple musician credits
+- `CONDUCTORS` - Multiple conductor names
 - `ARRANGERS` - Multiple arranger names
-- `LYRICISTS` - Multiple lyricist names (ID3v2.4)
-- `INVOLVED_PEOPLE` - Multiple involved people credits (ID3v2.4)
-- `PERFORMERS` - Multiple performer names (Vorbis)
+- `LYRICISTS` - Multiple lyricist names
+- `INVOLVED_PEOPLE` - Multiple involved people credits
+- `PERFORMERS` - Multiple performer names
 
 ##### Ways to handle multiple values
 
