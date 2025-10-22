@@ -300,7 +300,7 @@ class TestGetFullMetadata:
         from audiometa.test.helpers.id3v2 import ID3V2HeaderVerifier
         from audiometa.test.helpers.vorbis import VorbisHeaderVerifier
         from audiometa.test.helpers.riff import RIFFHeaderVerifier
-        from audiometa.test.helpers.common import ComprehensiveMetadataVerifier
+        from audiometa.test.helpers.common import ComprehensiveHeaderVerifier
         
         # Test MP3 format
         with TempFileWithMetadata({"title": "MP3 Test"}, "mp3") as mp3_manager:
@@ -311,7 +311,7 @@ class TestGetFullMetadata:
         # Test FLAC format
         with TempFileWithMetadata({"title": "FLAC Test"}, "flac") as flac_manager:
             # FLAC might have both ID3v2 and Vorbis comments
-            headers = ComprehensiveMetadataVerifier.get_metadata_headers_present(flac_manager.path)
+            headers = ComprehensiveHeaderVerifier.get_metadata_headers_present(flac_manager.path)
             print(f"FLAC headers: {headers}")
             # At least one should be present
             assert headers['id3v2'] or headers['vorbis'], "FLAC should have some metadata headers"
@@ -319,7 +319,7 @@ class TestGetFullMetadata:
         # Test WAV format
         with TempFileWithMetadata({"title": "WAV Test"}, "wav") as wav_manager:
             # WAV might have both ID3v2 and RIFF INFO
-            headers = ComprehensiveMetadataVerifier.get_metadata_headers_present(wav_manager.path)
+            headers = ComprehensiveHeaderVerifier.get_metadata_headers_present(wav_manager.path)
             print(f"WAV headers: {headers}")
             # At least one should be present
             assert headers['id3v2'] or headers['riff'], "WAV should have some metadata headers"

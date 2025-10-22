@@ -1,7 +1,7 @@
 """Comprehensive metadata verification utilities for testing audio file metadata."""
 
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, List
 
 from ..id3v2 import ID3V2HeaderVerifier
 from ..id3v1 import ID3v1HeaderVerifier
@@ -9,7 +9,7 @@ from ..vorbis import VorbisHeaderVerifier
 from ..riff import RIFFHeaderVerifier
 
 
-class ComprehensiveMetadataVerifier:
+class ComprehensiveHeaderVerifier:
     """Utilities for comprehensive metadata verification across all formats."""
     
     @staticmethod
@@ -45,7 +45,7 @@ class ComprehensiveMetadataVerifier:
         if expected_removed is None:
             expected_removed = ['id3v2', 'id3v1', 'vorbis', 'riff']
         
-        headers_present = ComprehensiveMetadataVerifier.get_metadata_headers_present(file_path)
+        headers_present = ComprehensiveHeaderVerifier.get_metadata_headers_present(file_path)
         
         return {
             format_name: not headers_present.get(format_name, False)
