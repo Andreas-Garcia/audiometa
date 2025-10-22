@@ -1541,7 +1541,7 @@ It proceeds as follows:
    1. If codes or code+text without separators (e.g., "(17)(6)", "(17)Rock(6)Blues", "(17)Rock(6)Blues", "(17)Rock(6)"), separate accordingly conserving codes and names
    2. If text with separators (e.g., "Rock/Blues", "Rock; Alternative", "(17)Rock/(6)Blues"), split using smart separator logic
 3. Convert any genre codes or codes + names to names using the ID3v1 genre code map
-   1. For code + text entries, use text part only
+   1. For code + text entries, use text part only for more flexibility
 4. Return a list of unique genre names
 
 **Note**: According to global multi-value logic, if multiple genre entries are found, they are returned as-is without separator parsing.
