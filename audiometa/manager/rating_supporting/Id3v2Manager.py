@@ -3,7 +3,7 @@ from typing import Type, cast
 
 from mutagen._file import FileType as MutagenMetadata
 from mutagen.id3 import ID3
-from mutagen.id3._frames import COMM, POPM, TALB, TBPM, TCOM, TCON, TCOP, TDRC, TDRL, TDAT, TENC, TIT2, TKEY, TLAN, TMOO, TPE1, TPE2, TPUB, TRCK, TSRC, TYER, USLT, WOAR
+from mutagen.id3._frames import COMM, POPM, TALB, TBPM, TCOM, TCON, TCOP, TDRC, TDRL, TDAT, TENC, TextFrame, TIT2, TKEY, TLAN, TMOO, TPE1, TPE2, TPUB, TRCK, TSRC, TYER, USLT, WOAR
 from mutagen.id3._util import ID3NoHeaderError
 
 
@@ -263,7 +263,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                          normalized_rating_max_value=normalized_rating_max_value)
         
 
-    def _restore_raw_tcon(self, id3: ID3) -> None:
+    def _restore_raw_tcon_reading_raw_genre_with_mid3v2(self, id3: ID3) -> None:
         """
         Replace interpreted TCON frame data with its raw text content.
         
@@ -276,29 +276,40 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         id3 : mutagen.id3.ID3
             An ID3 tag object (already loaded).
         """
-        if 'TCON' not in id3:
-            return  # No genre frame to restore
-
-        frame = id3['TCON']
-
-        # Get the raw text list (not interpreted genres) by calling the parent TextFrame's _text_from_data
-        raw_text = super(TCON, frame)._text_from_data(frame.data, frame.encoding)
-
-        # Rebuild the frame with the raw text so mutagen won’t interpret it
+        
         id3.delall('TCON')
-        id3.add(TCON(encoding=frame.encoding, text=raw_text))
+        
+        # Read raw genres from another tool than mutagen
+        import subprocess
+        file_path = self.audio_file.get_file_path_or_object()
+
+        # Use mid3v2 tool to read raw genre information
+        result = subprocess.run(['mid3v2', "--list-raw", file_path],
+                                capture_output=True, text=True, check=True)
+        
+        # Parse the output to find TCON frames
+        import re
+        for line in result.stdout.split('\n'):
+            if line.startswith('TCON('):
+                # Parse the line to extract the text, e.g., "TCON(encoding=<Encoding.UTF8: 3>, text=['(17)Rock(6)Blues'])"
+                match = re.search(r"text=\['([^']+)'\]", line)
+                if match:
+                    raw_genre_text = match.group(1)
+                    # Add the TCON frame with raw text
+                    from mutagen.id3._frames import TCON
+                    id3.add(TCON(encoding=3, text=raw_genre_text))
+                    
 
     def _extract_mutagen_metadata(self) -> MutagenMetadata:
         try:
             id3 = ID3(self.audio_file.get_file_path_or_object(), load_v1=False)  # type: ignore[return-value]
+            
             # Upgrade to specified version if different
             if id3.version != self.id3v2_version:
                 id3.version = self.id3v2_version
+                        
+            self._restore_raw_tcon_reading_raw_genre_with_mid3v2(id3)
             
-            print(f"tcon before restore: {id3['TCON'].text if 'TCON' in id3 else 'N/A'}")
-            self._restore_raw_tcon(id3)
-            print(f"tcon after restore: {id3['TCON'].text if 'TCON' in id3 else 'N/A'}")
-
             return id3
         except ID3NoHeaderError:
             try:
@@ -357,6 +368,10 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                 if not frame_value.text:
                     continue
 
+                if frame_key == 'TCON':
+                    print(f"DEBUG: converting TCON text: {frame_value.text}")
+                    print(f"DEBUG: converting frame id: {id(frame_value)}")
+                    print(f"DEBUG: converting frame has _parse_genre: {hasattr(frame_value, '_parse_genre')}")
                 result[frame_key] = frame_value.text
 
         return result
