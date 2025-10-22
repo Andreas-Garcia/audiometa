@@ -8,7 +8,7 @@ from typing import Dict, Any
 class VorbisMetadataGetter:
     
     @staticmethod
-    def get_raw_metadata(file_path: Path, tag_name: str) -> Dict[str, Any]:
+    def get_raw_metadata(file_path: Path) -> Dict[str, Any]:
         result = subprocess.run(
             ['metaflac', '--list', str(file_path)],
             capture_output=True, text=True, check=True
