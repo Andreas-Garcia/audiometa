@@ -56,7 +56,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
     - [`delete_all_metadata(file_path, tag_format=None)`](#delete_all_metadatafile_path-tag_formatnone)
   - [AudioFile Class](#audiofile-class)
 - [Error Handling](#error-handling)
-- [Metadata Field Reference](#metadata-field-reference)
+- [Metadata Field Guide: Support and Handling](#metadata-field-guide-support-and-handling)
   - [Metadata Support by Format](#metadata-support-by-format)
     - [ID3v2](#id3v2)
     - [ID3v1](#id3v1)
@@ -1101,11 +1101,13 @@ except MetadataNotSupportedError:
     print("Metadata field not supported for this format")
 ```
 
-## Metadata Field Reference
+## Metadata Field Guide: Support and Handling
 
-The library supports a comprehensive set of metadata fields across different audio formats. The table below shows which fields are supported by each format:
+This section covers AudioMeta's metadata field support across audio formats (ID3v1, ID3v2, Vorbis, RIFF), including support matrices, multiple value handling, format limitations, and special cases for genres, ratings, and edge cases.
 
 ### Metadata Support by Format
+
+The library supports a comprehensive set of metadata fields across different audio formats. The table below shows which fields are supported by each format:
 
 | Field             | ID3v1         | ID3v2        | Vorbis       | RIFF          | AudioMeta Support |
 | ----------------- | ------------- | ------------ | ------------ | ------------- | ----------------- |
