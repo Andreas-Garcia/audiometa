@@ -31,9 +31,14 @@ A comprehensive Python library for reading and writing audio metadata across mul
 - [Core API Reference](#core-api-reference)
   - [Reading Metadata (API Reference)](#reading-metadata-api-reference)
     - [Reading Priorities (Tag Precedence)](#reading-priorities-tag-precedence)
-    - [`get_unified_metadata(file_path, metadata_format=None)`](#get_unified_metadatafile_path-metadata_formatnone)
-    - [`get_specific_metadata(file_path, field, metadata_format=None)`](#get_specific_metadatafile_path-field-metadata_formatnone)
-    - [`get_full_metadata(file_path, include_headers=True, include_technical=True)`](#get_full_metadatafile_path-include_headerstrue-include_technicaltrue)
+      - [FLAC Files](#flac-files)
+      - [MP3 Files](#mp3-files)
+      - [WAV Files](#wav-files)
+    - [Reading All Metadata From All Metadata Formats Including Priority Logic](#reading-all-metadata-from-all-metadata-formats-including-priority-logic)
+    - [Reading All Metadata From A Specific Format](#reading-all-metadata-from-a-specific-format)
+    - [Reading All Metadata From A ID3v2 Format With Version](#reading-all-metadata-from-a-id3v2-format-with-version)
+    - [Reading Specific Metadata Fields](#reading-specific-metadata-fields)
+    - [Reading Full Metadata From All Formats Including Headers and Technical Info](#reading-full-metadata-from-all-formats-including-headers-and-technical-info)
   - [Writing Metadata (API Reference)](#writing-metadata-api-reference)
     - [Metadata Dictionary Structure](#metadata-dictionary-structure)
     - [Metadata Types Checking](#metadata-types-checking)
@@ -64,8 +69,8 @@ A comprehensive Python library for reading and writing audio metadata across mul
     - [Semantically Multi-Value Fields](#semantically-multi-value-fields)
       - [List of Semantically Multi-Value Fields](#list-of-semantically-multi-value-fields)
       - [Ways to handle multiple values](#ways-to-handle-multiple-values)
-      - [Multiple Field Instances (Multi-Frame/Multi-Key)](#multiple-field-instances-multi-frame-multi-key)
-      - [Single field with separated values (separator-based)](#single-field-with-separated-values-separator-based)
+        - [Multiple Field Instances (Multi-Frame/Multi-Key)](#multiple-field-instances-multi-frame-multi-key)
+        - [Single field with separated values (separator-based)](#single-field-with-separated-values-separator-based)
       - [Reading Semantically Multiple Values](#reading-semantically-multiple-values)
         - [Smart separator parsing of concatenated values](#smart-separator-parsing-of-concatenated-values)
         - [Detailed Examples of Smart Semantically Multi-Value Logic](#detailed-examples-of-smart-semantically-multi-value-logic)
@@ -82,9 +87,9 @@ A comprehensive Python library for reading and writing audio metadata across mul
       - [Writing Multiple Genres](#writing-multiple-genres)
     - [Format-Specific Limitations](#format-specific-limitations)
       - [RIFF/WAV Format](#riffwav-format)
-      - [Genre Code Mode](#genre-code-mode)
-      - [Text Mode (Less Common)](#text-mode-less-common)
-      - [Common Multi-Genre Text Patterns](#common-multi-genre-text-patterns)
+        - [Genre Code Mode](#genre-code-mode)
+        - [Text Mode (Less Common)](#text-mode-less-common)
+        - [Common Multi-Genre Text Patterns](#common-multi-genre-text-patterns)
       - [ID3v1 Format](#id3v1-format)
       - [ID3v2/Vorbis Formats](#id3v2vorbis-formats)
     - [Working with Genre Codes](#working-with-genre-codes)
@@ -468,7 +473,9 @@ When the same metadata tag exists in multiple formats within the same file, the 
 - For WAV files: If a title exists in both RIFF and ID3v2, the RIFF title will be returned.
 - For FLAC files: If a title exists in both Vorbis and ID3v2, the Vorbis title will be returned.
 
-#### `get_unified_metadata(file_path, metadata_format=None)`
+#### Reading All Metadata From All Metadata Formats Including Priority Logic
+
+**`get_unified_metadata(file_path, metadata_format=None)`**
 
 Reads all metadata from a file and returns a unified dictionary.
 If `metadata_format` is specified, reads only from that format.
@@ -481,6 +488,13 @@ from audiometa import get_unified_metadata
 metadata = get_unified_metadata("song.mp3")
 print(metadata[UnifiedMetadataKey.TITLE])  # Song title
 print(metadata[UnifiedMetadataKey.ARTISTS])  # List of artists
+```
+
+#### Reading All Metadata From A Specific Format
+
+**`get_unified_metadata(file_path, metadata_format=MetadataFormat.ID3V2)`**
+
+```python
 
 # Read only ID3v2 metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -490,7 +504,23 @@ id3v2_metadata = get_unified_metadata("song.mp3", metadata_format=MetadataFormat
 vorbis_metadata = get_unified_metadata("song.flac", metadata_format=MetadataFormat.VORBIS)
 ```
 
-#### `get_specific_metadata(file_path, field, metadata_format=None)`
+#### Reading All Metadata From A ID3v2 Format With Version
+
+**`get_unified_metadata(file_path, metadata_format=MetadataFormat.ID3V2), id3v2_version=[2, 3, 0])`**
+
+```python
+
+# Read only ID3v2.3 metadata
+from audiometa.utils.MetadataFormat import MetadataFormat
+id3v2_3_metadata = get_unified_metadata("song.mp3", metadata_format=MetadataFormat.ID3V2, id3v2_version=[2, 3, 0])
+
+# Read only ID3v2.4 metadata
+id3v2_4_metadata = get_unified_metadata("song.mp3", metadata_format=MetadataFormat.ID3V2, id3v2_version=[2, 4, 0])
+```
+
+#### Reading Specific Metadata Fields
+
+**`get_specific_metadata(file_path, field, metadata_format=None)`**
 
 Reads a specific metadata field. If `metadata_format` is specified, reads only from that format; otherwise uses priority order across all formats.
 
@@ -501,11 +531,13 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 # Get title using priority order (all formats)
 title = get_specific_metadata("song.mp3", UnifiedMetadataKey.TITLE)
 
-# Get rating from specific format only
+# Get raw rating from specific format only
 id3v2_rating = get_specific_metadata("song.mp3", UnifiedMetadataKey.RATING, metadata_format=MetadataFormat.ID3V2)
 ```
 
-#### `get_full_metadata(file_path, include_headers=True, include_technical=True)`
+#### Reading Full Metadata From All Formats Including Headers and Technical Info
+
+**`get_full_metadata(file_path, include_headers=True, include_technical=True)`**
 
 Gets comprehensive metadata including all available information from a file, including headers and technical details even when no metadata is present.
 
@@ -517,14 +549,14 @@ This function provides the most complete view of an audio file by combining:
 - Raw metadata details from each format
 
 ```python
-from audiometa import get_full_metadata
+from audiometa import get_full_metadata, UnifiedMetadataKey
 
 # Get complete metadata including headers and technical info
 full_metadata = get_full_metadata("song.mp3")
 
 # Access unified metadata (same as get_unified_metadata)
-print(f"Title: {full_metadata['unified_metadata']['title']}")
-print(f"Artists: {full_metadata['unified_metadata']['artists']}")
+print(f"Title: {full_metadata['unified_metadata'][UnifiedMetadataKey.TITLE]}")
+print(f"Artists: {full_metadata['unified_metadata'][UnifiedMetadataKey.ARTISTS]}")
 
 # Access technical information
 print(f"Duration: {full_metadata['technical_info']['duration_seconds']} seconds")
@@ -696,13 +728,6 @@ print(f"File size: {full_info['technical_info']['file_size_bytes']} bytes")
 print(f"Metadata overhead: {full_info['headers']['id3v2']['header_size_bytes']} bytes")
 print(f"Audio data ratio: {(full_info['technical_info']['file_size_bytes'] - full_info['headers']['id3v2']['header_size_bytes']) / full_info['technical_info']['file_size_bytes'] * 100:.1f}%")
 ```
-
-**Performance Notes:**
-
-- This function is more comprehensive but slightly slower than individual metadata functions
-- All metadata is read in a single pass for efficiency
-- Technical information is cached to avoid repeated file system calls
-- Use `include_headers=False` or `include_technical=False` to improve performance if you don't need all information
 
 ### Writing Metadata (API Reference)
 
