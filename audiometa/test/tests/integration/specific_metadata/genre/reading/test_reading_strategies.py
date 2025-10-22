@@ -5,12 +5,14 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.id3v2.id3v2_metadata_setter import ID3v2MetadataSetter
 from audiometa.test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGetter
+from test.helpers.vorbis.vorbis_metadata_getter import VorbisMetadataGetter
+from test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataSetter
 
 
 @pytest.mark.integration
 class TestID3v2GenreReadingStrategies:
 
-    def test_single_entry_codes_without_separators(self):
+    def test_single_entry_codes_without_separators_id3v2(self):
         """Test single genre entry with codes without separators: '(17)(6)' -> ['Rock', 'Grunge']"""
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set genre with codes without separators
@@ -23,6 +25,20 @@ class TestID3v2GenreReadingStrategies:
             # Read via API
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
+            assert genres == ["Rock", "Grunge"]
+            
+    def test_single_entry_codes_without_separators_vorbis(self):
+        """Test single genre entry with codes without separators in Vorbis: '(17)(6)' -> ['Rock', 'Grunge']"""
+        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
+            # Set genre with codes without separators
+            VorbisMetadataSetter.set_genres(test_file.path, ["(17)(6)"], version="vorbis")
+            
+            # Validate raw metadata
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
+            assert "(17)(6)" in raw_metadata
+
+            # Read via API
+            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             assert genres == ["Rock", "Grunge"]
             
     def test_code_text_then_text_part_even_if_different(self):
