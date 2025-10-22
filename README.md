@@ -1390,13 +1390,13 @@ AudioMeta provides comprehensive genre support across all audio formats, with in
 
 #### Genre Support by Format
 
-| Format      | Multiple | Id3v1 Codes | Custom | Code + Text | Notes                                                                      |
-| ----------- | -------- | ----------- | ------ | ----------- | -------------------------------------------------------------------------- |
-| **ID3v1**   | ❌       | ✅          | ❌     | ❌          | Single genre with code conversion                                          |
-| **ID3v2.3** | ✅       | ✅          | ✅     | ✅          | Hybrid: codes or genres after codes or just text (non official)            |
-| **ID3v2.4** | ✅       | ✅          | ✅     | ✅          | Full support for multiple genres and custom names                          |
-| **Vorbis**  | ✅       | ❌          | ✅     | ❌          | Multi entries and separator support                                        |
-| **RIFF**    | ✅\*     | ✅          | ✅\*   | ✅          | Text mode: multiple genres via separators; Code mode: single genre (0-147) |
+| Format      | Multiple | Id3v1 Codes | Code + Text | Custom Text |
+| ----------- | -------- | ----------- | ----------- | ----------- |
+| **ID3v1**   | ❌       | ✅          | ❌          | ❌          |
+| **ID3v2.3** | ✅       | ✅          | ✅          | ✓           |
+| **ID3v2.4** | ✅       | ✓           | ✓           | ✅          |
+| **Vorbis**  | ✅       | ❌          | ❌          | ✅          |
+| **RIFF**    | ✓        | ✓           | ✓           | ✅          |
 
 #### ID3v1 Format
 
