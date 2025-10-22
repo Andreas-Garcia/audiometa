@@ -165,11 +165,6 @@ class TestRiffGenreParsing:
             
             assert genres == ["Rock & Roll", "R&B", "Hip-Hop"]
 
-
-
-@pytest.mark.integration  
-class TestRiffGenreWriting:
-
     def test_riff_writes_single_genre_from_list(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             update_metadata(test_file.path, {
@@ -209,10 +204,6 @@ class TestRiffGenreWriting:
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres is None or genres == []
-
-
-@pytest.mark.integration
-class TestRiffGenreFutureEnhancement:
 
     def test_future_riff_multi_genre_parsing_names(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
