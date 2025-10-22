@@ -154,7 +154,7 @@ class TestID3v2GenreReadingStrategies:
             assert set(genres) == {"Rock/Grunge", "Blues"}
 
     def test_code_to_name_conversion_with_unknown_code(self):
-        """Test code conversion: '(17)' -> 'Rock', (unknown code) -> unknown code in parentheses should be converted as 'Unknown'"""
+        """Test code conversion: '(17)' -> 'Rock', (unknown code) -> unknown code in parentheses should be ignored"""
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             # Set genre with known and unknown codes
             ID3v2MetadataSetter.set_genres(test_file.path, ["(17)", "(999)"], version="2.4")
@@ -162,7 +162,7 @@ class TestID3v2GenreReadingStrategies:
             # Read via API
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
-            assert genres == ["Rock", "(999)"]
+            assert genres == ["Rock"]
 
     def test_code_text_uses_text_part(self):
         """Test code+text: '(199)Rock' -> 'Rock' (text part only)"""
