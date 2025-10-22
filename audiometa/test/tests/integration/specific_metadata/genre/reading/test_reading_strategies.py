@@ -31,7 +31,7 @@ class TestID3v2GenreReadingStrategies:
         """Test single genre entry with codes without separators in Vorbis: '(17)(6)' -> ['Rock', 'Grunge']"""
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Set genre with codes without separators
-            VorbisMetadataSetter.set_genres(test_file.path, ["(17)(6)"], version="vorbis")
+            VorbisMetadataSetter.set_genres(test_file.path, ["(17)(6)"])
             
             # Validate raw metadata
             raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
