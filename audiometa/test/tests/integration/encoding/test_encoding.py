@@ -17,9 +17,12 @@ class TestEncoding:
 
     def test_id3v2_3_encoding_support(self):
         with TempFileWithMetadata({}, "id3v2.3") as test_file:
-            ID3v2MetadataSetter.set_title(test_file.path, "Test Title with ASCII")
-            ID3v2MetadataSetter.set_artist(test_file.path, "Artist Name", version="2.3")
-            ID3v2MetadataSetter.set_album(test_file.path, "Album Name")
+            metadata_dict = {
+                UnifiedMetadataKey.TITLE: "Test Title with ASCII",
+                UnifiedMetadataKey.ARTISTS: ["Artist Name"],
+                UnifiedMetadataKey.ALBUM: "Album Name"
+            }
+            update_metadata(test_file.path, metadata_dict, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
             metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title with ASCII"
@@ -45,9 +48,12 @@ class TestEncoding:
 
     def test_id3v1_encoding_support(self):
         with TempFileWithMetadata({}, "id3v1") as test_file:
-            ID3v1MetadataSetter.set_title(test_file.path, "Test Title with ASCII")
-            ID3v1MetadataSetter.set_artist(test_file.path, "Artist Name")
-            ID3v1MetadataSetter.set_album(test_file.path, "Album Name")
+            metadata_dict = {
+                UnifiedMetadataKey.TITLE: "Test Title with ASCII",
+                UnifiedMetadataKey.ARTISTS: ["Artist Name"],
+                UnifiedMetadataKey.ALBUM: "Album Name"
+            }
+            update_metadata(test_file.path, metadata_dict, metadata_format=MetadataFormat.ID3V1)
             
             metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             assert metadata.get(UnifiedMetadataKey.TITLE) == "Test Title with ASCII"
