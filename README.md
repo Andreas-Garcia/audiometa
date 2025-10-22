@@ -157,12 +157,22 @@ A comprehensive Python library for reading and writing audio metadata across mul
 
 ## Supported Formats
 
-| Format | Read | Write | Rating Support | File Types     | Notes                                                      |
-| ------ | ---- | ----- | -------------- | -------------- | ---------------------------------------------------------- |
-| ID3v1  | ✅   | ✅    | ✅             | MP3, FLAC, WAV | Limited to 30 chars per field, Latin-1 encoding            |
-| ID3v2  | ✅   | ✅    | ✅             | MP3, WAV, FLAC | Full feature support, most versatile                       |
-| Vorbis | ✅   | ✅    | ✅             | FLAC           | Native format for FLAC files                               |
-| RIFF   | ✅   | ✅    | ✅\*           | WAV            | Native format for WAV files, \*via non-standard IRTD chunk |
+### Supported Audio Formats Per Metadata Format
+
+| Format | Audio Format   |
+| ------ | -------------- |
+| ID3v1  | MP3, FLAC, WAV |
+| ID3v2  | MP3, FLAC, WAV |
+| Vorbis | FLAC           |
+| RIFF   | WAV            |
+
+### Supported Metadata Formats per Audio Format
+
+| Audio Format | Supported Metadata Formats |
+| ------------ | -------------------------- |
+| MP3          | ID3v1, ID3v2               |
+| FLAC         | ID3v1, ID3v2, Vorbis       |
+| WAV          | ID3v1, ID3v2, RIFF         |
 
 ### Format Capabilities
 
