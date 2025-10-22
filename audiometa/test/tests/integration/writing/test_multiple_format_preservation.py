@@ -187,11 +187,7 @@ class TestMultipleFormatPreservation:
                 UnifiedMetadataKey.TITLE: "Vorbis Title",
                 UnifiedMetadataKey.ARTISTS: ["Vorbis Artist"]
             }
-            update_metadata(
-                test_file.path, 
-                vorbis_metadata, 
-                metadata_format=MetadataFormat.VORBIS
-            )
+            update_metadata(test_file.path, vorbis_metadata, metadata_format=MetadataFormat.VORBIS)
             
             # Verify Vorbis was updated and ID3v2 was preserved
             id3v2_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
@@ -212,11 +208,7 @@ class TestMultipleFormatPreservation:
                 UnifiedMetadataKey.TITLE: "ID3v2 Title",
                 UnifiedMetadataKey.ARTISTS: ["ID3v2 Artist"]
             }
-            update_metadata(
-                test_file.path, 
-                id3v2_metadata, 
-                metadata_format=MetadataFormat.ID3V2
-            )
+            update_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
             
             # Verify ID3v2 was updated and Vorbis was preserved
             vorbis_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.VORBIS)
@@ -243,11 +235,7 @@ class TestMultipleFormatPreservation:
                 UnifiedMetadataKey.ARTISTS: ["Updated ID3v2 Artist"],
                 UnifiedMetadataKey.ALBUM: "ID3v2 Album"
             }
-            update_metadata(
-                test_file.path, 
-                id3v2_metadata, 
-                metadata_format=MetadataFormat.ID3V2
-            )
+            update_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
             
             # Verify ID3v2 was updated and ID3v1 was preserved
             id3v1_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
@@ -272,11 +260,7 @@ class TestMultipleFormatPreservation:
                 UnifiedMetadataKey.TITLE: None,  # This should not affect ID3v1
                 UnifiedMetadataKey.ARTISTS: ["ID3v2 Artist"]
             }
-            update_metadata(
-                test_file.path, 
-                id3v2_metadata, 
-                metadata_format=MetadataFormat.ID3V2
-            )
+            update_metadata(test_file.path, id3v2_metadata, metadata_format=MetadataFormat.ID3V2)
             
             # Verify ID3v1 was preserved
             id3v1_after = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
