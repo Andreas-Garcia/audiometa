@@ -3,8 +3,8 @@ import pytest
 from audiometa import delete_all_metadata, update_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.common.comprehensive_header_verifier import ComprehensiveHeaderVerifier
-from utils.MetadataFormat import MetadataFormat
-from utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 @pytest.mark.integration
