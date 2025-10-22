@@ -85,7 +85,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
     - [Multiple Genre Handling](#multiple-genre-handling)
       - [Reading Multiple Genres](#reading-multiple-genres)
       - [Writing Multiple Genres](#writing-multiple-genres)
-    - [Format-Specific Limitations](#format-specific-limitations)
+    - [Format-Specific Limitations](#format-specific-limitations-genre)
       - [RIFF/WAV Format](#riffwav-format)
         - [Genre Code Mode](#genre-code-mode)
         - [Text Mode (Less Common)](#text-mode-less-common)
@@ -111,7 +111,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
       - [Format-Specific Rating Writing](#format-specific-rating-writing)
   - [Track Number Formats](#track-number-formats)
   - [Unsupported Metadata Handling](#unsupported-metadata-handling)
-    - [Format-Specific Limitations](#format-specific-limitations)
+    - [Format-Specific Limitations](#format-specific-limitations-unsupported)
     - [Atomic Write Operations](#atomic-write-operations)
     - [Example: Handling Unsupported Metadata](#example-handling-unsupported-metadata)
   - [None vs Empty String Handling](#none-vs-empty-string-handling)
@@ -1390,6 +1390,8 @@ AudioMeta provides comprehensive genre support across all audio formats, with in
 
 #### Genre Support by Format
 
+##### Genre Support Matrix
+
 | Format      | Multiple | Id3v1 Codes | Code + Text | Custom Text |
 | ----------- | -------- | ----------- | ----------- | ----------- |
 | **ID3v1**   | ❌       | ✅          | ❌          | ❌          |
@@ -1398,7 +1400,7 @@ AudioMeta provides comprehensive genre support across all audio formats, with in
 | **Vorbis**  | ✅       | ❌          | ❌          | ✅          |
 | **RIFF**    | ✓        | ✓           | ✓           | ✅          |
 
-#### ID3v1 Format
+##### ID3v1 Genre Support
 
 ID3v1 provides the most limited genre support with a fixed set of predefined genres.
 
@@ -1414,7 +1416,7 @@ ID3v1 provides the most limited genre support with a fixed set of predefined gen
 - Code `17` → "Rock"
 - Code `255` → Unknown/unspecified genre
 
-#### ID3v2.3 Format
+##### ID3v2.3 Genre Support
 
 ID3v2.3 uses the TCON (Content type) frame for genre information, following the ID3v2.3.0 specification.
 
@@ -1437,7 +1439,7 @@ ID3v2.3 uses the TCON (Content type) frame for genre information, following the 
 - `"Rock/Blues"` → Multiple text genres (unofficial)
 - `"Grime"` → Direct custom genre (unofficial)
 
-#### ID3v2.4 Format
+##### ID3v2.4 Genre Support
 
 ID3v2.4 provides the most flexible genre support among ID3v2 versions.
 
@@ -1463,7 +1465,7 @@ ID3v2.4 provides the most flexible genre support among ID3v2 versions.
 - `"(17)/(6)"` → Rock + Blues (not recommended)
 - `"(17)Rock; (6)Blues"` → Rock + Blues (not recommended)
 
-#### Vorbis Format
+##### Vorbis Genre Support
 
 Vorbis comments (used in FLAC files) provide text-based genre storage with full Unicode support.
 
@@ -1480,7 +1482,7 @@ Vorbis comments (used in FLAC files) provide text-based genre storage with full 
 - Multiple fields: `"GENRE=Rock"` and `"GENRE=Alternative"` (official)
 - `"GENRE=Rock; Alternative; Indie"` → Semicolon-separated genres (unofficial)
 
-#### RIFF Format
+##### RIFF Genre Support
 
 RIFF INFO chunks support both numeric codes and text genres.
 
@@ -1816,7 +1818,7 @@ The library handles unsupported metadata consistently across all strategies:
 - **All strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=False` (default)**: Handle unsupported fields gracefully by logging warnings and continuing with supported fields
 - **All strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=True`**: Fails fast if any field is not supported by the target format. **No writing is performed** - the file remains completely unchanged (atomic operation).
 
-#### Format-Specific Limitations
+#### Format-Specific Limitations {#format-specific-limitations-unsupported}
 
 | Format         | Forced Format                     | All Strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=False` | All Strategies with `fail_on_unsupported_field=True` |
 | -------------- | --------------------------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------- |
