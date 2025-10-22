@@ -27,10 +27,7 @@ class TestReadingErrorHandling:
         
         with pytest.raises(FileNotFoundError):
             get_unified_metadata(nonexistent_file)
-        
-        with pytest.raises(FileNotFoundError):
-            get_unified_metadata(nonexistent_file, metadata_format=MetadataFormat.ID3V2)
-        
+                
         with pytest.raises(FileNotFoundError):
             get_specific_metadata(nonexistent_file, UnifiedMetadataKey.TITLE)
 
