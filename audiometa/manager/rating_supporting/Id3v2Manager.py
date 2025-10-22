@@ -265,7 +265,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
 
     def _extract_mutagen_metadata(self) -> MutagenMetadata:
         try:
-            id3 = ID3(self.audio_file.get_file_path_or_object(), load_v1=False)  # type: ignore[return-value]
+            id3 = ID3(self.audio_file.get_file_path_or_object(), load_v1=False, translate=False)  # type: ignore[return-value]
             
             # Upgrade to specified version if different
             if id3.version != self.id3v2_version:
@@ -274,7 +274,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             return id3
         except ID3NoHeaderError:
             try:
-                id3 = ID3(self.audio_file.get_file_path_or_object(), load_v1=True)
+                id3 = ID3(self.audio_file.get_file_path_or_object(), load_v1=True, translate=False)
                 id3.clear()  # Exclude ID3v1 tags
                 id3.version = self.id3v2_version
                 return id3  # type: ignore[return-value]
