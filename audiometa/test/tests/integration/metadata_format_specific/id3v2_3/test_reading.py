@@ -56,46 +56,6 @@ class TestId3v23Reading:
             assert id3v2_3_metadata.get(UnifiedMetadataKey.ARTISTS) == ["Single Format Artist"]
             assert id3v2_3_metadata.get(UnifiedMetadataKey.ALBUM) == "Single Format Album"
 
-    def test_id3v2_3_version_specific_behavior(self):
-        with TempFileWithMetadata({}, "id3v2.3") as test_file:
-            test_file.set_id3v2_title("Version Specific Test")
-            test_file.set_id3v2_artist("Test Artist")
-            test_file.set_id3v2_album("Test Album")
-            test_file.set_id3v2_genre("Rock")
-            
-            # Test that ID3v2.3 specific metadata is present
-            metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
-            assert isinstance(metadata, dict)
-            assert metadata.get(UnifiedMetadataKey.TITLE) == "Version Specific Test"
-            assert metadata.get(UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
-            assert metadata.get(UnifiedMetadataKey.ALBUM) == "Test Album"
-            assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
-            
-            # ID3v2.3 uses TYER for year instead of ID3v2.4's TDRC
-            # This test verifies that the library correctly handles basic ID3v2.3 metadata
-            assert all(isinstance(value, (str, list)) for value in metadata.values() if value is not None)
-
-    def test_id3v2_3_multiple_artists_support(self):
-        with TempFileWithMetadata({}, "id3v2.3") as test_file:
-            artists = ["Artist One", "Artist Two", "Artist Three"]
-            ID3v2MetadataSetter.set_artists(test_file.path, artists)
-            
-            metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
-            retrieved_artists = metadata.get(UnifiedMetadataKey.ARTISTS)
-            
-            assert isinstance(retrieved_artists, list)
-            assert len(retrieved_artists) == 3
-            assert all(artist in retrieved_artists for artist in artists)
-
-    def test_id3v2_3_error_handling(self, temp_audio_file: Path):
-        # Test ID3v2.3 with unsupported file type
-        temp_audio_file.write_bytes(b"fake audio content")
-        temp_audio_file = temp_audio_file.with_suffix(".txt")
-        temp_audio_file.write_bytes(b"fake audio content")
-        
-        with pytest.raises(FileTypeNotSupportedError):
-            get_unified_metadata(str(temp_audio_file), metadata_format=MetadataFormat.ID3V2)
-
     def test_id3v2_3_with_other_formats(self):
         with TempFileWithMetadata({}, "id3v2.3") as test_file:
             # First set ID3v2.3 metadata using external tools

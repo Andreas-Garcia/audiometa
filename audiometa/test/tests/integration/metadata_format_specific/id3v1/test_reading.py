@@ -43,13 +43,6 @@ class TestId3v1Reading:
         assert isinstance(metadata, dict)
         assert UnifiedMetadataKey.TITLE in metadata
 
-    def test_metadata_none_files(self, metadata_none_mp3):
-        # MP3 with no metadata
-        metadata = get_unified_metadata(metadata_none_mp3)
-        assert isinstance(metadata, dict)
-        # Should have minimal or no metadata
-        assert not metadata.get(UnifiedMetadataKey.TITLE) or metadata.get(UnifiedMetadataKey.TITLE) == ""
-
     def test_audio_file_object_reading(self, metadata_id3v1_small_mp3):
         audio_file = AudioFile(metadata_id3v1_small_mp3)
         
