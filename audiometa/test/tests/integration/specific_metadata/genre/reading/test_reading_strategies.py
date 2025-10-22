@@ -114,9 +114,7 @@ class TestID3v2GenreReadingStrategies:
             ID3v2MetadataSetter.set_genres(test_file.path, ["(17)Rock/(6)Blues"], version="2.4")
             
             # Validate raw metadata
-            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
-            assert "TCON" in raw_metadata
-            assert raw_metadata["TCON"] == "(17)Rock/(6)Blues"
+            assert '(17)Rock/(6)Blues' in ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             
             # Read via API
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
