@@ -1,4 +1,3 @@
-
 from abc import abstractmethod
 from typing import TypeVar, cast
 
@@ -182,6 +181,150 @@ class MetadataManager:
             return [genre_name] if genre_name else None
         return None
 
+    def _get_genres_from_raw_clean_metadata(self, raw_clean_metadata: RawMetadataDict, raw_metadata_key: RawMetadataKey) -> AppMetadataValue:
+        """
+        Extract and process genre entries from raw metadata according to the intelligent genre reading logic.
+
+        This method implements the comprehensive genre reading strategy that handles:
+        1. Multiple genre entries from the file
+        2. Separator parsing for single entries (codes, code+text, text with separators)
+        3. ID3v1 genre code conversion
+        4. Consistent list output of genre names
+
+        Args:
+            raw_clean_metadata: Dictionary of raw metadata values
+            raw_metadata_key: The raw metadata key for genres
+
+        Returns:
+            List of genre names, or None if no genres found
+        """
+        if raw_metadata_key not in raw_clean_metadata:
+            return None
+
+        raw_value_list = raw_clean_metadata.get(raw_metadata_key)
+        if not raw_value_list:
+            return None
+
+        # Step 1: Extract all genre entries from the file
+        genre_entries = [entry.strip() for entry in raw_value_list if entry.strip()]
+
+        if not genre_entries:
+            return None
+
+        # Step 2: Process entries based on count
+        if len(genre_entries) == 1:
+            # Single entry - apply separator parsing if needed
+            single_entry = genre_entries[0]
+
+            # Check for codes or code+text without separators (e.g., "(17)(6)", "(17)Rock(6)Blues")
+            if self._has_genre_codes_without_separators(single_entry):
+                parsed_genres = self._parse_genre_codes_and_text(single_entry)
+            # Check for text with separators (e.g., "Rock/Blues", "Rock; Alternative")
+            elif self._has_genre_separators(single_entry):
+                parsed_genres = self._parse_genre_separators(single_entry)
+            else:
+                # No special parsing needed
+                parsed_genres = [single_entry]
+        else:
+            # Multiple entries - use as-is (no separator parsing)
+            parsed_genres = genre_entries
+
+        # Step 3: Convert any genre codes or codes + names to names using ID3v1 genre code map
+        converted_genres = []
+        for genre in parsed_genres:
+            converted = self._convert_genre_code_or_text_to_name(genre)
+            if converted:
+                converted_genres.append(converted)
+
+        # Step 4: Return list of genre names
+        return converted_genres if converted_genres else None
+
+    def _has_genre_codes_without_separators(self, genre_string: str) -> bool:
+        """
+        Check if a genre string contains genre codes without separators.
+        Examples: "(17)(6)", "(17)Rock(6)Blues", "(17)Rock(6)"
+        """
+        import re
+        # Pattern matches parentheses with digits, optionally followed by text, repeated
+        pattern = r'^\(\d+\)(?:\w*\(\d+\))*$'
+        return bool(re.match(pattern, genre_string))
+
+    def _has_genre_separators(self, genre_string: str) -> bool:
+        """
+        Check if a genre string contains separators for multiple genres.
+        Examples: "Rock/Blues", "Rock; Alternative", "(17)Rock/(6)Blues"
+        """
+        # Check for common separators
+        separators = ['//', '\\\\', '\\', ';', '/', ',']
+        return any(sep in genre_string for sep in separators)
+
+    def _parse_genre_codes_and_text(self, genre_string: str) -> list[str]:
+        """
+        Parse genre codes and code+text combinations without separators.
+        Examples: "(17)(6)" -> ["(17)", "(6)"]
+                  "(17)Rock(6)Blues" -> ["(17)Rock", "(6)Blues"]
+        """
+        import re
+        # Split on pattern: opening parenthesis after optional text
+        # This handles both "(17)(6)" and "(17)Rock(6)Blues"
+        parts = re.split(r'(\(\d+\))', genre_string)
+        # Filter out empty parts and reconstruct
+        result = []
+        current_part = ""
+        for part in parts:
+            if part.strip():
+                current_part += part
+                if current_part.startswith('(') and ')' in current_part:
+                    result.append(current_part)
+                    current_part = ""
+        return result
+
+    def _parse_genre_separators(self, genre_string: str) -> list[str]:
+        """
+        Parse genre strings with separators using smart separator logic.
+        Examples: "Rock/Blues" -> ["Rock", "Blues"]
+                  "(17)Rock/(6)Blues" -> ["(17)Rock", "(6)Blues"]
+        """
+        # Use the same separator priority as multi-value parsing
+        for separator in METADATA_MULTI_VALUE_SEPARATORS:
+            if separator in genre_string:
+                parts = [part.strip() for part in genre_string.split(separator) if part.strip()]
+                return parts
+        # No separator found
+        return [genre_string]
+
+    def _convert_genre_code_or_text_to_name(self, genre_entry: str) -> str | None:
+        """
+        Convert a genre code or code+text entry to a genre name using ID3V1_GENRE_CODE_MAP.
+        For code + text entries, use text part only for more flexibility.
+
+        Examples:
+        - "(17)" -> "Rock"
+        - "(17)Rock" -> "Rock" (text part preferred)
+        - "Rock" -> "Rock"
+        - "(999)" -> None (invalid code)
+        """
+        import re
+
+        # Check for code + text pattern: (number)text
+        code_text_match = re.match(r'^\((\d+)\)(.+)$', genre_entry)
+        if code_text_match:
+            code = int(code_text_match.group(1))
+            text_part = code_text_match.group(2).strip()
+            # For code + text entries, use text part only for more flexibility
+            if text_part:
+                return text_part
+
+        # Check for code only pattern: (number)
+        code_only_match = re.match(r'^\((\d+)\)$', genre_entry)
+        if code_only_match:
+            code = int(code_only_match.group(1))
+            genre_name = ID3V1_GENRE_CODE_MAP.get(code)
+            return genre_name
+
+        # No code found, return as-is
+        return genre_entry if genre_entry else None
+
     def get_app_metadata(self) -> AppMetadata:
         if self.raw_clean_metadata is None:
             self.raw_clean_metadata = self._get_cleaned_raw_metadata_from_file()
@@ -231,7 +374,10 @@ class MetadataManager:
             if not value:
                 return None
             values_list_str = cast(list[str], value)
-            if unified_metadata_key.can_semantically_have_multiple_values():
+            if unified_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
+                # Use specialized genre reading logic
+                return self._get_genres_from_raw_clean_metadata(self.raw_clean_metadata, raw_metadata_key)
+            elif unified_metadata_key.can_semantically_have_multiple_values():
                 # Apply smart parsing logic for semantically multi-value fields
                 if self._should_apply_smart_parsing(values_list_str):
                     # Apply parsing for single entry (legacy data detection)
