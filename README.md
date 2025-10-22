@@ -8,6 +8,8 @@ A comprehensive Python library for reading and writing audio metadata across mul
 
 - [Features](#features)
 - [Supported Formats](#supported-formats)
+  - [Supported Audio Formats Per Metadata Format](#supported-audio-formats-per-metadata-format)
+  - [Supported Metadata Formats per Audio Format](#supported-metadata-formats-per-audio-format)
   - [Format Capabilities](#format-capabilities)
 - [Installation](#installation)
   - [System Requirements](#system-requirements)
@@ -176,28 +178,28 @@ A comprehensive Python library for reading and writing audio metadata across mul
 
 ### Format Capabilities
 
-**ID3v1 (Legacy Format)**
+#### ID3v1
 
 - **Primary Support**: MP3 files (native format)
 - **Extended Support**: FLAC and WAV files with ID3v1 tags
 - **Limitations**: 30-character field limits, no album artist support
 - **Operations**: Full read/write support with direct file manipulation
 
-**ID3v2 (Full Support)**
+#### ID3v2
 
 - **Supported Formats**: MP3, WAV, FLAC
 - **Features**: All metadata fields, multiple artists, cover art, extended metadata
-- **Versions**: Supports ID3v2.3 (default) and ID3v2.4
+- **Versions**: Supports ID3v2.3 and ID3v2.4
 - **Note**: Most versatile format, works across multiple file types
 
-**Vorbis (FLAC Native)**
+#### Vorbis
 
 - **Primary Support**: FLAC files (native Vorbis comments)
 - **Features**: Most metadata fields, multiple artists, cover art
 - **Limitations**: Some fields not supported (lyrics, etc.)
 - **Note**: Standard metadata format for FLAC files
 
-**RIFF (WAV Native)**
+#### RIFF
 
 - **Strict Support**: WAV files only
 - **Features**: Most metadata fields including album artist, language, comments
