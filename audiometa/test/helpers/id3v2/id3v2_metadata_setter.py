@@ -45,12 +45,6 @@ class ID3v2MetadataSetter:
         run_external_tool(cmd, tool)
     
     @staticmethod
-    def set_comment(file_path: Path, comment: str) -> None:
-        """Set ID3v2 comment using mid3v2 tool."""
-        command = ["mid3v2", "--comment", comment, str(file_path)]
-        run_external_tool(command, "mid3v2")
-    
-    @staticmethod
     def set_title(file_path: Path, title: str, version: str = "2.4") -> None:
         if version == "2.3":
             command = ["id3v2", "--id3v2-only", "--song", title, str(file_path)]
@@ -79,9 +73,13 @@ class ID3v2MetadataSetter:
         ID3v2MetadataSetter._set_multiple_values_single_frame(file_path, 'TPE1', [artist], version)
     
     @staticmethod
-    def set_album(file_path: Path, album: str) -> None:
-        command = ["mid3v2", "--album", album, str(file_path)]
-        run_external_tool(command, "mid3v2")
+    def set_album(file_path: Path, album: str, version: str = "2.4") -> None:
+        if version == "2.3":
+            command = ["id3v2", "--id3v2-only", "--album", album, str(file_path)]
+            run_external_tool(command, "id3v2")
+        else:
+            command = ["mid3v2", "--album", album, str(file_path)]
+            run_external_tool(command, "mid3v2")
     
     @staticmethod
     def set_genre(file_path: Path, genre: str) -> None:
