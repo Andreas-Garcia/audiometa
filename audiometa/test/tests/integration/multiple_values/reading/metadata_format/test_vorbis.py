@@ -8,6 +8,20 @@ from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 class TestVorbis:
+    
+    def test_null_value_separated_artists(self):
+        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist One\x00Artist Two\x00Artist Three"])
+            
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
+            assert "ARTIST=Artist One\x00Artist Two\x00Artist Three" in raw_metadata
+            
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
+            assert isinstance(artists, list)
+            assert len(artists) == 3
+            assert "Artist One" in artists
+            assert "Artist Two" in artists
+            assert "Artist Three" in artists
 
     def test_semicolon_separated_artists(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
