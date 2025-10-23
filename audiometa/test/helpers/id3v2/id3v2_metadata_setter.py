@@ -67,13 +67,8 @@ class ID3v2MetadataSetter:
         ID3v2MetadataSetter._set_multiple_metadata_values(file_path, "TIT2", titles, in_separate_frames, version)
     
     @staticmethod
-    def set_artist(file_path: Path, artist: str, version: str = "2.4") -> None:
-        if version == "2.3":
-            command = ["id3v2", "--id3v2-only", "--artist", artist, str(file_path)]
-            run_external_tool(command, "id3v2")
-        else:
-            command = ["mid3v2", "--artist", artist, str(file_path)]
-            run_external_tool(command, "mid3v2")
+    def set_artists(file_path: Path, artists: List[str], version: str = "2.4") -> None:
+        ID3v2MetadataSetter._set_multiple_metadata_values(file_path, "TPE1", artists, False, version, None)
     
     @staticmethod
     def set_album(file_path: Path, album: str, version: str = "2.4") -> None:
