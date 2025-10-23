@@ -1,4 +1,3 @@
-
 from typing import TypeVar, cast
 
 from mutagen._file import FileType as MutagenMetadata
@@ -44,28 +43,28 @@ class VorbisManager(RatingSupportingMetadataManager):
     """
 
     class VorbisKey(RawMetadataKey):
-        TITLE = 'title'
-        ARTIST_NAME = 'artist'
-        ALBUM = 'album'
-        ALBUM_ARTISTS = 'albumartist'
-        GENRES_NAMES = 'genre'
-        RATING = 'rating'
-        RATING_TRAKTOR = 'rating wmp'  # Traktor rating
-        LANGUAGE = 'language'
-        DATE = 'date'  # Creation/Release date
-        TRACK_NUMBER = 'tracknumber'
-        BPM = 'bpm'
-        COMMENT = 'comment'
-        COMPOSERS = 'composer'
-        PERFORMER = 'performer'
-        COPYRIGHT = 'copyright'
-        LICENSE = 'license'
-        ORGANIZATION = 'organization'  # Label or organization
-        DESCRIPTION = 'description'
-        LOCATION = 'location'  # Recording location
-        CONTACT = 'contact'  # Contact information
-        ISRC = 'isrc'  # International Standard Recording Code
-        ENCODED_BY = 'encodedby'  # Encoder software
+        TITLE = 'TITLE'
+        ARTIST_NAME = 'ARTIST'
+        ALBUM = 'ALBUM'
+        ALBUM_ARTISTS = 'ALBUMARTIST'
+        GENRES_NAMES = 'GENRE'
+        RATING = 'RATING'
+        RATING_TRAKTOR = 'RATING WMP'  # Traktor rating
+        LANGUAGE = 'LANGUAGE'
+        DATE = 'DATE'  # Creation/Release date
+        TRACK_NUMBER = 'TRACKNUMBER'
+        BPM = 'BPM'
+        COMMENT = 'COMMENT'
+        COMPOSERS = 'COMPOSER'
+        PERFORMER = 'PERFORMER'
+        COPYRIGHT = 'COPYRIGHT'
+        LICENSE = 'LICENSE'
+        ORGANIZATION = 'ORGANIZATION'  # Label or organization
+        DESCRIPTION = 'DESCRIPTION'
+        LOCATION = 'LOCATION'  # Recording location
+        CONTACT = 'CONTACT'  # Contact information
+        ISRC = 'ISRC'  # International Standard Recording Code
+        ENCODED_BY = 'ENCODEDBY'  # Encoder software
 
     def __init__(self, audio_file: AudioFile, normalized_rating_max_value: int | None = None):
         metadata_keys_direct_map_read = {
