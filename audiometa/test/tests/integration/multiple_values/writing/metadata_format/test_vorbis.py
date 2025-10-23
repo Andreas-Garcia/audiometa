@@ -18,9 +18,9 @@ class TestMultipleValuesVorbis:
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
             VorbisMetadataSetter.add_title(test_file.path, "Test Song")
             raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
-            assert "Artist=Artist One" in raw_metadata
-            assert "artist=Artist Two" in raw_metadata
-            assert "artist=Artist Three" in raw_metadata
+            assert "ARTIST=Artist One" in raw_metadata
+            assert "ARTIST=Artist Two" in raw_metadata
+            assert "ARTIST=Artist Three" in raw_metadata
             
     def test_with_existing_artists_fields(self):
         # Start with an existing artist field
