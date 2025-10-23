@@ -103,7 +103,10 @@ class VorbisManager(RatingSupportingMetadataManager):
 
     def _extract_mutagen_metadata(self) -> MutagenMetadata:
         try:
-            return FLAC(self.audio_file.get_file_path_or_object())
+            flac = FLAC(self.audio_file.get_file_path_or_object())
+            # Uppercase all keys (FLAC() lowercases keys)
+            flac.tags = {k.upper(): v for k, v in flac.tags.items()}
+            return flac
         except Exception as error:
             error_str = str(error)
             if "InvalidChunk" in error_str and "UnicodeDecodeError" in error_str:
