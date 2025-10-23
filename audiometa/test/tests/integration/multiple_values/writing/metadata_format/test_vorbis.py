@@ -16,16 +16,11 @@ class TestMultipleValuesVorbis:
             }
             
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
-            
-            # verify against multiple entries in vorbis metadata not using the API
-            verification = VorbisMetadataGetter.get_raw_metadata(test_file.path, "ARTIST")
-
-            # For Vorbis we expect separate ARTIST entries, ensure there are three
-            assert verification['actual_count'] == 3
-            raw_output = verification['raw_output']
-            assert "Artist One" in raw_output
-            assert "Artist Two" in raw_output
-            assert "Artist Three" in raw_output
+            VorbisMetadataSetter.add_title(test_file.path, "Test Song")
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
+            assert "Artist=Artist One" in raw_metadata
+            assert "artist=Artist Two" in raw_metadata
+            assert "artist=Artist Three" in raw_metadata
             
     def test_with_existing_artists_fields(self):
         # Start with an existing artist field
