@@ -46,15 +46,10 @@ class TestRiff:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             RIFFMetadataSetter.set_artists(test_file.path, ["Artist 1;Artist 2", "Artist 3", "Artist 4"], in_separate_frames=True)
 
-            verification = RIFFMetadataGetter.get_raw_metadata(test_file.path, "IART")
-
-            # Verify the raw data creation - exiftool shows RIFF tags as "Artist" not "IART"
-            assert verification["actual_count"] == 3, f"Expected 3 separate IART frames, found {verification['actual_count']}"
-            assert "[RIFF]" in verification['raw_output']
-            assert "Artist" in verification['raw_output']
-            assert "Artist 1;Artist 2" in verification['raw_output'] 
-            assert "Artist 3" in verification['raw_output']
-            assert "Artist 4" in verification['raw_output']
+            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
+            assert "Artist                          : Artist 1;Artist 2" in raw_metadata
+            assert "Artist                          : Artist 3" in raw_metadata
+            assert "Artist                          : Artist 4" in raw_metadata
             
             # Get RIFF metadata specifically to read the artists
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF)
