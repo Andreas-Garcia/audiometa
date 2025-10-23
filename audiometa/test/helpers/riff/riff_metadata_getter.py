@@ -16,3 +16,13 @@ class RIFFMetadataGetter:
             capture_output=True, text=True, check=True
         )
         return result.stdout
+    
+    @staticmethod
+    def get_title(file_path: Path) -> str:
+        """Get the TITLE chunk from RIFF metadata."""
+        result = subprocess.run(
+            ['exiftool', '-TITLE', '-s3', str(file_path)],
+            capture_output=True, text=True, check=True
+        )
+        return result.stdout.strip()
+    
