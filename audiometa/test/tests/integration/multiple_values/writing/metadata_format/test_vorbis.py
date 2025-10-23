@@ -41,5 +41,21 @@ class TestMultipleValuesVorbis:
             assert "New 2" in raw_output
             assert "Existing 2" not in raw_output
             
+    def test_with_existing_artists_fields_with_lower_case_key(self):
+        # Start with an existing artist field in lower case
+        with TempFileWithMetadata({}, "flac") as test_file:
+            # create an existing value using setter
+            VorbisMetadataSetter.set_artists(test_file.path, ["ExistingLower 1; ExistingLower 2"], key_lower_case=True)
+            raw_output = VorbisMetadataGetter.get_raw_metadata(test_file.path)
+            assert "artist=ExistingLower 1; ExistingLower 2" in raw_output
+
+            metadata = {UnifiedMetadataKey.ARTISTS: ["ExistingLower 1", "New 2"]}
+            update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
+
+            raw_output = VorbisMetadataGetter.get_raw_metadata(test_file.path)
+            assert "ARTIST=ExistingLower 1" in raw_output
+            assert "ARTIST=New 2" in raw_output
+            
+            
             
             
