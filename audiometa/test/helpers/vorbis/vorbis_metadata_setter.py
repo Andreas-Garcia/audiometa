@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Dict, Any, List
 
 from ..common.external_tool_runner import run_external_tool
+from mutagen.flac import FLAC
 
 
 class VorbisMetadataSetter:
@@ -111,13 +112,17 @@ class VorbisMetadataSetter:
     
     @staticmethod
     def set_artists(file_path: Path, artists: List[str], removing_existing=True, key_lower_case=False, in_single_entry=False) -> None:
-        """Set multiple Vorbis artists using external metaflac tool."""
+        """Set multiple Vorbis artists using mutagen."""
+        audio = FLAC(str(file_path))
+        key = 'artist' if key_lower_case else 'ARTIST'
+        if removing_existing:
+            audio.pop(key, None)
         if in_single_entry:
-            null_separated = "$'" + "\\x00".join(artists) + "'"
-            command = ["metaflac", "--set-tag", f"ARTIST={null_separated}", str(file_path)]
-            run_external_tool(command, "metaflac")
+            value = '\x00'.join(artists)
+            audio[key] = value
         else:
-            VorbisMetadataSetter.set_multiple_tags(file_path, "ARTIST", artists, removing_existing, key_lower_case)
+            audio[key] = artists
+        audio.save()
 
     @staticmethod
     def set_album_artists(file_path: Path, album_artists: List[str]):
