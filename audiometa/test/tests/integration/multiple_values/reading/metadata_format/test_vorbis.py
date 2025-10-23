@@ -23,6 +23,39 @@ class TestVorbis:
             assert "Artist One" in artists
             assert "Artist Two" in artists
             assert "Artist Three" in artists
+            
+    def test_null_separated_artists_with_additional_entries(self):
+        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist A", "Artist B"], in_single_entry=True)
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist C", "Artist D"], removing_existing=False)
+            
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata_without_truncating_null_bytes_but_lower_case_keys(test_file.path)
+            # The key is lower case because that is how mutagen stores it but it is upper case in the file
+            assert "artist=Artist A\x00Artist B" in raw_metadata
+            assert "artist=Artist C\x00Artist D" in raw_metadata
+            
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
+            assert isinstance(artists, list)
+            assert len(artists) == 4
+            assert "Artist A" in artists
+            assert "Artist B" in artists
+            assert "Artist C" in artists
+            assert "Artist D" in artists
+            
+    def test_null_separated_artists_in_multiple_entries_with_semicolon(self):
+        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist One\x00Artist Two", "Artist Three;Artist Four"])
+            
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata_without_truncating_null_bytes_but_lower_case_keys(test_file.path)
+            assert "artist=Artist One\x00Artist Two" in raw_metadata
+            assert "artist=Artist Three;Artist Four" in raw_metadata
+            
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
+            assert isinstance(artists, list)
+            assert len(artists) == 4
+            assert "Artist One" in artists
+            assert "Artist Two" in artists
+            assert "Artist Three;Artist Four" in artists
 
     def test_semicolon_separated_artists(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
