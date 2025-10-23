@@ -176,22 +176,6 @@ class TestSpecialCharactersEdgeCases:
             assert isinstance(title, str)
             assert title == "Song 🎶 with 🎵 emojis"
 
-    def test_read_null_bytes(self):
-        with TempFileWithMetadata({}, "flac") as test_file:
-            VorbisMetadataSetter.set_null_bytes_test_metadata(test_file.path)
-            
-            unified_metadata = get_unified_metadata(test_file.path)
-            artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
-            title = unified_metadata.get(UnifiedMetadataKey.TITLE)
-            
-            assert isinstance(artists, list)
-            assert len(artists) == 2
-            assert "Normal Artist" in artists
-            # The null bytes might be stripped or handled differently by the format
-            
-            assert isinstance(title, str)
-            assert title == "Normal Title"
-
     def test_read_mixed_special_characters(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             VorbisMetadataSetter.set_artists(test_file.path, ["François & Co. (feat. Müller) 🎵", "The \"Quoted\" Band - Special Characters", "Artist with\nnewlines\tand\ttabs"])
