@@ -129,6 +129,8 @@ def get_artists(file_path, version=None):
     lines = metadata_str.split('\n')
     tpe1_values = [line.split('=', 1)[1] for line in lines if line.startswith('TPE1=')]
     return tpe1_values[0] if tpe1_values else None    @staticmethod
+
+@staticmethod
 def get_title(file_path, version=None):
     metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
     if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
