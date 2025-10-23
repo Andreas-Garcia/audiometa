@@ -110,10 +110,15 @@ class VorbisMetadataSetter:
         run_script("set-artists-One-Two-Three-vorbis.sh", file_path, scripts_dir)
     
     @staticmethod
-    def set_artists(file_path: Path, artists: List[str], removing_existing=True, key_lower_case=False) -> None:
+    def set_artists(file_path: Path, artists: List[str], removing_existing=True, key_lower_case=False, in_single_entry=False) -> None:
         """Set multiple Vorbis artists using external metaflac tool."""
-        VorbisMetadataSetter.set_multiple_tags(file_path, "ARTIST", artists, removing_existing, key_lower_case)
-    
+        if in_single_entry:
+            null_separated = "$'" + "\\x00".join(artists) + "'"
+            command = ["metaflac", "--set-tag", f"ARTIST={null_separated}", str(file_path)]
+            run_external_tool(command, "metaflac")
+        else:
+            VorbisMetadataSetter.set_multiple_tags(file_path, "ARTIST", artists, removing_existing, key_lower_case)
+
     @staticmethod
     def set_album_artists(file_path: Path, album_artists: List[str]):
         """Set multiple Vorbis album artists using external metaflac tool."""

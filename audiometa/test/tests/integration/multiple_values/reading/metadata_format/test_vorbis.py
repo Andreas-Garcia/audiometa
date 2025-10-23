@@ -11,7 +11,7 @@ class TestVorbis:
     
     def test_null_value_separated_artists(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            VorbisMetadataSetter.set_artists(test_file.path, ["Artist One\x00Artist Two\x00Artist Three"])
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist One\x00Artist Two\x00Artist Three"], in_single_entry=True)
             
             raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
             assert "ARTIST=Artist One\x00Artist Two\x00Artist Three" in raw_metadata
