@@ -8,7 +8,7 @@ from ..utils.id3v1_genre_code_map import ID3V1_GENRE_CODE_MAP
 
 from ..exceptions import MetadataNotSupportedError
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from ..utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
+from ..utils.types import UnifiedMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
 
 
 # Separators in order of priority for multi-value metadata fields
@@ -83,7 +83,7 @@ class MetadataManager:
         raise NotImplementedError()
 
     @abstractmethod
-    def _update_not_using_mutagen_metadata(self, app_metadata: AppMetadata):
+    def _update_not_using_mutagen_metadata(self, unified_metadata: UnifiedMetadata):
         raise NotImplementedError()
 
     def _get_cleaned_raw_metadata_from_file(self) -> RawMetadataDict:
@@ -327,16 +327,16 @@ class MetadataManager:
         # No code found, return as-is
         return genre_entry if genre_entry else None
 
-    def get_app_metadata(self) -> AppMetadata:
+    def get_app_metadata(self) -> UnifiedMetadata:
         if self.raw_clean_metadata is None:
             self.raw_clean_metadata = self._get_cleaned_raw_metadata_from_file()
 
-        app_metadata = {}
+        unified_metadata = {}
         for metadata_key in self.metadata_keys_direct_map_read:
             app_metadata_value = self.get_specific_metadata(metadata_key)
             if app_metadata_value is not None:
-                app_metadata[metadata_key] = app_metadata_value
-        return app_metadata
+                unified_metadata[metadata_key] = app_metadata_value
+        return unified_metadata
 
     def get_specific_metadata(self, unified_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
         if self.raw_clean_metadata is None:
@@ -423,18 +423,18 @@ class MetadataManager:
             'chunk_structure': {}
         }
 
-    def update_metadata(self, app_metadata: AppMetadata):
+    def update_metadata(self, unified_metadata: UnifiedMetadata):
         if not self.metadata_keys_direct_map_write:
             raise MetadataNotSupportedError('This format does not support metadata modification')
 
         if not self.update_using_mutagen_metadata:
-            self._update_not_using_mutagen_metadata(app_metadata)
+            self._update_not_using_mutagen_metadata(unified_metadata)
         else:
             if self.raw_mutagen_metadata is None:
                 self.raw_mutagen_metadata = self._extract_mutagen_metadata()
 
-            for unified_metadata_key in list(app_metadata.keys()):
-                app_metadata_value = app_metadata[unified_metadata_key]
+            for unified_metadata_key in list(unified_metadata.keys()):
+                app_metadata_value = unified_metadata[unified_metadata_key]
                 if unified_metadata_key not in self.metadata_keys_direct_map_write:
                     raise MetadataNotSupportedError(f'{unified_metadata_key} metadata not supported by this format')
                 else:

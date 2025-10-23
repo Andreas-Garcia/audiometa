@@ -5,7 +5,7 @@ from mutagen._file import FileType as MutagenMetadata
 from ...audio_file import AudioFile
 from ...exceptions import FileCorruptedError, MetadataNotSupportedError
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from ...utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
+from ...utils.types import UnifiedMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
 from ..MetadataManager import MetadataManager
 from .Id3v1RawMetadata import Id3v1RawMetadata
 from .Id3v1RawMetadataKey import Id3v1RawMetadataKey
@@ -202,10 +202,10 @@ class Id3v1Manager(MetadataManager):
         
         raw_mutagen_metadata.tags[raw_metadata_key] = [value]
 
-    def _update_not_using_mutagen_metadata(self, app_metadata: AppMetadata):
+    def _update_not_using_mutagen_metadata(self, unified_metadata: UnifiedMetadata):
         """Update ID3v1 metadata using direct file manipulation."""
         # Validate that all fields are supported by ID3v1
-        for unified_metadata_key in app_metadata.keys():
+        for unified_metadata_key in unified_metadata.keys():
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
                 raise MetadataNotSupportedError(f'{unified_metadata_key} metadata not supported by this format')
         
@@ -214,7 +214,7 @@ class Id3v1Manager(MetadataManager):
         file_data = bytearray(self.audio_file.read())
         
         # Create ID3v1 tag data
-        tag_data = self._create_id3v1_tag_data(app_metadata)
+        tag_data = self._create_id3v1_tag_data(unified_metadata)
         
         # Find and remove existing ID3v1 tag if present
         self._remove_existing_id3v1_tag(file_data)
@@ -225,7 +225,7 @@ class Id3v1Manager(MetadataManager):
         # Write back to file
         self.audio_file.write(file_data)
 
-    def _create_id3v1_tag_data(self, app_metadata: AppMetadata) -> bytes:
+    def _create_id3v1_tag_data(self, unified_metadata: UnifiedMetadata) -> bytes:
         """Create 128-byte ID3v1 tag data from app metadata."""
         # Initialize with null bytes
         tag_data = bytearray(128)
@@ -234,13 +234,13 @@ class Id3v1Manager(MetadataManager):
         tag_data[0:3] = b'TAG'
         
         # Title (bytes 3-32, 30 chars max)
-        title = app_metadata.get(UnifiedMetadataKey.TITLE)
+        title = unified_metadata.get(UnifiedMetadataKey.TITLE)
         if title is not None:
             title_bytes = self._truncate_string(str(title), 30).encode('latin-1', errors='ignore')
             tag_data[3:3+len(title_bytes)] = title_bytes
         
         # Artist (bytes 33-62, 30 chars max)
-        artists = app_metadata.get(UnifiedMetadataKey.ARTISTS)
+        artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
         if artists is not None:
             if isinstance(artists, list):
                 separator = self.find_safe_separator(artists)
@@ -251,25 +251,25 @@ class Id3v1Manager(MetadataManager):
             tag_data[33:33+len(artist_bytes)] = artist_bytes
         
         # Album (bytes 63-92, 30 chars max)
-        album = app_metadata.get(UnifiedMetadataKey.ALBUM)
+        album = unified_metadata.get(UnifiedMetadataKey.ALBUM)
         if album is not None:
             album_bytes = self._truncate_string(str(album), 30).encode('latin-1', errors='ignore')
             tag_data[63:63+len(album_bytes)] = album_bytes
         
         # Year (bytes 93-96, 4 chars max)
-        year = app_metadata.get(UnifiedMetadataKey.RELEASE_DATE)
+        year = unified_metadata.get(UnifiedMetadataKey.RELEASE_DATE)
         if year is not None:
             year_bytes = self._truncate_string(str(year), 4).encode('latin-1', errors='ignore')
             tag_data[93:93+len(year_bytes)] = year_bytes
         
         # Comment and track number (bytes 97-126, 28 chars for comment + 2 for track)
-        comment = app_metadata.get(UnifiedMetadataKey.COMMENT)
+        comment = unified_metadata.get(UnifiedMetadataKey.COMMENT)
         if comment is not None:
             comment_bytes = self._truncate_string(str(comment), 28).encode('latin-1', errors='ignore')
             tag_data[97:97+len(comment_bytes)] = comment_bytes
         
         # Track number (bytes 125-126 for ID3v1.1)
-        track_number = app_metadata.get(UnifiedMetadataKey.TRACK_NUMBER)
+        track_number = unified_metadata.get(UnifiedMetadataKey.TRACK_NUMBER)
         if track_number is not None:
             track_num = max(0, min(255, int(track_number)))
             if track_num > 0:
@@ -277,7 +277,7 @@ class Id3v1Manager(MetadataManager):
                 tag_data[126] = track_num
         
         # Genre (byte 127)
-        genre_name = app_metadata.get(UnifiedMetadataKey.GENRES_NAMES)
+        genre_name = unified_metadata.get(UnifiedMetadataKey.GENRES_NAMES)
         if genre_name is not None:
             # Handle both single string and list values gracefully
             if isinstance(genre_name, list):

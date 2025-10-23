@@ -4,7 +4,7 @@ from ...audio_file import AudioFile
 from ...exceptions import ConfigurationError, InvalidRatingValueError, MetadataNotSupportedError
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from ...utils.rating_profiles import RatingReadProfile, RatingWriteProfile
-from ...utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
+from ...utils.types import UnifiedMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
 from ..MetadataManager import MetadataManager
 
 
@@ -72,8 +72,8 @@ class RatingSupportingMetadataManager(MetadataManager):
         star_rating_base_10 = (int)((normalized_rating * 10)/self.normalized_rating_max_value)
         return self.rating_write_profile[star_rating_base_10]
 
-    def update_metadata(self, app_metadata: AppMetadata):
-        if UnifiedMetadataKey.RATING in list(app_metadata.keys()):
+    def update_metadata(self, unified_metadata: UnifiedMetadata):
+        if UnifiedMetadataKey.RATING in list(unified_metadata.keys()):
             # Check if rating is supported by this format first
             if (not self.metadata_keys_direct_map_write or 
                 UnifiedMetadataKey.RATING not in self.metadata_keys_direct_map_write):
@@ -93,7 +93,7 @@ class RatingSupportingMetadataManager(MetadataManager):
                 # Only process rating if it's handled directly by the base class
                 # (i.e., when using mutagen-based approach)
                 if self.update_using_mutagen_metadata:
-                    value: int | None = app_metadata[UnifiedMetadataKey.RATING]  # type: ignore
+                    value: int | None = unified_metadata[UnifiedMetadataKey.RATING]  # type: ignore
                     if value is not None:
                         if self.normalized_rating_max_value is None:
                             raise ConfigurationError(
@@ -102,9 +102,9 @@ class RatingSupportingMetadataManager(MetadataManager):
                         try:
                             normalized_rating = int(float(value))
                             file_rating = self._convert_normalized_rating_to_file_rating(normalized_rating=normalized_rating)
-                            app_metadata[UnifiedMetadataKey.RATING] = file_rating
+                            unified_metadata[UnifiedMetadataKey.RATING] = file_rating
                         except (TypeError, ValueError):
                             raise InvalidRatingValueError(f"Invalid rating value: {value}. Expected a numeric value.")
                     # If value is None, let the individual managers handle the removal
 
-        super().update_metadata(app_metadata)
+        super().update_metadata(unified_metadata)

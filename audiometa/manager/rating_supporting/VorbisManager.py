@@ -1,3 +1,4 @@
+import struct
 from typing import TypeVar, cast
 
 import taglib
@@ -5,7 +6,7 @@ import taglib
 from ...audio_file import AudioFile
 from ...exceptions import FileCorruptedError, MetadataNotSupportedError
 from ...utils.rating_profiles import RatingWriteProfile
-from ...utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
+from ...utils.types import UnifiedMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
 from ..MetadataManager import UnifiedMetadataKey
 from .RatingSupportingMetadataManager import RatingSupportingMetadataManager
 
@@ -98,24 +99,53 @@ class VorbisManager(RatingSupportingMetadataManager):
                          normalized_rating_max_value=normalized_rating_max_value)
 
     def _extract_mutagen_metadata(self) -> dict:
-        try:
-            # Use TagLib to read FLAC metadata
-            file_obj = taglib.File(self.audio_file.get_file_path_or_object())
-            
-            # TagLib returns tags as a dict with string keys and list values
-            # Keys are already in upper case for Vorbis
-            metadata = {}
-            for key, values in file_obj.tags.items():
-                # Ensure values is a list
-                if isinstance(values, list):
-                    metadata[key] = values
-                else:
-                    metadata[key] = [values]
-            
-            file_obj.close()
-            return metadata
-        except Exception as error:
-            raise FileCorruptedError(f"Failed to read Vorbis metadata with TagLib: {error}")
+        """
+        Reads Vorbis comments from a FLAC file, preserving original key case.
+        Returns a dict: {key: [values]}.
+        """
+        comments = {}
+        with open(self.audio_file.get_file_path_or_object(), "rb") as f:
+            # --- Step 1: Skip FLAC header ---
+            header = f.read(4)
+            if header != b'fLaC':
+                raise ValueError("Not a valid FLAC file")
+
+            # --- Step 2: Read metadata blocks ---
+            is_last = False
+            while not is_last:
+                block_header = f.read(4)
+                if len(block_header) < 4:
+                    break
+                is_last = bool(block_header[0] & 0x80)
+                block_type = block_header[0] & 0x7F
+                block_size = struct.unpack(">I", b'\x00' + block_header[1:])[0]
+                data = f.read(block_size)
+
+                # --- Step 3: Look for VORBIS_COMMENT block ---
+                if block_type == 4:  # VORBIS_COMMENT
+                    offset = 0
+                    # Vendor length (32-bit LE)
+                    vendor_len = struct.unpack("<I", data[offset:offset+4])[0]
+                    offset += 4 + vendor_len
+                    # Number of comments
+                    num_comments = struct.unpack("<I", data[offset:offset+4])[0]
+                    offset += 4
+
+                    for _ in range(num_comments):
+                        comment_len = struct.unpack("<I", data[offset:offset+4])[0]
+                        offset += 4
+                        comment_bytes = data[offset:offset+comment_len]
+                        offset += comment_len
+                        comment_str = comment_bytes.decode("utf-8", errors="replace")
+
+                        # Split key=value at first '='
+                        if '=' not in comment_str:
+                            continue
+                        key, value = comment_str.split('=', 1)
+                        # Preserve original case
+                        comments.setdefault(key, []).append(value)
+                    break
+        return comments
 
     def _convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(
             self, raw_mutagen_metadata: dict) -> RawMetadataDict:
@@ -150,7 +180,7 @@ class VorbisManager(RatingSupportingMetadataManager):
         elif raw_metadata_key in raw_mutagen_metadata:
             del raw_mutagen_metadata[raw_metadata_key]
 
-    def update_metadata(self, app_metadata: AppMetadata):
+    def update_metadata(self, unified_metadata: UnifiedMetadata):
         if not self.metadata_keys_direct_map_write:
             raise MetadataNotSupportedError('This format does not support metadata modification')
 
@@ -158,8 +188,8 @@ class VorbisManager(RatingSupportingMetadataManager):
         current_metadata = self._extract_mutagen_metadata()
 
         # Update metadata dict
-        for unified_metadata_key in list(app_metadata.keys()):
-            app_metadata_value = app_metadata[unified_metadata_key]
+        for unified_metadata_key in list(unified_metadata.keys()):
+            app_metadata_value = unified_metadata[unified_metadata_key]
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
                 raise MetadataNotSupportedError(f'{unified_metadata_key} metadata not supported by this format')
             else:

@@ -9,7 +9,7 @@ from ...audio_file import AudioFile
 from ...exceptions import ConfigurationError, MetadataNotSupportedError, FileTypeNotSupportedError
 from ...utils.id3v1_genre_code_map import ID3V1_GENRE_CODE_MAP
 from ...utils.rating_profiles import RatingWriteProfile
-from ...utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
+from ...utils.types import UnifiedMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
 from ..MetadataManager import UnifiedMetadataKey
 from ..rating_supporting.RatingSupportingMetadataManager import RatingSupportingMetadataManager
 
@@ -290,7 +290,7 @@ class RiffManager(RatingSupportingMetadataManager):
         else:
             raise MetadataNotSupportedError(f'Metadata key not handled: {unified_metadata_key}')
 
-    def _update_not_using_mutagen_metadata(self, app_metadata: AppMetadata):
+    def _update_not_using_mutagen_metadata(self, unified_metadata: UnifiedMetadata):
         """
         Update metadata fields in the RIFF INFO chunk using an optimized chunk-based approach.
         This implementation maintains RIFF specification compliance while providing better
@@ -303,7 +303,7 @@ class RiffManager(RatingSupportingMetadataManager):
             raise ConfigurationError('metadata_keys_direct_map_write must be set')
 
         # Validate that all metadata fields are supported by RIFF format
-        for unified_metadata_key in app_metadata.keys():
+        for unified_metadata_key in unified_metadata.keys():
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
                 raise MetadataNotSupportedError(f'{unified_metadata_key} metadata not supported by RIFF format')
 
@@ -349,7 +349,7 @@ class RiffManager(RatingSupportingMetadataManager):
 
         # Build new tags data
         new_tags_data = bytearray()
-        for app_key, value in app_metadata.items():
+        for app_key, value in unified_metadata.items():
             if value is None or value == "":
                 continue
 

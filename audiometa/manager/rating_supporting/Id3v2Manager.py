@@ -10,7 +10,7 @@ from mutagen.id3._util import ID3NoHeaderError
 from ...audio_file import AudioFile
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from ...utils.rating_profiles import RatingWriteProfile
-from ...utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
+from ...utils.types import UnifiedMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
 from .RatingSupportingMetadataManager import RatingSupportingMetadataManager
 
 
@@ -508,13 +508,13 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             # Save ID3v2 while preserving ID3v1
             self._save_with_id3v1_preservation(file_path, id3v1_data)
 
-    def update_metadata(self, app_metadata: AppMetadata):
+    def update_metadata(self, unified_metadata: UnifiedMetadata):
         """Override to use custom save method with version control and ID3v1 preservation."""
         if not self.metadata_keys_direct_map_write:
             raise MetadataNotSupportedError('This format does not support metadata modification')
 
         # Handle rating conversion first (from parent class)
-        if UnifiedMetadataKey.RATING in app_metadata:
+        if UnifiedMetadataKey.RATING in unified_metadata:
             # Rating handling logic from parent class
             if self.metadata_keys_direct_map_write[UnifiedMetadataKey.RATING] is None:
                 # Rating is handled indirectly by the manager
@@ -522,7 +522,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             else:
                 # Rating is handled directly by the base class
                 if self.update_using_mutagen_metadata:
-                    value: int | None = app_metadata[UnifiedMetadataKey.RATING]  # type: ignore
+                    value: int | None = unified_metadata[UnifiedMetadataKey.RATING]  # type: ignore
                     if value is not None:
                         if self.normalized_rating_max_value is None:
                             from ...exceptions import ConfigurationError
@@ -532,7 +532,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                         try:
                             normalized_rating = int(float(value))
                             file_rating = self._convert_normalized_rating_to_file_rating(normalized_rating=normalized_rating)
-                            app_metadata[UnifiedMetadataKey.RATING] = file_rating
+                            unified_metadata[UnifiedMetadataKey.RATING] = file_rating
                         except (TypeError, ValueError):
                             from ...exceptions import InvalidRatingValueError
                             raise InvalidRatingValueError(f"Invalid rating value: {value}. Expected a numeric value.")
@@ -545,8 +545,8 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         if self.raw_mutagen_metadata is None:
             self.raw_mutagen_metadata = self._extract_mutagen_metadata()
 
-        for unified_metadata_key in list(app_metadata.keys()):
-            app_metadata_value = app_metadata[unified_metadata_key]
+        for unified_metadata_key in list(unified_metadata.keys()):
+            app_metadata_value = unified_metadata[unified_metadata_key]
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
                 from ...exceptions import MetadataNotSupportedError
                 raise MetadataNotSupportedError(f'{unified_metadata_key} metadata not supported by this format')

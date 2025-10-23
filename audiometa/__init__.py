@@ -14,7 +14,7 @@ from mutagen.id3 import ID3
 
 from .audio_file import AudioFile
 from .exceptions import FileTypeNotSupportedError, MetadataNotSupportedError, MetadataWritingConflictParametersError, InvalidMetadataTypeError
-from .utils.types import AppMetadata, AppMetadataValue
+from .utils.types import UnifiedMetadata, AppMetadataValue
 from .utils.MetadataFormat import MetadataFormat
 from .utils.MetadataWritingStrategy import MetadataWritingStrategy
 from .utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -91,7 +91,7 @@ def _get_metadata_managers(
 
 
 def get_unified_metadata(
-        file: FILE_TYPE, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None, metadata_format: MetadataFormat | None = None) -> AppMetadata:
+        file: FILE_TYPE, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None, metadata_format: MetadataFormat | None = None) -> UnifiedMetadata:
     """
     Get metadata from a file, either unified across all formats or from a specific format only.
     
@@ -165,9 +165,9 @@ def get_unified_metadata(
     for unified_metadata_key in UnifiedMetadataKey:
         for format_type, manager in managers_by_precedence:
             try:
-                app_metadata = manager.get_app_metadata()
-                if unified_metadata_key in app_metadata:
-                    value = app_metadata[unified_metadata_key]
+                unified_metadata = manager.get_app_metadata()
+                if unified_metadata_key in unified_metadata:
+                    value = unified_metadata[unified_metadata_key]
                     if value is not None:
                         result[unified_metadata_key] = value
                         break
@@ -233,12 +233,12 @@ def get_specific_metadata(file: FILE_TYPE, unified_metadata_key: UnifiedMetadata
         return None
 
 
-def _check_unsupported_fields(app_metadata: AppMetadata, all_managers: dict[MetadataFormat, MetadataManager]) -> list[UnifiedMetadataKey]:
+def _check_unsupported_fields(unified_metadata: UnifiedMetadata, all_managers: dict[MetadataFormat, MetadataManager]) -> list[UnifiedMetadataKey]:
     """
     Check if any metadata fields are not supported by ANY format.
     
     Args:
-        app_metadata: Dictionary containing metadata to check
+        unified_metadata: Dictionary containing metadata to check
         all_managers: Dictionary of format managers to check against
         
     Returns:
@@ -246,7 +246,7 @@ def _check_unsupported_fields(app_metadata: AppMetadata, all_managers: dict[Meta
     """
     unsupported_fields = []
     
-    for field in app_metadata.keys():
+    for field in unified_metadata.keys():
         is_supported = False
         for manager in all_managers.values():
             # Check if the field is supported by this manager for writing
@@ -261,18 +261,18 @@ def _check_unsupported_fields(app_metadata: AppMetadata, all_managers: dict[Meta
     return unsupported_fields
 
 
-def _validate_app_metadata_types(app_metadata: AppMetadata) -> None:
-    """Validate types of values in app_metadata against UnifiedMetadataKey.get_optional_type().
+def _validate_app_metadata_types(unified_metadata: UnifiedMetadata) -> None:
+    """Validate types of values in unified_metadata against UnifiedMetadataKey.get_optional_type().
 
     Raises InvalidMetadataTypeError when a value does not match the expected type.
     None values are allowed (used to indicate removal of a field).
     """
-    if not app_metadata:
+    if not unified_metadata:
         return
 
     from typing import get_origin, get_args
 
-    for key, value in app_metadata.items():
+    for key, value in unified_metadata.items():
         # Allow None to mean "remove this field"
         if value is None:
             continue
@@ -300,7 +300,7 @@ def _validate_app_metadata_types(app_metadata: AppMetadata) -> None:
 
 
 def update_metadata(
-        file: FILE_TYPE, app_metadata: AppMetadata, normalized_rating_max_value: int | None = None, 
+        file: FILE_TYPE, unified_metadata: UnifiedMetadata, normalized_rating_max_value: int | None = None, 
         id3v2_version: tuple[int, int, int] | None = None, metadata_strategy: MetadataWritingStrategy | None = None,
         metadata_format: MetadataFormat | None = None, fail_on_unsupported_field: bool = False) -> None:
     """
@@ -311,7 +311,7 @@ def update_metadata(
     
     Args:
         file: Audio file path or AudioFile object
-        app_metadata: Dictionary containing metadata to write
+        unified_metadata: Dictionary containing metadata to write
         normalized_rating_max_value: Maximum value for rating normalization (0-10 scale).
             When provided, ratings are normalized to this scale. Defaults to None (raw values).
         id3v2_version: ID3v2 version tuple for ID3v2-specific operations
@@ -389,13 +389,13 @@ def update_metadata(
         metadata_strategy = MetadataWritingStrategy.SYNC
     
     # Handle strategy-specific behavior before writing
-    # Validate provided app_metadata value types before attempting any writes
-    _validate_app_metadata_types(app_metadata)
+    # Validate provided unified_metadata value types before attempting any writes
+    _validate_app_metadata_types(unified_metadata)
 
-    _handle_metadata_strategy(file, app_metadata, metadata_strategy, normalized_rating_max_value, id3v2_version, metadata_format, fail_on_unsupported_field)
+    _handle_metadata_strategy(file, unified_metadata, metadata_strategy, normalized_rating_max_value, id3v2_version, metadata_format, fail_on_unsupported_field)
 
 
-def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strategy: MetadataWritingStrategy, 
+def _handle_metadata_strategy(file: AudioFile, unified_metadata: UnifiedMetadata, strategy: MetadataWritingStrategy, 
                              normalized_rating_max_value: int | None, id3v2_version: tuple[int, int, int] | None,
                              target_format: MetadataFormat | None = None, fail_on_unsupported_field: bool = False) -> None:
     """Handle metadata strategy-specific behavior for all strategies."""
@@ -413,7 +413,7 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
         all_managers = _get_metadata_managers(
             file=file, tag_formats=[target_format_actual], normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
         target_manager = all_managers[target_format_actual]
-        target_manager.update_metadata(app_metadata)
+        target_manager.update_metadata(unified_metadata)
         return
     
     # Get all available managers for this file type
@@ -435,7 +435,7 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
         # Check for unsupported fields by target format
         target_manager = all_managers[target_format_actual]
         unsupported_fields = []
-        for field in app_metadata.keys():
+        for field in unified_metadata.keys():
             if hasattr(target_manager, 'metadata_keys_direct_map_write') and target_manager.metadata_keys_direct_map_write:
                 if field not in target_manager.metadata_keys_direct_map_write:
                     unsupported_fields.append(field)
@@ -446,32 +446,32 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
             else:
                 warnings.warn(f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}")
                 # Create filtered metadata without unsupported fields
-                filtered_metadata = {k: v for k, v in app_metadata.items() if k not in unsupported_fields}
-                app_metadata = filtered_metadata
+                filtered_metadata = {k: v for k, v in unified_metadata.items() if k not in unsupported_fields}
+                unified_metadata = filtered_metadata
         
         # Then write to target format
-        target_manager.update_metadata(app_metadata)
+        target_manager.update_metadata(unified_metadata)
         
     elif strategy == MetadataWritingStrategy.SYNC:
         # For SYNC, we need to write to all available formats
         # Check if any fields are unsupported by ALL formats when fail_on_unsupported_field is True
         if fail_on_unsupported_field:
-            unsupported_fields = _check_unsupported_fields(app_metadata, all_managers)
+            unsupported_fields = _check_unsupported_fields(unified_metadata, all_managers)
             if unsupported_fields:
                 raise MetadataNotSupportedError(f"Fields not supported by any format: {unsupported_fields}")
         else:
             # Filter out unsupported fields when fail_on_unsupported_field is False
-            unsupported_fields = _check_unsupported_fields(app_metadata, all_managers)
+            unsupported_fields = _check_unsupported_fields(unified_metadata, all_managers)
             if unsupported_fields:
                 warnings.warn(f"Fields not supported by any format will be skipped: {unsupported_fields}")
                 # Create filtered metadata without unsupported fields
-                filtered_metadata = {k: v for k, v in app_metadata.items() if k not in unsupported_fields}
-                app_metadata = filtered_metadata
+                filtered_metadata = {k: v for k, v in unified_metadata.items() if k not in unsupported_fields}
+                unified_metadata = filtered_metadata
         
         # Write to target format first
         target_manager = all_managers[target_format_actual]
         try:
-            target_manager.update_metadata(app_metadata)
+            target_manager.update_metadata(unified_metadata)
         except MetadataNotSupportedError as e:
             # For SYNC strategy, log warning but continue with other formats
             warnings.warn(f"Format {target_format_actual} doesn't support some metadata fields: {e}")
@@ -487,7 +487,7 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
         # Note: We need to be careful about the order to avoid conflicts
         for fmt, manager in other_managers.items():
             try:
-                manager.update_metadata(app_metadata)
+                manager.update_metadata(unified_metadata)
             except MetadataNotSupportedError as e:
                 # For SYNC strategy, log warning but continue with other formats
                 warnings.warn(f"Format {fmt} doesn't support some metadata fields: {e}")
@@ -510,7 +510,7 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
         # Check for unsupported fields by target format
         target_manager = all_managers[target_format_actual]
         unsupported_fields = []
-        for field in app_metadata.keys():
+        for field in unified_metadata.keys():
             if hasattr(target_manager, 'metadata_keys_direct_map_write') and target_manager.metadata_keys_direct_map_write:
                 if field not in target_manager.metadata_keys_direct_map_write:
                     unsupported_fields.append(field)
@@ -521,11 +521,11 @@ def _handle_metadata_strategy(file: AudioFile, app_metadata: AppMetadata, strate
             else:
                 warnings.warn(f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}")
                 # Create filtered metadata without unsupported fields
-                filtered_metadata = {k: v for k, v in app_metadata.items() if k not in unsupported_fields}
-                app_metadata = filtered_metadata
+                filtered_metadata = {k: v for k, v in unified_metadata.items() if k not in unsupported_fields}
+                unified_metadata = filtered_metadata
         
         # Write to target format
-        target_manager.update_metadata(app_metadata)
+        target_manager.update_metadata(unified_metadata)
         
         # Restore preserved metadata from other formats
         for fmt, metadata in preserved_metadata.items():
