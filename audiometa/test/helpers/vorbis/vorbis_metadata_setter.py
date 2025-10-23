@@ -10,8 +10,12 @@ class VorbisMetadataSetter:
     """Static utility class for Vorbis metadata setting using external tools."""
     
     @staticmethod
-    def set_multiple_tags(file_path: Path, tag_name: str, values: List[str]) -> None:
+    def set_multiple_tags(file_path: Path, tag_name: str, values: List[str], key_lower_case=False) -> None:
         """Set multiple Vorbis comment tags with the same name."""
+        
+        if key_lower_case:
+            tag_name = tag_name.lower()
+            
         # First remove existing tags
         try:
             command = ["metaflac", "--remove-tag", tag_name, str(file_path)]
@@ -59,8 +63,11 @@ class VorbisMetadataSetter:
         run_external_tool(command, "metaflac")
     
     @staticmethod
-    def add_title(file_path: Path, title: str) -> None:
-        command = ["metaflac", "--set-tag", f"TITLE={title}", str(file_path)]
+    def add_title(file_path: Path, title: str, key_lower_case=False) -> None:
+        if key_lower_case:
+            command = ["metaflac", "--set-tag", f"title={title}", str(file_path)]
+        else:
+            command = ["metaflac", "--set-tag", f"TITLE={title}", str(file_path)]
         run_external_tool(command, "metaflac")
     
     @staticmethod
@@ -103,9 +110,9 @@ class VorbisMetadataSetter:
         run_script("set-artists-One-Two-Three-vorbis.sh", file_path, scripts_dir)
     
     @staticmethod
-    def set_artists(file_path: Path, artists: List[str]):
+    def set_artists(file_path: Path, artists: List[str], key_lower_case=False) -> None:
         """Set multiple Vorbis artists using external metaflac tool."""
-        VorbisMetadataSetter.set_multiple_tags(file_path, "ARTIST", artists)
+        VorbisMetadataSetter.set_multiple_tags(file_path, "ARTIST", artists, key_lower_case)
     
     @staticmethod
     def set_album_artists(file_path: Path, album_artists: List[str]):
