@@ -17,19 +17,19 @@ class ID3v2MetadataGetter:
     def _decode_text(encoding: int, data: bytes) -> str:
         """Decode text based on encoding."""
         if encoding == 0:  # ISO-8859-1
-            return data.decode('latin1', errors='replace')
+            return data.decode('latin1', errors='ignore')
         elif encoding == 1:  # UTF-16 with BOM
-            return data.decode('utf-16', errors='replace')
+            return data.decode('utf-16', errors='ignore')
         elif encoding == 2:  # UTF-16BE without BOM
-            return data.decode('utf-16be', errors='replace')
+            return data.decode('utf-16be', errors='ignore')
         elif encoding == 3:  # UTF-8
-            return data.decode('utf-8', errors='replace')
+            return data.decode('utf-8', errors='ignore')
         else:
-            return data.decode('latin1', errors='replace')  # fallback
+            return data.decode('latin1', errors='ignore')  # fallback
 
     @staticmethod
-    def get_raw_metadata(file_path):
-        """Get the raw metadata from the audio file using manual ID3v2 parsing, listing each frame separately."""
+    def get_raw_metadata(file_path, version=None):
+        """Get the raw metadata from the audio file using manual ID3v2 parsing, returning a dict of frame IDs to values."""
         try:
             with open(file_path, 'rb') as f:
                 # Read ID3v2 header (10 bytes)
@@ -38,7 +38,11 @@ class ID3v2MetadataGetter:
                     return "No ID3v2 tag found"
 
                 # Parse header
-                version = (header[3], header[4])
+                file_version = (header[3], header[4])
+                if version is None:
+                    version = file_version[0]
+                elif file_version[0] != version:
+                    return None
                 flags = header[5]
                 tag_size = ID3v2MetadataGetter._syncsafe_decode(header[6:10])
 
@@ -47,7 +51,7 @@ class ID3v2MetadataGetter:
                 if len(tag_data) != tag_size:
                     return "Incomplete ID3v2 tag"
 
-                lines = []
+                metadata = {}
                 pos = 0
                 while pos < len(tag_data) - 10:
                     # Parse frame header (10 bytes)
@@ -59,7 +63,12 @@ class ID3v2MetadataGetter:
                     except UnicodeDecodeError:
                         break
 
-                    frame_size = ID3v2MetadataGetter._syncsafe_decode(tag_data[pos+4:pos+8])
+                    if version == 4:
+                        frame_size = ID3v2MetadataGetter._syncsafe_decode(tag_data[pos+4:pos+8])
+                    elif version == 3:
+                        frame_size = int.from_bytes(tag_data[pos+4:pos+8], 'big')
+                    else:
+                        return None
                     frame_flags = tag_data[pos+8:pos+10]
 
                     if pos + 10 + frame_size > len(tag_data):
@@ -71,55 +80,67 @@ class ID3v2MetadataGetter:
                     if frame_data and len(frame_data) > 1:
                         encoding = frame_data[0]
                         text_data = frame_data[1:]
-                        # Handle null-separated multiple values
-                        if b'\x00' in text_data:
-                            texts = text_data.split(b'\x00')
-                            decoded_texts = [ID3v2MetadataGetter._decode_text(encoding, t) for t in texts if t]
-                            text = ', '.join(decoded_texts)
-                        else:
-                            text = ID3v2MetadataGetter._decode_text(encoding, text_data)
-                        lines.append(f"{frame_id_str}: {text}")
+                        # Split on appropriate null bytes based on encoding
+                        null = b'\x00\x00' if encoding in (1, 2) else b'\x00'
+                        texts = text_data.split(null)
+                        decoded_texts = [ID3v2MetadataGetter._decode_text(encoding, t) for t in texts if t]
+                        text = decoded_texts[0] if decoded_texts else ''
+                        metadata[frame_id_str] = text
                     else:
                         # Non-text frame, just show size
-                        lines.append(f"{frame_id_str}: <{frame_size} bytes>")
+                        metadata[frame_id_str] = f"<{frame_size} bytes>"
 
                     pos += 10 + frame_size
 
-                return '\n'.join(lines)
+                return metadata
         except Exception as e:
             return f"Error parsing ID3v2: {str(e)}"
 
     @staticmethod
-    def get_artists(file_path):
-        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path)
-        return metadata.get('artists', [])
+    def get_artists(file_path, version=None):
+        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
+        if metadata is None:
+            return None
+        return metadata.get('TPE1')
 
     @staticmethod
-    def get_title(file_path):
-        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path)
-        return metadata.get('title')
+    def get_title(file_path, version=None):
+        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
+        if metadata is None:
+            return None
+        return metadata.get('TIT2')
 
     @staticmethod
-    def get_album(file_path):
-        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path)
-        return metadata.get('album')
+    def get_album(file_path, version=None):
+        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
+        if metadata is None:
+            return None
+        return metadata.get('TALB')
 
     @staticmethod
-    def get_year(file_path):
-        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path)
-        return metadata.get('year')
+    def get_year(file_path, version=None):
+        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
+        if metadata is None:
+            return None
+        return metadata.get('TYER') or metadata.get('TDRC')
 
     @staticmethod
-    def get_genres(file_path):
-        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path)
-        return metadata.get('genre')
+    def get_genres(file_path, version=None):
+        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
+        if metadata is None:
+            return None
+        return metadata.get('TCON')
 
     @staticmethod
-    def get_comment(file_path):
-        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path)
-        return metadata.get('comment')
+    def get_comment(file_path, version=None):
+        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
+        if metadata is None:
+            return None
+        return metadata.get('COMM')
 
     @staticmethod
-    def get_track(file_path):
-        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path)
-        return metadata.get('track')
+    def get_track(file_path, version=None):
+        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
+        if metadata is None:
+            return None
+        return metadata.get('TRCK')
