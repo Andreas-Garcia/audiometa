@@ -466,7 +466,6 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             if id3v1_data:
                 # Save to a temporary file first
                 import tempfile
-                import shutil
                 
                 with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as temp_file:
                     temp_path = temp_file.name
