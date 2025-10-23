@@ -15,8 +15,8 @@ class TestId3v2_4Mixed:
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
-            verification = {'raw_output': raw_metadata.get("TPE1", "")}
-            assert "TPE1=Artist One / Artist Two / Artist Three" in verification['raw_output']
+            # raw_output replaces NUL bytes with slashes for display purposes
+            assert "TPE1=Artist One / Artist Two / Artist Three" in raw_metadata
             
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             
@@ -109,8 +109,7 @@ class TestId3v2_4Mixed:
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
-            verification = {'raw_output': raw_metadata.get("TPE1", "")}
-            assert "TPE1=Artist One;Artist Two;Artist Three" in verification['raw_output']
+            assert "TPE1=Artist One;Artist Two;Artist Three" in raw_metadata
             
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             
@@ -123,20 +122,19 @@ class TestId3v2_4Mixed:
 
     def test_multiple_artists_in_multiple_entries_semicolon_separator(self):
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
-            ID3v2MetadataSetter.set_artists(test_file.path, ["Artist One", "Artist Two", "Artist Three"], in_separate_frames=False, version="2.4", separator=" / ")
+            ID3v2MetadataSetter.set_artists(test_file.path, ["Artist One;Artist Two", "Artist Three"], in_separate_frames=True, version="2.4")
             
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
-            verification = {'raw_output': raw_metadata.get("TPE1", "")}
-            assert "TPE1=Artist One / Artist Two / Artist Three" in verification['raw_output']
+            assert "TPE1=Artist One;Artist Two" in raw_metadata
+            assert "TPE1=Artist Three" in raw_metadata
             
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             
             assert isinstance(artists, list)
             assert len(artists) == 3
-            assert "Artist One" in artists
-            assert "Artist Two" in artists
+            assert "Artist One;Artist Two" in artists
             assert "Artist Three" in artists
             
     def test_null_separated_artists_in_multiple_entries(self):
@@ -145,10 +143,10 @@ class TestId3v2_4Mixed:
             
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             
-            verification = ID3v2MetadataGetter.get_multiple_entries_from_raw_data(test_file.path, "TPE1")
-            assert "TPE1=Artist One\0Artist Two" in verification['raw_output']
-            assert "TPE1=Artist Three" in verification['raw_output']
-            
+            raw_metadata = ID3v2MetadataGetter.get_multiple_entries_from_raw_data(test_file.path, "TPE1")
+            assert "TPE1=Artist One\0Artist Two" in raw_metadata['raw_output']
+            assert "TPE1=Artist Three" in raw_metadata['raw_output']
+
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             
             assert isinstance(artists, list)
@@ -163,10 +161,8 @@ class TestId3v2_4Mixed:
             
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             
-            verification = ID3v2MetadataGetter.get_multiple_entries_from_raw_data(test_file.path, "TPE1")
-            
-            # raw_output replaces NUL bytes with slashes for display purposes
-            assert "TPE1=Artist 1 / Artist 2;Artist 3" in verification['raw_output']
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
+            assert "TPE1=Artist 1\x00Artist 2;Artist 3" in raw_metadata
             
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             assert isinstance(artists, list)
@@ -181,10 +177,10 @@ class TestId3v2_4Mixed:
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
 
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
-            verification = {'raw_output': raw_metadata.get("TIT2", "")}
-            
-            assert "TIT2=Title One / Title Two / Title Three" in verification['raw_output']
-            
+            assert "TIT2=Title One" in raw_metadata
+            assert "TIT2=Title Two" in raw_metadata
+            assert "TIT2=Title Three" in raw_metadata
+                        
             title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V2)
             
             assert isinstance(title, str)
