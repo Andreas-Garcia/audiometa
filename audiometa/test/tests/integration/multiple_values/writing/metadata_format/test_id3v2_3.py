@@ -21,9 +21,7 @@ class TestMultipleValuesId3v2_3:
             
             # Use helper to check the created ID3v2 frame directly
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
-            verification = {'raw_output': raw_metadata.get("TPE1", "")}
-            raw_output = verification['raw_output']
-            assert "TPE1=Artist 1//Artist 2//Artist 3" in raw_output
+            assert "TPE1=Artist 1//Artist 2//Artist 3" in raw_metadata
     
     def test_with_existing_artists_field(self):
         # Start with an existing artist field
@@ -31,19 +29,16 @@ class TestMultipleValuesId3v2_3:
         with TempFileWithMetadata(initial_metadata, "id3v2.3") as test_file:
             ID3v2MetadataSetter.set_artist(test_file.path, "Existing 1; Existing 2", version="2.3")
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
-            verification = {'raw_output': raw_metadata.get("TPE1", "")}
-            raw_output = verification['raw_output']
-            assert "TPE1=Existing 1; Existing 2" in raw_output
-            
+            assert "TPE1=Existing 1; Existing 2" in raw_metadata
+
             metadata = {
                 UnifiedMetadataKey.ARTISTS: ["Existing 1", "New 2"]
             }
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
-            verification = {'raw_output': raw_metadata.get("TPE1", "")}
-            raw_output = verification['raw_output']
-            assert "Existing 1" in raw_output
-            assert "New 2" in raw_output
+
+            assert "Existing 1" in raw_metadata
+            assert "New 2" in raw_metadata
             # Should contain separator in ID3v2.3 (// has highest priority)
-            assert "//" in raw_output
+            assert "//" in raw_metadata
