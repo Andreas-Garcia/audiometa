@@ -177,7 +177,7 @@ class TestSpecialCharactersEdgeCases:
             assert title == "Song 🎶 with 🎵 emojis"
 
     def test_read_mixed_special_characters(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
+        with TempFileWithMetadata({}, "flac") as test_file:
             VorbisMetadataSetter.set_artists(test_file.path, ["François & Co. (feat. Müller) 🎵", "The \"Quoted\" Band - Special Characters", "Artist with\nnewlines\tand\ttabs"])
             VorbisMetadataSetter.add_title(test_file.path, "Mixed Special 🎵 Characters & \"Quotes\"")
             
