@@ -68,7 +68,18 @@ class ID3v2MetadataSetter:
     
     @staticmethod
     def set_artists(file_path: Path, artists: List[str], version: str = "2.4") -> None:
-        ID3v2MetadataSetter._set_multiple_metadata_values(file_path, "TPE1", artists, False, version, None)
+        if version == "2.4":
+            command = ["mid3v2"]
+            for artist in artists:
+                command += ["--artist", artist]
+            command.append(file_path)
+            run_external_tool(command, "mid3v2")
+        else:
+            command = ["id3v2", "--id3v2-only"]
+            for artist in artists:
+                command += ["--artist", artist]
+            command.append(str(file_path))
+            run_external_tool(command, "id3v2")
     
     @staticmethod
     def set_album(file_path: Path, album: str, version: str = "2.4") -> None:
@@ -164,22 +175,7 @@ class ID3v2MetadataSetter:
         else:
             # Create a single frame with multiple values (version-specific handling)
             ID3v2MetadataSetter._set_multiple_values_single_frame(file_path, frame_id, values, version, separator)
-    
-    @staticmethod
-    def set_artists(file_path: Path, artists: List[str], in_separate_frames: bool = False, version: str = "2.4", separator: str = None):
-        """Set ID3v2 multiple artists using external mid3v2 tool or manual frame creation.
-        
-        Args:
-            file_path: Path to the audio file
-            artists: List of artist strings to set
-            in_separate_frames: If True, creates multiple separate TPE1 frames (one per artist) using manual binary construction.
-                              If False (default), creates a single TPE1 frame with multiple values using mid3v2.
-            version: ID3v2 version to use (e.g., "2.3", "2.4")
-            separator: Separator to use between values when in_separate_frames=False. If None, uses default behavior
-                      (semicolon for ID3v2.3, null byte for ID3v2.4). Use ";" for semicolon, " / " for slash, "\x00" for null byte.
-        """
-        ID3v2MetadataSetter._set_multiple_metadata_values(file_path, "TPE1", artists, in_separate_frames, version, separator)
-    
+
     @staticmethod
     def set_genres(file_path: Path, genres: List[str], in_separate_frames: bool = False, version: str = "2.4"):
         """Set ID3v2 multiple genres using external mid3v2 tool or manual frame creation.
