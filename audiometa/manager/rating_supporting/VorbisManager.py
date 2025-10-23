@@ -272,14 +272,16 @@ class VorbisManager(RatingSupportingMetadataManager):
             }
 
     def delete_metadata(self) -> bool:
-        """Delete all metadata from the FLAC file using TagLib."""
+        """Delete all metadata from the FLAC file by removing the VORBIS_COMMENT block."""
+        import subprocess
         file_path = self.audio_file.get_file_path_or_object()
         
         try:
-            file_obj = taglib.File(file_path)
-            file_obj.tags.clear()
-            file_obj.save()
-            file_obj.close()
+            # Remove all VORBIS_COMMENT blocks from the FLAC file
+            result = subprocess.run(
+                ['metaflac', '--remove', '--block-type=VORBIS_COMMENT', str(file_path)],
+                capture_output=True, text=True, check=True
+            )
             return True
-        except Exception:
+        except (subprocess.CalledProcessError, FileNotFoundError):
             return False
