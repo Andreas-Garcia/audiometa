@@ -1314,7 +1314,7 @@ For each metadata format present in the file, the library first extracts all ind
 
 When parsing concatenated values from a single instance, the library uses an intelligent separator detection mechanism:
 
-0. null bytes (`\0`) are treated as separators first (ID3v2.4, some Vorbis implementations)
+0. `\0` (null byte) is treated as separators first (ID3v2.4, some Vorbis implementations)
 1. `//` (double slash)
 2. `\\` (double backslash)
 3. `;` (semicolon)
