@@ -3,15 +3,18 @@ from audiometa import get_unified_metadata, update_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
 
 
 @pytest.mark.integration
 class TestWavWriting:
     def test_riff_metadata_writing_wav(self, temp_wav_file):
-        metadata = {UnifiedMetadataKey.TITLE: "Test Title RIFF"}
-        update_metadata(temp_wav_file, metadata, metadata_format=MetadataFormat.RIFF)
-        read_metadata = get_unified_metadata(temp_wav_file, metadata_format=MetadataFormat.RIFF)
-        assert read_metadata[UnifiedMetadataKey.TITLE] == "Test Title RIFF"
+        with TempFileWithMetadata({}, "wav") as test_file:
+            metadata = {UnifiedMetadataKey.TITLE: "Test Title RIFF"}
+            update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
+            
+            title = RIFFMetadataGetter.get_title(test_file.path)
+            assert title == "Test Title RIFF"
 
     def test_id3v2_3_metadata_writing_wav(self):
         with TempFileWithMetadata({}, "id3v2.3") as test_file:
