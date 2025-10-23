@@ -164,7 +164,7 @@ class TestId3v2_4Mixed:
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             
             assert isinstance(artists, list)
-            assert len(artists) == 4
+            assert len(artists) == 3
             assert "Artist 1" in artists
             assert "Artist 2" in artists
             assert "Artist 3;Artist 4" in artists
