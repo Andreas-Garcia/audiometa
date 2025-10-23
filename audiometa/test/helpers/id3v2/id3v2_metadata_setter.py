@@ -68,9 +68,12 @@ class ID3v2MetadataSetter:
     
     @staticmethod
     def set_artist(file_path: Path, artist: str, version: str = "2.4") -> None:
-        """Set ID3v2 artist using version-specific method."""
-        # Use consolidated function with single artist value
-        ID3v2MetadataSetter._set_multiple_values_single_frame(file_path, 'TPE1', [artist], version)
+        if version == "2.3":
+            command = ["id3v2", "--id3v2-only", "--artist", artist, str(file_path)]
+            run_external_tool(command, "id3v2")
+        else:
+            command = ["mid3v2", "--artist", artist, str(file_path)]
+            run_external_tool(command, "mid3v2")
     
     @staticmethod
     def set_album(file_path: Path, album: str, version: str = "2.4") -> None:
@@ -82,24 +85,40 @@ class ID3v2MetadataSetter:
             run_external_tool(command, "mid3v2")
     
     @staticmethod
-    def set_genre(file_path: Path, genre: str) -> None:
-        command = ["mid3v2", "--genre", genre, str(file_path)]
-        run_external_tool(command, "mid3v2")
+    def set_genre(file_path: Path, genre: str, version: str = "2.4") -> None:
+        if version == "2.3":
+            command = ["id3v2", "--id3v2-only", "--genre", genre, str(file_path)]
+            run_external_tool(command, "id3v2")
+        else:
+            command = ["mid3v2", "--genre", genre, str(file_path)]
+            run_external_tool(command, "mid3v2")
     
     @staticmethod
-    def set_lyrics(file_path: Path, lyrics: str) -> None:
-        command = ["mid3v2", "--USLT", f"eng:{lyrics}", str(file_path)]
-        run_external_tool(command, "mid3v2")
+    def set_lyrics(file_path: Path, lyrics: str, version: str = "2.4") -> None:
+        if version == "2.3":
+            command = ["id3v2", "--id3v2-only", "--USLT", f"eng:{lyrics}", str(file_path)]
+            run_external_tool(command, "id3v2")
+        else:
+            command = ["mid3v2", "--USLT", f"eng:{lyrics}", str(file_path)]
+            run_external_tool(command, "mid3v2")
     
     @staticmethod
-    def set_language(file_path: Path, language: str) -> None:
-        command = ["mid3v2", "--TLAN", language, str(file_path)]
-        run_external_tool(command, "mid3v2")
+    def set_language(file_path: Path, language: str, version: str = "2.4") -> None:
+        if version == "2.3":
+            command = ["id3v2", "--id3v2-only", "--TLAN", language, str(file_path)]
+            run_external_tool(command, "id3v2")
+        else:
+            command = ["mid3v2", "--TLAN", language, str(file_path)]
+            run_external_tool(command, "mid3v2")
     
     @staticmethod
-    def set_bpm(file_path: Path, bpm: int) -> None:
-        command = ["mid3v2", "--TBPM", str(bpm), str(file_path)]
-        run_external_tool(command, "mid3v2")
+    def set_bpm(file_path: Path, bpm: int, version: str = "2.4") -> None:
+        if version == "2.3":
+            command = ["id3v2", "--id3v2-only", "--TBPM", str(bpm), str(file_path)]
+            run_external_tool(command, "id3v2")
+        else:
+            command = ["mid3v2", "--TBPM", str(bpm), str(file_path)]
+            run_external_tool(command, "mid3v2")
 
     @staticmethod
     def set_max_metadata(file_path: Path) -> None:
