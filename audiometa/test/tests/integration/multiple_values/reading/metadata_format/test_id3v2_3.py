@@ -17,7 +17,7 @@ class TestId3v23:
             
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 3, 0)
             
-            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
             assert "TPE1=Artist One;Artist Two;Artist Three" in raw_metadata
 
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
@@ -35,10 +35,9 @@ class TestId3v23:
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 3, 0)
 
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
-            # Extract TPE1 value from raw_metadata string
-            tpe1_lines = [line for line in raw_metadata.splitlines() if line.startswith("TPE1=")]
-            tpe1_value = tpe1_lines[0][5:] if tpe1_lines else ""
-            verification = {'raw_output': tpe1_value}
+            assert "TPE1=One" in raw_metadata
+            assert "TPE1=Two" in raw_metadata
+            assert "TPE1=Three" in raw_metadata
             
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             
@@ -71,9 +70,9 @@ class TestId3v23:
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 3, 0)
 
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
-            tit2_lines = [line for line in raw_metadata.splitlines() if line.startswith("TIT2=")]
-            tit2_value = tit2_lines[0][5:] if tit2_lines else ""
-            verification = {'raw_output': tit2_value}
+            assert "TIT2=Title One" in raw_metadata
+            assert "TIT2=Title Two" in raw_metadata
+            assert "TIT2=Title Three" in raw_metadata
             
             title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V2)
             
