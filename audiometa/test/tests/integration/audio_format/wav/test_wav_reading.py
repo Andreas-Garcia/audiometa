@@ -8,11 +8,15 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 @pytest.mark.integration
 class TestWavReading:
     def test_riff_metadata_reading_wav(self, metadata_riff_small_wav):
-        metadata = get_unified_metadata(metadata_riff_small_wav, metadata_format=MetadataFormat.RIFF)
-        assert isinstance(metadata, dict)
-        assert UnifiedMetadataKey.TITLE in metadata
-        # Assuming test file has 'a' * 30
-        assert metadata[UnifiedMetadataKey.TITLE] == 'a' * 30
+        with TempFileWithMetadata({}, "wav") as test_file:
+            # Set test metadata
+            from audiometa.test.helpers.riff import RIFFMetadataSetter
+            RIFFMetadataSetter.set_title(test_file.path, "RIFF Small Title")
+
+            metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.RIFF)
+            assert isinstance(metadata, dict)
+            assert UnifiedMetadataKey.TITLE in metadata
+            assert metadata[UnifiedMetadataKey.TITLE] == "RIFF Small Title"
 
     def test_id3v2_3_metadata_reading_wav(self):
         with TempFileWithMetadata({}, "id3v2.3") as test_file:
