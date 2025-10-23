@@ -20,7 +20,7 @@ class TestID3v2GenreReadingStrategies:
             
             # Validate raw metadata
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
-            assert "(17)(6)" in raw_metadata
+            assert "(17)(6)" in raw_metadata['TCON']
 
             # Read via API
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
@@ -60,11 +60,10 @@ class TestID3v2GenreReadingStrategies:
             
             # Validate raw metadata
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
-            
-            assert "(17)Rock(6)Blues" in raw_metadata
+            assert "(17)Rock(6)Blues" in raw_metadata['TCON']
             
             # assert no null separators in raw metadata genre
-            assert '\x00' not in raw_metadata
+            assert not any('\x00' in s for s in raw_metadata['TCON'])
             
             
             
@@ -91,8 +90,8 @@ class TestID3v2GenreReadingStrategies:
             ID3v2MetadataSetter.set_genres(test_file.path, ["(17)", "(6)Grunge"], in_separate_frames=True, version="2.4")
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
 
-            assert "TCON: (17)" in raw_metadata
-            assert "TCON: (6)Grunge" in raw_metadata
+            assert "(17)" in raw_metadata['TCON']
+            assert "(6)Grunge" in raw_metadata['TCON']
 
             # Read via API
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
@@ -106,7 +105,8 @@ class TestID3v2GenreReadingStrategies:
             ID3v2MetadataSetter.set_genres(test_file.path, ["Rock/Blues"], version="2.4")
             
             # Validate raw metadata
-            assert 'Rock/Blues' in ID3v2MetadataGetter.get_raw_metadata(test_file.path)
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
+            assert 'Rock/Blues' in raw_metadata['TCON']
 
             # Read via API
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
@@ -120,7 +120,8 @@ class TestID3v2GenreReadingStrategies:
             ID3v2MetadataSetter.set_genres(test_file.path, ["Rock; Alternative"], version="2.4")
             
             # Validate raw metadata
-            assert 'Rock; Alternative' in ID3v2MetadataGetter.get_raw_metadata(test_file.path)
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
+            assert 'Rock; Alternative' in raw_metadata['TCON']
             
             # Read via API
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
@@ -134,7 +135,8 @@ class TestID3v2GenreReadingStrategies:
             ID3v2MetadataSetter.set_genres(test_file.path, ["(17)Rock/(6)Blues"], version="2.4")
             
             # Validate raw metadata
-            assert '(17)Rock/(6)Blues' in ID3v2MetadataGetter.get_raw_metadata(test_file.path)
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
+            assert '(17)Rock/(6)Blues' in raw_metadata['TCON']
             
             # Read via API
             genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
