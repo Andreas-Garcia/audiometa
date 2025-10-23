@@ -131,3 +131,25 @@ class VorbisMetadataSetter:
     def set_multiple_comments(file_path: Path, comments: List[str]):
         """Set multiple Vorbis comments using external metaflac tool."""
         VorbisMetadataSetter.set_multiple_tags(file_path, "COMMENT", comments)
+    
+    @staticmethod
+    def set_null_bytes_test_metadata(file_path: Path) -> None:
+        """Set test metadata including null bytes for testing null byte handling."""
+        # First remove existing ARTIST tags
+        try:
+            command = ["metaflac", "--remove-tag=ARTIST", str(file_path)]
+            run_external_tool(command, "metaflac")
+        except Exception:
+            # Ignore if tags don't exist
+            pass
+        
+        # Set ARTIST tags, one with null bytes
+        command = ["metaflac", "--set-tag=ARTIST=Artist\x00with\x00nulls", str(file_path)]
+        run_external_tool(command, "metaflac")
+        
+        command = ["metaflac", "--set-tag=ARTIST=Normal Artist", str(file_path)]
+        run_external_tool(command, "metaflac")
+        
+        # Set TITLE
+        command = ["metaflac", "--set-tag=TITLE=Normal Title", str(file_path)]
+        run_external_tool(command, "metaflac")

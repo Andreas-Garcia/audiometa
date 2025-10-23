@@ -1,5 +1,4 @@
 import pytest
-import subprocess
 from pathlib import Path
 
 from audiometa import get_unified_metadata
@@ -179,15 +178,7 @@ class TestSpecialCharactersEdgeCases:
 
     def test_read_null_bytes(self):
         with TempFileWithMetadata({}, "flac") as test_file:
-            subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                          check=True, capture_output=True)
-            subprocess.run([
-                "metaflac",
-                "--set-tag=ARTIST=Artist\x00with\x00nulls",
-                "--set-tag=ARTIST=Normal Artist",
-                "--set-tag=TITLE=Normal Title",
-                str(test_file.path)
-            ], check=True, capture_output=True)
+            VorbisMetadataSetter.set_null_bytes_test_metadata(test_file.path)
             
             unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
