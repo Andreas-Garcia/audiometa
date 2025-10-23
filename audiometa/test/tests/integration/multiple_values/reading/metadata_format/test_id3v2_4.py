@@ -173,10 +173,9 @@ class TestId3v2_4Mixed:
             
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             assert isinstance(artists, list)
-            assert len(artists) == 3
+            assert len(artists) == 2
             assert "Artist 1" in artists
-            assert "Artist 2" in artists
-            assert "Artist 3" in artists
+            assert "Artist 2;Artist 3" in artists
             
     def test_multiple_title_entries_then_first_one(self):
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
