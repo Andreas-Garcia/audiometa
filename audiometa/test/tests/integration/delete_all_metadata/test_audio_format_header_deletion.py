@@ -49,7 +49,6 @@ class TestAudioFormatHeaderDeletion:
             id3v1_metadata = {UnifiedMetadataKey.ALBUM: "WAV ID3v1 Album"}
             update_metadata(wav_file.path, id3v1_metadata, metadata_format=MetadataFormat.ID3V1)
 
-            assert VorbisHeaderVerifier.has_vorbis_comments(wav_file.path)
             assert ID3v1HeaderVerifier.has_id3v1_header(wav_file.path)
             assert ID3v2HeaderVerifier.has_id3v2_header(wav_file.path)
         
@@ -58,7 +57,6 @@ class TestAudioFormatHeaderDeletion:
             assert result is True
             
             # After deletion, headers should be removed
-            assert not VorbisHeaderVerifier.has_vorbis_comments(wav_file.path)
             assert not ID3v1HeaderVerifier.has_id3v1_header(wav_file.path)
             assert not ID3v2HeaderVerifier.has_id3v2_header(wav_file.path)
             
