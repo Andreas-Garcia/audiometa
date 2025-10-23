@@ -1,9 +1,11 @@
 import pytest
+
 from audiometa import get_unified_metadata, update_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
-from test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
+from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
+from test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGetter
 
 
 @pytest.mark.integration
@@ -20,12 +22,14 @@ class TestWavWriting:
         with TempFileWithMetadata({}, "id3v2.3") as test_file:
             metadata = {UnifiedMetadataKey.TITLE: "Test Title ID3v2.3"}
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
-            read_metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
-            assert read_metadata[UnifiedMetadataKey.TITLE] == "Test Title ID3v2.3"
+            
+            title = ID3v2MetadataGetter.get_title(test_file.path, version=(2, 3))
+            assert title == "Test Title ID3v2.3"
             
     def test_id3v2_4_metadata_writing_wav(self):
         with TempFileWithMetadata({}, "id3v2.4") as test_file:
             metadata = {UnifiedMetadataKey.TITLE: "Test Title ID3v2.4"}
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
-            read_metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
-            assert read_metadata[UnifiedMetadataKey.TITLE] == "Test Title ID3v2.4"
+            
+            title = ID3v2MetadataGetter.get_title(test_file.path, version=(2, 4))
+            assert title == "Test Title ID3v2.4"
