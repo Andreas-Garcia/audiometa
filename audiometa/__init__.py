@@ -213,7 +213,7 @@ def get_specific_metadata(file: FILE_TYPE, unified_metadata_key: UnifiedMetadata
         # Get metadata from specific format
         manager = _get_metadata_manager(file=file, tag_format=metadata_format, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
         try:
-            return manager.get_app_specific_metadata(unified_metadata_key=unified_metadata_key)
+            return manager.get_specific_metadata(unified_metadata_key=unified_metadata_key)
         except Exception:
             return None
     else:
@@ -223,7 +223,7 @@ def get_specific_metadata(file: FILE_TYPE, unified_metadata_key: UnifiedMetadata
         # Try each manager in priority order until we find a value
         for _, manager in managers_prioritized.items():
             try:
-                value = manager.get_app_specific_metadata(unified_metadata_key=unified_metadata_key)
+                value = manager.get_specific_metadata(unified_metadata_key=unified_metadata_key)
                 if value is not None:
                     return value
             except Exception:
