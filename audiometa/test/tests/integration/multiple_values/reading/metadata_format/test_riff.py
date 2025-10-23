@@ -65,13 +65,11 @@ class TestRiff:
     def test_multiple_title_entries_then_first_one(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             RIFFMetadataSetter.set_multiple_titles(test_file.path, ["Title One", "Title Two", "Title Three"], in_separate_frames=True)
-            
-            verification = RIFFMetadataGetter.get_raw_metadata(test_file.path, "INAM")
 
-            assert verification["actual_count"] == 3, f"Expected 3 separate INAM frames, found {verification['actual_count']}"
-            assert "Title One" in verification['raw_output']
-            assert "Title Two" in verification['raw_output']
-            assert "Title Three" in verification['raw_output']
+            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
+            assert "Title                           : Title One" in raw_metadata
+            assert "Title                           : Title Two" in raw_metadata 
+            assert "Title                           : Title Three" in raw_metadata
             
             title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.RIFF)
             assert isinstance(title, str)
