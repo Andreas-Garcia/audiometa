@@ -405,25 +405,28 @@ class Id3v2Manager(RatingSupportingMetadataManager):
 
     def _add_id3_frame(self, raw_mutagen_metadata_id3: ID3, text_frame_class, raw_metadata_key: RawMetadataKey, app_metadata_value: AppMetadataValue):
         """Add a single ID3 frame with proper encoding and format handling."""
+        # Determine encoding based on ID3v2 version
+        encoding = 0 if self.id3v2_version[1] == 3 else 3
+        
         if raw_metadata_key == self.Id3TextFrame.RATING:
             raw_mutagen_metadata_id3.add(text_frame_class(email=self.ID3_RATING_APP_EMAIL, rating=app_metadata_value))
         elif raw_metadata_key == self.Id3TextFrame.COMMENT:
             # Handle COMM frames (comment frames)
-            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, lang='eng', desc='', text=app_metadata_value))
+            raw_mutagen_metadata_id3.add(text_frame_class(encoding=encoding, lang='eng', desc='', text=app_metadata_value))
         elif raw_metadata_key == self.Id3TextFrame.LYRICS:
             # Handle USLT frames (unsynchronized lyrics frames)
-            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, lang='eng', desc='', text=app_metadata_value))
+            raw_mutagen_metadata_id3.add(text_frame_class(encoding=encoding, lang='eng', desc='', text=app_metadata_value))
         elif raw_metadata_key == self.Id3TextFrame.URL:
             # Handle WOAR frames (official artist/performer webpage)
             raw_mutagen_metadata_id3.add(text_frame_class(url=app_metadata_value))
         elif raw_metadata_key == self.Id3TextFrame.BPM:
             # Handle TBPM frames (BPM must be a string)
-            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=str(app_metadata_value)))
+            raw_mutagen_metadata_id3.add(text_frame_class(encoding=encoding, text=str(app_metadata_value)))
         elif raw_metadata_key == self.Id3TextFrame.TRACK_NUMBER:
             # Handle TRCK frames (track number must be a string)
-            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=str(app_metadata_value)))
+            raw_mutagen_metadata_id3.add(text_frame_class(encoding=encoding, text=str(app_metadata_value)))
         else:
-            raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=app_metadata_value))
+            raw_mutagen_metadata_id3.add(text_frame_class(encoding=encoding, text=app_metadata_value))
 
 
 
