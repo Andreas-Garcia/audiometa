@@ -20,7 +20,7 @@ class TestId3v23:
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
             assert "TPE1=Artist One;Artist Two;Artist Three" in raw_metadata
 
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
+            artists = get_specific_metadata(test_file.path, unified_metadata_key=UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
 
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -34,7 +34,7 @@ class TestId3v23:
             
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 3, 0)
 
-            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
             assert "TPE1=One" in raw_metadata
             assert "TPE1=Two" in raw_metadata
             assert "TPE1=Three" in raw_metadata
@@ -53,7 +53,7 @@ class TestId3v23:
             
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 3, 0)
 
-            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
             assert "TPE1=Artist 1;Artist 2" in raw_metadata
             assert "TPE1=Artist 3" in raw_metadata
             
@@ -69,7 +69,7 @@ class TestId3v23:
             
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 3, 0)
 
-            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
             assert "TIT2=Title One" in raw_metadata
             assert "TIT2=Title Two" in raw_metadata
             assert "TIT2=Title Three" in raw_metadata
