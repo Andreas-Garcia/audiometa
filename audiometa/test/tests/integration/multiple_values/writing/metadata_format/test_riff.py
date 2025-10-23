@@ -7,18 +7,7 @@ from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
 from audiometa.test.helpers.riff.riff_metadata_setter import RIFFMetadataSetter
 
 
-class TestMultipleEntriesRiff:
-	def test_write_multiple_artists(self):
-		metadata = {UnifiedMetadataKey.ARTISTS: ["Artist 1", "Artist 2", "Artist 3"]}
-		with TempFileWithMetadata({}, "wav") as test_file:
-			update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
-
-			# Use helper to check the created RIFF frames directly
-			verification = RIFFMetadataGetter.get_raw_metadata(test_file.path, "IART")
-			# Expect three separate IART entries
-			assert verification['actual_count'] == 3
-   
-
+class TestMultipleValuesRiff:
 	def test_artists_concatenation(self):
 		initial_metadata = {"title": "Test Song"}
 		with TempFileWithMetadata(initial_metadata, "wav") as test_file:

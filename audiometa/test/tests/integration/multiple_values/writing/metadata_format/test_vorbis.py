@@ -7,7 +7,7 @@ from audiometa.test.helpers.vorbis.vorbis_metadata_getter import VorbisMetadataG
 from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataSetter
 
 
-class TestMultipleEntriesVorbis:
+class TestMultipleValuesVorbis:
     def test_write_multiple_artists(self):
         with TempFileWithMetadata({}, "flac") as test_file:
             # Write multiple artists using update_metadata

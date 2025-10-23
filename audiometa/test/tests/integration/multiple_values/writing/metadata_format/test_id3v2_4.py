@@ -8,7 +8,7 @@ from audiometa.test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGett
 from audiometa.test.helpers.id3v2.id3v2_metadata_setter import ID3v2MetadataSetter
 
 
-class TestMultipleEntriesId3v2_4:
+class TestMultipleValuesId3v2_4:
     def test_write_multiple_artists(self):
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             metadata = {

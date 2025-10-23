@@ -8,7 +8,7 @@ from audiometa.test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGett
 from audiometa.test.helpers.id3v2.id3v2_metadata_setter import ID3v2MetadataSetter
 
 
-class TestMultipleEntriesId3v2_3:
+class TestMultipleValuesId3v2_3:
         
     def test_artists_concatenation(self):
         initial_metadata = {"title": "Test Song"}
