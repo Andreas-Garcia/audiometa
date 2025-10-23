@@ -10,11 +10,11 @@ class TestId3v2_4Mixed:
     
     def test_null_separated_artists(self):
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
-            ID3v2MetadataSetter.set_artist(test_file.path, "Artist One\x00Artist Two\x00Artist Three", version="2.4")
+            ID3v2MetadataSetter.set_artists(test_file.path, ["Artist One", "Artist Two", "Artist Three"], version="2.4")
             
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             
-            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.4')
             # raw_output replaces NUL bytes with slashes for display purposes
             assert "TPE1=Artist One / Artist Two / Artist Three" in raw_metadata
             
@@ -104,7 +104,7 @@ class TestId3v2_4Mixed:
 
     def test_semicolon_separated_artists(self):
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
-            ID3v2MetadataSetter.set_artist(test_file.path, "Artist One;Artist Two;Artist Three", version="2.4")
+            ID3v2MetadataSetter.set_artists(test_file.path, "Artist One;Artist Two;Artist Three", version="2.4")
             
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             
