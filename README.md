@@ -1270,13 +1270,13 @@ ARTIST=Artist 1; Artist 2
 - Used when repeated fields aren’t officially supported, though repeated fields could still occur in these formats.
 - In ID3v2.4, the official separator is a null byte (\0).
 
-| Format  | Separator(s)  | Notes                                                       |
-| ------- | ------------- | ----------------------------------------------------------- |
-| ID3v1   | `/`, `;`, `,` | Single field only; multi-values concatenated with separator |
-| ID3v2.3 | `/`, `;`      | Uses single frame with separators                           |
-| ID3v2.4 | `/`, `;`      | Null-separated values preferred;                            |
-| RIFF    | `/`, `;`      | Not standardized; concatenation varies by implementation    |
-| Vorbis  | rarely needed | Native repeated fields make separators mostly unnecessary   |
+| Format  | Separator(s)   | Notes                                                       |
+| ------- | -------------- | ----------------------------------------------------------- |
+| ID3v1   | `/`, `;`, `,`  | Single field only; multi-values concatenated with separator |
+| ID3v2.3 | `/`, `;`       | Uses single frame with separators                           |
+| ID3v2.4 | `/`, `;`, `\0` | Null-separated values preferred;                            |
+| RIFF    | `/`, `;`       | Not standardized; concatenation varies by implementation    |
+| Vorbis  | rare, `\0`     | Native repeated fields make, sometimes null-separated       |
 
 ##### Reading Semantically Multiple Values
 
@@ -1314,7 +1314,7 @@ For each metadata format present in the file, the library first extracts all ind
 
 When parsing concatenated values from a single instance, the library uses an intelligent separator detection mechanism:
 
-0. null bytes (`\0`) are treated as separators first (ID3v2.4 specific)
+0. null bytes (`\0`) are treated as separators first (ID3v2.4, some Vorbis implementations)
 1. `//` (double slash)
 2. `\\` (double backslash)
 3. `;` (semicolon)
