@@ -23,7 +23,7 @@ class TestWavReading:
         with TempFileWithMetadata({}, "id3v2.3") as test_file:
             # Set test metadata
             from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
-            ID3v2MetadataSetter.set_title(test_file.path, "ID3v2.3 Long Title That Exceeds RIFF Limits")
+            ID3v2MetadataSetter.set_title(test_file.path, "ID3v2.3 Long Title That Exceeds RIFF Limits", version='2.3')
             
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 3, 0)
 
