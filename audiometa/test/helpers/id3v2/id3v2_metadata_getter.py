@@ -188,12 +188,3 @@ class ID3v2MetadataGetter:
         lines = metadata_str.split('\n')
         trck_values = [line.split('=', 1)[1] for line in lines if line.startswith('TRCK=')]
         return trck_values[0] if trck_values else None
-
-    @staticmethod
-    def get_multiple_entries_from_raw_data(file_path, frame_id, version=None):
-        metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
-        if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
-            return {'raw_output': ''}
-        lines = metadata_str.split('\n')
-        frame_lines = [line for line in lines if line.startswith(f'{frame_id}=')]
-        return {'raw_output': '\n'.join(frame_lines)}
