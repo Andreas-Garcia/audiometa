@@ -1252,6 +1252,11 @@ ARTIST=Artist 3
 | RIFF    | ❌ No            | ✅ Yes               | Duplicate chunks possible ; all fields can have multiple instances              |
 | Vorbis  | ✅ Yes           | ✅ Yes               | Allows repeated field names; semantically meaningful for multi-value fields     |
 
+**Vorbis Case Sensitive Handling**
+Vorbis Comments are case-sensitive for field names but the library treats `ARTIST`, `Artist` and `artist` as the same field.
+Thus if a file contains multiple `ARTIST` fields with different casing, they will be treated equally as different artists.
+If a file contains 'TITLE' and 'Title' fields, the first one encountered will be used as the title, regardless of casing.
+
 ##### Single field with separated values (separator-based)
 
 All values are stored in one field, separated by a character or delimiter.
