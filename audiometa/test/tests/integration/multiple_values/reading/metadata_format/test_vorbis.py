@@ -13,8 +13,8 @@ class TestVorbis:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             VorbisMetadataSetter.set_artists(test_file.path, ["Artist One", "Artist Two", "Artist Three"], in_single_entry=True)
             
-            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
-            assert "ARTIST=Artist One\x00Artist Two\x00Artist Three" in raw_metadata
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata_without_truncating_null_bytes_but_lower_case_keys(test_file.path)
+            assert "artist=Artist One\x00Artist Two\x00Artist Three" in raw_metadata
             
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
             assert isinstance(artists, list)
