@@ -79,33 +79,56 @@ class ManualID3v2FrameCreator:
         ManualID3v2FrameCreator._write_id3v2_tag(file_path, frames, version)
     
     @staticmethod
-    def _create_text_frame(frame_id: str, text: str, version: str) -> bytes:
+    def _create_text_frame(frame_id: str, text: str, version: str, encoding: int = None) -> bytes:
         """Create a single ID3v2 text frame with the given ID and text."""
-        # Choose encoding based on version
-        if version == "2.3":
+        # Choose encoding based on version or provided encoding
+        if encoding is not None:
+            enc = encoding
+        elif version == "2.3":
             # ID3v2.3: Use ISO-8859-1
-            encoding = 0
-            text_bytes = text.encode('latin1')
-            null_terminator = b'\x00'  # ISO-8859-1 null terminator
+            enc = 0
         else:  # ID3v2.4
             # ID3v2.4: Use UTF-8
-            encoding = 3
+            enc = 3
+        
+        # Determine null terminator based on encoding
+        if enc in (1, 2):  # UTF-16 variants
+            null_terminator = b'\x00\x00'
+        else:  # ISO-8859-1 or UTF-8
+            null_terminator = b'\x00'
+        
+        # Encode text
+        if enc == 0:  # ISO-8859-1
+            text_bytes = text.encode('latin1', errors='ignore')
+        elif enc == 1:  # UTF-16 with BOM
+            text_bytes = text.encode('utf-16')
+        elif enc == 2:  # UTF-16BE without BOM
+            text_bytes = text.encode('utf-16be')
+        elif enc == 3:  # UTF-8
             text_bytes = text.encode('utf-8')
-            null_terminator = b'\x00'  # UTF-8 null terminator
+        else:
+            text_bytes = text.encode('latin1', errors='ignore')
         
         # Frame data: encoding byte + text + null terminator
-        frame_data = struct.pack('B', encoding) + text_bytes + null_terminator
+        frame_data = struct.pack('B', enc) + text_bytes + null_terminator
         
         # Frame header: ID (4 bytes) + size (4 bytes) + flags (2 bytes)
         frame_id_bytes = frame_id.encode('ascii')
         frame_size = len(frame_data)
         frame_flags = 0x0000  # No flags
         
-        frame_header = (
-            frame_id_bytes +
-            struct.pack('>I', frame_size) +  # Big-endian 32-bit size
-            struct.pack('>H', frame_flags)   # Big-endian 16-bit flags
-        )
+        if version == "2.3":
+            frame_header = (
+                frame_id_bytes +
+                struct.pack('>I', frame_size) +  # Big-endian 32-bit size
+                struct.pack('>H', frame_flags)   # Big-endian 16-bit flags
+            )
+        else:  # ID3v2.4
+            frame_header = (
+                frame_id_bytes +
+                ManualID3v2FrameCreator._synchsafe_int(frame_size) +  # Synchsafe size
+                struct.pack('>H', frame_flags)   # Big-endian 16-bit flags
+            )
         
         return frame_header + frame_data
     

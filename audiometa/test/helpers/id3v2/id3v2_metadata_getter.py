@@ -19,7 +19,7 @@ class ID3v2MetadataGetter:
         if encoding == 0:  # ISO-8859-1
             return data.decode('latin1', errors='ignore')
         elif encoding == 1:  # UTF-16 with BOM
-            return data.decode('utf-16', errors='ignore')
+            return data.decode('utf-16-le', errors='ignore')
         elif encoding == 2:  # UTF-16BE without BOM
             return data.decode('utf-16be', errors='ignore')
         elif encoding == 3:  # UTF-8
@@ -33,7 +33,7 @@ class ID3v2MetadataGetter:
         
         Args:
             file_path: Path to the audio file.
-            version: The ID3v2 version to parse ("2.3" for ID3v2.3, "2.4" for ID3v2.4). Must be specified.
+            version: The ID3v2 version to parse ("2.3" for ID3v2.3, "2.4" for ID3v2.4). Defaults to "2.4".
         
         Returns:
             String with metadata in 'frame_id=value' format, one per line, or error string if parsing fails.
@@ -48,7 +48,7 @@ class ID3v2MetadataGetter:
                 # Parse header
                 file_version = (header[3], header[4])
                 if version is None:
-                    raise ValueError("Version must be specified ('2.3' for ID3v2.3 or '2.4' for ID3v2.4)")
+                    version = "2.4"  # Default to 2.4
                 if version == "2.3":
                     expected_major = 3
                     expected_minor = 0
@@ -97,8 +97,8 @@ class ID3v2MetadataGetter:
                         # Split on appropriate null bytes based on encoding
                         null = b'\x00\x00' if encoding in (1, 2) else b'\x00'
                         texts = text_data.split(null)
-                        decoded_texts = [ID3v2MetadataGetter._decode_text(encoding, t) for t in texts if t]
-                        text = decoded_texts[0] if decoded_texts else ''
+                        decoded_texts = [ID3v2MetadataGetter._decode_text(encoding, t).rstrip('\x00') for t in texts if t]
+                        text = ' / '.join(decoded_texts) if decoded_texts else ''
                         if frame_id_str not in metadata:
                             metadata[frame_id_str] = []
                         metadata[frame_id_str].append(text)
@@ -190,3 +190,12 @@ class ID3v2MetadataGetter:
         lines = metadata_str.split('\n')
         trck_values = [line.split('=', 1)[1] for line in lines if line.startswith('TRCK=')]
         return trck_values[0] if trck_values else None
+
+    @staticmethod
+    def get_multiple_entries_from_raw_data(file_path, frame_id, version=None):
+        metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
+        if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
+            return {'raw_output': ''}
+        lines = metadata_str.split('\n')
+        frame_lines = [line for line in lines if line.startswith(f'{frame_id}=')]
+        return {'raw_output': '\n'.join(frame_lines)}

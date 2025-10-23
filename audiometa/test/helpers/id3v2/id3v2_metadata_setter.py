@@ -67,19 +67,13 @@ class ID3v2MetadataSetter:
         ID3v2MetadataSetter._set_multiple_metadata_values(file_path, "TIT2", titles, in_separate_frames, version)
     
     @staticmethod
-    def set_artists(file_path: Path, artists: List[str], version: str = "2.4") -> None:
-        if version == "2.4":
-            command = ["mid3v2"]
-            for artist in artists:
-                command += ["--artist", artist]
-            command.append(file_path)
-            run_external_tool(command, "mid3v2")
+    def set_artists(file_path: Path, artists, in_separate_frames: bool = False, version: str = "2.4") -> None:
+        if isinstance(artists, str):
+            # For string input, set as single frame with the string value
+            ID3v2MetadataSetter._set_single_frame_with_mid3v2(file_path, "TPE1", [artists], version, separator=None)
         else:
-            command = ["id3v2", "--id3v2-only"]
-            for artist in artists:
-                command += ["--artist", artist]
-            command.append(str(file_path))
-            run_external_tool(command, "id3v2")
+            # For list input, use multiple values handling
+            ID3v2MetadataSetter._set_multiple_metadata_values(file_path, "TPE1", artists, in_separate_frames=in_separate_frames, version=version)
     
     @staticmethod
     def set_album(file_path: Path, album: str, version: str = "2.4") -> None:
@@ -320,3 +314,11 @@ class ID3v2MetadataSetter:
             tool = "id3v2"
             
             run_external_tool(command, tool)
+    
+    @staticmethod
+    def write_tpe1_with_encoding(file_path: Path, text: str, encoding: int) -> None:
+        """Write a TPE1 frame with specific encoding for testing purposes."""
+        from .id3v2_frame_manual_creator import ManualID3v2FrameCreator
+        creator = ManualID3v2FrameCreator()
+        frame_data = creator._create_text_frame("TPE1", text, "2.4", encoding=encoding)
+        creator._write_id3v2_tag(file_path, [frame_data], "2.4")
