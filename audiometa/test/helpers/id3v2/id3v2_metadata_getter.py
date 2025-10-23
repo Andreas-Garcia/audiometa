@@ -19,7 +19,7 @@ class ID3v2MetadataGetter:
         if encoding == 0:  # ISO-8859-1
             return data.decode('latin1', errors='ignore')
         elif encoding == 1:  # UTF-16 with BOM
-            return data.decode('utf-16-le', errors='ignore')
+            return data.decode('utf-16', errors='ignore')
         elif encoding == 2:  # UTF-16BE without BOM
             return data.decode('utf-16be', errors='ignore')
         elif encoding == 3:  # UTF-8
@@ -94,11 +94,9 @@ class ID3v2MetadataGetter:
                     if frame_data and len(frame_data) > 1:
                         encoding = frame_data[0]
                         text_data = frame_data[1:]
-                        # Split on appropriate null bytes based on encoding
-                        null = b'\x00\x00' if encoding in (1, 2) else b'\x00'
-                        texts = text_data.split(null)
-                        decoded_texts = [ID3v2MetadataGetter._decode_text(encoding, t).rstrip('\x00') for t in texts if t]
-                        text = ' / '.join(decoded_texts) if decoded_texts else ''
+                        # Decode the entire text data first
+                        decoded_text = ID3v2MetadataGetter._decode_text(encoding, text_data).rstrip('\x00')
+                        text = decoded_text
                         if frame_id_str not in metadata:
                             metadata[frame_id_str] = []
                         metadata[frame_id_str].append(text)
