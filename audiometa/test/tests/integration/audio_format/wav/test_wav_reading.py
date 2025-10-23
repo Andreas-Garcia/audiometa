@@ -3,6 +3,7 @@ from audiometa import get_unified_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.id3v2.id3v2_header_verifier import ID3v2HeaderVerifier
 
 
 @pytest.mark.integration
@@ -23,6 +24,8 @@ class TestWavReading:
             # Set test metadata
             from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
             ID3v2MetadataSetter.set_title(test_file.path, "ID3v2.3 Long Title That Exceeds RIFF Limits")
+            
+            assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 3, 0)
 
             metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             assert isinstance(metadata, dict)
@@ -34,6 +37,8 @@ class TestWavReading:
             # Set test metadata
             from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
             ID3v2MetadataSetter.set_title(test_file.path, "ID3v2.4 Long Title That Exceeds RIFF Limits")
+            
+            assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
 
             metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             assert isinstance(metadata, dict)
