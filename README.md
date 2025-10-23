@@ -1371,6 +1371,7 @@ The library uses a **smart writing strategy** that adapts to format capabilities
 
 When writing to legacy formats that require concatenated values, the library uses **intelligent separator selection**. It scans the values to be written and selects a separator that does not appear in any of the values, prioritizing more distinctive separators first:
 
+0. `\0` (null byte) - used only in ID3v2.4
 1. `//` (double slash) - highest priority
 2. `\\` (double backslash)
 3. `;` (semicolon)
@@ -1410,6 +1411,14 @@ values = ["Artist//One", "Artist\\Two", "Artist Three"]
 # Example 4: All common separators present - uses comma
 values = ["Artist//One", "Artist\\Two", "Artist;Three", "Artist/Four"]
 # Result: "Artist//One,Artist\\Two,Artist;Three,Artist/Four" (uses ,)
+
+# Example 5: ID3v1 restricted separator selection
+values = ["Artist,One", "Artist;Two", "Artist|Three", "Artist·Four"]
+# Result: "Artist,One/Artist;Two/Artist|Three/Artist·Four" (uses / as last resort)
+
+# Example 6: ID3v2.4 null-separated values
+values = ["Artist One", "Artist Two", "Artist Three"]
+# Result: "Artist One\0Artist Two\0Artist Three" (uses null byte)
 ```
 
 ### Genre Handling
