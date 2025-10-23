@@ -22,6 +22,7 @@ class TestFlacWriting:
         with TempFileWithMetadata({}, "flac") as temp_flac_file:
             metadata = {UnifiedMetadataKey.TITLE: "Test Title ID3v2.3"}
             update_metadata(temp_flac_file, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
+            
             title = ID3v2MetadataGetter.get_title(temp_flac_file.path)
             assert title == "Test Title ID3v2.3"
 

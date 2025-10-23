@@ -50,12 +50,14 @@ class ID3v2MetadataGetter:
                 if version is None:
                     raise ValueError("Version must be specified ('2.3' for ID3v2.3 or '2.4' for ID3v2.4)")
                 if version == "2.3":
-                    version_int = 3
+                    expected_major = 3
+                    expected_minor = 0
                 elif version == "2.4":
-                    version_int = 4
+                    expected_major = 4
+                    expected_minor = 0
                 else:
                     raise ValueError("Version must be '2.3' or '2.4'")
-                if file_version[0] != version_int:
+                if file_version[0] != expected_major or file_version[1] != expected_minor:
                     return None
                 flags = header[5]
                 tag_size = ID3v2MetadataGetter._syncsafe_decode(header[6:10])
@@ -77,12 +79,10 @@ class ID3v2MetadataGetter:
                     except UnicodeDecodeError:
                         break
 
-                    if version_int == 4:
+                    if expected_minor == 4:
                         frame_size = ID3v2MetadataGetter._syncsafe_decode(tag_data[pos+4:pos+8])
-                    elif version_int == 3:
-                        frame_size = int.from_bytes(tag_data[pos+4:pos+8], 'big')
                     else:
-                        return None
+                        frame_size = int.from_bytes(tag_data[pos+4:pos+8], 'big')
                     frame_flags = tag_data[pos+8:pos+10]
 
                     if pos + 10 + frame_size > len(tag_data):
@@ -132,12 +132,18 @@ class ID3v2MetadataGetter:
 
     @staticmethod
     def get_title(file_path, version=None):
-        metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
-        if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
+        try:
+            versions_to_try = [version] if version else ['2.3', '2.4']
+            for v in versions_to_try:
+                metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, v)
+                if isinstance(metadata_str, str) and not metadata_str.startswith("No") and not metadata_str.startswith("Error") and not metadata_str.startswith("Incomplete"):
+                    lines = metadata_str.split('\n')
+                    tit2_values = [line.split('=', 1)[1] for line in lines if line.startswith('TIT2=')]
+                    if tit2_values:
+                        return tit2_values[0]
             return None
-        lines = metadata_str.split('\n')
-        tit2_values = [line.split('=', 1)[1] for line in lines if line.startswith('TIT2=')]
-        return tit2_values[0] if tit2_values else None
+        except Exception:
+            return None
 
     @staticmethod
     def get_album(file_path, version=None):

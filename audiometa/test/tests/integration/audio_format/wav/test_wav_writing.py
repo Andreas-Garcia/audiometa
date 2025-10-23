@@ -22,7 +22,9 @@ class TestWavWriting:
         with TempFileWithMetadata({}, "id3v2.3") as test_file:
             metadata = {UnifiedMetadataKey.TITLE: "Test Title ID3v2.3"}
             update_metadata(test_file.path, unified_metadata=metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
-                        
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
+            assert "TIT2=Test Title ID3v2.3" in raw_metadata
+            
             title = ID3v2MetadataGetter.get_title(test_file.path, version=3)
             assert title == "Test Title ID3v2.3"
             
