@@ -43,7 +43,7 @@ class TestVorbis:
     def test_artists_in_multiple_entries_with_different_key_casings(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             VorbisMetadataSetter.set_artists(test_file.path, ["Artist A", "Artist B"])
-            VorbisMetadataSetter.set_artists(test_file.path, ["Artist C", "Artist D"], key_lower_case=True)
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist C", "Artist D"], removing_existing=False, key_lower_case=True)
             
             raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
             assert "ARTIST=Artist A" in raw_metadata
