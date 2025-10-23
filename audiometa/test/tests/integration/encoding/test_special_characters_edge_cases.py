@@ -1,4 +1,5 @@
 import pytest
+import subprocess
 from pathlib import Path
 
 from audiometa import get_unified_metadata
@@ -10,11 +11,8 @@ from audiometa.test.helpers.vorbis import VorbisMetadataSetter
 class TestSpecialCharactersEdgeCases:
     def test_read_unicode_characters(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                VorbisMetadataSetter.set_artists(test_file.path, ["François", "José", "Müller", "北京"])
-                VorbisMetadataSetter.set_title(test_file.path, "Café Music 音乐")
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set unicode metadata")
+            VorbisMetadataSetter.set_artists(test_file.path, ["François", "José", "Müller", "北京"])
+            VorbisMetadataSetter.set_title(test_file.path, "Café Music 音乐")
             
             unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
@@ -32,11 +30,8 @@ class TestSpecialCharactersEdgeCases:
 
     def test_read_special_punctuation(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                VorbisMetadataSetter.set_artists(test_file.path, ["Artist & Co.", "Band (feat. Singer)", "Group - The Band"])
-                VorbisMetadataSetter.set_title(test_file.path, "Song (Remix) - Special Edition")
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set special punctuation metadata")
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist & Co.", "Band (feat. Singer)", "Group - The Band"])
+            VorbisMetadataSetter.set_title(test_file.path, "Song (Remix) - Special Edition")
             
             unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
@@ -53,11 +48,8 @@ class TestSpecialCharactersEdgeCases:
 
     def test_read_quotes_and_apostrophes(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                VorbisMetadataSetter.set_artists(test_file.path, ["Artist's Band", "The \"Quoted\" Band", "It's a Band"])
-                VorbisMetadataSetter.set_title(test_file.path, "Don't Stop \"Believing\"")
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set quotes metadata")
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist's Band", "The \"Quoted\" Band", "It's a Band"])
+            VorbisMetadataSetter.set_title(test_file.path, "Don't Stop \"Believing\"")
             
             unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
@@ -74,11 +66,8 @@ class TestSpecialCharactersEdgeCases:
 
     def test_read_control_characters(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                VorbisMetadataSetter.set_artists(test_file.path, ["Artist\twith\ttabs", "Band\nwith\nnewlines", "Group\rwith\rcarriage"])
-                VorbisMetadataSetter.set_title(test_file.path, "Song\twith\ttabs")
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set control characters metadata")
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist\twith\ttabs", "Band\nwith\nnewlines", "Group\rwith\rcarriage"])
+            VorbisMetadataSetter.set_title(test_file.path, "Song\twith\ttabs")
             
             unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
@@ -96,11 +85,8 @@ class TestSpecialCharactersEdgeCases:
     def test_read_very_long_strings(self):
         long_string = "A" * 1000
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                VorbisMetadataSetter.set_artists(test_file.path, [long_string, "Short Artist"])
-                VorbisMetadataSetter.set_title(test_file.path, 'B' * 500)
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set long strings metadata")
+            VorbisMetadataSetter.set_artists(test_file.path, [long_string, "Short Artist"])
+            VorbisMetadataSetter.set_title(test_file.path, 'B' * 500)
             
             unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
@@ -116,11 +102,8 @@ class TestSpecialCharactersEdgeCases:
 
     def test_read_mixed_encodings(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                VorbisMetadataSetter.set_artists(test_file.path, ["ASCII Artist", "Français", "Русский", "العربية", "中文"])
-                VorbisMetadataSetter.set_title(test_file.path, "Mixed 编码 Title")
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set mixed encodings metadata")
+            VorbisMetadataSetter.set_artists(test_file.path, ["ASCII Artist", "Français", "Русский", "العربية", "中文"])
+            VorbisMetadataSetter.set_title(test_file.path, "Mixed 编码 Title")
             
             unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
@@ -139,11 +122,8 @@ class TestSpecialCharactersEdgeCases:
 
     def test_read_special_separator_characters(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                VorbisMetadataSetter.set_artists(test_file.path, ["Artist; with; semicolons", "Band, with, commas", "Group|with|pipes"])
-                VorbisMetadataSetter.set_title(test_file.path, "Song; with; separators")
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set separator characters metadata")
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist; with; semicolons", "Band, with, commas", "Group|with|pipes"])
+            VorbisMetadataSetter.set_title(test_file.path, "Song; with; separators")
             
             unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
@@ -160,11 +140,8 @@ class TestSpecialCharactersEdgeCases:
 
     def test_read_html_xml_characters(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                VorbisMetadataSetter.set_artists(test_file.path, ["Artist <tag>", "Band &amp; Co.", "Group &lt;test&gt;"])
-                VorbisMetadataSetter.set_title(test_file.path, "Song &amp; Title")
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set HTML/XML characters metadata")
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist <tag>", "Band &amp; Co.", "Group &lt;test&gt;"])
+            VorbisMetadataSetter.set_title(test_file.path, "Song &amp; Title")
             
             unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
@@ -181,11 +158,8 @@ class TestSpecialCharactersEdgeCases:
 
     def test_read_emoji_characters(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                VorbisMetadataSetter.set_artists(test_file.path, ["Artist 🎵", "Band 🎸", "Group 🎤"])
-                VorbisMetadataSetter.set_title(test_file.path, "Song 🎶 with 🎵 emojis")
-            except RuntimeError:
-                pytest.skip("metaflac not available or failed to set emoji characters metadata")
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist 🎵", "Band 🎸", "Group 🎤"])
+            VorbisMetadataSetter.set_title(test_file.path, "Song 🎶 with 🎵 emojis")
             
             unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
@@ -230,20 +204,8 @@ class TestSpecialCharactersEdgeCases:
 
     def test_read_mixed_special_characters(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=François & Co. (feat. Müller) 🎵",
-                    "--set-tag=ARTIST=The \"Quoted\" Band - Special Characters",
-                    "--set-tag=ARTIST=Artist with\nnewlines\tand\ttabs",
-                    "--set-tag=TITLE=Mixed Special 🎵 Characters & \"Quotes\"",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set mixed special characters metadata")
+            VorbisMetadataSetter.set_artists(test_file.path, ["François & Co. (feat. Müller) 🎵", "The \"Quoted\" Band - Special Characters", "Artist with\nnewlines\tand\ttabs"])
+            VorbisMetadataSetter.set_title(test_file.path, "Mixed Special 🎵 Characters & \"Quotes\"")
             
             unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
