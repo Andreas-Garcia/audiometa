@@ -1,12 +1,11 @@
 from typing import TypeVar, cast
 
-from mutagen._file import FileType as MutagenMetadata
-from mutagen.flac import FLAC, VCFLACDict
+import taglib
 
 from ...audio_file import AudioFile
-from ...exceptions import ConfigurationError, FileCorruptedError, InvalidChunkDecodeError
+from ...exceptions import ConfigurationError, FileCorruptedError, InvalidChunkDecodeError, MetadataNotSupportedError
 from ...utils.rating_profiles import RatingWriteProfile
-from ...utils.types import AppMetadataValue, RawMetadataDict, RawMetadataKey
+from ...utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
 from ..MetadataManager import UnifiedMetadataKey
 from .RatingSupportingMetadataManager import RatingSupportingMetadataManager
 
@@ -21,15 +20,6 @@ class VorbisManager(RatingSupportingMetadataManager):
     Vorbis comments are used to store metadata in audio files, primarily in FLAC format.
     (OGG file support is planned but not yet implemented.)
     They are more flexible and extensible compared to ID3 tags, allowing for a wide range of metadata fields.
-
-    Genre Support:
-    Like ID3v2 but unlike ID3v1 and RIFF, Vorbis comments support:
-    - Custom genre names as free text
-    - Multiple genres (comma-separated)
-    - No length limitations
-    - Unicode support for international genres
-    - No predefined genre list restrictions
-
     Vorbis comments are key-value pairs, where the key is a field name and the value is the corresponding metadata.
     Common fields are defined in the VorbisKey enum class, which includes standardized keys for metadata like
     title, artist, album, genre, rating, and more.
@@ -38,9 +28,7 @@ class VorbisManager(RatingSupportingMetadataManager):
     - FLAC: Fully supports Vorbis comments.
 
     TODO: OGG file support is planned but not yet implemented.
-    
-    Note: This class assumes that the audio files being managed are primarily in FLAC format that supports Vorbis comments.
-    """
+        """
 
     class VorbisKey(RawMetadataKey):
         TITLE = 'TITLE'
@@ -101,32 +89,30 @@ class VorbisManager(RatingSupportingMetadataManager):
                          rating_write_profile=RatingWriteProfile.BASE_100_PROPORTIONAL,
                          normalized_rating_max_value=normalized_rating_max_value)
 
-    def _extract_mutagen_metadata(self) -> MutagenMetadata:
+    def _extract_mutagen_metadata(self) -> dict:
         try:
-            flac = FLAC(self.audio_file.get_file_path_or_object())
-            # Uppercase all keys (FLAC() lowercases keys)
-            flac.tags = {k.upper(): v for k, v in flac.tags.items()}
-            return flac
+            # Use TagLib to read FLAC metadata
+            file_obj = taglib.File(self.audio_file.get_file_path_or_object())
+            
+            # TagLib returns tags as a dict with string keys and list values
+            # Keys are already in upper case for Vorbis
+            metadata = {}
+            for key, values in file_obj.tags.items():
+                # Ensure values is a list
+                if isinstance(values, list):
+                    metadata[key] = values
+                else:
+                    metadata[key] = [values]
+            
+            file_obj.close()
+            return metadata
         except Exception as error:
-            error_str = str(error)
-            if "InvalidChunk" in error_str and "UnicodeDecodeError" in error_str:
-                raise InvalidChunkDecodeError(error_str)
-            if "file said" in error_str and "bytes, read" in error_str:
-                raise FileCorruptedError(f"File size mismatch: {error_str}")
-            raise
+            raise FileCorruptedError(f"Failed to read Vorbis metadata with TagLib: {error}")
 
     def _convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(
-            self, raw_mutagen_metadata: MutagenMetadata) -> RawMetadataDict:
-        raw_mutagen_metadata_flac: FLAC = cast(FLAC, raw_mutagen_metadata)
-        metadata = raw_mutagen_metadata_flac.tags
-        if isinstance(metadata, dict):
-            return metadata
-        elif isinstance(metadata, VCFLACDict):
-            return dict(metadata)
-        elif not metadata:
-            return {}
-        else:
-            raise FileCorruptedError(f"Invalid Vorbis metadata type: {type(metadata)}")
+            self, raw_mutagen_metadata: dict) -> RawMetadataDict:
+        # _extract_mutagen_metadata already returns metadata with list values
+        return raw_mutagen_metadata
 
     def _get_raw_rating_by_traktor_or_not(self, raw_clean_metadata: RawMetadataDict) -> tuple[int | None, bool]:
         rating_list = raw_clean_metadata.get(self.VorbisKey.RATING)
@@ -140,57 +126,84 @@ class VorbisManager(RatingSupportingMetadataManager):
 
         return None, False
 
-    def _update_formatted_value_in_raw_mutagen_metadata(self, raw_mutagen_metadata: MutagenMetadata,
+    def _update_formatted_value_in_raw_mutagen_metadata(self, raw_mutagen_metadata: dict,
                                                         raw_metadata_key: RawMetadataKey,
                                                         app_metadata_value: AppMetadataValue):
         if app_metadata_value is not None:
-            if raw_metadata_key not in raw_mutagen_metadata:
-                raw_mutagen_metadata[raw_metadata_key] = [1]
-            # Convert BPM to string for Vorbis comments
-            if raw_metadata_key == self.VorbisKey.BPM:
-                raw_mutagen_metadata[raw_metadata_key] = str(app_metadata_value)
+            if isinstance(app_metadata_value, list):
+                # For multi-value fields, keep as separate entries
+                raw_mutagen_metadata[raw_metadata_key] = [str(v) for v in app_metadata_value]
             else:
-                raw_mutagen_metadata[raw_metadata_key] = app_metadata_value
+                # Convert BPM to string for Vorbis comments
+                if raw_metadata_key == self.VorbisKey.BPM:
+                    raw_mutagen_metadata[raw_metadata_key] = [str(app_metadata_value)]
+                else:
+                    raw_mutagen_metadata[raw_metadata_key] = [str(app_metadata_value)]
         elif raw_metadata_key in raw_mutagen_metadata:
             del raw_mutagen_metadata[raw_metadata_key]
 
-    def _update_undirectly_mapped_metadata(self, raw_mutagen_metadata: MutagenMetadata,
-                                           app_metadata_value: AppMetadataValue,
-                                           unified_metadata_key: UnifiedMetadataKey):
-        if unified_metadata_key == UnifiedMetadataKey.RATING:
-            if app_metadata_value is not None:
-                app_metadata_value = str(app_metadata_value)
-            self._update_formatted_value_in_raw_mutagen_metadata(raw_mutagen_metadata=raw_mutagen_metadata,
-                                                                 raw_metadata_key=self.VorbisKey.RATING,
-                                                                 app_metadata_value=app_metadata_value)
-        else:
-            raise ConfigurationError('Metadata key not handled')
+    def update_metadata(self, app_metadata: AppMetadata):
+        if not self.metadata_keys_direct_map_write:
+            raise MetadataNotSupportedError('This format does not support metadata modification')
+
+        # Get current metadata
+        current_metadata = self._extract_mutagen_metadata()
+
+        # Update metadata dict
+        for unified_metadata_key in list(app_metadata.keys()):
+            app_metadata_value = app_metadata[unified_metadata_key]
+            if unified_metadata_key not in self.metadata_keys_direct_map_write:
+                raise MetadataNotSupportedError(f'{unified_metadata_key} metadata not supported by this format')
+            else:
+                raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
+                if raw_metadata_key:
+                    self._update_formatted_value_in_raw_mutagen_metadata(
+                        raw_mutagen_metadata=current_metadata, raw_metadata_key=raw_metadata_key,
+                        app_metadata_value=app_metadata_value)
+                else:
+                    self._update_undirectly_mapped_metadata(
+                        raw_mutagen_metadata=current_metadata, app_metadata_value=app_metadata_value,
+                        unified_metadata_key=unified_metadata_key)
+
+        # Write metadata using TagLib
+        self._write_metadata_with_taglib(current_metadata)
+
+    def _write_metadata_with_taglib(self, metadata: dict):
+        """Write metadata to the FLAC file using TagLib."""
+        file_path = self.audio_file.get_file_path_or_object()
+        
+        try:
+            # Open file with TagLib
+            file_obj = taglib.File(file_path)
+            
+            # Clear existing tags
+            file_obj.tags.clear()
+            
+            # Set new tags - TagLib expects dict with string keys and list values
+            file_obj.tags.update(metadata)
+            
+            # Save the file
+            file_obj.save()
+            file_obj.close()
+            
+        except Exception as e:
+            raise FileCorruptedError(f"Failed to write metadata with TagLib: {e}")
 
     def get_header_info(self) -> dict:
         try:
-            if self.raw_mutagen_metadata is None:
-                self.raw_mutagen_metadata = self._extract_mutagen_metadata()
+            # Use TagLib to get file information
+            file_obj = taglib.File(self.audio_file.get_file_path_or_object())
             
-            if not self.raw_mutagen_metadata:
-                return {
-                    'present': False,
-                    'vendor_string': None,
-                    'comment_count': 0,
-                    'block_size': 0
-                }
-            
-            # Get vendor string
-            vendor_string = getattr(self.raw_mutagen_metadata, 'vendor', 'Unknown')
-            
-            # Get comment count
-            comment_count = len(self.raw_mutagen_metadata) if hasattr(self.raw_mutagen_metadata, '__len__') else 0
-            
-            return {
+            # TagLib provides basic info
+            info = {
                 'present': True,
-                'vendor_string': vendor_string,
-                'comment_count': comment_count,
+                'vendor_string': 'TagLib',  # TagLib doesn't provide vendor string directly
+                'comment_count': sum(len(values) for values in file_obj.tags.values() if values),
                 'block_size': 4096  # Default Vorbis comment block size
             }
+            
+            file_obj.close()
+            return info
         except Exception:
             return {
                 'present': False,
@@ -201,28 +214,14 @@ class VorbisManager(RatingSupportingMetadataManager):
 
     def get_raw_metadata_info(self) -> dict:
         try:
-            if self.raw_mutagen_metadata is None:
-                self.raw_mutagen_metadata = self._extract_mutagen_metadata()
-            
-            if not self.raw_mutagen_metadata:
-                return {
-                    'raw_data': None,
-                    'parsed_fields': {},
-                    'frames': {},
-                    'comments': {},
-                    'chunk_structure': {}
-                }
-            
-            # Get comments
-            comments = {}
-            for key, value in self.raw_mutagen_metadata.items():
-                comments[key] = value if isinstance(value, list) else [value]
+            # Use TagLib to get metadata
+            file_obj = taglib.File(self.audio_file.get_file_path_or_object())
             
             return {
-                'raw_data': None,  # Vorbis comments are complex structures
+                'raw_data': None,  # TagLib handles this internally
                 'parsed_fields': {},
                 'frames': {},
-                'comments': comments,
+                'comments': dict(file_obj.tags),  # Convert to regular dict
                 'chunk_structure': {}
             }
         except Exception:
@@ -233,3 +232,16 @@ class VorbisManager(RatingSupportingMetadataManager):
                 'comments': {},
                 'chunk_structure': {}
             }
+
+    def delete_metadata(self) -> bool:
+        """Delete all metadata from the FLAC file using TagLib."""
+        file_path = self.audio_file.get_file_path_or_object()
+        
+        try:
+            file_obj = taglib.File(file_path)
+            file_obj.tags.clear()
+            file_obj.save()
+            file_obj.close()
+            return True
+        except Exception:
+            return False
