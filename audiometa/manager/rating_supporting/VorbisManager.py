@@ -3,7 +3,7 @@ from typing import TypeVar, cast
 import taglib
 
 from ...audio_file import AudioFile
-from ...exceptions import ConfigurationError, FileCorruptedError, InvalidChunkDecodeError, MetadataNotSupportedError
+from ...exceptions import FileCorruptedError, MetadataNotSupportedError
 from ...utils.rating_profiles import RatingWriteProfile
 from ...utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
 from ..MetadataManager import UnifiedMetadataKey
