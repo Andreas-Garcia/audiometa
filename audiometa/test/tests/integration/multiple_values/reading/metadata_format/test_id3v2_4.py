@@ -177,7 +177,7 @@ class TestId3v2_4Mixed:
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
-            assert "TPE1=Artist 1 / Artist 2;Artist 3" in raw_metadata
+            assert "TPE1=Artist 1\00Artist 2;Artist 3" in raw_metadata
             
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             assert isinstance(artists, list)
