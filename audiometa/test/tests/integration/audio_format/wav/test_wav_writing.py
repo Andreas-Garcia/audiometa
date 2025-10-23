@@ -1,11 +1,11 @@
 import pytest
 
-from audiometa import get_unified_metadata, update_metadata
+from audiometa import update_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
-from test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGetter
+from audiometa.test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGetter
 
 
 @pytest.mark.integration
