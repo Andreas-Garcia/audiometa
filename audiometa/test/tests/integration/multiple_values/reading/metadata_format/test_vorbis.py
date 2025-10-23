@@ -57,15 +57,16 @@ class TestVorbis:
             assert "Artist 3" in artists
             assert "Artist 4" in artists            
 
-    def test_multiple_comment_entries_returns_first_value(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            VorbisMetadataSetter.set_multiple_comments(test_file.path, ["First comment", "Second comment", "Third comment"])
-            
-            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
-            assert "COMMENT=First comment" in raw_metadata
-            assert "COMMENT=Second comment" in raw_metadata
-            assert "COMMENT=Third comment" in raw_metadata
+    def test_multiple_title_entries_returns_first_value(self):
+        with TempFileWithMetadata({}, "flac") as test_file:
+            VorbisMetadataSetter.add_title(test_file.path, "Title One")
+            VorbisMetadataSetter.add_title(test_file.path, "Title Two")
+            VorbisMetadataSetter.add_title(test_file.path, "Title Three")
 
-            comment = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT, metadata_format=MetadataFormat.VORBIS)
-            assert isinstance(comment, str)
-            assert comment == "First comment"
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
+            assert "TITLE=Title One" in raw_metadata
+            assert "TITLE=Title Two" in raw_metadata
+            assert "TITLE=Title Three" in raw_metadata
+
+            title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.VORBIS)
+            assert title == "Title One"
