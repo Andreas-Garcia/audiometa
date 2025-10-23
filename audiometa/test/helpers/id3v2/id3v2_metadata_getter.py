@@ -129,56 +129,56 @@ def get_artists(file_path, version=None):
     lines = metadata_str.split('\n')
     tpe1_values = [line.split('=', 1)[1] for line in lines if line.startswith('TPE1=')]
     return tpe1_values[0] if tpe1_values else None    @staticmethod
-    def get_title(file_path, version=None):
-        metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
-        if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
-            return None
-        lines = metadata_str.split('\n')
-        tit2_values = [line.split('=', 1)[1] for line in lines if line.startswith('TIT2=')]
-        return tit2_values[0] if tit2_values else None
+def get_title(file_path, version=None):
+    metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
+    if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
+        return None
+    lines = metadata_str.split('\n')
+    tit2_values = [line.split('=', 1)[1] for line in lines if line.startswith('TIT2=')]
+    return tit2_values[0] if tit2_values else None
 
-    @staticmethod
-    def get_album(file_path, version=None):
-        metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
-        if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
-            return None
-        lines = metadata_str.split('\n')
-        talb_values = [line.split('=', 1)[1] for line in lines if line.startswith('TALB=')]
-        return talb_values[0] if talb_values else None
+@staticmethod
+def get_album(file_path, version=None):
+    metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
+    if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
+        return None
+    lines = metadata_str.split('\n')
+    talb_values = [line.split('=', 1)[1] for line in lines if line.startswith('TALB=')]
+    return talb_values[0] if talb_values else None
 
-    @staticmethod
-    def get_year(file_path, version=None):
-        metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
-        if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
-            return None
-        lines = metadata_str.split('\n')
-        tyer_values = [line.split('=', 1)[1] for line in lines if line.startswith('TYER=')]
-        tdrc_values = [line.split('=', 1)[1] for line in lines if line.startswith('TDRC=')]
-        return (tyer_values + tdrc_values)[0] if tyer_values or tdrc_values else None
+@staticmethod
+def get_year(file_path, version=None):
+    metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
+    if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
+        return None
+    lines = metadata_str.split('\n')
+    tyer_values = [line.split('=', 1)[1] for line in lines if line.startswith('TYER=')]
+    tdrc_values = [line.split('=', 1)[1] for line in lines if line.startswith('TDRC=')]
+    return (tyer_values + tdrc_values)[0] if tyer_values or tdrc_values else None
 
-    @staticmethod
-    def get_genres(file_path, version=None):
-        metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
-        if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
-            return None
-        lines = metadata_str.split('\n')
-        tcon_values = [line.split('=', 1)[1] for line in lines if line.startswith('TCON=')]
-        return tcon_values[0] if tcon_values else None
+@staticmethod
+def get_genres(file_path, version=None):
+    metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
+    if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
+        return None
+    lines = metadata_str.split('\n')
+    tcon_values = [line.split('=', 1)[1] for line in lines if line.startswith('TCON=')]
+    return tcon_values[0] if tcon_values else None
 
-    @staticmethod
-    def get_comment(file_path, version=None):
-        metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
-        if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
-            return None
-        lines = metadata_str.split('\n')
-        comm_values = [line.split('=', 1)[1] for line in lines if line.startswith('COMM=')]
-        return comm_values[0] if comm_values else None
+@staticmethod
+def get_comment(file_path, version=None):
+    metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
+    if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
+        return None
+    lines = metadata_str.split('\n')
+    comm_values = [line.split('=', 1)[1] for line in lines if line.startswith('COMM=')]
+    return comm_values[0] if comm_values else None
 
-    @staticmethod
-    def get_track(file_path, version=None):
-        metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
-        if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
-            return None
-        lines = metadata_str.split('\n')
-        trck_values = [line.split('=', 1)[1] for line in lines if line.startswith('TRCK=')]
-        return trck_values[0] if trck_values else None
+@staticmethod
+def get_track(file_path, version=None):
+    metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
+    if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
+        return None
+    lines = metadata_str.split('\n')
+    trck_values = [line.split('=', 1)[1] for line in lines if line.startswith('TRCK=')]
+    return trck_values[0] if trck_values else None
