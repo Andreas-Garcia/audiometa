@@ -13,6 +13,9 @@ class TestVorbis:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             VorbisMetadataSetter.set_artists(test_file.path, ["Artist One;Artist Two;Artist Three"])
             
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path, "ARTIST")
+            assert "ARTIST=Artist One;Artist Two;Artist Three" in raw_metadata
+            
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -24,8 +27,10 @@ class TestVorbis:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             VorbisMetadataSetter.set_artists(test_file.path, ["One", "Two", "Three"])
             
-            verification = VorbisMetadataGetter.get_raw_metadata(test_file.path, "ARTIST")
-            assert verification["actual_count"] == 3, f"Expected 3 separate ARTIST entries, found {verification['actual_count']}"
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path, "ARTIST")
+            assert "ARTIST=One" in raw_metadata['raw_output']
+            assert "ARTIST=Two" in raw_metadata['raw_output']
+            assert "ARTIST=Three" in raw_metadata['raw_output']
             
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
             
@@ -39,12 +44,12 @@ class TestVorbis:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             VorbisMetadataSetter.set_artists(test_file.path, ["Artist 1;Artist 2", "Artist 3", "Artist 4"])
             
-            verification = VorbisMetadataGetter.get_raw_metadata(test_file.path, "ARTIST")
-            
-            assert "ARTIST=Artist 1;Artist" in verification['raw_output'] 
-            assert "ARTIST=Artist 3" in verification['raw_output']
-            assert "ARTIST=Artist 4" in verification['raw_output']
-            
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path, "ARTIST")
+
+            assert "ARTIST=Artist 1;Artist" in raw_metadata
+            assert "ARTIST=Artist 3" in raw_metadata
+            assert "ARTIST=Artist 4" in raw_metadata
+
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -55,6 +60,11 @@ class TestVorbis:
     def test_multiple_comment_entries_returns_first_value(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             VorbisMetadataSetter.set_multiple_comments(test_file.path, ["First comment", "Second comment", "Third comment"])
+            
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
+            assert "COMMENT=First comment" in raw_metadata
+            assert "COMMENT=Second comment" in raw_metadata
+            assert "COMMENT=Third comment" in raw_metadata
 
             comment = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT, metadata_format=MetadataFormat.VORBIS)
             assert isinstance(comment, str)
