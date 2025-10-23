@@ -202,6 +202,16 @@ A comprehensive Python library for reading and writing audio metadata across mul
 - **Limitations**: Some fields not supported (lyrics, etc.)
 - **Note**: Standard metadata format for FLAC files
 
+**Vorbis Comment Key Handling**
+Vorbis comment field names are case-insensitive, as defined by the Xiph.org Vorbis Comment specification.
+To ensure consistent and predictable behavior, this library normalizes all field names internally and follows modern interoperability conventions.
+
+**_Reading_**
+When reading Vorbis comments, the library treats field names in a case-insensitive manner. For example, "TITLE", "title", and "Title" are considered equivalent.
+
+**_Writing_**
+When writing Vorbis comments, the library standardizes field names to uppercase to maintain consistency and compatibility with common practices in audio metadata management. It thus writes "TITLE" removing eventual existing variations in casing.
+
 #### RIFF Metadata Format
 
 - **Strict Support**: WAV files only
