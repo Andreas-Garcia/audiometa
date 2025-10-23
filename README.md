@@ -1291,7 +1291,12 @@ For each metadata format present in the file, the library first extracts all ind
 - **RIFF (WAV)**: Multiple `IART` chunks or single chunk → `["Artist One;Artist Two"]` or `["Artist One", "Artist Two"]`
 - **ID3v1**: Single artist field → `["Artist One;Artist Two"]`
 
-**Step 2: Apply Smart Multi-Value Logic**
+**Step 2a - If Null Separator: Apply Null Value Separation (ID3v2.4, Vorbis)**
+
+- Extracted data: `["Artist One\0Artist Two", "Artist Three"]`
+- Result after null separation: `["Artist One", "Artist Two", "Artist Three"]`
+
+**Step 2b - Else If One Entry: Apply Smart Multi-Value Logic**
 
 - **Multiple instances found**: Uses all instances as-is (no separator parsing)
 
@@ -1314,7 +1319,6 @@ For each metadata format present in the file, the library first extracts all ind
 
 When parsing concatenated values from a single instance, the library uses an intelligent separator detection mechanism:
 
-0. `\0` (null byte) is treated as separators first (ID3v2.4, some Vorbis implementations)
 1. `//` (double slash)
 2. `\\` (double backslash)
 3. `;` (semicolon)
@@ -1337,13 +1341,19 @@ When parsing concatenated values from a single instance, the library uses an int
 # Result: ["Artist One", "Artist Two", "Artist Three"]
 # ✅ Concatenated string gets split into individual artists
 
-# Example 3: Semantically single-value field with multiple instances (first only)
+# Example 3: Semantically multi-value field with multi instances and null separators (null separator parsing aplied)
+# Step 1: Extract from ID3v2.4: ["Artist One\0Artist Two", "Artist Three"]
+# Step 2: Multi-value field + Null separator → Apply null separation
+# Result: ["Artist One", "Artist Two", "Artist Three"]
+# ✅ Null-separated values correctly split into individual artists
+
+# Example 4: Semantically single-value field with multiple instances (first only)
 # Step 1: Extract from ID3v2: ["Main Title", "Alternative Title", "Extended Title"]
 # Step 2: Single-value field → Take first value only
 # Result: "Main Title"
 # ✅ Only the first title is returned regardless of other instances
 
-# Example 4: Semantically single-value field with parsing attempt (first only)
+# Example 5: Semantically single-value field with parsing attempt (first only)
 # Step 1: Extract from RIFF: ["Main Title;Alternative Title"]
 # Step 2: Single-value field → Take first value (no parsing for single-value fields)
 # Result: "Main Title;Alternative Title"
