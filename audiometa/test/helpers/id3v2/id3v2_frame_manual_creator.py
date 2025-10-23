@@ -83,10 +83,10 @@ class ManualID3v2FrameCreator:
         """Create a single ID3v2 text frame with the given ID and text."""
         # Choose encoding based on version
         if version == "2.3":
-            # ID3v2.3: Use ISO-8859-1 or UTF-16 (we'll use UTF-16 for broader compatibility)
-            encoding = 1  # UTF-16 with BOM
-            text_bytes = text.encode('utf-16')
-            null_terminator = b'\x00\x00'  # UTF-16 null terminator
+            # ID3v2.3: Use ISO-8859-1
+            encoding = 0
+            text_bytes = text.encode('latin1')
+            null_terminator = b'\x00'  # ISO-8859-1 null terminator
         else:  # ID3v2.4
             # ID3v2.4: Use UTF-8
             encoding = 3
