@@ -28,9 +28,9 @@ class TestVorbis:
             VorbisMetadataSetter.set_artists(test_file.path, ["One", "Two", "Three"])
             
             raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
-            assert "ARTIST=One" in raw_metadata['raw_output']
-            assert "ARTIST=Two" in raw_metadata['raw_output']
-            assert "ARTIST=Three" in raw_metadata['raw_output']
+            assert "ARTIST=One" in raw_metadata
+            assert "ARTIST=Two" in raw_metadata
+            assert "ARTIST=Three" in raw_metadata
             
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
             
