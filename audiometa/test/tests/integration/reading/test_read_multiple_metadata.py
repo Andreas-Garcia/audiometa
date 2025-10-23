@@ -27,7 +27,7 @@ class TestMultipleMetadata:
         with TempFileWithMetadata({}, "id3v2.3") as test_file:
             # First set ID3v2.3 metadata using external tools
             ID3v2MetadataSetter.set_title(test_file.path, "ID3v2.3 Title", version="2.3")
-            ID3v2MetadataSetter.set_artist(test_file.path, "ID3v2.3 Artist", version="2.3")
+            ID3v2MetadataSetter.set_artists(test_file.path, "ID3v2.3 Artist", version="2.3")
             ID3v2MetadataSetter.set_album(test_file.path, "ID3v2.3 Album", version="2.3")
             
             merged_metadata = get_unified_metadata(test_file.path)
@@ -39,7 +39,7 @@ class TestMultipleMetadata:
         with TempFileWithMetadata({}, "id3v2.4") as test_file:
             # First set ID3v2.4 metadata using external tools
             ID3v2MetadataSetter.set_title(test_file.path, "ID3v2.4 Title", version="2.4")
-            ID3v2MetadataSetter.set_artist(test_file.path, "ID3v2.4 Artist", version="2.4")
+            ID3v2MetadataSetter.set_artists(test_file.path, "ID3v2.4 Artist", version="2.4")
             ID3v2MetadataSetter.set_album(test_file.path, "ID3v2.4 Album", version="2.4")
             
             merged_metadata = get_unified_metadata(test_file.path)

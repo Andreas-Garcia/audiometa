@@ -25,7 +25,7 @@ class TestMultipleValuesId3v2_4:
     def test_write_on_existing_artists_field(self):
         initial_metadata = {"artist": "Existing Artist"}
         with TempFileWithMetadata(initial_metadata, "id3v2.4") as test_file:
-            ID3v2MetadataSetter.set_artist(test_file.path, "Existing A\0Existing B", version="2.4")
+            ID3v2MetadataSetter.set_artists(test_file.path, "Existing A", "Existing B", version="2.4")
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.4')
             
             # raw_output replaces NUL bytes with slashes for display purposes
