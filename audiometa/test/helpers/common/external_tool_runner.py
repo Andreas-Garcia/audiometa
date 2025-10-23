@@ -2,7 +2,7 @@
 
 import subprocess
 from pathlib import Path
-from typing import List, Union
+from typing import List, Union, Optional
 
 
 class ExternalMetadataToolError(Exception):
@@ -10,13 +10,14 @@ class ExternalMetadataToolError(Exception):
     pass
 
 
-def run_external_tool(command: List[str], tool_name: str = "external tool", check: bool = True) -> subprocess.CompletedProcess:
+def run_external_tool(command: List[str], tool_name: str = "external tool", check: bool = True, input: Optional[Union[str, bytes]] = None) -> subprocess.CompletedProcess:
     """Run an external tool command with proper error handling.
     
     Args:
         command: List of command and arguments to execute
         tool_name: Name of the tool for error messages (e.g., "metaflac", "mid3v2")
         check: Whether to raise exception on non-zero exit code
+        input: Optional input to pass to stdin
         
     Returns:
         subprocess.CompletedProcess: The result of the command execution
@@ -25,11 +26,13 @@ def run_external_tool(command: List[str], tool_name: str = "external tool", chec
         ExternalMetadataToolError: If the command fails or tool is not found
     """
     try:
+        text = not isinstance(input, bytes) if input is not None else True
         result = subprocess.run(
             command,
             capture_output=True,
-            text=True,
-            check=check
+            text=text,
+            check=check,
+            input=input
         )
         return result
     except (subprocess.CalledProcessError, FileNotFoundError) as e:
