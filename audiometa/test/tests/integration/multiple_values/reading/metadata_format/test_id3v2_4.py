@@ -151,6 +151,24 @@ class TestId3v2_4Mixed:
             assert "Artist Two" in artists
             assert "Artist Three" in artists
             
+    def test_null_separated_artists_in_multiple_entries_and_semicolon_separated(self):
+        with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
+            ID3v2MetadataSetter.set_artists(test_file.path, ["Artist 1\0Artist 2", "Artist 3;Artist 4"], in_separate_frames=True, version="2.4")
+            
+            assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 4, 0)
+            
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
+            assert "TPE1=Artist 1\00Artist 2" in raw_metadata
+            assert "TPE1=Artist 3;Artist 4" in raw_metadata
+            
+            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
+            
+            assert isinstance(artists, list)
+            assert len(artists) == 4
+            assert "Artist 1" in artists
+            assert "Artist 2" in artists
+            assert "Artist 3;Artist 4" in artists
+            
             
     def test_mixed_separators_semicolon_and_null(self):
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
