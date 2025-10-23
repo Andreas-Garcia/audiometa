@@ -12,7 +12,7 @@ from ..utils.types import AppMetadata, AppMetadataValue, RawMetadataDict, RawMet
 
 
 # Separators in order of priority for multi-value metadata fields
-METADATA_MULTI_VALUE_SEPARATORS = ("//", "\\\\", "\\", ";", "/", ",")
+METADATA_MULTI_VALUE_SEPARATORS = ("\x00", "//", "\\\\", "\\", ";", "/", ",")
 
 
 T = TypeVar('T', str, int)
