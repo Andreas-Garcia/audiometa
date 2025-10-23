@@ -59,7 +59,7 @@ class VorbisMetadataSetter:
         run_external_tool(command, "metaflac")
     
     @staticmethod
-    def set_title(file_path: Path, title: str) -> None:
+    def add_title(file_path: Path, title: str) -> None:
         command = ["metaflac", "--set-tag", f"TITLE={title}", str(file_path)]
         run_external_tool(command, "metaflac")
     

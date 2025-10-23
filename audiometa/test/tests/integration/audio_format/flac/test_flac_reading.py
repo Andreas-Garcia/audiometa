@@ -11,7 +11,7 @@ class TestFlacReading:
         with TempFileWithMetadata({}, "flac") as test_file:
             # Set test metadata
             from audiometa.test.helpers.vorbis import VorbisMetadataSetter
-            VorbisMetadataSetter.set_title(test_file.path, 'a' * 30)
+            VorbisMetadataSetter.add_title(test_file.path, 'a' * 30)
 
             metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.VORBIS)
             assert isinstance(metadata, dict)

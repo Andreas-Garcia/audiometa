@@ -179,19 +179,15 @@ class TestSpecialCharactersEdgeCases:
 
     def test_read_null_bytes(self):
         with TempFileWithMetadata({}, "flac") as test_file:
-            try:
-                subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
-                              check=True, capture_output=True)
-                subprocess.run([
-                    "metaflac",
-                    "--set-tag=ARTIST=Artist\x00with\x00nulls",
-                    "--set-tag=ARTIST=Normal Artist",
-                    "--set-tag=TITLE=Normal Title",
-                    str(test_file.path)
-                ], check=True, capture_output=True)
-                
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pytest.skip("metaflac not available or failed to set null bytes metadata")
+            subprocess.run(["metaflac", "--remove-tag=ARTIST", str(test_file.path)], 
+                          check=True, capture_output=True)
+            subprocess.run([
+                "metaflac",
+                "--set-tag=ARTIST=Artist\x00with\x00nulls",
+                "--set-tag=ARTIST=Normal Artist",
+                "--set-tag=TITLE=Normal Title",
+                str(test_file.path)
+            ], check=True, capture_output=True)
             
             unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)

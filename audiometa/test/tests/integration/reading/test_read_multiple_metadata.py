@@ -64,7 +64,7 @@ class TestMultipleMetadata:
         with TempFileWithMetadata({}, "flac") as test_file:
             # First set Vorbis metadata using external tools
             from audiometa.test.helpers.vorbis import VorbisMetadataSetter
-            VorbisMetadataSetter.set_title(test_file.path, "Vorbis Title")
+            VorbisMetadataSetter.add_title(test_file.path, "Vorbis Title")
             VorbisMetadataSetter.set_artist(test_file.path, "Vorbis Artist")
             VorbisMetadataSetter.set_album(test_file.path, "Vorbis Album")
             
