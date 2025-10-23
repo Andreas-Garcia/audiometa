@@ -33,7 +33,7 @@ class ID3v2MetadataGetter:
         
         Args:
             file_path: Path to the audio file.
-            version: The ID3v2 version to parse (3 for ID3v2.3, 4 for ID3v2.4). Must be specified.
+            version: The ID3v2 version to parse ("2.3" for ID3v2.3, "2.4" for ID3v2.4). Must be specified.
         
         Returns:
             Dict of frame IDs to values, or error string if parsing fails.
@@ -48,8 +48,14 @@ class ID3v2MetadataGetter:
                 # Parse header
                 file_version = (header[3], header[4])
                 if version is None:
-                    raise ValueError("Version must be specified (3 for ID3v2.3 or 4 for ID3v2.4)")
-                elif file_version[0] != version:
+                    raise ValueError("Version must be specified ('2.3' for ID3v2.3 or '2.4' for ID3v2.4)")
+                if version == "2.3":
+                    version_int = 3
+                elif version == "2.4":
+                    version_int = 4
+                else:
+                    raise ValueError("Version must be '2.3' or '2.4'")
+                if file_version[0] != version_int:
                     return None
                 flags = header[5]
                 tag_size = ID3v2MetadataGetter._syncsafe_decode(header[6:10])
@@ -71,9 +77,9 @@ class ID3v2MetadataGetter:
                     except UnicodeDecodeError:
                         break
 
-                    if version == 4:
+                    if version_int == 4:
                         frame_size = ID3v2MetadataGetter._syncsafe_decode(tag_data[pos+4:pos+8])
-                    elif version == 3:
+                    elif version_int == 3:
                         frame_size = int.from_bytes(tag_data[pos+4:pos+8], 'big')
                     else:
                         return None
