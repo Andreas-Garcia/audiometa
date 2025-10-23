@@ -13,8 +13,8 @@ class TestRiff:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             RIFFMetadataSetter.set_artists(test_file.path, ["Artist One;Artist Two;Artist Three"], in_separate_frames=False)
                         
-            verification = RIFFMetadataGetter.get_raw_metadata(test_file.path, "IART")
-            assert "Artist                          : Artist One;Artist Two;Artist Three" in verification['raw_output']
+            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
+            assert "Artist                          : Artist One;Artist Two;Artist Three" in raw_metadata
             
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF)
             
