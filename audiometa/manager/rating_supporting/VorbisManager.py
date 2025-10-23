@@ -20,15 +20,23 @@ class VorbisManager(RatingSupportingMetadataManager):
     Vorbis comments are used to store metadata in audio files, primarily in FLAC format.
     (OGG file support is planned but not yet implemented.)
     They are more flexible and extensible compared to ID3 tags, allowing for a wide range of metadata fields.
+
     Vorbis comments are key-value pairs, where the key is a field name and the value is the corresponding metadata.
     Common fields are defined in the VorbisKey enum class, which includes standardized keys for metadata like
     title, artist, album, genre, rating, and more.
+
+    Note: This implementation uses TagLib instead of mutagen because mutagen converts all Vorbis comment
+    keys to lowercase during both reading and writing operations. 
+    - for reading, this falsifies the raw data
+    representation. 
+    - for writing, converting keys to lowercase is not recommended by the Vorbis specification, which suggests 
+    uppercase..
 
     Compatible Extensions:
     - FLAC: Fully supports Vorbis comments.
 
     TODO: OGG file support is planned but not yet implemented.
-        """
+    """
 
     class VorbisKey(RawMetadataKey):
         TITLE = 'TITLE'
