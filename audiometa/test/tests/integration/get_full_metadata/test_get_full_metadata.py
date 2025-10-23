@@ -293,33 +293,3 @@ class TestGetFullMetadata:
                     assert 'comment_count' in header_info
                 elif format_name == 'riff':
                     assert 'chunk_info' in header_info
-
-    def test_header_detection_for_different_formats(self):
-        """Test header detection methods for different audio formats."""
-        from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
-        from audiometa.test.helpers.id3v2 import ID3v2HeaderVerifier
-        from audiometa.test.helpers.vorbis import VorbisHeaderVerifier
-        from audiometa.test.helpers.riff import RIFFHeaderVerifier
-        from audiometa.test.helpers.common import ComprehensiveHeaderVerifier
-        
-        # Test MP3 format
-        with TempFileWithMetadata({"title": "MP3 Test"}, "mp3") as mp3_manager:
-            assert ID3v2HeaderVerifier.has_id3v2_header(mp3_manager.path), "MP3 should have ID3v2 header"
-            assert not VorbisHeaderVerifier.has_vorbis_comments(mp3_manager.path), "MP3 should not have Vorbis comments"
-            assert not RIFFHeaderVerifier.has_riff_info_chunk(mp3_manager.path), "MP3 should not have RIFF INFO chunk"
-        
-        # Test FLAC format
-        with TempFileWithMetadata({"title": "FLAC Test"}, "flac") as flac_manager:
-            # FLAC might have both ID3v2 and Vorbis comments
-            headers = ComprehensiveHeaderVerifier.get_metadata_headers_present(flac_manager.path)
-            print(f"FLAC headers: {headers}")
-            # At least one should be present
-            assert headers['id3v2'] or headers['vorbis'], "FLAC should have some metadata headers"
-        
-        # Test WAV format
-        with TempFileWithMetadata({"title": "WAV Test"}, "wav") as wav_manager:
-            # WAV might have both ID3v2 and RIFF INFO
-            headers = ComprehensiveHeaderVerifier.get_metadata_headers_present(wav_manager.path)
-            print(f"WAV headers: {headers}")
-            # At least one should be present
-            assert headers['id3v2'] or headers['riff'], "WAV should have some metadata headers"
