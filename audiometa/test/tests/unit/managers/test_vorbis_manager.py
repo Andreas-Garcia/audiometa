@@ -16,7 +16,7 @@ class TestVorbisManager:
         audio_file = AudioFile(sample_flac_file)
         manager = VorbisManager(audio_file)
         
-        metadata = manager.get_app_metadata()
+        metadata = manager.get_unified_metadata()
         assert isinstance(metadata, dict)
 
 
@@ -24,7 +24,7 @@ class TestVorbisManager:
         audio_file = AudioFile(sample_flac_file)
         manager = VorbisManager(audio_file, normalized_rating_max_value=100)
         
-        metadata = manager.get_app_metadata()
+        metadata = manager.get_unified_metadata()
         assert isinstance(metadata, dict)
 
     def test_vorbis_manager_update_metadata(self):
@@ -43,7 +43,7 @@ class TestVorbisManager:
             manager.update_metadata(test_metadata)
             
             # Verify metadata was updated
-            updated_metadata = manager.get_app_metadata()
+            updated_metadata = manager.get_unified_metadata()
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "Vorbis Test Title"
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) == ["Vorbis Test Artist"]
             assert updated_metadata.get(UnifiedMetadataKey.ALBUM) == "Vorbis Test Album"

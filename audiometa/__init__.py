@@ -148,7 +148,7 @@ def get_unified_metadata(
     if metadata_format is not None:
         manager = _get_metadata_manager(
             file=file, tag_format=metadata_format, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
-        return manager.get_app_metadata()
+        return manager.get_unified_metadata()
 
     # Get all available managers for this file type
     all_managers = _get_metadata_managers(file=file, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
@@ -501,7 +501,7 @@ def _handle_metadata_strategy(file: AudioFile, unified_metadata: UnifiedMetadata
         preserved_metadata = {}
         for fmt, manager in other_managers.items():
             try:
-                existing_metadata = manager.get_app_metadata()
+                existing_metadata = manager.get_unified_metadata()
                 if existing_metadata:
                     preserved_metadata[fmt] = existing_metadata
             except Exception:
@@ -806,7 +806,7 @@ def get_full_metadata(file: FILE_TYPE, include_headers: bool = True, include_tec
         if manager:
             # Get format-specific metadata
             try:
-                format_metadata = manager.get_app_metadata()
+                format_metadata = manager.get_unified_metadata()
                 result['format_metadata'][format_key] = format_metadata
             except Exception:
                 result['format_metadata'][format_key] = {}

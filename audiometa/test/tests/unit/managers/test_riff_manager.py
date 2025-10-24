@@ -17,7 +17,7 @@ class TestRiffManager:
         audio_file = AudioFile(sample_wav_file)
         manager = RiffManager(audio_file)
         
-        metadata = manager.get_app_metadata()
+        metadata = manager.get_unified_metadata()
         assert isinstance(metadata, dict)
 
     def test_riff_manager_unsupported_format(self, sample_mp3_file: Path):
@@ -40,7 +40,7 @@ class TestRiffManager:
             manager.update_metadata(test_metadata)
             
             # Verify metadata was updated
-            updated_metadata = manager.get_app_metadata()
+            updated_metadata = manager.get_unified_metadata()
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "RIFF Test Title"
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) == ["RIFF Test Artist"]
             assert updated_metadata.get(UnifiedMetadataKey.ALBUM) == "RIFF Test Album"
@@ -59,6 +59,6 @@ class TestRiffManager:
             manager.update_metadata(test_metadata)
             
             # Verify metadata was updated
-            updated_metadata = manager.get_app_metadata()
+            updated_metadata = manager.get_unified_metadata()
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "RIFF Test Title"
             assert updated_metadata.get(UnifiedMetadataKey.RATING) is not None

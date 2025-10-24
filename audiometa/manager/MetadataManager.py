@@ -353,7 +353,7 @@ class MetadataManager:
         # No code found, return as-is
         return genre_entry if genre_entry else None
 
-    def get_app_metadata(self) -> UnifiedMetadata:
+    def get_unified_metadata(self) -> UnifiedMetadata:
         if self.raw_clean_metadata is None:
             self.raw_clean_metadata = self._get_cleaned_raw_metadata_from_file()
 

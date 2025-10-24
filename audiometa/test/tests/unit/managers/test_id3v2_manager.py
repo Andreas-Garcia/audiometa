@@ -16,21 +16,21 @@ class TestId3v2Manager:
         audio_file = AudioFile(sample_mp3_file)
         manager = Id3v2Manager(audio_file)
         
-        metadata = manager.get_app_metadata()
+        metadata = manager.get_unified_metadata()
         assert isinstance(metadata, dict)
 
     def test_id3v2_manager_wav(self, sample_wav_file: Path):
         audio_file = AudioFile(sample_wav_file)
         manager = Id3v2Manager(audio_file)
         
-        metadata = manager.get_app_metadata()
+        metadata = manager.get_unified_metadata()
         assert isinstance(metadata, dict)
 
     def test_id3v2_manager_with_rating_normalization(self, sample_mp3_file: Path):
         audio_file = AudioFile(sample_mp3_file)
         manager = Id3v2Manager(audio_file, normalized_rating_max_value=100)
         
-        metadata = manager.get_app_metadata()
+        metadata = manager.get_unified_metadata()
         assert isinstance(metadata, dict)
 
     def test_id3v2_manager_update_metadata(self):
@@ -49,7 +49,7 @@ class TestId3v2Manager:
             manager.update_metadata(test_metadata)
             
             # Verify metadata was updated
-            updated_metadata = manager.get_app_metadata()
+            updated_metadata = manager.get_unified_metadata()
             assert updated_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2 Test Title"
             assert updated_metadata.get(UnifiedMetadataKey.ARTISTS) == ["ID3v2 Test Artist"]
             assert updated_metadata.get(UnifiedMetadataKey.ALBUM) == "ID3v2 Test Album"
