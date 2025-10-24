@@ -1,7 +1,7 @@
 import pytest
 
 from audiometa import get_unified_metadata
-from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGetter
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
@@ -41,6 +41,11 @@ class TestMultipleMetadata:
             ID3v2MetadataSetter.set_title(test_file.path, "ID3v2.4 Title", version="2.4")
             ID3v2MetadataSetter.set_artists(test_file.path, "ID3v2.4 Artist", version="2.4")
             ID3v2MetadataSetter.set_album(test_file.path, "ID3v2.4 Album", version="2.4")
+            
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version="2.4")
+            assert "TIT2=ID3v2.4 Title" in raw_metadata
+            assert "TPE1=ID3v2.4 Artist" in raw_metadata
+            assert "TALB=ID3v2.4 Album" in raw_metadata
             
             merged_metadata = get_unified_metadata(test_file.path)
             assert merged_metadata.get(UnifiedMetadataKey.TITLE) == "ID3v2.4 Title"
