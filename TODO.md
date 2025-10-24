@@ -39,6 +39,12 @@ This file tracks future work, improvements, and testing tasks for AudioMeta Pyth
   - Smart parsing logic applies when null separators (\x00) are present (always parse) or for single entries without nulls (legacy data detection)
   - Test compatibility with standard readers like iTunes, VLC, Windows Media Player to ensure correct parsing of multi-value metadata
 
+- [ ] **Check compliance with each format's max length limitations with adapted exceptions and tests**
+
+  - Verify ID3v1 (fixed sizes: e.g., title 30 bytes, artist 30 bytes), ID3v2 (variable but practical limits), RIFF, and Vorbis format constraints
+  - Implement or adapt exceptions for length violations
+  - Add unit and integration tests to validate length enforcement and error handling
+
 ---
 
 ## Contributing
