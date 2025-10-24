@@ -12,7 +12,7 @@ from ..utils.types import UnifiedMetadata, AppMetadataValue, RawMetadataDict, Ra
 
 
 # Separators in order of priority for multi-value metadata fields
-METADATA_MULTI_VALUE_SEPARATORS = ("\x00", "//", "\\\\", "\\", ";", "/", ",")
+METADATA_MULTI_VALUE_SEPARATORS_PRIORITIZED = ("\x00", "//", "\\\\", "\\", ";", "/", ",")
 
 
 T = TypeVar('T', str, int)
@@ -50,12 +50,12 @@ class MetadataManager:
             separator (comma) as fallback if no separator is safe
         """
         # Find a separator that doesn't appear in any of the values
-        for sep in METADATA_MULTI_VALUE_SEPARATORS:
+        for sep in METADATA_MULTI_VALUE_SEPARATORS_PRIORITIZED:
             if not any(sep in value for value in values):
                 return sep
         
         # If no separator is safe, use the last one (comma)
-        return METADATA_MULTI_VALUE_SEPARATORS[-1]
+        return METADATA_MULTI_VALUE_SEPARATORS_PRIORITIZED[-1]
 
     @abstractmethod
     def _extract_mutagen_metadata(self) -> MutagenMetadata:
@@ -182,7 +182,7 @@ class MetadataManager:
         # used one specific separator) rather than splitting on every known
         # separator sequentially which can produce incorrect fragmentation when
         # lower-priority separators appear inside values.
-        for separator in METADATA_MULTI_VALUE_SEPARATORS:
+        for separator in METADATA_MULTI_VALUE_SEPARATORS_PRIORITIZED:
             if separator in first_value:
                 parts = [p.strip() for p in first_value.split(separator) if p.strip()]
                 return parts
@@ -301,7 +301,7 @@ class MetadataManager:
         """
         # Check for common separators
 
-        return any(sep in genre_string for sep in METADATA_MULTI_VALUE_SEPARATORS)
+        return any(sep in genre_string for sep in METADATA_MULTI_VALUE_SEPARATORS_PRIORITIZED)
 
     def _parse_genre_codes_and_text(self, genre_string: str) -> list[str]:
         """
@@ -329,7 +329,7 @@ class MetadataManager:
                   "(17)Rock/(6)Blues" -> ["(17)Rock", "(6)Blues"]
         """
         # Use the same separator priority as multi-value parsing
-        for separator in METADATA_MULTI_VALUE_SEPARATORS:
+        for separator in METADATA_MULTI_VALUE_SEPARATORS_PRIORITIZED:
             if separator in genre_string:
                 parts = [part.strip() for part in genre_string.split(separator) if part.strip()]
                 return parts
