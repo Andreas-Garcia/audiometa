@@ -406,24 +406,27 @@ class MetadataManager:
         if unified_metadata_key_optional_type == str:
             return str(value[0]) if value else None
         if unified_metadata_key_optional_type == list[str]:
-            if not value:
-                return None
-            values_list_str = cast(list[str], value)
-            if unified_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
-                # Use specialized genre reading logic
-                return self._get_genres_from_raw_clean_metadata_uppercase_keys(self.raw_clean_metadata, raw_metadata_key)
-            elif unified_metadata_key.can_semantically_have_multiple_values():
-                # Apply smart parsing logic for semantically multi-value fields
-                if self._should_apply_smart_parsing(values_list_str):
-                    # Apply parsing for single entry (legacy data detection)
-                    parsed_values = self._apply_smart_parsing(values_list_str)
-                    return parsed_values if parsed_values else None
-                else:
-                    # No parsing - return as-is but filter empty/whitespace values
-                    filtered_values = [val.strip() for val in values_list_str if val.strip()]
-                    return filtered_values if filtered_values else None
-            return values_list_str
+            return self._get_value_from_multi_values_data(unified_metadata_key, value, raw_metadata_key)
         raise ValueError(f'Unsupported metadata type: {unified_metadata_key_optional_type}')
+
+    def _get_value_from_multi_values_data(self, unified_metadata_key: UnifiedMetadataKey, value: list[str], raw_metadata_key: RawMetadataKey) -> AppMetadataValue:
+        if not value:
+            return None
+        values_list_str = cast(list[str], value)
+        if unified_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
+            # Use specialized genre reading logic
+            return self._get_genres_from_raw_clean_metadata_uppercase_keys(self.raw_clean_metadata, raw_metadata_key)
+        elif unified_metadata_key.can_semantically_have_multiple_values():
+            # Apply smart parsing logic for semantically multi-value fields
+            if self._should_apply_smart_parsing(values_list_str):
+                # Apply parsing for single entry (legacy data detection)
+                parsed_values = self._apply_smart_parsing(values_list_str)
+                return parsed_values if parsed_values else None
+            else:
+                # No parsing - return as-is but filter empty/whitespace values
+                filtered_values = [val.strip() for val in values_list_str if val.strip()]
+                return filtered_values if filtered_values else None
+        return values_list_str
 
     def get_header_info(self) -> dict:
         """
