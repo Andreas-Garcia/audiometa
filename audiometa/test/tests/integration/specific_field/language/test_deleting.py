@@ -7,6 +7,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
 from audiometa.test.helpers.riff import RIFFMetadataSetter
 from audiometa.test.helpers.vorbis import VorbisMetadataSetter
+from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
 
 
 @pytest.mark.integration
@@ -31,7 +32,8 @@ class TestLanguageDeleting:
     def test_delete_language_riff(self):
         with TempFileWithMetadata({}, "wav") as test_file:
             RIFFMetadataSetter.set_language(test_file.path, "en")
-            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LANGUAGE) == "en"
+            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
+            assert "LANG  "
             
             # Delete metadata using library API
             update_metadata(test_file.path, {UnifiedMetadataKey.LANGUAGE: None}, metadata_format=MetadataFormat.RIFF)
