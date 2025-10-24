@@ -51,6 +51,12 @@ This file tracks future work, improvements, and testing tasks for AudioMeta Pyth
   - Set up containerized environment for easy deployment and testing
   - Include necessary dependencies and entry points
 
+- [ ] **Broadcast Wave Format (BWF) support**
+
+  - Implement reading and writing of BWF metadata for WAV files
+  - Extend RIFF manager or create dedicated BWF manager
+  - Add support for BWF-specific fields like time reference, originator, etc.
+
 ---
 
 ## Contributing
