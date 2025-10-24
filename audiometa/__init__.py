@@ -345,6 +345,12 @@ def update_metadata(
         fail_on_unsupported_field parameter: True raises MetadataNotSupportedError, False (default)
         handles gracefully with warnings.
         
+        Data Filtering:
+        For list-type metadata fields (e.g., ARTISTS, GENRES), empty strings and None values
+        are automatically filtered out before writing. If all values in a list are filtered out,
+        the field is removed entirely (set to None). This ensures clean metadata without empty
+        or invalid entries across all supported formats.
+        
     Examples:
         # Basic metadata update
         metadata = {
@@ -371,6 +377,13 @@ def update_metadata(
             UnifiedMetadataKey.TITLE: None,        # Removes title field
             UnifiedMetadataKey.ARTISTS: None # Removes artist field
         })
+        
+        # Automatic filtering of empty values
+        metadata = {
+            UnifiedMetadataKey.ARTISTS: ["", "Artist 1", "   ", "Artist 2", None]
+        }
+        # Results in: ["Artist 1", "Artist 2"] - empty strings and None filtered out
+        update_metadata("song.mp3", metadata)
     """
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
