@@ -1,15 +1,17 @@
 
 from audiometa import get_unified_metadata, get_unified_metadata_field
-from audiometa.utils import MetadataFormat
+from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.vorbis import VorbisMetadataSetter
+from audiometa.test.helpers.common.external_tool_runner import run_external_tool
 
 
 class TestEmptyWhitespaceHandling:
     def test_no_multiple_entries_returns_single_value(self):
 
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            test_file.set_vorbis_artist("Single Artist")
+            VorbisMetadataSetter.set_artist(test_file.path, "Single Artist")
             
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, MetadataFormat.VORBIS)
             
@@ -19,7 +21,7 @@ class TestEmptyWhitespaceHandling:
 
     def test_empty_metadata_returns_none(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            test_file.delete_vorbis_all()
+            run_external_tool(["metaflac", "--remove-all-tags", str(test_file.path)], "metaflac")
             
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, MetadataFormat.VORBIS)
             
@@ -27,7 +29,7 @@ class TestEmptyWhitespaceHandling:
 
     def test_mixed_empty_and_valid_entries(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            test_file.set_vorbis_multiple_artists(["Valid Artist 1", "", "Valid Artist 2", "", "Valid Artist 3"])
+            VorbisMetadataSetter.set_artists(test_file.path, ["Valid Artist 1", "", "Valid Artist 2", "", "Valid Artist 3"])
             
             unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
@@ -41,7 +43,7 @@ class TestEmptyWhitespaceHandling:
 
     def test_whitespace_only_entries(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            test_file.set_vorbis_multiple_artists(["Valid Artist", "   ", "\t", "\n", "Another Valid Artist"])
+            VorbisMetadataSetter.set_artists(test_file.path, ["Valid Artist", "   ", "\t", "\n", "Another Valid Artist"])
             
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, MetadataFormat.VORBIS)
             
@@ -55,7 +57,7 @@ class TestEmptyWhitespaceHandling:
 
     def test_empty_values_after_separation(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            test_file.set_vorbis_multiple_artists(["Artist One;;Artist Two;"])
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist One;;Artist Two;"])
             
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, MetadataFormat.VORBIS)
             
@@ -67,7 +69,7 @@ class TestEmptyWhitespaceHandling:
 
     def test_whitespace_around_separators(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            test_file.set_vorbis_multiple_artists(["Artist One ; Artist Two ; Artist Three"])
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist One ; Artist Two ; Artist Three"])
             
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, MetadataFormat.VORBIS)
             
@@ -75,7 +77,7 @@ class TestEmptyWhitespaceHandling:
 
     def test_only_whitespace_entries(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            test_file.set_vorbis_multiple_artists(["   ", "\t", "\n"])
+            VorbisMetadataSetter.set_artists(test_file.path, ["   ", "\t", "\n"])
             
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, MetadataFormat.VORBIS)
             
@@ -83,7 +85,7 @@ class TestEmptyWhitespaceHandling:
 
     def test_mixed_whitespace_and_valid_entries(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            test_file.set_vorbis_multiple_artists(["Valid Artist", "   ", "Another Valid Artist", "\t"])
+            VorbisMetadataSetter.set_artists(test_file.path, ["Valid Artist", "   ", "Another Valid Artist", "\t"])
             
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, MetadataFormat.VORBIS)
             
