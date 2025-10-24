@@ -11,18 +11,15 @@ class TestMultipleValuesRiff:
 	def test_artists_concatenation(self):
 		initial_metadata = {"title": "Test Song"}
 		with TempFileWithMetadata(initial_metadata, "wav") as test_file:  
-       
 			metadata = {UnifiedMetadataKey.ARTISTS: ["Artist 1", "Artist 2", "Artist 3"]}
 			update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
    
 			raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
-			assert "Artist                          : Artist 1" in raw_metadata
-			assert "Artist                          : Artist 2" in raw_metadata
-			assert "Artist                          : Artist 3" in raw_metadata
+			assert "Artist                          : Artist 1//Artist 2//Artist 3" in raw_metadata
 
 	def test_with_existing_artists_field(self):
 		with TempFileWithMetadata({}, "wav") as test_file:
-			RIFFMetadataSetter.set_artists(test_file.path, ["Existing 1; Existing 2"], in_separate_frames=False)
+			RIFFMetadataSetter.set_artists(test_file.path, ["Existing 1;Existing 2"])
 			raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
 			assert "Existing 1;Existing 2" in raw_metadata
    
