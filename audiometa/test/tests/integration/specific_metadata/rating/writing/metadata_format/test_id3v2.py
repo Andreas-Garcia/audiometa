@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import get_unified_metadata, update_metadata, get_specific_metadata
+from audiometa import get_unified_metadata, update_metadata, get_unified_metadata_field
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -140,7 +140,7 @@ class TestId3v2RatingWriting:
             for value in test_values:
                 test_metadata = {UnifiedMetadataKey.RATING: value}
                 update_metadata(test_file.path, test_metadata, normalized_rating_max_value=255, metadata_format=MetadataFormat.ID3V2)
-                rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=255)
+                rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=255)
                 assert rating is not None
                 # The value may be normalized/clamped, so just check it's in valid range
                 assert 0 <= rating <= 255
@@ -152,13 +152,13 @@ class TestId3v2RatingWriting:
             # First write a rating
             test_metadata = {UnifiedMetadataKey.RATING: 80}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating == 80
             
             # Then remove it with None - this may not work as expected in all cases
             test_metadata = {UnifiedMetadataKey.RATING: None}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             # Rating removal behavior may vary - check if it's None or 0
             assert rating is None or rating == 0
 
@@ -169,13 +169,13 @@ class TestId3v2RatingWriting:
             # Test minimum value
             test_metadata = {UnifiedMetadataKey.RATING: 0}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating == 0
             
             # Test maximum value
             test_metadata = {UnifiedMetadataKey.RATING: 100}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating == 100
 
     def test_write_fractional_values(self, temp_audio_file):
@@ -185,7 +185,7 @@ class TestId3v2RatingWriting:
             # Test fractional value (should be rounded or handled appropriately)
             test_metadata = {UnifiedMetadataKey.RATING: 25.5}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating is not None
             assert isinstance(rating, (int, float))
             # The exact value may be rounded or normalized, so check it's in a reasonable range

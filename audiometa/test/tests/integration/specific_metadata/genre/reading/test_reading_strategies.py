@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import get_specific_metadata
+from audiometa import get_unified_metadata_field
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.id3v2.id3v2_metadata_setter import ID3v2MetadataSetter
@@ -23,7 +23,7 @@ class TestID3v2GenreReadingStrategies:
             assert "(17)(6)" in raw_metadata['TCON']
 
             # Read via API
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock", "Grunge"]
             
@@ -38,7 +38,7 @@ class TestID3v2GenreReadingStrategies:
             assert "(17)(6)" in raw_metadata
 
             # Read via API
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             assert genres == ["Rock", "Grunge"]
             
     def test_code_text_then_text_part_even_if_different(self):
@@ -48,7 +48,7 @@ class TestID3v2GenreReadingStrategies:
             ID3v2MetadataSetter.set_genres(test_file.path, ["(17)Rock"], version="2.4")
             
             # Read via API
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
@@ -68,7 +68,7 @@ class TestID3v2GenreReadingStrategies:
             
             
             # Read via API
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock", "Blues"]
 
@@ -79,7 +79,7 @@ class TestID3v2GenreReadingStrategies:
             ID3v2MetadataSetter.set_genres(test_file.path, ["(17)(6)Grunge"], version="2.4")
             
             # Read via API
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock", "Grunge"]
             
@@ -94,7 +94,7 @@ class TestID3v2GenreReadingStrategies:
             assert "(6)Grunge" in raw_metadata['TCON']
 
             # Read via API
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock", "Grunge"]
 
@@ -109,7 +109,7 @@ class TestID3v2GenreReadingStrategies:
             assert 'Rock/Blues' in raw_metadata['TCON']
 
             # Read via API
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock", "Blues"]
 
@@ -124,7 +124,7 @@ class TestID3v2GenreReadingStrategies:
             assert 'Rock; Alternative' in raw_metadata['TCON']
             
             # Read via API
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock", "Alternative"]
 
@@ -139,7 +139,7 @@ class TestID3v2GenreReadingStrategies:
             assert '(17)Rock/(6)Blues' in raw_metadata['TCON']
             
             # Read via API
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock", "Blues"]
 
@@ -150,7 +150,7 @@ class TestID3v2GenreReadingStrategies:
             ID3v2MetadataSetter.set_genres(test_file.path, ["Rock/Grunge", "Blues"], in_separate_frames=True, version="2.4")
             
             # Read via API
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             # Should return as-is without parsing
             assert set(genres) == {"Rock/Grunge", "Blues"}
@@ -162,7 +162,7 @@ class TestID3v2GenreReadingStrategies:
             ID3v2MetadataSetter.set_genres(test_file.path, ["(17)", "(999)"], version="2.4")
             
             # Read via API
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
@@ -173,7 +173,7 @@ class TestID3v2GenreReadingStrategies:
             ID3v2MetadataSetter.set_genres(test_file.path, ["(199)Rock"], version="2.4")
             
             # Read via API
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
@@ -184,7 +184,7 @@ class TestID3v2GenreReadingStrategies:
             ID3v2MetadataSetter.set_genres(test_file.path, ["Rock/Rock"], version="2.4")
             
             # Read via API
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
 
@@ -192,12 +192,12 @@ class TestID3v2GenreReadingStrategies:
         """Test edge case: empty string"""
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             ID3v2MetadataSetter.set_genres(test_file.path, [""], version="2.4")
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             assert genres is None
 
     def test_edge_cases_whitespace_only(self):
         """Test edge case: whitespace only"""
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
             ID3v2MetadataSetter.set_genres(test_file.path, ["   "], version="2.4")
-            genres = get_specific_metadata(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
+            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             assert genres is None

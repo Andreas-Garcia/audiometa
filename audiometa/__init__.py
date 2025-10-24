@@ -177,9 +177,9 @@ def get_unified_metadata(
     return result
 
 
-def get_specific_metadata(file: FILE_TYPE, unified_metadata_key: UnifiedMetadataKey, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None, metadata_format: MetadataFormat | None = None) -> AppMetadataValue:
+def get_unified_metadata_field(file: FILE_TYPE, unified_metadata_key: UnifiedMetadataKey, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None, metadata_format: MetadataFormat | None = None) -> AppMetadataValue:
     """
-    Get a specific metadata field from an audio file.
+    Get a specific unified metadata field from an audio file.
     
     Args:
         file: Audio file path or AudioFile object
@@ -195,16 +195,16 @@ def get_specific_metadata(file: FILE_TYPE, unified_metadata_key: UnifiedMetadata
         
     Examples:
         # Get title from any format (priority order)
-        title = get_specific_metadata("song.mp3", UnifiedMetadataKey.TITLE)
+        title = get_unified_metadata_field("song.mp3", UnifiedMetadataKey.TITLE)
         
         # Get title specifically from ID3v2
-        title = get_specific_metadata("song.mp3", UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V2)
+        title = get_unified_metadata_field("song.mp3", UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V2)
         
         # Get rating without normalization
-        rating = get_specific_metadata("song.mp3", UnifiedMetadataKey.RATING)
+        rating = get_unified_metadata_field("song.mp3", UnifiedMetadataKey.RATING)
         
         # Get rating with 0-100 normalization
-        rating = get_specific_metadata("song.mp3", UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+        rating = get_unified_metadata_field("song.mp3", UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
     """
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
@@ -261,7 +261,7 @@ def _check_unsupported_fields(unified_metadata: UnifiedMetadata, all_managers: d
     return unsupported_fields
 
 
-def _validate_app_metadata_types(unified_metadata: UnifiedMetadata) -> None:
+def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
     """Validate types of values in unified_metadata against UnifiedMetadataKey.get_optional_type().
 
     Raises InvalidMetadataTypeError when a value does not match the expected type.
@@ -390,7 +390,7 @@ def update_metadata(
     
     # Handle strategy-specific behavior before writing
     # Validate provided unified_metadata value types before attempting any writes
-    _validate_app_metadata_types(unified_metadata)
+    _validate_unified_metadata_types(unified_metadata)
 
     _handle_metadata_strategy(file, unified_metadata, metadata_strategy, normalized_rating_max_value, id3v2_version, metadata_format, fail_on_unsupported_field)
 

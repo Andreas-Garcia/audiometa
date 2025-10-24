@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import get_unified_metadata, update_metadata, get_specific_metadata
+from audiometa import get_unified_metadata, update_metadata, get_unified_metadata_field
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -140,7 +140,7 @@ class TestVorbisRatingWriting:
             for value in test_values:
                 test_metadata = {UnifiedMetadataKey.RATING: value}
                 update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS)
-                rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+                rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
                 assert rating is not None
                 assert rating == value
 
@@ -151,12 +151,12 @@ class TestVorbisRatingWriting:
             # First write a rating
             test_metadata = {UnifiedMetadataKey.RATING: 80}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating == 80
             
             # Then remove it with None
             test_metadata = {UnifiedMetadataKey.RATING: None}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             # Rating removal behavior may vary - check if it's None or 0
             assert rating is None or rating == 0

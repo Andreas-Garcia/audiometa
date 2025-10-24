@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import get_specific_metadata, update_metadata
+from audiometa import get_unified_metadata_field, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -15,7 +15,7 @@ class TestRiffRatingWriting:
         with TempFileWithMetadata(basic_metadata, "wav") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 0}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating is not None
             assert rating == 0
 
@@ -25,7 +25,7 @@ class TestRiffRatingWriting:
         with TempFileWithMetadata(basic_metadata, "wav") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 20}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating is not None
             assert rating == 20
 
@@ -35,7 +35,7 @@ class TestRiffRatingWriting:
         with TempFileWithMetadata(basic_metadata, "wav") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 40}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating is not None
             assert rating == 40
 
@@ -45,7 +45,7 @@ class TestRiffRatingWriting:
         with TempFileWithMetadata(basic_metadata, "wav") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 60}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating is not None
             assert rating == 60
 
@@ -55,7 +55,7 @@ class TestRiffRatingWriting:
         with TempFileWithMetadata(basic_metadata, "wav") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 80}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating is not None
             assert rating == 80
 
@@ -65,7 +65,7 @@ class TestRiffRatingWriting:
         with TempFileWithMetadata(basic_metadata, "wav") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 100}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating is not None
             assert rating == 100
 
@@ -75,7 +75,7 @@ class TestRiffRatingWriting:
         with TempFileWithMetadata(basic_metadata, "wav") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 10}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating is not None
             assert rating == 10
 
@@ -85,7 +85,7 @@ class TestRiffRatingWriting:
         with TempFileWithMetadata(basic_metadata, "wav") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 30}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating is not None
             assert rating == 30
 
@@ -95,7 +95,7 @@ class TestRiffRatingWriting:
         with TempFileWithMetadata(basic_metadata, "wav") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 50}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating is not None
             assert rating == 50
 
@@ -105,7 +105,7 @@ class TestRiffRatingWriting:
         with TempFileWithMetadata(basic_metadata, "wav") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 70}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating is not None
             assert rating == 70
 
@@ -115,7 +115,7 @@ class TestRiffRatingWriting:
         with TempFileWithMetadata(basic_metadata, "wav") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: 90}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating is not None
             assert rating == 90
 
@@ -126,12 +126,12 @@ class TestRiffRatingWriting:
             # First write a rating
             test_metadata = {UnifiedMetadataKey.RATING: 80}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating == 80
             
             # Then remove it with None
             test_metadata = {UnifiedMetadataKey.RATING: None}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             # Rating removal behavior may vary - check if it's None or 0
             assert rating is None or rating == 0

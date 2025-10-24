@@ -6,7 +6,7 @@ from pathlib import Path
 from audiometa import (
     AudioFile,
     get_unified_metadata,
-    get_specific_metadata
+    get_unified_metadata_field
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -28,7 +28,7 @@ class TestAudioFileIntegration:
         assert isinstance(id3v2_metadata, dict)
         
         # Test specific metadata with AudioFile object
-        title = get_specific_metadata(audio_file, UnifiedMetadataKey.TITLE)
+        title = get_unified_metadata_field(audio_file, UnifiedMetadataKey.TITLE)
         assert title is None or isinstance(title, str)
 
 

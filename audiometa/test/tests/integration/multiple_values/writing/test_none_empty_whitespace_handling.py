@@ -1,7 +1,7 @@
 
 from pathlib import Path
 
-from audiometa import update_metadata, get_unified_metadata, get_specific_metadata
+from audiometa import update_metadata, get_unified_metadata, get_unified_metadata_field
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
@@ -14,7 +14,7 @@ class TestNoneEmptyWhitespaceHandling:
         update_metadata(temp_audio_file, metadata)
         
         # Verify it was written
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
+        artists = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         assert artists is not None
         
         # Now write None (should remove the field)
@@ -24,7 +24,7 @@ class TestNoneEmptyWhitespaceHandling:
         update_metadata(temp_audio_file, metadata)
         
         # Verify field was removed
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
+        artists = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         assert artists is None
         
     def test_write_empty_list_removes_field(self, temp_audio_file: Path):
@@ -35,7 +35,7 @@ class TestNoneEmptyWhitespaceHandling:
         update_metadata(temp_audio_file, metadata)
         
         # Verify it was written
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
+        artists = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         assert artists is not None
         
         # Now write empty list (should remove the field)
@@ -45,7 +45,7 @@ class TestNoneEmptyWhitespaceHandling:
         update_metadata(temp_audio_file, metadata)
         
         # Verify field was removed
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
+        artists = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         assert artists is None
 
     def test_write_empty_strings_in_list(self, temp_audio_file: Path):
@@ -55,7 +55,7 @@ class TestNoneEmptyWhitespaceHandling:
         }
         update_metadata(temp_audio_file, metadata)
         
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
+        artists = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         
         # Should filter out empty strings
         assert isinstance(artists, list)
@@ -69,7 +69,7 @@ class TestNoneEmptyWhitespaceHandling:
         }
         update_metadata(temp_audio_file, metadata)
         
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
+        artists = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         
         # Should filter out whitespace-only strings
         assert isinstance(artists, list)
@@ -83,7 +83,7 @@ class TestNoneEmptyWhitespaceHandling:
         }
         update_metadata(temp_audio_file, metadata)
         
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
+        artists = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         
         # Should filter out empty and whitespace-only strings
         assert isinstance(artists, list)
@@ -97,7 +97,7 @@ class TestNoneEmptyWhitespaceHandling:
         }
         update_metadata(temp_audio_file, metadata)
         
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
+        artists = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         
         assert artists == None
 
@@ -108,7 +108,7 @@ class TestNoneEmptyWhitespaceHandling:
         }
         update_metadata(temp_audio_file, metadata)
         
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
+        artists = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         
         # Should remove the field entirely (None for single empty string)
         assert artists is None
@@ -120,7 +120,7 @@ class TestNoneEmptyWhitespaceHandling:
         }
         update_metadata(temp_audio_file, metadata)
         
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
+        artists = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         assert artists is None
 
     def test_write_trimmed_whitespace_preserved(self, temp_audio_file: Path):
@@ -130,7 +130,7 @@ class TestNoneEmptyWhitespaceHandling:
         }
         update_metadata(temp_audio_file, metadata)
         
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
+        artists = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         
         # Whitespace is trimmed by the implementation
         assert isinstance(artists, list)

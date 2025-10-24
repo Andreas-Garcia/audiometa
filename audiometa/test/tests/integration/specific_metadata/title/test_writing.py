@@ -6,7 +6,7 @@ update functions to prevent circular dependencies in tests.
 
 import pytest
 
-from audiometa import get_specific_metadata
+from audiometa import get_unified_metadata_field
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
@@ -20,7 +20,7 @@ class TestTitleWriting:
         # Use external script to set metadata instead of app's update function
         with TempFileWithMetadata(test_metadata, "mp3") as test_file:
                 # Now test that our reading logic works correctly
-                title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
+                title = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.TITLE)
                 assert title == test_title
 
     def test_riff(self):
@@ -30,7 +30,7 @@ class TestTitleWriting:
         # Use external script to set metadata instead of app's update function
         with TempFileWithMetadata(test_metadata, "wav") as test_file:
                 # Now test that our reading logic works correctly
-                title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
+                title = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.TITLE)
                 assert title == test_title
 
     def test_vorbis(self):
@@ -40,7 +40,7 @@ class TestTitleWriting:
         # Use external script to set metadata instead of app's update function
         with TempFileWithMetadata(test_metadata, "flac") as test_file:
                 # Now test that our reading logic works correctly
-                title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
+                title = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.TITLE)
                 assert title == test_title
 
     def test_id3v1(self):
@@ -51,7 +51,7 @@ class TestTitleWriting:
             test_title = "Test Title ID3v1"
             test_metadata = {UnifiedMetadataKey.TITLE: test_title}
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
-            title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
+            title = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.TITLE)
             assert title == test_title
 
     def test_invalid_type_raises(self):

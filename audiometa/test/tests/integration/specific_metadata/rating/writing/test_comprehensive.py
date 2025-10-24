@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import update_metadata, get_specific_metadata
+from audiometa import update_metadata, get_unified_metadata_field
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -18,11 +18,11 @@ class TestComprehensiveRatingWriting:
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
             
             # Read back with base 100
-            rating_100 = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating_100 = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating_100 == 50
             
             # Read back with base 255 (should be normalized)
-            rating_255 = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=255)
+            rating_255 = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=255)
             assert rating_255 is not None
             assert rating_255 > 0
 
@@ -34,7 +34,7 @@ class TestComprehensiveRatingWriting:
         with TempFileWithMetadata(basic_metadata, "mp3") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: test_rating}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.ID3V2)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating is not None
             assert rating > 0
 
@@ -42,7 +42,7 @@ class TestComprehensiveRatingWriting:
         with TempFileWithMetadata(basic_metadata, "wav") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: test_rating}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.RIFF)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating is not None
             assert rating > 0
 
@@ -50,7 +50,7 @@ class TestComprehensiveRatingWriting:
         with TempFileWithMetadata(basic_metadata, "flac") as test_file:
             test_metadata = {UnifiedMetadataKey.RATING: test_rating}
             update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS)
-            rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+            rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
             assert rating is not None
             assert rating > 0
 
@@ -63,7 +63,7 @@ class TestComprehensiveRatingWriting:
             for value in test_values:
                 test_metadata = {UnifiedMetadataKey.RATING: value}
                 update_metadata(test_file.path, test_metadata, normalized_rating_max_value=255, metadata_format=MetadataFormat.ID3V2)
-                rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=255)
+                rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=255)
                 assert rating is not None
                 assert 0 <= rating <= 255
 
@@ -73,7 +73,7 @@ class TestComprehensiveRatingWriting:
             for value in test_values:
                 test_metadata = {UnifiedMetadataKey.RATING: value}
                 update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=MetadataFormat.VORBIS)
-                rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+                rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
                 assert rating is not None
                 assert rating == value
 
@@ -86,12 +86,12 @@ class TestComprehensiveRatingWriting:
                 # First write a rating
                 test_metadata = {UnifiedMetadataKey.RATING: 80}
                 update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=format_type)
-                rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+                rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
                 assert rating == 80
                 
                 # Then remove it with None
                 test_metadata = {UnifiedMetadataKey.RATING: None}
                 update_metadata(test_file.path, test_metadata, normalized_rating_max_value=100, metadata_format=format_type)
-                rating = get_specific_metadata(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+                rating = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
                 # Rating removal behavior may vary - check if it's None or 0
                 assert rating is None or rating == 0

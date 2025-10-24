@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
 
-from audiometa import get_specific_metadata, update_metadata
+from audiometa import get_unified_metadata_field, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError, InvalidRatingValueError
 
@@ -15,7 +15,7 @@ class TestRatingErrorHandling:
         temp_audio_file.write_bytes(b"fake audio content")
         
         with pytest.raises(FileTypeNotSupportedError):
-            get_specific_metadata(str(temp_audio_file), UnifiedMetadataKey.RATING)
+            get_unified_metadata_field(str(temp_audio_file), UnifiedMetadataKey.RATING)
         
         with pytest.raises(FileTypeNotSupportedError):
             update_metadata(str(temp_audio_file), {UnifiedMetadataKey.RATING: 85})
@@ -24,7 +24,7 @@ class TestRatingErrorHandling:
         nonexistent_file = "nonexistent_file.mp3"
         
         with pytest.raises(FileNotFoundError):
-            get_specific_metadata(nonexistent_file, UnifiedMetadataKey.RATING)
+            get_unified_metadata_field(nonexistent_file, UnifiedMetadataKey.RATING)
         
         with pytest.raises(FileNotFoundError):
             update_metadata(nonexistent_file, {UnifiedMetadataKey.RATING: 85})
@@ -41,17 +41,17 @@ class TestRatingErrorHandling:
         # -1 should be clamped to 0 (0 stars)
         temp_audio_file.write_bytes(sample_mp3_file.read_bytes())  # Fresh file
         update_metadata(temp_audio_file, {UnifiedMetadataKey.RATING: -1}, normalized_rating_max_value=100)
-        metadata = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+        metadata = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
         assert metadata == 0  # Should be clamped to 0
         
         # 101 should be clamped to 100 (5 stars)
         temp_audio_file.write_bytes(sample_mp3_file.read_bytes())  # Fresh file
         update_metadata(temp_audio_file, {UnifiedMetadataKey.RATING: 101}, normalized_rating_max_value=100)
-        metadata = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+        metadata = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
         assert metadata == 100  # Should be clamped to 100
         
         # Test None value (should be handled gracefully by removing the rating)
         temp_audio_file.write_bytes(sample_mp3_file.read_bytes())  # Fresh file
         update_metadata(temp_audio_file, {UnifiedMetadataKey.RATING: None}, normalized_rating_max_value=100)
-        metadata = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
+        metadata = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.RATING, normalized_rating_max_value=100)
         assert metadata is None

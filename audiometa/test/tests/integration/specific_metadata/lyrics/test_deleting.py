@@ -1,7 +1,7 @@
 import pytest
 
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
-from audiometa import get_specific_metadata
+from audiometa import get_unified_metadata_field
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
@@ -14,11 +14,11 @@ class TestLyricsDeleting:
         with TempFileWithMetadata({}, "mp3") as test_file:
             # Set metadata using update_metadata
             update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: "Test lyrics"}, metadata_format=MetadataFormat.ID3V2)
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LYRICS) == "Test lyrics"
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LYRICS) == "Test lyrics"
         
             # Delete metadata by setting to None
             update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None}, metadata_format=MetadataFormat.ID3V2)
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LYRICS) is None
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LYRICS) is None
 
     def test_delete_lyrics_id3v1(self):
         from audiometa.exceptions import MetadataNotSupportedError
@@ -60,15 +60,15 @@ class TestLyricsDeleting:
             # Delete only lyrics using library API
             update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None}, metadata_format=MetadataFormat.ID3V2)
         
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LYRICS) is None
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) == "Test Title"
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LYRICS) is None
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.TITLE) == "Test Title"
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
 
     def test_delete_lyrics_already_none(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             # Try to delete lyrics that don't exist
             update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None}, metadata_format=MetadataFormat.ID3V2)
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LYRICS) is None
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LYRICS) is None
 
     def test_delete_lyrics_empty_string(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
@@ -76,4 +76,4 @@ class TestLyricsDeleting:
             test_file.set_id3v2_lyrics("")
             # Delete the empty lyrics using library API
             update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None}, metadata_format=MetadataFormat.ID3V2)
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LYRICS) is None
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LYRICS) is None

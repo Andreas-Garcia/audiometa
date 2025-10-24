@@ -1,5 +1,5 @@
 
-from audiometa import get_specific_metadata
+from audiometa import get_unified_metadata_field
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -16,7 +16,7 @@ class TestRiff:
             raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
             assert "Artist                          : Artist One;Artist Two;Artist Three" in raw_metadata
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF)
             
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -34,7 +34,7 @@ class TestRiff:
             assert "Artist                          : Three" in raw_metadata
                       
             # Get RIFF metadata specifically to read the artists
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF)
 
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -52,7 +52,7 @@ class TestRiff:
             assert "Artist                          : Artist 4" in raw_metadata
             
             # Get RIFF metadata specifically to read the artists
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF)
             assert isinstance(artists, list)
             
             # We created 3 separate RIFF frames, so we should get 3 entries 
@@ -71,6 +71,6 @@ class TestRiff:
             assert "Title                           : Title Two" in raw_metadata 
             assert "Title                           : Title Three" in raw_metadata
             
-            title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.RIFF)
+            title = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.RIFF)
             assert isinstance(title, str)
             assert title == "Title One"

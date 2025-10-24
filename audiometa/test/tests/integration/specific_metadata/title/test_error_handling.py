@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
 
-from audiometa import get_specific_metadata, update_metadata
+from audiometa import get_unified_metadata_field, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.exceptions import FileTypeNotSupportedError
 
@@ -15,7 +15,7 @@ class TestTitleErrorHandling:
         temp_audio_file.write_bytes(b"fake audio content")
         
         with pytest.raises(FileTypeNotSupportedError):
-            get_specific_metadata(str(temp_audio_file), UnifiedMetadataKey.TITLE)
+            get_unified_metadata_field(str(temp_audio_file), UnifiedMetadataKey.TITLE)
         
         with pytest.raises(FileTypeNotSupportedError):
             update_metadata(str(temp_audio_file), {UnifiedMetadataKey.TITLE: "Test Title"})
@@ -24,7 +24,7 @@ class TestTitleErrorHandling:
         nonexistent_file = "nonexistent_file.mp3"
         
         with pytest.raises(FileNotFoundError):
-            get_specific_metadata(nonexistent_file, UnifiedMetadataKey.TITLE)
+            get_unified_metadata_field(nonexistent_file, UnifiedMetadataKey.TITLE)
         
         with pytest.raises(FileNotFoundError):
             update_metadata(nonexistent_file, {UnifiedMetadataKey.TITLE: "Test Title"})
@@ -35,10 +35,10 @@ class TestTitleErrorHandling:
         
         # Empty string should be handled gracefully
         update_metadata(temp_audio_file, {UnifiedMetadataKey.TITLE: ""})
-        title = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE)
+        title = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.TITLE)
         assert title == "" or title is None
         
         # None should be handled gracefully
         update_metadata(temp_audio_file, {UnifiedMetadataKey.TITLE: None})
-        title = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.TITLE)
+        title = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.TITLE)
         assert title is None or title == ""

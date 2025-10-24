@@ -546,19 +546,19 @@ id3v2_4_metadata = get_unified_metadata("song.mp3", metadata_format=MetadataForm
 
 #### Reading Specific Metadata Fields
 
-**`get_specific_metadata(file_path, field, metadata_format=None)`**
+**`get_unified_metadata_field(file_path, field, metadata_format=None)`**
 
 Reads a specific metadata field. If `metadata_format` is specified, reads only from that format; otherwise uses priority order across all formats.
 
 ```python
-from audiometa import get_specific_metadata, UnifiedMetadataKey
+from audiometa import get_unified_metadata_field, UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 
 # Get title using priority order (all formats)
-title = get_specific_metadata("song.mp3", UnifiedMetadataKey.TITLE)
+title = get_unified_metadata_field("song.mp3", UnifiedMetadataKey.TITLE)
 
 # Get raw rating from specific format only
-id3v2_rating = get_specific_metadata("song.mp3", UnifiedMetadataKey.RATING, metadata_format=MetadataFormat.ID3V2)
+id3v2_rating = get_unified_metadata_field("song.mp3", UnifiedMetadataKey.RATING, metadata_format=MetadataFormat.ID3V2)
 ```
 
 #### Reading Full Metadata From All Formats Including Headers and Technical Info
@@ -1963,20 +1963,20 @@ The library handles `None` and empty string values differently across audio form
 #### Example
 
 ```python
-from audiometa import update_metadata, get_specific_metadata
+from audiometa import update_metadata, get_unified_metadata_field
 
 # MP3 file - same behavior for None and empty string
 update_metadata("song.mp3", {"title": None})
-title = get_specific_metadata("song.mp3", "title")
+title = get_unified_metadata_field("song.mp3", "title")
 print(title)  # Output: None (field removed)
 
 # FLAC file - different behavior for None vs empty string
 update_metadata("song.flac", {"title": None})
-title = get_specific_metadata("song.flac", "title")
+title = get_unified_metadata_field("song.flac", "title")
 print(title)  # Output: None (field removed)
 
 update_metadata("song.flac", {"title": ""})
-title = get_specific_metadata("song.flac", "title")
+title = get_unified_metadata_field("song.flac", "title")
 print(title)  # Output: "" (field exists but empty)
 ```
 

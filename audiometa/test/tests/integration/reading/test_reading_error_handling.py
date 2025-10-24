@@ -3,7 +3,7 @@ from pathlib import Path
 
 from audiometa import (
     get_unified_metadata,
-    get_specific_metadata
+    get_unified_metadata_field
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
@@ -29,12 +29,12 @@ class TestReadingErrorHandling:
             get_unified_metadata(nonexistent_file)
                 
         with pytest.raises(FileNotFoundError):
-            get_specific_metadata(nonexistent_file, UnifiedMetadataKey.TITLE)
+            get_unified_metadata_field(nonexistent_file, UnifiedMetadataKey.TITLE)
 
     def test_invalid_metadata_key_returns_none(self, sample_mp3_file: Path):
         # This should not raise an error, but return None
         invalid_key = "INVALID_KEY"
-        result = get_specific_metadata(sample_mp3_file, invalid_key)
+        result = get_unified_metadata_field(sample_mp3_file, invalid_key)
         assert result is None
 
     def test_invalid_format_raises_error(self, sample_mp3_file: Path):

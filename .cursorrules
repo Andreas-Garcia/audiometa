@@ -257,7 +257,7 @@ def test_delete_lyrics_id3v2(self):
 
         # Testing deletion - but we used our own writing logic to set up!
         update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None})
-        assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LYRICS) is None
+        assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LYRICS) is None
 ```
 
 #### ✅ CORRECT - Use external tools for proper test isolation:
@@ -279,7 +279,7 @@ def test_delete_lyrics_id3v2(self):
 
         # Test deletion using our library
         update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None})
-        assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LYRICS) is None
+        assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LYRICS) is None
 ```
 
 #### ✅ ALTERNATIVE - Use TempFileWithMetadata with specific format:
@@ -318,11 +318,11 @@ def test_delete_comment_riff(self):
     with TempFileWithMetadata({}, "wav") as test_file:
         # ✅ Use helper method for setup - not testing setup functionality
         test_file.set_riff_comment("Test comment")
-        assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) == "Test comment"
+        assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.COMMENT) == "Test comment"
 
         # ✅ Test deletion using library API - this is what we're testing
         update_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.RIFF)
-        assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) is None
+        assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.COMMENT) is None
 ```
 
 **✅ CORRECT - Reading tests:**
@@ -334,7 +334,7 @@ def test_read_comment_riff(self):
         test_file.set_riff_comment("Test comment")
 
         # ✅ Test reading using library API - this is what we're testing
-        comment = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT)
+        comment = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.COMMENT)
         assert comment == "Test comment"
 ```
 
@@ -347,7 +347,7 @@ def test_write_comment_riff(self):
         update_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: "Test comment"}, metadata_format=MetadataFormat.RIFF)
 
         # ✅ Use helper method for verification - not testing reading functionality
-        comment = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT)
+        comment = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.COMMENT)
         assert comment == "Test comment"
 ```
 
@@ -361,14 +361,14 @@ def test_delete_comment_riff(self):
 
         # ✅ This is correct - testing deletion
         update_metadata(test_file.path, {UnifiedMetadataKey.COMMENT: None}, metadata_format=MetadataFormat.RIFF)
-        assert get_specific_metadata(test_file.path, UnifiedMetadataKey.COMMENT) is None
+        assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.COMMENT) is None
 ```
 
 ### Individual Metadata Reading Tests
 
-#### Use get_specific_metadata for Single Metadata Field Tests
+#### Use get_unified_metadata_field for Single Metadata Field Tests
 
-When testing reading of a **single metadata field**, use `get_specific_metadata()` instead of `get_unified_metadata()` for better performance and clarity.
+When testing reading of a **single metadata field**, use `get_unified_metadata_field()` instead of `get_unified_metadata()` for better performance and clarity.
 
 #### ❌ WRONG - Inefficient for single field:
 
@@ -379,17 +379,17 @@ def test_title_reading(self, test_file):
     assert title == "Expected Title"
 ```
 
-#### ✅ CORRECT - Use get_specific_metadata:
+#### ✅ CORRECT - Use get_unified_metadata_field:
 
 ```python
 def test_title_reading(self, test_file):
-    title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE)
+    title = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.TITLE)
     assert title == "Expected Title"
 ```
 
 #### When to Use Each Function
 
-- **`get_specific_metadata()`**: When testing a single metadata field
+- **`get_unified_metadata_field()`**: When testing a single metadata field
 - **`get_unified_metadata()`**: When testing multiple metadata fields or full metadata workflows
 
 ## File Organization

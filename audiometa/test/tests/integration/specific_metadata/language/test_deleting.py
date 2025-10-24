@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import get_specific_metadata, update_metadata
+from audiometa import get_unified_metadata_field, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -11,11 +11,11 @@ class TestLanguageDeleting:
     def test_delete_language_id3v2(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             test_file.set_id3v2_language("en")
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LANGUAGE) == "en"
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LANGUAGE) == "en"
             
             # Delete metadata using library API
             update_metadata(test_file.path, {UnifiedMetadataKey.LANGUAGE: None}, metadata_format=MetadataFormat.ID3V2)
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LANGUAGE) is None
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LANGUAGE) is None
 
     def test_delete_language_id3v1(self):
         from audiometa.exceptions import MetadataNotSupportedError
@@ -28,20 +28,20 @@ class TestLanguageDeleting:
     def test_delete_language_riff(self):
         with TempFileWithMetadata({}, "wav") as test_file:
             test_file.set_riff_language("en")
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LANGUAGE) == "en"
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LANGUAGE) == "en"
             
             # Delete metadata using library API
             update_metadata(test_file.path, {UnifiedMetadataKey.LANGUAGE: None}, metadata_format=MetadataFormat.RIFF)
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LANGUAGE) is None
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LANGUAGE) is None
 
     def test_delete_language_vorbis(self):
         with TempFileWithMetadata({}, "flac") as test_file:
             test_file.set_vorbis_language("en")
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LANGUAGE) == "en"
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LANGUAGE) == "en"
             
             # Delete metadata using library API
             update_metadata(test_file.path, {UnifiedMetadataKey.LANGUAGE: None}, metadata_format=MetadataFormat.VORBIS)
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LANGUAGE) is None
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LANGUAGE) is None
 
     def test_delete_language_preserves_other_fields(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
@@ -52,19 +52,19 @@ class TestLanguageDeleting:
             # Delete only language using library API
             update_metadata(test_file.path, {UnifiedMetadataKey.LANGUAGE: None}, metadata_format=MetadataFormat.ID3V2)
             
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LANGUAGE) is None
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE) == "Test Title"
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LANGUAGE) is None
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.TITLE) == "Test Title"
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS) == ["Test Artist"]
 
     def test_delete_language_already_none(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             # Try to delete language that doesn't exist
             update_metadata(test_file.path, {UnifiedMetadataKey.LANGUAGE: None}, metadata_format=MetadataFormat.ID3V2)
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LANGUAGE) is None
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LANGUAGE) is None
 
     def test_delete_language_empty_string(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             test_file.set_id3v2_language("")
             # Delete the empty language using library API
             update_metadata(test_file.path, {UnifiedMetadataKey.LANGUAGE: None}, metadata_format=MetadataFormat.ID3V2)
-            assert get_specific_metadata(test_file.path, UnifiedMetadataKey.LANGUAGE) is None
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LANGUAGE) is None

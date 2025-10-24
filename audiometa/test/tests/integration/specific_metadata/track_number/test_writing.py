@@ -2,7 +2,7 @@ import pytest
 
 
 
-from audiometa import get_specific_metadata, update_metadata
+from audiometa import get_unified_metadata_field, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -15,7 +15,7 @@ class TestTrackNumberWriting:
             test_track_number = 1
             test_metadata = {UnifiedMetadataKey.TRACK_NUMBER: test_track_number}
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
-            track_number = get_specific_metadata(test_file.path, UnifiedMetadataKey.TRACK_NUMBER)
+            track_number = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.TRACK_NUMBER)
             assert track_number == test_track_number
 
     def test_riff(self):
@@ -45,7 +45,7 @@ class TestTrackNumberWriting:
             test_track_number = 5
             test_metadata = {UnifiedMetadataKey.TRACK_NUMBER: test_track_number}
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
-            track_number = get_specific_metadata(test_file.path, UnifiedMetadataKey.TRACK_NUMBER)
+            track_number = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.TRACK_NUMBER)
             assert track_number == test_track_number
 
     def test_invalid_type_raises(self):

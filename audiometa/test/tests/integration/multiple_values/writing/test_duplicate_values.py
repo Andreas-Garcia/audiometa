@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from audiometa import get_specific_metadata, update_metadata
+from audiometa import get_unified_metadata_field, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
@@ -14,7 +14,7 @@ class TestMultipleValuesDuplicateValues:
         
         update_metadata(temp_audio_file, metadata)
         
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
+        artists = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         
         assert isinstance(artists, list)
         assert len(artists) == 5  # Duplicates should be preserved

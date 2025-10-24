@@ -1,7 +1,7 @@
 from pathlib import Path
 import time
 
-from audiometa import get_specific_metadata, update_metadata
+from audiometa import get_unified_metadata_field, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
@@ -20,7 +20,7 @@ class TestMultipleValuesBoundaryConditions:
         write_time = time.time() - start_time
         
         # Verify all values were written
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
+        artists = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         
         assert isinstance(artists, list)
         assert len(artists) == max_values
@@ -38,7 +38,7 @@ class TestMultipleValuesBoundaryConditions:
         
         update_metadata(temp_audio_file, metadata)
         
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
+        artists = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         
         assert isinstance(artists, list)
         assert len(artists) == 2
@@ -60,7 +60,7 @@ class TestMultipleValuesBoundaryConditions:
         
         update_metadata(temp_audio_file, metadata)
         
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
+        artists = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         
         assert isinstance(artists, list)
         assert len(artists) == 6
@@ -78,7 +78,7 @@ class TestMultipleValuesBoundaryConditions:
         update_metadata(temp_audio_file, large_metadata)
         write_time = time.time() - start_time
         
-        artists = get_specific_metadata(temp_audio_file, UnifiedMetadataKey.ARTISTS)
+        artists = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.ARTISTS)
         
         assert isinstance(artists, list)
         assert len(artists) == 50

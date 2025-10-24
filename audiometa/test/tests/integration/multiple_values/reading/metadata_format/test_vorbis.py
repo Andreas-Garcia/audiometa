@@ -1,5 +1,5 @@
 
-from audiometa import get_specific_metadata
+from audiometa import get_unified_metadata_field
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataSetter
 from audiometa.test.helpers.vorbis.vorbis_metadata_getter import VorbisMetadataGetter
@@ -17,7 +17,7 @@ class TestVorbis:
             # The key is lower case because that is how mutagen stores it but it is upper case in the file
             assert "artist=Artist One\x00Artist Two\x00Artist Three" in raw_metadata
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
             assert isinstance(artists, list)
             assert len(artists) == 3
             assert "Artist One" in artists
@@ -34,7 +34,7 @@ class TestVorbis:
             assert "artist=Artist A\x00Artist B" in raw_metadata
             assert "artist=Artist C\x00Artist D" in raw_metadata
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
             assert isinstance(artists, list)
             assert len(artists) == 4
             assert "Artist A" in artists
@@ -50,7 +50,7 @@ class TestVorbis:
             assert "artist=Artist One\x00Artist Two" in raw_metadata
             assert "artist=Artist Three;Artist Four" in raw_metadata
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
             assert isinstance(artists, list)
             assert len(artists) == 3
             assert "Artist One" in artists
@@ -64,7 +64,7 @@ class TestVorbis:
             raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
             assert "ARTIST=Artist One;Artist Two;Artist Three" in raw_metadata
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
             assert isinstance(artists, list)
             assert len(artists) == 3
             assert "Artist One" in artists
@@ -80,7 +80,7 @@ class TestVorbis:
             assert "ARTIST=Two" in raw_metadata
             assert "ARTIST=Three" in raw_metadata
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
             
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -99,7 +99,7 @@ class TestVorbis:
             assert "artist=Artist C" in raw_metadata
             assert "artist=Artist D" in raw_metadata
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
             
             assert isinstance(artists, list)
             assert len(artists) == 4
@@ -118,7 +118,7 @@ class TestVorbis:
             assert "ARTIST=Artist 3" in raw_metadata
             assert "ARTIST=Artist 4" in raw_metadata
 
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
             assert isinstance(artists, list)
             assert len(artists) == 3
             assert "Artist 1;Artist 2" in artists
@@ -136,5 +136,5 @@ class TestVorbis:
             assert "TITLE=Title Two" in raw_metadata
             assert "TITLE=Title Three" in raw_metadata
 
-            title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.VORBIS)
+            title = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.VORBIS)
             assert title == "Title One"

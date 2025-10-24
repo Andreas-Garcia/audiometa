@@ -1,5 +1,5 @@
 
-from audiometa import get_specific_metadata
+from audiometa import get_unified_metadata_field
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -18,7 +18,7 @@ class TestId3v2_4Mixed:
             # raw_output replaces NUL bytes with slashes for display purposes
             assert "TPE1=Artist One\x00Artist Two\x00Artist Three" in raw_metadata
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -36,7 +36,7 @@ class TestId3v2_4Mixed:
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             assert "TPE1=Artist One\x00Artist Two\x00Artist Three" in raw_metadata
 
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
 
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -54,7 +54,7 @@ class TestId3v2_4Mixed:
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             assert "TPE1=Artist One\x00Artist Two\x00Artist Three" in raw_metadata
 
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
 
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -72,7 +72,7 @@ class TestId3v2_4Mixed:
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             assert "TPE1=Artist One\x00Artist Two\x00Artist Three" in raw_metadata
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
 
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -90,7 +90,7 @@ class TestId3v2_4Mixed:
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             assert "TPE1=Artist One\x00Artist Two\x00Artist Three" in raw_metadata
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
 
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -107,7 +107,7 @@ class TestId3v2_4Mixed:
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             assert "TPE1=Artist One;Artist Two;Artist Three" in raw_metadata
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -126,7 +126,7 @@ class TestId3v2_4Mixed:
             assert "TPE1=Artist One;Artist Two" in raw_metadata
             assert "TPE1=Artist Three" in raw_metadata
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             
             assert isinstance(artists, list)
             assert len(artists) == 2
@@ -143,7 +143,7 @@ class TestId3v2_4Mixed:
             assert "TPE1=Artist One\00Artist Two" in raw_metadata
             assert "TPE1=Artist Three" in raw_metadata
 
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -161,7 +161,7 @@ class TestId3v2_4Mixed:
             assert "TPE1=Artist 1\00Artist 2" in raw_metadata
             assert "TPE1=Artist 3;Artist 4" in raw_metadata
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             
             assert isinstance(artists, list)
             assert len(artists) == 3
@@ -179,7 +179,7 @@ class TestId3v2_4Mixed:
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
             assert "TPE1=Artist 1\00Artist 2;Artist 3" in raw_metadata
             
-            artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
             assert isinstance(artists, list)
             assert len(artists) == 2
             assert "Artist 1" in artists
@@ -196,7 +196,7 @@ class TestId3v2_4Mixed:
             assert "TIT2=Title Two" in raw_metadata
             assert "TIT2=Title Three" in raw_metadata
                         
-            title = get_specific_metadata(test_file.path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V2)
+            title = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V2)
             
             assert isinstance(title, str)
             assert title == "Title One"

@@ -1,6 +1,6 @@
 import pytest
 
-from audiometa import get_specific_metadata, update_metadata
+from audiometa import get_unified_metadata_field, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -13,7 +13,7 @@ class TestBpmWriting:
             test_bpm = 128
             test_metadata = {UnifiedMetadataKey.BPM: test_bpm}
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
-            bpm = get_specific_metadata(test_file.path, UnifiedMetadataKey.BPM)
+            bpm = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM)
             assert bpm == test_bpm
 
     def test_riff(self):
@@ -32,7 +32,7 @@ class TestBpmWriting:
             test_bpm = 140
             test_metadata = {UnifiedMetadataKey.BPM: test_bpm}
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
-            bpm = get_specific_metadata(test_file.path, UnifiedMetadataKey.BPM)
+            bpm = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM)
             assert bpm == test_bpm
 
     def test_id3v1(self):

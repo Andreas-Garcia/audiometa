@@ -399,7 +399,7 @@ The codebase follows a **functional API approach** for all tests. Use these func
 ```python
 # For reading metadata
 metadata = get_unified_metadata(file_path)
-title = get_specific_metadata(file_path, UnifiedMetadataKey.TITLE)
+title = get_unified_metadata_field(file_path, UnifiedMetadataKey.TITLE)
 
 # For writing metadata
 update_metadata(file_path, metadata_dict)

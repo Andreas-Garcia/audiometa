@@ -2,7 +2,7 @@ import pytest
 
 
 
-from audiometa import get_specific_metadata, update_metadata
+from audiometa import get_unified_metadata_field, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -15,7 +15,7 @@ class TestComposerWriting:
             test_composer = "Test Composer ID3v2"
             test_metadata = {UnifiedMetadataKey.COMPOSERS: test_composer}
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
-            composer = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMPOSERS)
+            composer = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.COMPOSERS)
             assert composer == [test_composer]
 
     def test_riff(self):
@@ -23,7 +23,7 @@ class TestComposerWriting:
             test_composer = "Test Composer RIFF"
             test_metadata = {UnifiedMetadataKey.COMPOSERS: test_composer}
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
-            composer = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMPOSERS)
+            composer = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.COMPOSERS)
             assert composer == [test_composer]
 
     def test_vorbis(self):
@@ -31,7 +31,7 @@ class TestComposerWriting:
             test_composer = "Test Composer Vorbis"
             test_metadata = {UnifiedMetadataKey.COMPOSERS: test_composer}
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
-            composer = get_specific_metadata(test_file.path, UnifiedMetadataKey.COMPOSERS)
+            composer = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.COMPOSERS)
             assert composer == [test_composer]
 
     def test_invalid_type_raises(self):
