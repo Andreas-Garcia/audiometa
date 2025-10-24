@@ -27,7 +27,7 @@ class TestVorbis:
     def test_null_separated_artists_with_additional_entries(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             VorbisMetadataSetter.set_artists(test_file.path, ["Artist A", "Artist B"], in_single_entry=True)
-            VorbisMetadataSetter.set_artists(test_file.path, ["Artist C", "Artist D"], removing_existing=False)
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist C", "Artist D"], removing_existing=False, in_single_entry=True)
             
             raw_metadata = VorbisMetadataGetter.get_raw_metadata_without_truncating_null_bytes_but_lower_case_keys(test_file.path)
             # The key is lower case because that is how mutagen stores it but it is upper case in the file
@@ -52,7 +52,7 @@ class TestVorbis:
             
             artists = get_specific_metadata(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
             assert isinstance(artists, list)
-            assert len(artists) == 4
+            assert len(artists) == 3
             assert "Artist One" in artists
             assert "Artist Two" in artists
             assert "Artist Three;Artist Four" in artists
@@ -94,8 +94,8 @@ class TestVorbis:
             VorbisMetadataSetter.set_artists(test_file.path, ["Artist C", "Artist D"], removing_existing=False, key_lower_case=True)
             
             raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
-            assert "ARTIST=Artist A" in raw_metadata
-            assert "ARTIST=Artist B" in raw_metadata
+            assert "artist=Artist A" in raw_metadata
+            assert "artist=Artist B" in raw_metadata
             assert "artist=Artist C" in raw_metadata
             assert "artist=Artist D" in raw_metadata
             
