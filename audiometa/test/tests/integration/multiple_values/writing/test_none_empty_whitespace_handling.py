@@ -1,6 +1,8 @@
 
 from audiometa import update_metadata, get_unified_metadata, get_unified_metadata_field
+from audiometa.test.helpers.id3v1.id3v1_metadata_getter import ID3v1MetadataGetter
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
@@ -94,6 +96,27 @@ class TestNoneEmptyWhitespaceHandling:
             assert len(artists) == 2
             assert "Valid Artist 1" in artists
             assert "Valid Artist 2" in artists
+            
+    def test_write_mixed_empty_and_valid_entries_id3v1(self):
+        with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
+            # Write list with mix of empty, whitespace, and valid entries
+            # Use shorter names to fit within ID3v1's 30-character limit
+            metadata = {
+                UnifiedMetadataKey.ARTISTS: ["", "   ", "Artist1", "\t", "Artist2", "\n"]
+            }
+            update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V1)
+            
+            raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file.path)
+            assert "Artist1" in raw_metadata.get("artist", "")
+            assert "Artist2" in raw_metadata.get("artist", "")
+            
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V1)
+            
+            # Should filter out empty and whitespace-only strings
+            assert isinstance(artists, list)
+            assert len(artists) == 2
+            assert "Artist1" in artists
+            assert "Artist2" in artists
 
     def test_write_all_empty_strings_removes_field(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
