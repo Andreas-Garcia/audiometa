@@ -33,6 +33,12 @@ This file tracks future work, improvements, and testing tasks for AudioMeta Pyth
 
 - [ ] **Remove audio file class and move capabilities directly into metadata manager**
 
+- [ ] **Check multi-value separators compatibility with standard metadata readers**
+
+  - Current implementation uses prioritized separators: "//", "\\\\", "\\", ";", "/", "," for joining multi-value fields
+  - Smart parsing logic applies when null separators (\x00) are present (always parse) or for single entries without nulls (legacy data detection)
+  - Test compatibility with standard readers like iTunes, VLC, Windows Media Player to ensure correct parsing of multi-value metadata
+
 ---
 
 ## Contributing
