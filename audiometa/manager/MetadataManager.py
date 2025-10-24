@@ -58,6 +58,22 @@ class MetadataManager:
         # If no separator is safe, use the last one (comma)
         return METADATA_MULTI_VALUE_SEPARATORS_PRIORITIZED[-1]
 
+    @staticmethod
+    def filter_valid_values(values: list[str]) -> list[str]:
+        """
+        Filter out None and empty values from a list of strings.
+        
+        This is a generic function used by all metadata managers to ensure
+        consistent filtering of empty strings and whitespace.
+        
+        Args:
+            values: List of string values to filter
+            
+        Returns:
+            List of valid (non-empty) values
+        """
+        return [value for value in values if value is not None and value != ""]
+
     @abstractmethod
     def _extract_mutagen_metadata(self) -> MutagenMetadata:
         raise NotImplementedError()
@@ -480,6 +496,14 @@ class MetadataManager:
 
             for unified_metadata_key in list(unified_metadata.keys()):
                 app_metadata_value = unified_metadata[unified_metadata_key]
+                
+                # Filter out empty values for list-type metadata before processing
+                if isinstance(app_metadata_value, list):
+                    app_metadata_value = self.filter_valid_values(app_metadata_value)
+                    # If all values were filtered out, set to None to remove the field
+                    if not app_metadata_value:
+                        app_metadata_value = None
+                
                 if unified_metadata_key not in self.metadata_keys_direct_map_write:
                     raise MetadataNotSupportedError(f'{unified_metadata_key} metadata not supported by this format')
                 else:

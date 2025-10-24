@@ -377,10 +377,9 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                     # Create single frame with multiple text values (ID3v2.4 spec: null-separated values in one frame)
                     # Officially supported fields: TPE1 (artists), TPE2 (album artists), TCOM (composers), TCON (genres)
                     text_frame_class = self.ID3_TEXT_FRAME_CLASS_MAP[raw_metadata_key]
-                    # Filter out None and empty values
-                    valid_values = [value for value in app_metadata_value if value is not None and value != ""]
-                    if valid_values:
-                        self._add_id3_frame_v24_multi(raw_mutagen_metadata_id3, text_frame_class, valid_values)
+                    # Values are already filtered at the base level
+                    if app_metadata_value:
+                        self._add_id3_frame_v24_multi(raw_mutagen_metadata_id3, text_frame_class, app_metadata_value)
                     return
                 
                 # For ID3v2.3, use concatenation with separators (ID3v2.3 doesn't support null-separated values)
