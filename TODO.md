@@ -45,6 +45,12 @@ This file tracks future work, improvements, and testing tasks for AudioMeta Pyth
   - Implement or adapt exceptions for length violations
   - Add unit and integration tests to validate length enforcement and error handling
 
+- [ ] **Provide a Docker image**
+
+  - Create a Dockerfile for the project
+  - Set up containerized environment for easy deployment and testing
+  - Include necessary dependencies and entry points
+
 ---
 
 ## Contributing
