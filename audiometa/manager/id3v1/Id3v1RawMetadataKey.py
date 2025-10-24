@@ -7,7 +7,7 @@ class Id3v1RawMetadataKey(RawMetadataKey):
     TITLE = UnifiedMetadataKey.TITLE
     ARTISTS_NAMES_STR = UnifiedMetadataKey.ARTISTS
     ALBUM = UnifiedMetadataKey.ALBUM
-    GENRE_CODE_OR_NAME = 'genre_code'
-    YEAR = 'year'
-    TRACK_NUMBER = 'track_number'
-    COMMENT = 'comment'
+    GENRE_CODE_OR_NAME = 'GENRE_CODE_OR_NAME'
+    YEAR = 'YEAR'
+    TRACK_NUMBER = 'TRACK_NUMBER'
+    COMMENT = 'COMMENT'
