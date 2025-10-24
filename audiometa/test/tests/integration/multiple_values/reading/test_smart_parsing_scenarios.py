@@ -100,7 +100,7 @@ class TestSmartParsingScenarios:
             
             # Read metadata
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
-            assert artists == ["Artist One;Artist Two;Artist Three"]
+            assert artists == ["Artist One", "Artist Two", "Artist Three"]
 
     def test_scenario_2_single_entry_parsed_vorbis(self):
         """Scenario 2: Legacy data in modern format - single entry gets parsed (Vorbis)"""
@@ -112,7 +112,7 @@ class TestSmartParsingScenarios:
             
             # Read metadata
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
-            assert artists == ["Artist One;Artist Two;Artist Three"]
+            assert artists == ["Artist One", "Artist Two", "Artist Three"]
 
     def test_scenario_2_single_entry_parsed_riff(self):
         """Scenario 3: Legacy format (RIFF) - always applies separator parsing"""
@@ -124,7 +124,7 @@ class TestSmartParsingScenarios:
             
             # Read metadata
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF)
-            assert artists == ["Artist One;Artist Two"]
+            assert artists == ["Artist One", "Artist Two"]
 
     def test_scenario_3_legacy_format_always_parses_id3v1(self):
         """Scenario 3: Legacy format (ID3v1) - always applies separator parsing"""
@@ -136,7 +136,7 @@ class TestSmartParsingScenarios:
             
             # Read metadata
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V1)
-            assert artists == ["Artist One;Artist Two"]
+            assert artists == ["Artist One", "Artist Two"]
 
     def test_mixed_scenario_modern_format_with_both_patterns(self):
         """Test mixed scenario: ID3v2 concatenates multiple entries, single entries get parsed"""
