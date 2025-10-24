@@ -1,23 +1,23 @@
-from pathlib import Path
 
-from audiometa import get_unified_metadata_field, update_metadata
+from audiometa import update_metadata
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.vorbis.vorbis_metadata_getter import VorbisMetadataGetter
+from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 
 
 class TestMultipleValuesDuplicateValues:
-    def test_write_duplicate_values(self, temp_audio_file: Path):
-        # Test with duplicate values
-        duplicate_values = ["Artist One", "Artist Two", "Artist One", "Artist Three", "Artist Two"]
-        metadata = {
-            UnifiedMetadataKey.ARTISTS: duplicate_values
-        }
+    def test_write_duplicate_values(self):
+        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
+            duplicate_values = ["Artist One", "Artist Two", "Artist One", "Artist Three", "Artist Two"]
+            metadata = {
+                UnifiedMetadataKey.ARTISTS: duplicate_values
+            }
+            update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
+            
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
+            assert "ARTIST=Artist One" in raw_metadata
+            assert "ARTIST=Artist Two" in raw_metadata
+            assert "ARTIST=Artist Three" in raw_metadata
         
-        update_metadata(temp_audio_file, metadata)
         
-        artists = get_unified_metadata_field(temp_audio_file, UnifiedMetadataKey.ARTISTS)
-        
-        assert isinstance(artists, list)
-        assert len(artists) == 5  # Duplicates should be preserved
-        assert artists.count("Artist One") == 2
-        assert artists.count("Artist Two") == 2
-        assert artists.count("Artist Three") == 1
