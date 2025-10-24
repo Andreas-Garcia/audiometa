@@ -365,11 +365,11 @@ class MetadataManager:
         return unified_metadata
 
     def get_unified_metadata_field(self, unified_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
-        if self.raw_clean_metadata is None:
-            self.raw_clean_metadata = self._get_cleaned_raw_metadata_from_file()
-
         if unified_metadata_key not in self.metadata_keys_direct_map_read:
             raise MetadataNotSupportedError(f'{unified_metadata_key} metadata not supported by this format')
+        
+        if self.raw_clean_metadata is None:
+            self.raw_clean_metadata = self._get_cleaned_raw_metadata_from_file()
 
         raw_metadata_key = self.metadata_keys_direct_map_read[unified_metadata_key]
         if not raw_metadata_key:
