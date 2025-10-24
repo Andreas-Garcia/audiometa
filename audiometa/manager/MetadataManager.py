@@ -94,7 +94,7 @@ class MetadataManager:
 
     def _should_apply_smart_parsing(self, values_list_str: list[str]) -> bool:
         """
-        Determine if smart parsing should be applied based on entry count.
+        Determine if smart parsing should be applied based on entry count and null separators.
         
         Args:
             values_list_str: List of string values from the metadata
@@ -111,16 +111,23 @@ class MetadataManager:
         if len(non_empty_entries) == 0:
             return False
             
-        # If we have multiple entries, don't parse (preserve separators)
+        # Check if any entry contains null separators
+        has_null_separators = any('\x00' in entry for entry in non_empty_entries)
+        
+        # If null separators are present, always apply parsing (null separation logic)
+        if has_null_separators:
+            return True
+            
+        # If we have multiple entries without null separators, don't parse (preserve separators)
         if len(non_empty_entries) > 1:
             return False
             
-        # If we have a single entry, parse it (legacy data detection)
+        # If we have a single entry without null separators, parse it (legacy data detection)
         return True
 
-    def _apply_separator_parsing(self, values_list_str: list[str]) -> list[str]:
+    def _apply_smart_parsing(self, values_list_str: list[str]) -> list[str]:
         """
-        Apply separator parsing to split values.
+        Apply smart parsing to split values.
         
         Args:
             values_list_str: List of string values to parse
@@ -131,13 +138,32 @@ class MetadataManager:
         if not values_list_str:
             return []
             
-        # Get the first non-empty value
-        first_value = next((val.strip() for val in values_list_str if val.strip()), "")
-        if not first_value:
+        # Get non-empty values
+        non_empty_values = [val.strip() for val in values_list_str if val.strip()]
+        if not non_empty_values:
             return []
             
+        # Check if any entry contains null separators
+        has_null_separators = any('\x00' in entry for entry in non_empty_values)
+        
+        if has_null_separators:
+            # Apply null separation logic across all entries
+            result = []
+            for entry in non_empty_values:
+                if '\x00' in entry:
+                    # Split on null separator and add non-empty parts
+                    parts = [p.strip() for p in entry.split('\x00') if p.strip()]
+                    result.extend(parts)
+                else:
+                    # Entry without null separator, add as-is
+                    result.append(entry)
+            return result
+        
+        # No null separators - use logic for single entry
+        first_value = non_empty_values[0]
+        
         # Find the highest-priority separator that actually exists in the value.
-        # We should only split on that separator (legacy single-entry fields that
+        # We should only split on that separator (single-entry fields that
         # used one specific separator) rather than splitting on every known
         # separator sequentially which can produce incorrect fragmentation when
         # lower-priority separators appear inside values.
@@ -383,7 +409,7 @@ class MetadataManager:
                 # Apply smart parsing logic for semantically multi-value fields
                 if self._should_apply_smart_parsing(values_list_str):
                     # Apply parsing for single entry (legacy data detection)
-                    parsed_values = self._apply_separator_parsing(values_list_str)
+                    parsed_values = self._apply_smart_parsing(values_list_str)
                     return parsed_values if parsed_values else None
                 else:
                     # No parsing - return as-is but filter empty/whitespace values
