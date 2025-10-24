@@ -132,7 +132,7 @@ class TestSmartParsingScenarios:
             # Set single artist entry with semicolons in ID3v1 format
             ID3v1MetadataSetter.set_artist(test_file.path, "Artist One;Artist Two")
             raw_metadata = ID3v1MetadataGetter.get_raw_metadata(test_file.path)
-            assert "artist=Artist One;Artist Two" in raw_metadata
+            assert "Artist One;Artist Two" in raw_metadata.get("artist", "")
             
             # Read metadata
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V1)
