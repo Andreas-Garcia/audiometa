@@ -19,17 +19,14 @@ class TestMultipleValuesId3v2_4:
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.4')
             
-            # raw_output replaces NUL bytes with slashes for display purposes
-            assert "TPE1=Artist One / Artist Two" in raw_metadata or "TPE1=Artist One / Artist Two" in raw_metadata
+            assert "TPE1=Artist One\x00Artist Two" in raw_metadata
 
     def test_write_on_existing_artists_field(self):
-        initial_metadata = {"artist": "Existing Artist"}
-        with TempFileWithMetadata(initial_metadata, "id3v2.4") as test_file:
-            ID3v2MetadataSetter.set_artists(test_file.path, "Existing A", "Existing B", version="2.4")
+        with TempFileWithMetadata({}, "id3v2.4") as test_file:
+            ID3v2MetadataSetter.set_artists(test_file.path,["Existing A\x00Existing B"], version="2.4")
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.4')
             
-            # raw_output replaces NUL bytes with slashes for display purposes
-            assert "TPE1=Existing A / Existing B" in raw_metadata
+            assert "TPE1=Existing A\x00Existing B" in raw_metadata
             
             metadata = {
                 UnifiedMetadataKey.ARTISTS: ["Existing A", "New B"]
@@ -37,7 +34,4 @@ class TestMultipleValuesId3v2_4:
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.4')
-            assert "Existing A" in raw_metadata
-            assert "New B" in raw_metadata
-            # Should contain null separator in ID3v2.4
-            assert " / " in raw_metadata
+            assert "TPE1=Existing A\x00New B" in raw_metadata
