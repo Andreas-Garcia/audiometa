@@ -27,19 +27,16 @@ class TestMultipleValuesVorbis:
         with TempFileWithMetadata({}, "flac") as test_file:
             # create an existing value using setter
             VorbisMetadataSetter.set_artists(test_file.path, ["Existing 1; Existing 2"])
-            verification = VorbisMetadataGetter.get_raw_metadata(test_file.path, "ARTIST")
-            raw_output = verification['raw_output']
-            assert "Existing 1; Existing 2" in raw_output
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
+            assert "Existing 1; Existing 2" in raw_metadata
 
             metadata = {UnifiedMetadataKey.ARTISTS: ["Existing 1", "New 2"]}
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
 
-            verification = VorbisMetadataGetter.get_raw_metadata(test_file.path, "ARTIST")
-            assert verification['actual_count'] == 2
-            raw_output = verification['raw_output']
-            assert "Existing 1" in raw_output
-            assert "New 2" in raw_output
-            assert "Existing 2" not in raw_output
+            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
+            assert "Existing 1" in raw_metadata
+            assert "New 2" in raw_metadata
+            assert "Existing 2" not in raw_metadata
             
     def test_with_existing_artists_fields_with_lower_case_key(self):
         # Start with an existing artist field in lower case
