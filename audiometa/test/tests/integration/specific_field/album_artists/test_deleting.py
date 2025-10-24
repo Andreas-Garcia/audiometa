@@ -7,6 +7,7 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
 from audiometa.test.helpers.riff import RIFFMetadataSetter
 from audiometa.test.helpers.vorbis import VorbisMetadataSetter
+from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
 
 
 @pytest.mark.integration
@@ -25,8 +26,6 @@ class TestAlbumArtistsDeleting:
 
     def test_delete_album_artists_riff(self):
         with TempFileWithMetadata({}, "wav") as test_file:
-            # Set metadata using max metadata method (includes album artists)
-            RIFFMetadataSetter.set_max_metadata(test_file.path)
             RIFFMetadataSetter.set_multiple_album_artists(test_file.path, ["Test Album Artist"])
             # Verify album artists are set
             album_artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ALBUM_ARTISTS)
