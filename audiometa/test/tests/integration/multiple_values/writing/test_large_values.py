@@ -41,9 +41,11 @@ class TestMultipleValuesBoundaryConditions:
             
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.VORBIS)
             
-            raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
-            assert f"ARTIST={very_long_string}" in raw_metadata
-            assert "Normal Artist" in raw_metadata
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
+            assert isinstance(artists, list)
+            assert len(artists) == 2
+            assert very_long_string in artists
+            assert "Normal Artist" in artists
 
     def test_write_mixed_length_values(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
