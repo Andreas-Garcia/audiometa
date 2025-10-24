@@ -1,5 +1,5 @@
 
-from audiometa import get_unified_metadata_field, update_metadata
+from audiometa import get_unified_metadata_field
 from audiometa.test.helpers.id3v1.id3v1_metadata_getter import ID3v1MetadataGetter
 from audiometa.test.helpers.id3v1.id3v1_metadata_setter import ID3v1MetadataSetter
 from audiometa.test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGetter
