@@ -4,6 +4,7 @@ import time
 from audiometa import get_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.vorbis import VorbisMetadataSetter
 
 
 class TestPerformanceLargeData:
@@ -12,7 +13,7 @@ class TestPerformanceLargeData:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Set many artists using TempFileWithMetadata
             artists_list = [f"Artist {i+1}" for i in range(20)]
-            test_file.set_vorbis_multiple_artists(artists_list)
+            VorbisMetadataSetter.set_artists(test_file.path, artists_list)
             
             for _ in range(5):
                 unified_metadata = get_unified_metadata(test_file.path)
@@ -26,7 +27,7 @@ class TestPerformanceLargeData:
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Set many artists using TempFileWithMetadata
             artists_list = [f"Artist {i+1}" for i in range(50)]
-            test_file.set_vorbis_multiple_artists(artists_list)
+            VorbisMetadataSetter.set_artists(test_file.path, artists_list)
             
             start_time = time.time()
             unified_metadata = get_unified_metadata(test_file.path)
@@ -51,7 +52,7 @@ class TestPerformanceLargeData:
                               "Artist 25", "Artist 26", "Artist 27", "Artist 28", "Artist 29", "Artist 30"]
             
             try:
-                test_file.set_vorbis_multiple_artists(complex_artists)
+                VorbisMetadataSetter.set_artists(test_file.path, complex_artists)
             except RuntimeError:
                 pytest.skip("metaflac not available or failed to set complex separated artists")
             
@@ -75,7 +76,7 @@ class TestPerformanceLargeData:
             long_artist = "A" * 50000  # 50,000 character artist name
             
             try:
-                test_file.set_vorbis_artist(long_artist)
+                VorbisMetadataSetter.set_artist(test_file.path, long_artist)
             except RuntimeError:
                 pytest.skip("metaflac not available or failed to set very long artist")
             
@@ -92,7 +93,7 @@ class TestPerformanceLargeData:
             # Set up test data
             try:
                 artists_list = [f"Artist {i+1}" for i in range(10)]
-                test_file.set_vorbis_multiple_artists(artists_list)
+                VorbisMetadataSetter.set_artists(test_file.path, artists_list)
             except RuntimeError:
                 pytest.skip("metaflac not available or failed to set test artists")
             
@@ -115,15 +116,15 @@ class TestPerformanceLargeData:
             try:
                 # Set multiple artists
                 artists_list = [f"Artist {i+1}" for i in range(10)]
-                test_file.set_vorbis_multiple_artists(artists_list)
+                VorbisMetadataSetter.set_artists(test_file.path, artists_list)
                 
                 # Set multiple genres
                 genres_list = [f"Genre {i+1}" for i in range(5)]
-                test_file.set_vorbis_multiple_genres(genres_list)
+                VorbisMetadataSetter.set_genres(test_file.path, genres_list)
                 
                 # Set multiple composers
                 composers_list = [f"Composer {i+1}" for i in range(8)]
-                test_file.set_vorbis_multiple_composers(composers_list)
+                VorbisMetadataSetter.set_composers(test_file.path, composers_list)
                 
             except RuntimeError:
                 pytest.skip("metaflac not available or failed to set multiple multi-value fields")
@@ -155,7 +156,7 @@ class TestPerformanceLargeData:
             whitespace_heavy_artists = ["   Artist One   ", "   Artist Two   ", "   Artist Three   "]
             
             try:
-                test_file.set_vorbis_multiple_artists(whitespace_heavy_artists)
+                VorbisMetadataSetter.set_artists(test_file.path, whitespace_heavy_artists)
             except RuntimeError:
                 pytest.skip("metaflac not available or failed to set whitespace-heavy artists")
             
