@@ -81,6 +81,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
         - [Detailed Examples of Smart Semantically Multi-Value Logic](#detailed-examples-of-smart-semantically-multi-value-logic)
       - [Writing Semantically Multiple Values](#writing-semantically-multiple-values)
         - [Strategy Overview](#strategy-overview)
+        - [Automatic Empty Value Filtering](#automatic-empty-value-filtering)
         - [Smart Separator Selection](#smart-separator-selection)
         - [Examples of Smart Separator Selection](#examples-of-smart-separator-selection)
   - [Genre Handling](#genre-handling)
@@ -352,7 +353,7 @@ print(f"Album: {metadata.get(UnifiedMetadataKey.ALBUM, 'Unknown')}")
 
 ### Writing Metadata
 
-```python
+````python
 from audiometa import update_metadata
 
 # Update metadata (use UnifiedMetadataKey for explicit typing)
@@ -365,7 +366,6 @@ new_metadata = {
     UnifiedMetadataKey.RATING: 85,
 }
 update_metadata("path/to/your/audio.mp3", new_metadata)
-```
 
 **Format-specific Writing**
 
@@ -389,7 +389,7 @@ print(f"All metadata deleted: {success}")
 from audiometa.utils.MetadataFormat import MetadataFormat
 success = delete_all_metadata("song.wav", tag_format=MetadataFormat.ID3V2)
 # This removes only ID3v2 tags, keeps RIFF metadata
-```
+````
 
 **Important**: This function removes the metadata headers/containers entirely from the file, not just the content. This means:
 
@@ -1386,6 +1386,35 @@ from audiometa import update_metadata
 
 update_metadata("song.wav", {"artists": ["Artist One", "Artist Two", "Artist One", "Artist Three", "Artist Two"]})
 # Result: "Artist One;Artist Two;Artist Three"
+```
+
+##### Automatic Empty Value Filtering
+
+The library automatically filters out empty strings and `None` values from list-type metadata fields before writing. If all values in a list are filtered out, the field is removed entirely (set to `None`). This ensures clean metadata without empty or invalid entries across all supported formats.
+
+```python
+from audiometa import update_metadata
+
+# Example 1: Empty values are automatically filtered out
+metadata = {
+    "artists": ["", "Artist 1", "   ", "Artist 2", None]
+}
+update_metadata("song.mp3", metadata)
+# Results in: ["Artist 1", "Artist 2"] - empty strings and None filtered out
+
+# Example 2: If all values are empty, the field is removed
+metadata = {
+    "artists": ["", "   ", None]
+}
+update_metadata("song.mp3", metadata)
+# Results in: artists field is set to None (field removed)
+
+# Example 3: Mixed valid and empty values
+metadata = {
+    "genres": ["Rock", "", "Pop", None, "Jazz"]
+}
+update_metadata("song.mp3", metadata)
+# Results in: ["Rock", "Pop", "Jazz"] - only valid values preserved
 ```
 
 ##### Smart Separator Selection
