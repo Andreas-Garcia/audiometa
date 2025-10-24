@@ -1,4 +1,3 @@
-from pathlib import Path
 
 from audiometa import update_metadata
 from audiometa.utils.MetadataFormat import MetadataFormat
@@ -19,7 +18,6 @@ class TestMultipleValuesId3v2_3:
             
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
-            # Use helper to check the created ID3v2 frame directly
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
             assert "TPE1=Artist 1//Artist 2//Artist 3" in raw_metadata
     
