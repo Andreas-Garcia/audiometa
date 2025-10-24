@@ -97,9 +97,15 @@ class MetadataManager:
         if self.raw_clean_metadata is None:
             self.raw_clean_metadata = self._extract_cleaned_raw_metadata_from_file()
         
-        self.raw_clean_metadata_uppercase_keys = {
-            key.upper(): value for key, value in self.raw_clean_metadata.items()
-        }
+        self.raw_clean_metadata_uppercase_keys = {}
+        for key, value in self.raw_clean_metadata.items():
+            # Handle enum keys properly - use the enum member itself as the key
+            if hasattr(key, 'value') and hasattr(key, 'name'):
+                # This is an enum member, use it directly
+                self.raw_clean_metadata_uppercase_keys[key] = value
+            else:
+                # This is a string key, convert to uppercase
+                self.raw_clean_metadata_uppercase_keys[key.upper()] = value
 
     def _should_apply_smart_parsing(self, values_list_str: list[str]) -> bool:
         """
