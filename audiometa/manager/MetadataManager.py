@@ -25,6 +25,7 @@ class MetadataManager:
     metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] | None
     raw_mutagen_metadata: MutagenMetadata | None = None
     raw_clean_metadata: RawMetadataDict | None = None
+    raw_clean_metadata_uppercase_keys: RawMetadataDict | None = None
     update_using_mutagen_metadata: bool
 
     def __init__(self, audio_file: AudioFile,
@@ -86,11 +87,19 @@ class MetadataManager:
     def _update_not_using_mutagen_metadata(self, unified_metadata: UnifiedMetadata):
         raise NotImplementedError()
 
-    def _get_cleaned_raw_metadata_from_file(self) -> RawMetadataDict:
+    def _extract_cleaned_raw_metadata_from_file(self) -> RawMetadataDict:
         self.raw_mutagen_metadata = self._extract_mutagen_metadata()
         raw_metadata_with_potential_duplicate_keys = \
             self._convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(self.raw_mutagen_metadata)
         return self._extract_and_regroup_raw_metadata_unique_entries(raw_metadata_with_potential_duplicate_keys)
+    
+    def _extract_raw_clean_metadata_uppercase_keys_from_file(self):
+        if self.raw_clean_metadata is None:
+            self.raw_clean_metadata = self._extract_cleaned_raw_metadata_from_file()
+        
+        self.raw_clean_metadata_uppercase_keys = {
+            key.upper(): value for key, value in self.raw_clean_metadata.items()
+        }
 
     def _should_apply_smart_parsing(self, values_list_str: list[str]) -> bool:
         """
@@ -354,8 +363,8 @@ class MetadataManager:
         return genre_entry if genre_entry else None
 
     def get_unified_metadata(self) -> UnifiedMetadata:
-        if self.raw_clean_metadata is None:
-            self.raw_clean_metadata = self._get_cleaned_raw_metadata_from_file()
+        if self.raw_clean_metadata_uppercase_keys is None:
+            self.raw_clean_metadata_uppercase_keys = self._extract_raw_clean_metadata_uppercase_keys_from_file()
 
         unified_metadata = {}
         for metadata_key in self.metadata_keys_direct_map_read:
@@ -368,8 +377,8 @@ class MetadataManager:
         if unified_metadata_key not in self.metadata_keys_direct_map_read:
             raise MetadataNotSupportedError(f'{unified_metadata_key} metadata not supported by this format')
         
-        if self.raw_clean_metadata is None:
-            self.raw_clean_metadata = self._get_cleaned_raw_metadata_from_file()
+        if self.raw_clean_metadata_uppercase_keys is None:
+            self.raw_clean_metadata_uppercase_keys = self._extract_raw_clean_metadata_uppercase_keys_from_file()
 
         raw_metadata_key = self.metadata_keys_direct_map_read[unified_metadata_key]
         if not raw_metadata_key:

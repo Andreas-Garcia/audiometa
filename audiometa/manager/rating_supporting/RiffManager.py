@@ -693,7 +693,7 @@ class RiffManager(RatingSupportingMetadataManager):
     def get_raw_metadata_info(self) -> dict:
         try:
             if self.raw_clean_metadata is None:
-                self.raw_clean_metadata = self._get_cleaned_raw_metadata_from_file()
+                self.raw_clean_metadata = self._extract_cleaned_raw_metadata_from_file()
             
             if not self.raw_clean_metadata:
                 return {
