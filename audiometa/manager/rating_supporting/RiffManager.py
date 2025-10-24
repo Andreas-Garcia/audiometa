@@ -360,10 +360,14 @@ class RiffManager(RatingSupportingMetadataManager):
 
             # Handle multiple values (e.g., multiple artists)
             if isinstance(value, list):
-                for item in value:
-                    if item is None or item == "":
-                        continue
-                    value_bytes = self._prepare_tag_value(item, app_key)
+                # Filter out None and empty values
+                valid_values = [item for item in value if item is not None and item != ""]
+                if valid_values:
+                    # Use smart separator to concatenate multiple values
+                    from ..MetadataManager import MetadataManager
+                    separator = MetadataManager.find_safe_separator(valid_values)
+                    concatenated_value = separator.join(valid_values)
+                    value_bytes = self._prepare_tag_value(concatenated_value, app_key)
                     if value_bytes:
                         new_tags_data.extend(self._create_aligned_metadata_with_proper_padding(riff_key, value_bytes))
             else:
