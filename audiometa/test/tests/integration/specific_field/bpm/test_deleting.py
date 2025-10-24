@@ -4,13 +4,15 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa import get_unified_metadata_field, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
+from audiometa.test.helpers.vorbis import VorbisMetadataSetter
 
 
 @pytest.mark.integration
 class TestBpmDeleting:
     def test_delete_bpm_id3v2(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-            test_file.set_id3v2_bpm(120)
+            ID3v2MetadataSetter.set_bpm(test_file.path, 120)
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM) == 120
         
             # Delete metadata using library API
@@ -35,7 +37,7 @@ class TestBpmDeleting:
 
     def test_delete_bpm_vorbis(self):
         with TempFileWithMetadata({}, "flac") as test_file:
-            test_file.set_vorbis_bpm(120)
+            VorbisMetadataSetter.set_bpm(test_file.path, 120)
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM) == 120
         
             # Delete metadata using library API
@@ -44,9 +46,9 @@ class TestBpmDeleting:
 
     def test_delete_bpm_preserves_other_fields(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-            test_file.set_id3v2_bpm(120)
-            test_file.set_id3v2_title("Test Title")
-            test_file.set_id3v2_artist("Test Artist")
+            ID3v2MetadataSetter.set_bpm(test_file.path, 120)
+            ID3v2MetadataSetter.set_title(test_file.path, "Test Title")
+            ID3v2MetadataSetter.set_artists(test_file.path, "Test Artist")
         
             # Delete only BPM using library API
             update_metadata(test_file.path, {UnifiedMetadataKey.BPM: None}, metadata_format=MetadataFormat.ID3V2)
@@ -63,7 +65,7 @@ class TestBpmDeleting:
 
     def test_delete_bpm_zero(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-            test_file.set_id3v2_bpm(0)
+            ID3v2MetadataSetter.set_bpm(test_file.path, 0)
             # Delete the zero BPM using library API
             update_metadata(test_file.path, {UnifiedMetadataKey.BPM: None}, metadata_format=MetadataFormat.ID3V2)
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM) is None

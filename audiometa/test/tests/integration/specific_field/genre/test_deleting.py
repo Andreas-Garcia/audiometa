@@ -4,13 +4,17 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa import get_unified_metadata_field, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
+from audiometa.test.helpers.id3v1 import ID3v1MetadataSetter
+from audiometa.test.helpers.riff import RIFFMetadataSetter
+from audiometa.test.helpers.vorbis import VorbisMetadataSetter
 
 
 @pytest.mark.integration
 class TestGenreDeleting:
     def test_delete_genre_id3v2(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-            test_file.set_id3v2_genre("Rock")
+            ID3v2MetadataSetter.set_genre(test_file.path, "Rock")
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
         
             update_metadata(test_file.path, {UnifiedMetadataKey.GENRES_NAMES: None}, metadata_format=MetadataFormat.ID3V2)
@@ -18,7 +22,7 @@ class TestGenreDeleting:
 
     def test_delete_genre_id3v1(self):
         with TempFileWithMetadata({}, "id3v1") as test_file:
-            test_file.set_id3v1_genre("Rock")
+            ID3v1MetadataSetter.set_genre(test_file.path, "Rock")
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
         
             update_metadata(test_file.path, {UnifiedMetadataKey.GENRES_NAMES: None}, metadata_format=MetadataFormat.ID3V1)
@@ -26,7 +30,7 @@ class TestGenreDeleting:
 
     def test_delete_genre_riff(self):
         with TempFileWithMetadata({}, "wav") as test_file:
-            test_file.set_riff_genre("Rock")
+            RIFFMetadataSetter.set_genre(test_file.path, "Rock")
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
         
             update_metadata(test_file.path, {UnifiedMetadataKey.GENRES_NAMES: None}, metadata_format=MetadataFormat.RIFF)
@@ -34,7 +38,7 @@ class TestGenreDeleting:
 
     def test_delete_genre_vorbis(self):
         with TempFileWithMetadata({}, "flac") as test_file:
-            test_file.set_vorbis_genre("Rock")
+            VorbisMetadataSetter.set_genre(test_file.path, "Rock")
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
         
             update_metadata(test_file.path, {UnifiedMetadataKey.GENRES_NAMES: None}, metadata_format=MetadataFormat.VORBIS)
@@ -42,9 +46,9 @@ class TestGenreDeleting:
 
     def test_delete_genre_preserves_other_fields(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-            test_file.set_id3v2_genre("Rock")
-            test_file.set_id3v2_title("Test Title")
-            test_file.set_id3v2_artist("Test Artist")
+            ID3v2MetadataSetter.set_genre(test_file.path, "Rock")
+            ID3v2MetadataSetter.set_title(test_file.path, "Test Title")
+            ID3v2MetadataSetter.set_artists(test_file.path, "Test Artist")
         
             update_metadata(test_file.path, {UnifiedMetadataKey.GENRES_NAMES: None}, metadata_format=MetadataFormat.ID3V2)
         
@@ -59,6 +63,6 @@ class TestGenreDeleting:
 
     def test_delete_genre_empty_string(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-            test_file.set_id3v2_genre("")
+            ID3v2MetadataSetter.set_genre(test_file.path, "")
             update_metadata(test_file.path, {UnifiedMetadataKey.GENRES_NAMES: None}, metadata_format=MetadataFormat.ID3V2)
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES) is None

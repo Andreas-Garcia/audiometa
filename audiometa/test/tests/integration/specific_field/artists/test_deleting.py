@@ -4,13 +4,17 @@ from audiometa import get_unified_metadata_field, update_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
+from audiometa.test.helpers.id3v1 import ID3v1MetadataSetter
+from audiometa.test.helpers.riff import RIFFMetadataSetter
+from audiometa.test.helpers.vorbis import VorbisMetadataSetter
 
 
 @pytest.mark.integration
 class TestArtistsDeleting:
     def test_delete_artists_id3v2(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-            test_file.set_id3v2_artist("Artist 1; Artist 2")
+            ID3v2MetadataSetter.set_artists(test_file.path, "Artist 1; Artist 2")
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS) == ["Artist 1", "Artist 2"]
         
             # Delete metadata using library API
@@ -19,7 +23,7 @@ class TestArtistsDeleting:
 
     def test_delete_artists_id3v1(self):
         with TempFileWithMetadata({}, "id3v1") as test_file:
-            test_file.set_id3v1_artist("Artist 1")
+            ID3v1MetadataSetter.set_artist(test_file.path, "Artist 1")
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS) == ["Artist 1"]
         
             # Delete metadata using library API
@@ -28,7 +32,7 @@ class TestArtistsDeleting:
 
     def test_delete_artists_riff(self):
         with TempFileWithMetadata({}, "wav") as test_file:
-            test_file.set_riff_artist("Artist 1")
+            RIFFMetadataSetter.set_artist(test_file.path, "Artist 1")
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS) == ["Artist 1"]
         
             # Delete metadata using library API
@@ -37,8 +41,7 @@ class TestArtistsDeleting:
 
     def test_delete_artists_vorbis(self):
         with TempFileWithMetadata({}, "flac") as test_file:
-            test_file.set_vorbis_artist("Artist 1")
-            test_file.set_vorbis_artist("Artist 2")
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist 1", "Artist 2"])
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS) == ["Artist 1", "Artist 2"]
         
             # Delete metadata using library API
@@ -47,9 +50,9 @@ class TestArtistsDeleting:
 
     def test_delete_artists_preserves_other_fields(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-            test_file.set_id3v2_artist("Test Artist")
-            test_file.set_id3v2_title("Test Title")
-            test_file.set_id3v2_album("Test Album")
+            ID3v2MetadataSetter.set_artists(test_file.path, "Test Artist")
+            ID3v2MetadataSetter.set_title(test_file.path, "Test Title")
+            ID3v2MetadataSetter.set_album(test_file.path, "Test Album")
         
             # Delete only artists using library API
             update_metadata(test_file.path, {UnifiedMetadataKey.ARTISTS: None}, metadata_format=MetadataFormat.ID3V2)
@@ -66,7 +69,7 @@ class TestArtistsDeleting:
 
     def test_delete_artists_empty_list(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-            test_file.set_id3v2_artist("")
+            ID3v2MetadataSetter.set_artists(test_file.path, "")
             # Delete the empty artists using library API
             update_metadata(test_file.path, {UnifiedMetadataKey.ARTISTS: None}, metadata_format=MetadataFormat.ID3V2)
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS) is None

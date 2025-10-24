@@ -4,6 +4,9 @@ from audiometa import get_unified_metadata_field, update_metadata
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
+from audiometa.test.helpers.riff import RIFFMetadataSetter
+from audiometa.test.helpers.vorbis import VorbisMetadataSetter
 
 
 @pytest.mark.integration
@@ -11,7 +14,7 @@ class TestAlbumArtistsDeleting:
     def test_delete_album_artists_id3v2(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             # Set metadata using max metadata method (includes album artists)
-            test_file.set_id3v2_max_metadata()
+            ID3v2MetadataSetter.set_max_metadata(test_file.path)
             # Verify album artists are set
             album_artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ALBUM_ARTISTS)
             assert album_artists is not None
@@ -23,7 +26,8 @@ class TestAlbumArtistsDeleting:
     def test_delete_album_artists_riff(self):
         with TempFileWithMetadata({}, "wav") as test_file:
             # Set metadata using max metadata method (includes album artists)
-            test_file.set_riff_max_metadata()
+            RIFFMetadataSetter.set_max_metadata(test_file.path)
+            RIFFMetadataSetter.set_multiple_album_artists(test_file.path, ["Test Album Artist"])
             # Verify album artists are set
             album_artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ALBUM_ARTISTS)
             assert album_artists is not None
@@ -35,7 +39,7 @@ class TestAlbumArtistsDeleting:
     def test_delete_album_artists_vorbis(self):
         with TempFileWithMetadata({}, "flac") as test_file:
             # Set metadata using max metadata method (includes album artists)
-            test_file.set_vorbis_max_metadata()
+            VorbisMetadataSetter.set_max_metadata(test_file.path)
             # Verify album artists are set
             album_artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ALBUM_ARTISTS)
             assert album_artists is not None
@@ -47,7 +51,7 @@ class TestAlbumArtistsDeleting:
     def test_delete_album_artists_preserves_other_fields(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             # Set metadata using max metadata method (includes album artists and other fields)
-            test_file.set_id3v2_max_metadata()
+            ID3v2MetadataSetter.set_max_metadata(test_file.path)
             # Verify album artists are set
             album_artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ALBUM_ARTISTS)
             assert album_artists is not None
@@ -69,7 +73,7 @@ class TestAlbumArtistsDeleting:
     def test_delete_album_artists_empty_list(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             # Set metadata using max metadata method (includes album artists)
-            test_file.set_id3v2_max_metadata()
+            ID3v2MetadataSetter.set_max_metadata(test_file.path)
             # Delete the album artists
             update_metadata(test_file.path, {UnifiedMetadataKey.ALBUM_ARTISTS: None}, metadata_format=MetadataFormat.ID3V2)
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ALBUM_ARTISTS) is None
