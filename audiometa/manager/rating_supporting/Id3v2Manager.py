@@ -262,7 +262,6 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                          rating_write_profile=RatingWriteProfile.BASE_255_NON_PROPORTIONAL,
                          normalized_rating_max_value=normalized_rating_max_value)
       
-
     def _extract_mutagen_metadata(self) -> MutagenMetadata:
         try:
             id3 = ID3(self.audio_file.get_file_path_or_object(), load_v1=False, translate=False)  # type: ignore[return-value]
