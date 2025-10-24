@@ -375,7 +375,7 @@ class MetadataManager:
             raise MetadataNotSupportedError(f'{unified_metadata_key} metadata not supported by this format')
         
         if self.raw_clean_metadata_uppercase_keys is None:
-            self.raw_clean_metadata_uppercase_keys = self._extract_raw_clean_metadata_uppercase_keys_from_file()
+            self._extract_raw_clean_metadata_uppercase_keys_from_file()
 
         raw_metadata_key = self.metadata_keys_direct_map_read[unified_metadata_key]
         if not raw_metadata_key:
