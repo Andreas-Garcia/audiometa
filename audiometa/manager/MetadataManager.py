@@ -425,14 +425,7 @@ class MetadataManager:
         Returns:
             Dictionary containing header information
         """
-        return {
-            'present': False,
-            'version': None,
-            'size_bytes': 0,
-            'position': None,
-            'flags': {},
-            'extended_header': {}
-        }
+        raise NotImplementedError()
 
     def get_raw_metadata_info(self) -> dict:
         """
@@ -441,13 +434,7 @@ class MetadataManager:
         Returns:
             Dictionary containing raw metadata details
         """
-        return {
-            'raw_data': None,
-            'parsed_fields': {},
-            'frames': {},
-            'comments': {},
-            'chunk_structure': {}
-        }
+        raise NotImplementedError()
 
     def update_metadata(self, unified_metadata: UnifiedMetadata):
         if not self.metadata_keys_direct_map_write:
