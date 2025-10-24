@@ -182,8 +182,12 @@ class Id3v1Manager(MetadataManager):
         elif raw_metadata_key == Id3v1RawMetadataKey.ARTISTS_NAMES_STR:
             # Convert list to string using smart separator logic and truncate
             if isinstance(app_metadata_value, list):
-                separator = self.find_safe_separator(app_metadata_value)
-                artists_str = separator.join(app_metadata_value)
+                if app_metadata_value:
+                    separator = self.find_safe_separator(app_metadata_value)
+                    artists_str = separator.join(app_metadata_value)
+                else:
+                    # If no valid values, set to empty string
+                    artists_str = ""
             else:
                 artists_str = str(app_metadata_value)
             value = self._truncate_string(artists_str, 30)
