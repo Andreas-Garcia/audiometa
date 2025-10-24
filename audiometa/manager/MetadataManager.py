@@ -363,9 +363,6 @@ class MetadataManager:
         return genre_entry if genre_entry else None
 
     def get_unified_metadata(self) -> UnifiedMetadata:
-        if self.raw_clean_metadata_uppercase_keys is None:
-            self.raw_clean_metadata_uppercase_keys = self._extract_raw_clean_metadata_uppercase_keys_from_file()
-
         unified_metadata = {}
         for metadata_key in self.metadata_keys_direct_map_read:
             app_metadata_value = self.get_unified_metadata_field(metadata_key)
