@@ -5,6 +5,7 @@ from audiometa import get_unified_metadata_field, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
 
 
 @pytest.mark.integration
@@ -22,8 +23,9 @@ class TestLanguageWriting:
             test_language = "fr"
             test_metadata = {UnifiedMetadataKey.LANGUAGE: test_language}
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
-            language = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LANGUAGE)
-            assert language == test_language
+            
+            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
+            assert "Language                        : fr" in raw_metadata
 
     def test_vorbis(self):
         with TempFileWithMetadata({}, "flac") as test_file:
