@@ -10,33 +10,24 @@ from audiometa.test.helpers.riff.riff_metadata_setter import RIFFMetadataSetter
 class TestMultipleValuesRiff:
 	def test_artists_concatenation(self):
 		initial_metadata = {"title": "Test Song"}
-		with TempFileWithMetadata(initial_metadata, "wav") as test_file:
+		with TempFileWithMetadata(initial_metadata, "wav") as test_file:  
+       
 			metadata = {UnifiedMetadataKey.ARTISTS: ["Artist 1", "Artist 2", "Artist 3"]}
-
 			update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
-
-			# Use helper to check the created RIFF frames directly
-			verification = RIFFMetadataGetter.get_raw_metadata(test_file.path, "IART")
-			# Check that all artists appear in the raw output
-			raw_output = verification['raw_output']
-			assert "Artist 1" in raw_output
-			assert "Artist 2" in raw_output
-			assert "Artist 3" in raw_output
+   
+			raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
+			assert "Artist                          : Artist 1" in raw_metadata
+			assert "Artist                          : Artist 2" in raw_metadata
+			assert "Artist                          : Artist 3" in raw_metadata
 
 	def test_with_existing_artists_field(self):
-		# Start with an existing artist field
-		initial_metadata = {"artist": "Existing Artist"}
-		with TempFileWithMetadata(initial_metadata, "wav") as test_file:
-			# create an existing value using setter
-			RIFFMetadataSetter.set_artist(test_file.path, "Existing 1; Existing 2")
-			verification = RIFFMetadataGetter.get_raw_metadata(test_file.path, "IART")
-			assert "Existing 1" in verification['raw_output']
-			assert "Existing 2" in verification['raw_output']
-
+		with TempFileWithMetadata({}, "wav") as test_file:
+			RIFFMetadataSetter.set_artists(test_file.path, ["Existing 1; Existing 2"], in_separate_frames=False)
+			raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
+			assert "Existing 1;Existing 2" in raw_metadata
+   
 			metadata = {UnifiedMetadataKey.ARTISTS: ["Existing 1", "New 2"]}
 			update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.RIFF)
 
-			verification = RIFFMetadataGetter.get_raw_metadata(test_file.path, "IART")
-			raw_output = verification['raw_output']
-			assert "Existing 1" in raw_output
-			assert "New 2" in raw_output
+			raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
+			assert "Existing 1//New 2" in raw_metadata
