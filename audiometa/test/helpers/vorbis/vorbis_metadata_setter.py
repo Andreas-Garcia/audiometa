@@ -116,12 +116,17 @@ class VorbisMetadataSetter:
         audio = FLAC(str(file_path))
         key = 'artist' if key_lower_case else 'ARTIST'
         if removing_existing:
-            audio.pop(key, None)
+            existing = []
+        else:
+            existing = audio.get(key, [])
+            if isinstance(existing, str):
+                existing = [existing]
         if in_single_entry:
             value = '\x00'.join(artists)
-            audio[key] = value
+            existing.append(value)
         else:
-            audio[key] = artists
+            existing.extend(artists)
+        audio[key] = existing
         audio.save()
 
     @staticmethod
