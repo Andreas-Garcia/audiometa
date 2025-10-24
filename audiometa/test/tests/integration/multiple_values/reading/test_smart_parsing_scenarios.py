@@ -106,7 +106,7 @@ class TestSmartParsingScenarios:
         """Scenario 2: Legacy data in modern format - single entry gets parsed (Vorbis)"""
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # Set single artist entry with semicolons (legacy data in modern format)
-            VorbisMetadataSetter.set_artists(test_file.path, ["Artist One;Artist Two;Artist Three"], in_separate_frames=False)
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist One;Artist Two;Artist Three"])
             raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
             assert "ARTIST=Artist One;Artist Two;Artist Three" in raw_metadata
             
