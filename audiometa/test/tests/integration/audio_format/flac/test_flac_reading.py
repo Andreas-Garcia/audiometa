@@ -37,7 +37,7 @@ class TestFlacReading:
             title = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             assert title == "ID3v2.4 Long Title That Exceeds ID3v1 Limits"
 
-    def test_id3v1_metadata_reading_flac(self, metadata_id3v1_small_flac):
+    def test_id3v1_metadata_reading_flac(self):
         with TempFileWithMetadata({}, "flac") as test_file:
             ID3v1MetadataSetter.set_title(test_file.path, 'a' * 30)
             assert ID3v1MetadataGetter.get_title(test_file.path) == 'a' * 30
