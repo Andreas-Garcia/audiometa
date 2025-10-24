@@ -359,12 +359,12 @@ class MetadataManager:
 
         unified_metadata = {}
         for metadata_key in self.metadata_keys_direct_map_read:
-            app_metadata_value = self.get_specific_metadata(metadata_key)
+            app_metadata_value = self.get_unified_metadata_field(metadata_key)
             if app_metadata_value is not None:
                 unified_metadata[metadata_key] = app_metadata_value
         return unified_metadata
 
-    def get_specific_metadata(self, unified_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
+    def get_unified_metadata_field(self, unified_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
         if self.raw_clean_metadata is None:
             self.raw_clean_metadata = self._get_cleaned_raw_metadata_from_file()
 

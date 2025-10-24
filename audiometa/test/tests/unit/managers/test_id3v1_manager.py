@@ -38,7 +38,7 @@ class TestId3v1Manager:
         audio_file = AudioFile(sample_mp3_file)
         manager = Id3v1Manager(audio_file)
         
-        title = manager.get_specific_metadata(UnifiedMetadataKey.TITLE)
+        title = manager.get_unified_metadata_field(UnifiedMetadataKey.TITLE)
         assert title is None or isinstance(title, str)
 
     def test_id3v1_manager_write_support(self):
