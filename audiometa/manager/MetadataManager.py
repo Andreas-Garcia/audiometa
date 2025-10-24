@@ -12,7 +12,8 @@ from ..utils.types import UnifiedMetadata, AppMetadataValue, RawMetadataDict, Ra
 
 
 # Separators in order of priority for multi-value metadata fields
-METADATA_MULTI_VALUE_SEPARATORS_PRIORITIZED = ("\x00", "//", "\\\\", "\\", ";", "/", ",")
+# Note: null bytes (\x00) are only used in ID3v2.4, not included in generic priority list
+METADATA_MULTI_VALUE_SEPARATORS_PRIORITIZED = ("//", "\\\\", "\\", ";", "/", ",")
 
 
 T = TypeVar('T', str, int)
