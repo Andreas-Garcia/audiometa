@@ -87,7 +87,7 @@ class TestSmartParsingScenarios:
             
             # Read metadata
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
-            assert artists == ["Artist One;Artist Two;Artist Three"]
+            assert artists == ["Artist One", "Artist Two", "Artist Three"]
 
     def test_scenario_2_single_entry_parsed_id3v2_4(self):
         """Scenario 2: Legacy data in modern format - single entry gets parsed (ID3v2.4)"""
