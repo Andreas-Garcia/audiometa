@@ -3,12 +3,13 @@ import pytest
 from audiometa import get_unified_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.vorbis import VorbisMetadataSetter
 
 
 class TestMultipleValuesEdgeCases:
     def test_numeric_entries(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            test_file.set_vorbis_multiple_artists(["Artist 1", "Artist 2", "123"])
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist 1", "Artist 2", "123"])
             
             unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
@@ -21,7 +22,7 @@ class TestMultipleValuesEdgeCases:
 
     def test_case_sensitivity_preservation(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            test_file.set_vorbis_multiple_artists([
+            VorbisMetadataSetter.set_artists(test_file.path, [
                 "Artist One",
                 "ARTIST TWO", 
                 "artist three",
@@ -40,7 +41,7 @@ class TestMultipleValuesEdgeCases:
 
     def test_duplicate_entries_preservation(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            test_file.set_vorbis_multiple_artists([
+            VorbisMetadataSetter.set_artists(test_file.path, [
                 "Artist One",
                 "Artist Two", 
                 "Artist One",  # Duplicate
@@ -59,7 +60,7 @@ class TestMultipleValuesEdgeCases:
 
     def test_order_preservation(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            test_file.set_vorbis_multiple_artists([
+            VorbisMetadataSetter.set_artists(test_file.path, [
                 "First Artist",
                 "Second Artist",
                 "Third Artist",
@@ -79,7 +80,7 @@ class TestMultipleValuesEdgeCases:
     def test_very_long_single_entry(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             long_artist = "A" * 10000  # 10,000 character artist name
-            test_file.set_vorbis_multiple_artists([long_artist])
+            VorbisMetadataSetter.set_artists(test_file.path, [long_artist])
             
             unified_metadata = get_unified_metadata(test_file.path)
             artists = unified_metadata.get(UnifiedMetadataKey.ARTISTS)
@@ -90,8 +91,8 @@ class TestMultipleValuesEdgeCases:
 
     def test_mixed_metadata_types(self):
         with TempFileWithMetadata({"title": "Single Title"}, "flac") as test_file:
-            test_file.set_vorbis_multiple_artists(["Artist One", "Artist Two"])
-            test_file.set_vorbis_multiple_genres(["Rock", "Alternative"])
+            VorbisMetadataSetter.set_artists(test_file.path, ["Artist One", "Artist Two"])
+            VorbisMetadataSetter.set_genres(test_file.path, ["Rock", "Alternative"])
             
             unified_metadata = get_unified_metadata(test_file.path)
             
