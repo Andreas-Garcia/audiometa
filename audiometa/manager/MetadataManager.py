@@ -68,7 +68,7 @@ class MetadataManager:
 
     @abstractmethod
     def _get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
-            self, raw_clean_metadata: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
+            self, raw_clean_metadata_uppercase_keys: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
         raise NotImplementedError()
 
     @abstractmethod
@@ -380,31 +380,31 @@ class MetadataManager:
         raw_metadata_key = self.metadata_keys_direct_map_read[unified_metadata_key]
         if not raw_metadata_key:
             return self._get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
-                raw_clean_metadata=self.raw_clean_metadata, unified_metadata_key=unified_metadata_key)
+                raw_clean_metadata_uppercase_keys=self.raw_clean_metadata_uppercase_keys, unified_metadata_key=unified_metadata_key)
 
-        value = self.raw_clean_metadata.get(raw_metadata_key)
+        value = self.raw_clean_metadata_uppercase_keys.get(raw_metadata_key)
 
         if not value or not len(value):
             return None
         
         # For string types, we need to distinguish between None (not present) and empty string (present but empty)
-        app_metadata_key_optional_type = unified_metadata_key.get_optional_type()
-        if app_metadata_key_optional_type == str and value[0] == "":
+        unified_metadata_key_optional_type = unified_metadata_key.get_optional_type()
+        if unified_metadata_key_optional_type == str and value[0] == "":
             return ""
         
         if not value[0]:
             return None
-        if app_metadata_key_optional_type == int:
+        if unified_metadata_key_optional_type == int:
             # Handle ID3v2 track number format "track/total" (e.g., "99/99")
             if unified_metadata_key == UnifiedMetadataKey.TRACK_NUMBER and "/" in str(value[0]):
                 track_str = str(value[0]).split("/")[0].strip()
                 return int(track_str) if track_str.isdigit() else None
             return int(value[0]) if value else None
-        if app_metadata_key_optional_type == float:
+        if unified_metadata_key_optional_type == float:
             return float(value[0]) if value else None
-        if app_metadata_key_optional_type == str:
+        if unified_metadata_key_optional_type == str:
             return str(value[0]) if value else None
-        if app_metadata_key_optional_type == list[str]:
+        if unified_metadata_key_optional_type == list[str]:
             if not value:
                 return None
             values_list_str = cast(list[str], value)
@@ -422,7 +422,7 @@ class MetadataManager:
                     filtered_values = [val.strip() for val in values_list_str if val.strip()]
                     return filtered_values if filtered_values else None
             return values_list_str
-        raise ValueError(f'Unsupported metadata type: {app_metadata_key_optional_type}')
+        raise ValueError(f'Unsupported metadata type: {unified_metadata_key_optional_type}')
 
     def get_header_info(self) -> dict:
         """
