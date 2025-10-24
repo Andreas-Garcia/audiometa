@@ -423,18 +423,33 @@ class MetadataManager:
         Get header information for this metadata format.
         
         Returns:
-            Dictionary containing header information
+            Dictionary containing header information:
+            {
+                'present': boolean
+                'version': str | None,
+                'size_bytes': int | None,
+                'position': int | None,
+                'flags': dict,
+                'extended_header': dict
+            }
         """
-        raise NotImplementedError()
+        raise NotImplementedError("Not implemented for this format")
 
     def get_raw_metadata_info(self) -> dict:
         """
         Get raw metadata information for this format.
         
         Returns:
-            Dictionary containing raw metadata details
-        """
-        raise NotImplementedError()
+            Dictionary containing raw metadata details:
+            {
+                'raw_data': bytes | None,
+                'parsed_fields': dict,
+                'frames': dict,
+                'comments': dict,
+                'chunk_structure': dict
+            }
+        """        
+        raise NotImplementedError("Not implemented for this format")
 
     def update_metadata(self, unified_metadata: UnifiedMetadata):
         if not self.metadata_keys_direct_map_write:
