@@ -165,7 +165,7 @@ def get_unified_metadata(
     for unified_metadata_key in UnifiedMetadataKey:
         for format_type, manager in managers_by_precedence:
             try:
-                unified_metadata = manager.get_app_metadata()
+                unified_metadata = manager.get_unified_metadata()
                 if unified_metadata_key in unified_metadata:
                     value = unified_metadata[unified_metadata_key]
                     if value is not None:
