@@ -69,8 +69,13 @@ class ID3v2MetadataSetter:
     @staticmethod
     def set_artists(file_path: Path, artists, in_separate_frames: bool = False, version: str = "2.4") -> None:
         if isinstance(artists, str):
-            # For string input, set as single frame with the string value
-            ID3v2MetadataSetter._set_single_frame_with_mid3v2(file_path, "TPE1", [artists], version, separator=None)
+            # For string input, use external tool directly to avoid replacing entire tag
+            if version == "2.3":
+                command = ["id3v2", "--id3v2-only", "--artist", artists, str(file_path)]
+                run_external_tool(command, "id3v2")
+            else:
+                command = ["mid3v2", "--artist", artists, str(file_path)]
+                run_external_tool(command, "mid3v2")
         else:
             # For list input, use multiple values handling
             ID3v2MetadataSetter._set_multiple_metadata_values(file_path, "TPE1", artists, in_separate_frames=in_separate_frames, version=version)
