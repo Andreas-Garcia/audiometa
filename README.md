@@ -1377,6 +1377,17 @@ The library uses a **smart writing strategy** that adapts to format capabilities
 - The library automatically selects the best separator for legacy formats.
 - Writing new values always replaces any previous values for that field.
 
+##### Writing Duplicate Values
+
+When writing duplicate values, the library won't preserve them.
+
+```python
+from audiometa import update_metadata
+
+update_metadata("song.wav", {"artists": ["Artist One", "Artist Two", "Artist One", "Artist Three", "Artist Two"]})
+# Result: "Artist One;Artist Two;Artist Three"
+```
+
 ##### Smart Separator Selection
 
 When writing to legacy formats that require concatenated values, the library uses **intelligent separator selection**. It scans the values to be written and selects a separator that does not appear in any of the values, prioritizing more distinctive separators first:
