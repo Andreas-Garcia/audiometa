@@ -42,12 +42,12 @@ class RatingSupportingMetadataManager(MetadataManager):
         raise NotImplementedError()
 
     def _get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
-            self, raw_clean_metadata: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey) -> AppMetadataValue | None:
+            self, raw_clean_metadata_uppercase_keys: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey) -> AppMetadataValue | None:
         if unified_metadata_key == UnifiedMetadataKey.RATING:
-            return self._get_potentially_normalized_rating_from_raw(raw_clean_metadata)
+            return self._get_potentially_normalized_rating_from_raw(raw_clean_metadata_uppercase_keys)
         else:
             return self._get_undirectly_mapped_metadata_value_other_than_rating_from_raw_clean_metadata(
-                raw_clean_metadata=raw_clean_metadata, unified_metadata_key=unified_metadata_key)
+                raw_clean_metadata=raw_clean_metadata_uppercase_keys, unified_metadata_key=unified_metadata_key)
 
     def _get_potentially_normalized_rating_from_raw(self, raw_clean_metadata: RawMetadataDict) -> int | None:
         file_rating, is_rating_from_traktor = self._get_raw_rating_by_traktor_or_not(raw_clean_metadata)

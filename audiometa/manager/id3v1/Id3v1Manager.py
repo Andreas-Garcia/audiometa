@@ -141,10 +141,10 @@ class Id3v1Manager(MetadataManager):
         return result
 
     def _get_undirectly_mapped_metadata_value_from_raw_clean_metadata(
-            self, raw_clean_metadata: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
+            self, raw_clean_metadata_uppercase_keys: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
         if unified_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
             return self._get_genre_name_from_raw_clean_metadata_id3v1(
-                raw_clean_metadata=raw_clean_metadata, raw_metadata_ket=Id3v1RawMetadataKey.GENRE_CODE_OR_NAME)
+                raw_clean_metadata=raw_clean_metadata_uppercase_keys, raw_metadata_ket=Id3v1RawMetadataKey.GENRE_CODE_OR_NAME)
         raise MetadataNotSupportedError(f'{unified_metadata_key} metadata is not undirectly handled')
 
     def _update_undirectly_mapped_metadata(self, raw_mutagen_metadata: MutagenMetadata,
