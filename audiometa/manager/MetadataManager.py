@@ -216,7 +216,7 @@ class MetadataManager:
             return [genre_name] if genre_name else None
         return None
 
-    def _get_genres_from_raw_clean_metadata(self, raw_clean_metadata: RawMetadataDict, raw_metadata_key: RawMetadataKey) -> AppMetadataValue:
+    def _get_genres_from_raw_clean_metadata_uppercase_keys(self, raw_clean_metadata: RawMetadataDict, raw_metadata_key: RawMetadataKey) -> AppMetadataValue:
         """
         Extract and process genre entries from raw metadata according to the intelligent genre reading logic.
 
@@ -394,6 +394,7 @@ class MetadataManager:
         
         if not value[0]:
             return None
+        
         if unified_metadata_key_optional_type == int:
             # Handle ID3v2 track number format "track/total" (e.g., "99/99")
             if unified_metadata_key == UnifiedMetadataKey.TRACK_NUMBER and "/" in str(value[0]):
@@ -410,7 +411,7 @@ class MetadataManager:
             values_list_str = cast(list[str], value)
             if unified_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
                 # Use specialized genre reading logic
-                return self._get_genres_from_raw_clean_metadata(self.raw_clean_metadata, raw_metadata_key)
+                return self._get_genres_from_raw_clean_metadata_uppercase_keys(self.raw_clean_metadata, raw_metadata_key)
             elif unified_metadata_key.can_semantically_have_multiple_values():
                 # Apply smart parsing logic for semantically multi-value fields
                 if self._should_apply_smart_parsing(values_list_str):

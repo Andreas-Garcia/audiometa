@@ -286,7 +286,7 @@ class RiffManager(RatingSupportingMetadataManager):
             self, unified_metadata_key: UnifiedMetadataKey, raw_clean_metadata: RawMetadataDict) -> AppMetadataValue:
 
         if unified_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
-            return self._get_genres_from_raw_clean_metadata(raw_clean_metadata, self.RiffTagKey.GENRES_NAMES_OR_CODES)
+            return self._get_genres_from_raw_clean_metadata_uppercase_keys(raw_clean_metadata, self.RiffTagKey.GENRES_NAMES_OR_CODES)
         else:
             raise MetadataNotSupportedError(f'Metadata key not handled: {unified_metadata_key}')
 
