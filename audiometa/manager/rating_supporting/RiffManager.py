@@ -37,15 +37,16 @@ class RiffManager(RatingSupportingMetadataManager):
 
     Genre Support:
     The IGNR tag in RIFF files has two modes:
-    1. Genre Code (Preferred): Uses the standard ID3v1/RIFF genre list (0-147)
+    1. Text Mode (Preferred when writing): Direct genre name as text
+       - Supports any genre name
+       - More flexible and readable
+       - Better compatibility with modern software
+       - Supports custom genres
+    2. Genre Code: Uses the standard ID3v1 genre list (0-147)
        - Limited to predefined genres
        - Compatible with older software
        - No custom genres
        - No multiple genres
-    2. Text Mode (Less Common): Direct genre name as text
-       - Less widely supported
-       - May not work with all software
-       - Use genre codes for better compatibility
 
     Unsupported Metadata:
     RIFF format has limited metadata support compared to other formats. The following metadata fields are NOT supported
@@ -500,7 +501,8 @@ class RiffManager(RatingSupportingMetadataManager):
             value = value[0] if value else ""
 
         if app_key == UnifiedMetadataKey.GENRES_NAMES:
-            value = self._get_genre_code_from_name(str(value))
+            # Write genre as text instead of numeric code for better compatibility
+            value = str(value)
         elif app_key == UnifiedMetadataKey.RATING:
             # Convert normalized rating to file rating for RIFF format
             if value is not None and self.normalized_rating_max_value is not None:
