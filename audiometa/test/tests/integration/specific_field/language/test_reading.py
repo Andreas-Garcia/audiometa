@@ -3,11 +3,13 @@
 import pytest
 
 from audiometa import get_unified_metadata_field
+from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.id3v1 import ID3v1MetadataSetter
 from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
 from audiometa.test.helpers.vorbis import VorbisMetadataSetter
+from audiometa.test.helpers.riff import RIFFMetadataSetter
 
 
 @pytest.mark.integration
@@ -32,5 +34,8 @@ class TestLanguageReading:
 
     def test_riff(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
+            RIFFMetadataSetter.set_language(test_file.path, "en")
+            assert "Language                        : en" in RIFFMetadataGetter.get_raw_metadata(test_file.path)
+            
             language = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LANGUAGE)
-            assert language is None
+            assert language == "en"
