@@ -161,14 +161,10 @@ class RIFFMetadataSetter:
     @staticmethod
     def set_multiple_album_artists(file_path: Path, album_artists: List[str], in_separate_frames: bool = False):
         """Set multiple album artists, optionally in separate IAAR frames."""
-        if in_separate_frames:
-            from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
-            ManualRIFFMetadataCreator.create_multiple_album_artist_fields(file_path, album_artists)
-        else:
-            if album_artists:
-                concatenated_album_artists = "; ".join(album_artists)
-                command = ["bwfmetaedit", f"--IAAR={concatenated_album_artists}", str(file_path)]
-                run_external_tool(command, "bwfmetaedit")
+        # IAAR is not a standard RIFF INFO chunk field, so external tools don't support it.
+        # Use the manual metadata creator which can create non-standard RIFF fields.
+        from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
+        ManualRIFFMetadataCreator.create_multiple_album_artist_fields(file_path, album_artists)
     
     @staticmethod
     def set_multiple_comments(file_path: Path, comments: List[str], in_separate_frames: bool = False):
