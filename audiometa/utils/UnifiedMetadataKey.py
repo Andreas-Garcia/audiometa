@@ -18,6 +18,7 @@ class UnifiedMetadataKey(str, Enum):
     COPYRIGHT = 'copyright'
     UNSYNCHRONIZED_LYRICS = 'unsynchronized_lyrics'
     COMMENT = 'comment'
+    REPLAYGAIN = 'replaygain'
 
     def can_semantically_have_multiple_values(self) -> bool:
         # Fields that can contain multiple values (lists) - only semantically meaningful ones
@@ -50,6 +51,7 @@ class UnifiedMetadataKey(str, Enum):
             UnifiedMetadataKey.COPYRIGHT: str,
             UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: str,
             UnifiedMetadataKey.COMMENT: str,
+            UnifiedMetadataKey.REPLAYGAIN: str,
         }
         type = APP_METADATA_KEYS_OPTIONAL_TYPES_MAP.get(self)
         if not type:
