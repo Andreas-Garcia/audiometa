@@ -57,9 +57,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
       - [Available Strategies](#available-strategies)
       - [Usage Examples](#usage-examples)
       - [Default Behavior](#default-behavior)
-      - [Metadata Strategy Options](#metadata-strategy-options)
       - [Forced Format Behavior](#forced-format-behavior)
-      - [Strategy Benefits](#strategy-benefits)
   - [Writing Defaults by Audio Format](#writing-defaults-by-audio-format)
   - [Deleting Metadata (API Reference)](#deleting-metadata-api-reference)
     - [`delete_all_metadata(file_path, metadata_format=None)`](#delete_all_metadatafile_path-metadata_formatnone)
@@ -970,16 +968,6 @@ By default, the library uses the **SYNC strategy** which writes metadata to the 
 - **MP3 files**: Writes to ID3v2 and syncs other formats
 - **FLAC files**: Writes to Vorbis comments and syncs other formats
 - **WAV files**: Writes to RIFF and syncs other formats
-
-#### Metadata Strategy Options
-
-You can control metadata writing behavior using the `metadata_strategy` parameter:
-
-**Available Strategies:**
-
-1. **`SYNC` (Default)**: Write to native format and synchronize other metadata formats that are already present. Handles unsupported fields gracefully with warnings.
-2. **`PRESERVE`**: Write to native format only, preserve existing metadata in other formats. Handles unsupported fields gracefully with warnings.
-3. **`CLEANUP`**: Write to native format and remove all non-native metadata formats. Handles unsupported fields gracefully with warnings.
 
 #### Forced Format Behavior
 
