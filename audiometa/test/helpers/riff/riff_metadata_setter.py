@@ -76,8 +76,9 @@ class RIFFMetadataSetter:
             RIFFMetadataSetter.set_riff_genre(file_path, genre_text)
         except ExternalMetadataToolError:
             try:
-                # Fallback to bwfmetaedit
-                RIFFMetadataSetter.set_genres(file_path, genre_text)
+                # Fallback to bwfmetaedit - split genre_text by semicolon and strip whitespace
+                genres = [genre.strip() for genre in genre_text.split(';') if genre.strip()]
+                RIFFMetadataSetter.set_genres(file_path, genres)
             except ExternalMetadataToolError as e:
                 raise RuntimeError(f"Failed to set RIFF genre: {e}") from e
     
