@@ -88,8 +88,12 @@ class RIFFMetadataSetter:
     
     @staticmethod
     def set_language(file_path: Path, language: str) -> None:
-        command = ["bwfmetaedit", f"--ILNG={language}", str(file_path)]
-        run_external_tool(command, "bwfmetaedit")
+        command = [
+            "ffmpeg", "-i", str(file_path), "-c", "copy",
+            "-metadata", f"language={language}",
+            "-y", file_path
+        ]
+        run_external_tool(command, "ffmpeg")
     
     @staticmethod
     def set_max_metadata(file_path: Path) -> None:
