@@ -1990,14 +1990,9 @@ ID3v1 does not support unsynchronized lyrics due to its limited structure.
 
 ID3v2 supports unsynchronized lyrics through the `USLT` (Unsynchronized Lyrics/Text transcription) frame. Multiple `USLT` frames can be used to store lyrics in different languages or formats within the same file.
 
-This is done by specifying different language codes in each `USLT` frame:
+The library does not currently support language codes or multiple lyrics entries and will write only a single `USLT` frame with default language code `eng`.
 
-```
-USLT[eng][lyrics]: Primary lyrics in English
-USLT[spa][translation]: Spanish translation of lyrics
-USLT[jpn][transliteration]: Romanized Japanese lyrics
-USLT[xxx][instrumental]: Lyrics placeholder for instrumental tracks
-```
+TODO: Implement full multi-language support in future versions.
 
 ##### RIFF Unsynchronized Lyrics
 
