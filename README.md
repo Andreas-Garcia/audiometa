@@ -1250,7 +1250,7 @@ The library supports a comprehensive set of metadata fields across different aud
 | Recording Date      | ✗            | TDRC (10)                  | RECORDINGDATE (10)             | ✗               |                   |
 | File Size           | ✗            | TSIZ (16#)                 | FILESIZE                       | ✗               |                   |
 | Encoder Settings    | ✗            | TSSE                       | ENCODERSETTINGS                | ✗               |                   |
-| ReplayGain          | ✗            | RVA2 (8#)                  | REPLAYGAIN\_\* (8#)            | ✗               |                   |
+| ReplayGain          | ✗            | TXXX (REPLAYGAIN)          | REPLAYGAIN                     | ✗               | ✓                 |
 | MusicBrainz ID      | ✗            | TXXX (36)                  | MUSICBRAINZ\_\* (36)           | ✗               |                   |
 | Arranger            | ✗            | TPE2                       | ARRANGER                       | ✗               |                   |
 | Version             | ✗            | TIT3                       | VERSION                        | ✗               |                   |
