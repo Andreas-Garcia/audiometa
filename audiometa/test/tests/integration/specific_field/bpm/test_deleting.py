@@ -27,18 +27,16 @@ class TestBpmDeleting:
                 update_metadata(test_file.path, {UnifiedMetadataKey.BPM: None}, metadata_format=MetadataFormat.ID3V1)
 
     def test_delete_bpm_riff(self):
-        with TempFileWithMetadata({'BPM': 120}, "wav") as test_file:
-            from audiometa.test.helpers.riff.riff_metadata_setter import RIFFMetadataSetter
-            
-            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM) == 120
+        with TempFileWithMetadata({'bpm': 120}, "wav") as test_file:         
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM, metadata_format=MetadataFormat.RIFF) == 120
         
             update_metadata(test_file.path, {UnifiedMetadataKey.BPM: None}, metadata_format=MetadataFormat.RIFF)
-            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM) is None
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM, metadata_format=MetadataFormat.RIFF) is None
 
     def test_delete_bpm_vorbis(self):
         with TempFileWithMetadata({}, "flac") as test_file:
             VorbisMetadataSetter.set_bpm(test_file.path, 120)
-            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM) == 120
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM, metadata_format=MetadataFormat.VORBIS) == 120
         
             update_metadata(test_file.path, {UnifiedMetadataKey.BPM: None}, metadata_format=MetadataFormat.VORBIS)
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM) is None

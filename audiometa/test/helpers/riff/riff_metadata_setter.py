@@ -21,7 +21,13 @@ class RIFFMetadataSetter:
             'genre': '--IGNR',
             'date': '--ICRD',
             'comment': '--ICMT',
-            'track': '--ITRK'
+            'track': '--ITRK',
+            'bpm': '--TBPM',
+            'composer': '--ICMP',
+            'lyrics': '--ILYT',
+            'language': '--ILNG',
+            'album_artist': '--IAAR',
+            'rating': '--IRTD'
         }
         
         for key, value in metadata.items():
