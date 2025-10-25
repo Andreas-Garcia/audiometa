@@ -22,6 +22,15 @@ class FileTypeNotSupportedError(Exception):
     pass
 
 
+class ConfigurationError(Exception):
+    """Raised when there is a configuration error in the metadata manager.
+    
+    This error indicates that the metadata manager was not properly configured
+    or initialized with the required parameters.
+    """
+    pass
+
+
 class MetadataNotSupportedByFormatError(Exception):
     """Raised when attempting to read or write metadata not supported by the format.
 
@@ -33,6 +42,20 @@ class MetadataNotSupportedByFormatError(Exception):
         - Trying to read/write BPM to ID3v1
         - Trying to read/write album artist to ID3v1
     """
+    pass
+
+
+class FieldNotSupportedByLib(Exception):
+    """Raised when attempting to read or write a metadata field that is not supported by the library at all.
+
+    This error indicates that the requested metadata field is not implemented or supported
+    by any format in the library, regardless of the audio file format.
+
+    Examples:
+        - Trying to read/write a custom field that doesn't exist in UnifiedMetadataKey
+        - Trying to read/write a field that is not implemented in any metadata manager
+    """
+    pass
 class MetadataWritingConflictParametersError(Exception):
     """Raised when conflicting metadata writing parameters are specified.
     
