@@ -36,7 +36,18 @@ class ID3v2MetadataSetter:
             'comment': '--comment',
             'track': '--track',
             'bpm': '--TBPM',
-            'composer': '--TCOM'
+            'composer': '--TCOM',
+            'copyright': '--TCOP',
+            'lyrics': '--USLT',
+            'language': '--TLAN',
+            'rating': '--POPM',
+            'album_artist': '--TPE2',
+            'genre': '--TCON',
+            'encoder': '--TENC',
+            'url': '--WOAR',
+            'isrc': '--TSRC',
+            'mood': '--TMOO',
+            'key': '--TKEY',
         }
         
         for key, value in metadata.items():
