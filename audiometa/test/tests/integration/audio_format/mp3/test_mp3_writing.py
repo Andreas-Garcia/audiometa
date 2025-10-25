@@ -1,4 +1,5 @@
 import pytest
+
 from audiometa import get_unified_metadata, update_metadata
 from audiometa.exceptions import MetadataFormatNotSupportedByAudioFormatError
 from audiometa.utils.MetadataFormat import MetadataFormat
