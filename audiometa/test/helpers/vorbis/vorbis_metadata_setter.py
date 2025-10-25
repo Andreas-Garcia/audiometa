@@ -47,7 +47,7 @@ class VorbisMetadataSetter:
             'bpm': 'BPM',
             'composer': 'COMPOSER',
             'copyright': 'COPYRIGHT',
-            'lyrics': 'UNSYNCHRONIZED_LYRICS',
+            'lyrics': 'LYRICS',
             'language': 'LANGUAGE',
             'rating': 'RATING',
             'album_artist': 'ALBUMARTIST',
@@ -95,7 +95,7 @@ class VorbisMetadataSetter:
     
     @staticmethod
     def set_lyrics(file_path: Path, lyrics: str) -> None:
-        command = ["metaflac", "--set-tag", f"UNSYNCHRONIZED_LYRICS={lyrics}", str(file_path)]
+        command = ["metaflac", "--set-tag", f"LYRICS={lyrics}", str(file_path)]
         run_external_tool(command, "metaflac")
     
     @staticmethod
