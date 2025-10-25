@@ -94,9 +94,24 @@ class ID3v2MetadataGetter:
                     if frame_data and len(frame_data) > 1:
                         encoding = frame_data[0]
                         text_data = frame_data[1:]
-                        # Decode the entire text data first
+                        # Decode the entire text_data first
                         decoded_text = ID3v2MetadataGetter._decode_text(encoding, text_data).rstrip('\x00')
-                        text = decoded_text
+                        if frame_id_str == 'USLT':
+                            # Parse USLT: language (3 bytes) + descriptor (null-terminated) + lyrics (null-terminated)
+                            text_data_bytes = text_data
+                            if len(text_data_bytes) > 3:
+                                language = text_data_bytes[:3].decode('ascii', errors='ignore')
+                                pos = 3  # after language
+                                while pos < len(text_data_bytes) and text_data_bytes[pos] != 0:
+                                    pos += 1
+                                pos += 1  # skip null
+                                lyrics_bytes = text_data_bytes[pos:].rstrip(b'\x00')
+                                lyrics = ID3v2MetadataGetter._decode_text(encoding, lyrics_bytes)
+                                text = f"{language}:{lyrics}"
+                            else:
+                                text = decoded_text
+                        else:
+                            text = decoded_text
                         if frame_id_str not in metadata:
                             metadata[frame_id_str] = []
                         metadata[frame_id_str].append(text)
