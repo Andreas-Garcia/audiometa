@@ -108,24 +108,16 @@ class ID3v2MetadataGetter:
 
                     pos += 10 + frame_size
 
-                lines = []
-                for k, v in metadata.items():
-                    if isinstance(v, list):
-                        for val in v:
-                            lines.append(f"{k}={val}")
-                    else:
-                        lines.append(f"{k}={v}")
-                return '\n'.join(lines)
+                return metadata
         except Exception as e:
             return f"Error parsing ID3v2: {str(e)}"
 
     @staticmethod
     def get_artists(file_path, version=None):
-        metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
-        if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
+        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
+        if not isinstance(metadata, dict) or not metadata:
             return None
-        lines = metadata_str.split('\n')
-        tpe1_values = [line.split('=', 1)[1] for line in lines if line.startswith('TPE1=')]
+        tpe1_values = metadata.get('TPE1', [])
         return tpe1_values[0] if tpe1_values else None    @staticmethod
 
     @staticmethod
@@ -133,10 +125,9 @@ class ID3v2MetadataGetter:
         try:
             versions_to_try = [version] if version else ['2.3', '2.4']
             for v in versions_to_try:
-                metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, v)
-                if isinstance(metadata_str, str) and not metadata_str.startswith("No") and not metadata_str.startswith("Error") and not metadata_str.startswith("Incomplete"):
-                    lines = metadata_str.split('\n')
-                    tit2_values = [line.split('=', 1)[1] for line in lines if line.startswith('TIT2=')]
+                metadata = ID3v2MetadataGetter.get_raw_metadata(file_path, v)
+                if isinstance(metadata, dict) and metadata:
+                    tit2_values = metadata.get('TIT2', [])
                     if tit2_values:
                         return tit2_values[0]
             return None
@@ -145,46 +136,41 @@ class ID3v2MetadataGetter:
 
     @staticmethod
     def get_album(file_path, version=None):
-        metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
-        if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
+        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
+        if not isinstance(metadata, dict) or not metadata:
             return None
-        lines = metadata_str.split('\n')
-        talb_values = [line.split('=', 1)[1] for line in lines if line.startswith('TALB=')]
+        talb_values = metadata.get('TALB', [])
         return talb_values[0] if talb_values else None
 
     @staticmethod
     def get_year(file_path, version=None):
-        metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
-        if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
+        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
+        if not isinstance(metadata, dict) or not metadata:
             return None
-        lines = metadata_str.split('\n')
-        tyer_values = [line.split('=', 1)[1] for line in lines if line.startswith('TYER=')]
-        tdrc_values = [line.split('=', 1)[1] for line in lines if line.startswith('TDRC=')]
+        tyer_values = metadata.get('TYER', [])
+        tdrc_values = metadata.get('TDRC', [])
         return (tyer_values + tdrc_values)[0] if tyer_values or tdrc_values else None
 
     @staticmethod
     def get_genres(file_path, version=None):
-        metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
-        if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
+        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
+        if not isinstance(metadata, dict) or not metadata:
             return None
-        lines = metadata_str.split('\n')
-        tcon_values = [line.split('=', 1)[1] for line in lines if line.startswith('TCON=')]
+        tcon_values = metadata.get('TCON', [])
         return tcon_values[0] if tcon_values else None
 
     @staticmethod
     def get_comment(file_path, version=None):
-        metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
-        if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
+        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
+        if not isinstance(metadata, dict) or not metadata:
             return None
-        lines = metadata_str.split('\n')
-        comm_values = [line.split('=', 1)[1] for line in lines if line.startswith('COMM=')]
+        comm_values = metadata.get('COMM', [])
         return comm_values[0] if comm_values else None
 
     @staticmethod
     def get_track(file_path, version=None):
-        metadata_str = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
-        if not isinstance(metadata_str, str) or metadata_str.startswith("No") or metadata_str.startswith("Error") or metadata_str.startswith("Incomplete"):
+        metadata = ID3v2MetadataGetter.get_raw_metadata(file_path, version)
+        if not isinstance(metadata, dict) or not metadata:
             return None
-        lines = metadata_str.split('\n')
-        trck_values = [line.split('=', 1)[1] for line in lines if line.startswith('TRCK=')]
+        trck_values = metadata.get('TRCK', [])
         return trck_values[0] if trck_values else None
