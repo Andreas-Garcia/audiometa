@@ -16,7 +16,7 @@ class TestRiffGenreParsing:
             
             genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
-            assert genres == ["17", "20", "131"]
+            assert genres == ["Rock", "Alternative", "Indie"]
 
     def test_riff_genre_mixed_codes_and_names(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
