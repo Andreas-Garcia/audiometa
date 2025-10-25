@@ -17,20 +17,20 @@ class TestFailBehavior:
         with TempFileWithMetadata({"title": "Test"}, "wav") as test_file:
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "Test Title",
-                UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # REPLAYGAIN is not supported by any format
+                UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # REPLAYGAIN is not supported by RIFF format
             }
             
             with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError) as exc_info:
                 update_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
             
-            assert "Fields not supported by any format" in str(exc_info.value)
+            assert "Fields not supported by riff format" in str(exc_info.value)
             assert "REPLAYGAIN" in str(exc_info.value)
 
     def test_fail_on_unsupported_field_disabled_graceful_default(self):
         with TempFileWithMetadata({"title": "Test"}, "wav") as test_file:
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "Test Title",
-                UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # REPLAYGAIN is not supported by any format
+                UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # REPLAYGAIN is not supported by RIFF format
             }
             
             with warnings.catch_warnings(record=True) as w:
