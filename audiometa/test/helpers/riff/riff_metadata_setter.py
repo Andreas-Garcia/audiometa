@@ -88,12 +88,20 @@ class RIFFMetadataSetter:
     
     @staticmethod
     def set_language(file_path: Path, language: str) -> None:
-        command = [
-            "ffmpeg", "-i", str(file_path), "-c", "copy",
-            "-metadata", f"language={language}",
-            "-y", file_path
-        ]
-        run_external_tool(command, "ffmpeg")
+        import tempfile
+        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as tmp_file:
+            tmp_path = Path(tmp_file.name)
+        try:
+            command = [
+                "ffmpeg", "-i", str(file_path), "-c", "copy",
+                "-metadata", f"language={language}",
+                "-y", str(tmp_path)
+            ]
+            run_external_tool(command, "ffmpeg")
+            tmp_path.replace(file_path)
+        finally:
+            if tmp_path.exists():
+                tmp_path.unlink()
     
     @staticmethod
     def set_max_metadata(file_path: Path) -> None:
