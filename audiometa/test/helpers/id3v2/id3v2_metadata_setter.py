@@ -34,7 +34,8 @@ class ID3v2MetadataSetter:
             'year': '--year',
             'genre': '--genre',
             'comment': '--comment',
-            'track': '--track'
+            'track': '--track',
+            'bpm': '--TBPM'
         }
         
         for key, value in metadata.items():
