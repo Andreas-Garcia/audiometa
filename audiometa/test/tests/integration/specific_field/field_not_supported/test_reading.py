@@ -9,7 +9,7 @@ from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
 @pytest.mark.integration
-class TestCopyrightReading:
+class TestFieldNotSupportedReading:
     def test_id3v1(self):
         with TempFileWithMetadata({"title": "Test Song"}, "id3v1") as test_file:
             with pytest.raises(MetadataFieldNotSupportedByLib, match="FIELD_NOT_SUPPORTED metadata not supported by the library."):
