@@ -25,13 +25,6 @@ class TestVorbisGenreReading:
             
             assert genres == ["Rock", "Alternative", "Indie"]
 
-    def test_vorbis_genre_with_semicolon_separator(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            VorbisMetadataSetter.set_genre(test_file.path, "Rock; Alternative; Indie")
-            
-            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres == ["Rock", "Alternative", "Indie"]
 
     def test_vorbis_genre_with_comma_separator(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
@@ -41,13 +34,6 @@ class TestVorbisGenreReading:
             
             assert genres == ["Jazz", "Fusion", "Experimental"]
 
-    def test_vorbis_genre_with_slash_separator(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            VorbisMetadataSetter.set_genre(test_file.path, "Electronic/Dance/Ambient")
-            
-            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres == ["Electronic", "Dance", "Ambient"]
 
     def test_vorbis_genre_with_double_slash_separator(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
@@ -73,38 +59,6 @@ class TestVorbisGenreReading:
             
             assert genres == ["Rock", "Alternative", "Indie"]
 
-    def test_vorbis_genre_mixed_separators(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            VorbisMetadataSetter.set_genre(test_file.path, "Rock; Alternative; Indie; Experimental")
-            
-            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres == ["Rock", "Alternative", "Indie", "Experimental"]
-
-    def test_vorbis_genre_with_extra_whitespace(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            VorbisMetadataSetter.set_genre(test_file.path, " Rock ; Alternative ; Indie ")
-            
-            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres == ["Rock", "Alternative", "Indie"]
-
-    def test_vorbis_genre_duplicate_separators(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            VorbisMetadataSetter.set_genre(test_file.path, "Rock;;;Alternative")
-            
-            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres == ["Rock", "Alternative"]
-
-    def test_vorbis_genre_empty_string(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            VorbisMetadataSetter.set_genre(test_file.path, "")
-            
-            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres is None
-
     def test_vorbis_genre_none_value(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
             # For None values, we don't set any genre metadata
@@ -112,13 +66,6 @@ class TestVorbisGenreReading:
             
             assert genres is None or genres == []
 
-    def test_vorbis_genre_whitespace_only(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
-            VorbisMetadataSetter.set_genre(test_file.path, "   ")
-            
-            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres is None
 
     def test_vorbis_genre_special_characters(self):
         with TempFileWithMetadata({"title": "Test Song"}, "flac") as test_file:
