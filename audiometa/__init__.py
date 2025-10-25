@@ -39,7 +39,7 @@ FILE_TYPE = AudioFile | str
 
 
 def _get_metadata_manager(
-        file: FILE_TYPE, tag_format: MetadataFormat | None = None, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None
+        file: FILE_TYPE, metadata_format: MetadataFormat | None = None, normalized_rating_max_value: int | None = None, id3v2_version: tuple[int, int, int] | None = None
 ) -> MetadataManager:
     if not isinstance(file, AudioFile):
         file = AudioFile(file)
@@ -48,14 +48,14 @@ def _get_metadata_manager(
     if not audio_file_prioritized_tag_formats:
         raise FileTypeNotSupportedError(FILE_EXTENSION_NOT_HANDLED_MESSAGE)
 
-    if not tag_format:
-        tag_format = audio_file_prioritized_tag_formats[0]
+    if not metadata_format:
+        metadata_format = audio_file_prioritized_tag_formats[0]
     else:
-        if tag_format not in audio_file_prioritized_tag_formats:
+        if metadata_format not in audio_file_prioritized_tag_formats:
             raise MetadataFormatNotSupportedByAudioFormatError(
-                f"Tag format {tag_format} not supported for file extension {file.file_extension}")
+                f"Tag format {metadata_format} not supported for file extension {file.file_extension}")
 
-    manager_class = TAG_FORMAT_MANAGER_CLASS_MAP[tag_format]
+    manager_class = TAG_FORMAT_MANAGER_CLASS_MAP[metadata_format]
     if issubclass(manager_class, RatingSupportingMetadataManager):
         if manager_class == Id3v2Manager:
             # Determine ID3v2 version based on provided version or use default
@@ -84,9 +84,9 @@ def _get_metadata_managers(
         if not tag_formats:
             raise FileTypeNotSupportedError(FILE_EXTENSION_NOT_HANDLED_MESSAGE)
 
-    for tag_format in tag_formats:
-        managers[tag_format] = _get_metadata_manager(
-            file=file, tag_format=tag_format, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
+    for metadata_format in tag_formats:
+        managers[metadata_format] = _get_metadata_manager(
+            file=file, metadata_format=metadata_format, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
     return managers
 
 
@@ -147,7 +147,7 @@ def get_unified_metadata(
     # If specific format requested, return data from that format only
     if metadata_format is not None:
         manager = _get_metadata_manager(
-            file=file, tag_format=metadata_format, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
+            file=file, metadata_format=metadata_format, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
         return manager.get_unified_metadata()
 
     # Get all available managers for this file type
@@ -229,7 +229,7 @@ def get_unified_metadata_field(file: FILE_TYPE, unified_metadata_key: UnifiedMet
 
     if metadata_format is not None:
         # Get metadata from specific format
-        manager = _get_metadata_manager(file=file, tag_format=metadata_format, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
+        manager = _get_metadata_manager(file=file, metadata_format=metadata_format, normalized_rating_max_value=normalized_rating_max_value, id3v2_version=id3v2_version)
         try:
             return manager.get_unified_metadata_field(unified_metadata_key=unified_metadata_key)
         except MetadataFieldNotSupportedByMetadataFormatError:
@@ -580,7 +580,7 @@ def _handle_metadata_strategy(file: AudioFile, unified_metadata: UnifiedMetadata
                 pass
 
 
-def delete_all_metadata(file, tag_format: MetadataFormat | None = None, id3v2_version: tuple[int, int, int] | None = None) -> bool:
+def delete_all_metadata(file, metadata_format: MetadataFormat | None = None, id3v2_version: tuple[int, int, int] | None = None) -> bool:
     """
     Delete all metadata from an audio file, including metadata headers.
     
@@ -590,7 +590,7 @@ def delete_all_metadata(file, tag_format: MetadataFormat | None = None, id3v2_ve
     
     Args:
         file: Audio file path or AudioFile object
-        tag_format: Specific format to delete metadata from. If None, deletes from ALL supported formats.
+        metadata_format: Specific format to delete metadata from. If None, deletes from ALL supported formats.
         id3v2_version: ID3v2 version tuple for ID3v2-specific operations
         
     Returns:
@@ -605,17 +605,17 @@ def delete_all_metadata(file, tag_format: MetadataFormat | None = None, id3v2_ve
         success = delete_all_metadata("song.mp3")
         
         # Delete only ID3v2 metadata (keep ID3v1, removes ID3v2 headers)
-        success = delete_all_metadata("song.mp3", tag_format=MetadataFormat.ID3V2)
+        success = delete_all_metadata("song.mp3", metadata_format=MetadataFormat.ID3V2)
         
         # Delete Vorbis metadata from FLAC (removes Vorbis comment blocks)
-        success = delete_all_metadata("song.flac", tag_format=MetadataFormat.VORBIS)
+        success = delete_all_metadata("song.flac", metadata_format=MetadataFormat.VORBIS)
         
     Note:
         This function removes metadata headers entirely, significantly reducing file size.
         This is different from setting individual fields to None, which only removes
         specific fields while preserving the metadata structure and other fields.
         
-        When no tag_format is specified, the function attempts to delete metadata from
+        When no metadata_format is specified, the function attempts to delete metadata from
         ALL supported formats for the file type. Some formats may not support deletion
         and will be skipped silently.
         
@@ -630,8 +630,8 @@ def delete_all_metadata(file, tag_format: MetadataFormat | None = None, id3v2_ve
         file = AudioFile(file)
     
     # If specific format requested, delete only that format
-    if tag_format:
-        return _get_metadata_manager(file, tag_format=tag_format, id3v2_version=id3v2_version).delete_metadata()
+    if metadata_format:
+        return _get_metadata_manager(file, metadata_format=metadata_format, id3v2_version=id3v2_version).delete_metadata()
     
     # Delete from all supported formats for this file type
     all_managers = _get_metadata_managers(file, normalized_rating_max_value=None, id3v2_version=id3v2_version)

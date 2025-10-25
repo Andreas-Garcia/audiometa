@@ -18,7 +18,7 @@ class TestDeleteAllMetadataFormatSpecificFLAC:
             vorbis_before = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.VORBIS)
             assert vorbis_before.get(UnifiedMetadataKey.TITLE) == "Test Vorbis Title"
 
-            result = delete_all_metadata(test_file.path, tag_format=MetadataFormat.VORBIS)
+            result = delete_all_metadata(test_file.path, metadata_format=MetadataFormat.VORBIS)
             assert result is True
 
             # Verify Vorbis metadata is deleted
@@ -34,7 +34,7 @@ class TestDeleteAllMetadataFormatSpecificFLAC:
             id3v2_before = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             assert id3v2_before.get(UnifiedMetadataKey.TITLE) == "ID3V2 Title"
 
-            result = delete_all_metadata(test_file.path, tag_format=MetadataFormat.ID3V2)
+            result = delete_all_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             assert result is True
 
             # Verify ID3V2 metadata is deleted
@@ -50,7 +50,7 @@ class TestDeleteAllMetadataFormatSpecificFLAC:
             id3v1_before = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             assert id3v1_before.get(UnifiedMetadataKey.TITLE) == "ID3V1 Title"
 
-            result = delete_all_metadata(test_file.path, tag_format=MetadataFormat.ID3V1)
+            result = delete_all_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             assert result is True
 
             # Verify ID3V1 metadata is deleted
@@ -60,4 +60,4 @@ class TestDeleteAllMetadataFormatSpecificFLAC:
     def test_riff(self):
         with TempFileWithMetadata({"title": "Test Vorbis Title", "artist": "Test Vorbis Artist"}, "flac") as test_file:
             with pytest.raises(MetadataFormatNotSupportedByAudioFormatError):
-                delete_all_metadata(test_file.path, tag_format=MetadataFormat.RIFF)
+                delete_all_metadata(test_file.path, metadata_format=MetadataFormat.RIFF)

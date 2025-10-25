@@ -62,7 +62,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
       - [Strategy Benefits](#strategy-benefits)
   - [Writing Defaults by Audio Format](#writing-defaults-by-audio-format)
   - [Deleting Metadata (API Reference)](#deleting-metadata-api-reference)
-    - [`delete_all_metadata(file_path, tag_format=None)`](#delete_all_metadatafile_path-tag_formatnone)
+    - [`delete_all_metadata(file_path, metadata_format=None)`](#delete_all_metadatafile_path-tag_formatnone)
   - [AudioFile Class](#audiofile-class)
 - [Error Handling](#error-handling)
 - [Metadata Field Guide: Support and Handling](#metadata-field-guide-support-and-handling)
@@ -481,7 +481,7 @@ print(f"All metadata deleted: {success}")
 
 # Delete metadata from specific format only
 from audiometa.utils.MetadataFormat import MetadataFormat
-success = delete_all_metadata("song.wav", tag_format=MetadataFormat.ID3V2)
+success = delete_all_metadata("song.wav", metadata_format=MetadataFormat.ID3V2)
 # This removes only ID3v2 tags, keeps RIFF metadata
 ```
 
@@ -1126,47 +1126,30 @@ update_metadata("song.mp3", {"title": "Song Title"},
 
 ### Deleting Metadata (API Reference)
 
-#### `delete_all_metadata(file_path, tag_format=None)`
+#### Delete All Metadata From All Formats
 
-Deletes all metadata or metadata from a specific format.
+Deletes all metadata from all supported formats for the file type.
+
+**`delete_all_metadata(file_path, metadata_format=None)`**
 
 ```python
-from audiometa import delete_all_metadata, MetadataFormat
+from audiometa import delete_all_metadata
 
-# Delete all metadata
+# Delete all metadata from all supported formats for the file type
 delete_all_metadata("song.mp3")
-
-# Delete only ID3v2 metadata
-delete_all_metadata("song.mp3", tag_format=MetadataFormat.ID3V2)
-
-# Delete only Vorbis metadata
-delete_all_metadata("song.flac", tag_format=MetadataFormat.VORBIS)
 ```
 
-**Complete Deletion Behavior:**
+#### Delete All Metadata From A Specific Format
 
-- **No `tag_format` specified**: Deletes metadata from ALL supported formats for the file type
-- **`tag_format` specified**: Deletes only metadata from that specific format
-- **Removes headers entirely**: This is a destructive operation that removes metadata container structures
-- **Significantly reduces file size**: Removes all metadata overhead
-- **Returns**: `True` if at least one format was successfully deleted, `False` if all deletions fail
-- **ID3v1**: Can be deleted and written using direct file manipulation
+**`delete_all_metadata(file_path, metadata_format=MetadataFormat.ID3V2)`**
 
-**When to Use `delete_all_metadata` vs Setting to `None`:**
-
-- **Use `delete_all_metadata`**: When you want to remove ALL metadata or ALL metadata of a specific format completely
-- **Use `None` values**: When you want to remove only specific fields while keeping others
+Deletes all metadata from a specific format.
 
 ```python
-# Remove everything completely - use delete_all_metadata
-# This removes metadata from ALL supported formats (ID3v2, ID3v1, etc.)
-delete_all_metadata("song.mp3")
+from audiometa import delete_all_metadata
 
-# Remove only specific format - use delete_all_metadata with tag_format
-delete_all_metadata("song.wav", tag_format=MetadataFormat.ID3V2)  # Only removes ID3v2, keeps RIFF
-
-# Remove only title and artist - use None values
-update_metadata("song.mp3", {"title": None, "artists": None})
+# Delete all metadata from a specific format
+delete_all_metadata("song.mp3", metadata_format=MetadataFormat.ID3V2)
 ```
 
 ### AudioFile Class

@@ -18,7 +18,7 @@ class TestDeleteAllMetadataFormatSpecificWAV:
             riff_before = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.RIFF)
             assert riff_before.get(UnifiedMetadataKey.TITLE) == "Test RIFF Title"
 
-            result = delete_all_metadata(test_file.path, tag_format=MetadataFormat.RIFF)
+            result = delete_all_metadata(test_file.path, metadata_format=MetadataFormat.RIFF)
             assert result is True
 
             # Verify RIFF metadata is deleted
@@ -34,7 +34,7 @@ class TestDeleteAllMetadataFormatSpecificWAV:
             id3v2_before = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             assert id3v2_before.get(UnifiedMetadataKey.TITLE) == "ID3V2 Title"
 
-            result = delete_all_metadata(test_file.path, tag_format=MetadataFormat.ID3V2)
+            result = delete_all_metadata(test_file.path, metadata_format=MetadataFormat.ID3V2)
             assert result is True
 
             # Verify ID3V2 metadata is deleted
@@ -50,7 +50,7 @@ class TestDeleteAllMetadataFormatSpecificWAV:
             id3v1_before = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             assert id3v1_before.get(UnifiedMetadataKey.TITLE) == "ID3V1 Title"
 
-            result = delete_all_metadata(test_file.path, tag_format=MetadataFormat.ID3V1)
+            result = delete_all_metadata(test_file.path, metadata_format=MetadataFormat.ID3V1)
             assert result is True
 
             # Verify ID3V1 metadata is deleted
@@ -60,4 +60,4 @@ class TestDeleteAllMetadataFormatSpecificWAV:
     def test_vorbis(self):
         with TempFileWithMetadata({"title": "Test RIFF Title", "artist": "Test RIFF Artist"}, "wav") as test_file:
             with pytest.raises(MetadataFormatNotSupportedByAudioFormatError):
-                delete_all_metadata(test_file.path, tag_format=MetadataFormat.VORBIS)
+                delete_all_metadata(test_file.path, metadata_format=MetadataFormat.VORBIS)
