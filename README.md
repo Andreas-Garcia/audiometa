@@ -1255,7 +1255,7 @@ The library supports a comprehensive set of metadata fields across different aud
 | Arranger            | ✗            | TPE2                       | ARRANGER                       | ✗               |                   |
 | Version             | ✗            | TIT3                       | VERSION                        | ✗               |                   |
 | Performance         | ✗            | TPE1                       | PERFORMER                      | ✗               |                   |
-| Archival Location   | ✗            | ✗                          | ✗                              | IARL\*          |                   |
+| Archival Location   | ✗            | ✗                          | ✗                              | IARL\*          | ✓                 |
 | Keywords            | ✗            | ✗                          | ✗                              | IKEY\*          |                   |
 | Subject             | ✗            | ✗                          | ✗                              | ISBJ\*          |                   |
 | Original Artist     | ✗            | TOPE                       | ORIGINALARTIST                 | ✗               |                   |
