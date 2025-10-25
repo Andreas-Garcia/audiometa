@@ -9,7 +9,7 @@ from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
 
 @pytest.mark.integration
 class TestLyricsWriting:
-    def test_id3v2_3(self):
+    def test_id3v2_3_default_en(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             test_lyrics = "These are test lyrics\nWith multiple lines\nFor testing purposes"
             test_metadata = {UnifiedMetadataKey.LYRICS: test_lyrics}
@@ -18,7 +18,7 @@ class TestLyricsWriting:
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
             assert raw_metadata['USLT'] == [f"eng\x00{test_lyrics}"]
 
-    def test_id3v2_4(self):
+    def test_id3v2_4_default_en(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             test_lyrics = "These are test lyrics\nWith multiple lines\nFor testing purposes"
             test_metadata = {UnifiedMetadataKey.LYRICS: test_lyrics}
