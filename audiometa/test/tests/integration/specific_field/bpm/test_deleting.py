@@ -1,11 +1,12 @@
 import pytest
 
-from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa import get_unified_metadata_field, update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
 from audiometa.test.helpers.vorbis import VorbisMetadataSetter
+from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
 
 
 @pytest.mark.integration
@@ -28,8 +29,9 @@ class TestBpmDeleting:
 
     def test_delete_bpm_riff(self):
         with TempFileWithMetadata({'bpm': 120}, "wav") as test_file:         
-            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM, metadata_format=MetadataFormat.RIFF) == 120
-        
+            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
+            assert "bpm=120" in raw_metadata
+                
             update_metadata(test_file.path, {UnifiedMetadataKey.BPM: None}, metadata_format=MetadataFormat.RIFF)
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM, metadata_format=MetadataFormat.RIFF) is None
 
