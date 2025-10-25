@@ -185,7 +185,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         COMPOSERS = 'TCOM'
         PUBLISHER = 'TPUB'
         COPYRIGHT = 'TCOP'
-        UNSYNCHRONIZED_LYRICS = 'USLT'  # Unsynchronized lyrics frame
+        UNSYNCHRONIZED_LYRICS = 'USLT'
         COMMENT = 'COMM'  # Comment frame
         ENCODER = 'TENC'
         URL = 'WOAR'  # Official artist/performer webpage
