@@ -30,7 +30,7 @@ class TestGenreDeleting:
 
     def test_delete_genre_riff(self):
         with TempFileWithMetadata({}, "wav") as test_file:
-            RIFFMetadataSetter.set_genre(test_file.path, "Rock")
+            RIFFMetadataSetter.set_genres(test_file.path, ["Rock"])
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES) == ["Rock"]
         
             update_metadata(test_file.path, {UnifiedMetadataKey.GENRES_NAMES: None}, metadata_format=MetadataFormat.RIFF)
