@@ -101,7 +101,7 @@ class RIFFMetadataGetter:
             'ITRK': 'track',
             'ICMP': 'composer',
             'IAAR': 'IAAR',  # Album artist (non-standard)
-            'ILYT': 'lyrics',
+            'ILYR': 'lyrics',
             'ILNG': 'language',
             'IPUB': 'publisher',
             'ICOP': 'copyright',
