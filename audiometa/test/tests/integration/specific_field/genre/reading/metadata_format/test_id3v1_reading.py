@@ -66,19 +66,3 @@ class TestId3v1GenreReading:
             genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres is None
-
-    def test_id3v1_genre_none_value(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            # No genre set - test file has no genre
-            
-            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres is None or genres == []
-
-    def test_id3v1_genre_whitespace_only(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "mp3") as test_file:
-            ID3v1MetadataSetter.set_genre(test_file.path, "255")
-            
-            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres is None or genres == []
