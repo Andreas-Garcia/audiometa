@@ -11,6 +11,15 @@ from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataS
 
 @pytest.mark.integration
 class TestGenreSmartReading:
+    def test_single_entry_text_with_codes_and_separators_and_without_parentheses(self):
+        """Test single genre entry with text with codes and separators without parentheses: '17/6' -> ['Rock', 'Grunge']"""
+        with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
+            # Set genre with text with codes and separators without parentheses
+            ID3v2MetadataSetter.set_genres(test_file.path, ["17/6"], version="2.4")
+            
+            # Read via API
+            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
+            assert genres == ["Rock", "Grunge"]
 
     def test_single_entry_codes_without_separators_id3v2(self):
         """Test single genre entry with codes without separators: '(17)(6)' -> ['Rock', 'Grunge']"""
