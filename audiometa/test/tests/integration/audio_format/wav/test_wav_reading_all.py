@@ -45,7 +45,7 @@ class TestWavReading:
             
     def test_riff_metadata_reading_wav(self):
         with TempFileWithMetadata({}, "wav") as test_file:
-            RIFFMetadataSetter.set_metadata(test_file.path, {'title': 'a' * 30})
+            RIFFMetadataSetter.set_title(test_file.path, 'a' * 30)
                 
             metadata = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.RIFF)
             assert metadata.get(UnifiedMetadataKey.TITLE) == 'a' * 30
