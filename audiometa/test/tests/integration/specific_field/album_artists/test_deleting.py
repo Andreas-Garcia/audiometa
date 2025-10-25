@@ -26,10 +26,11 @@ class TestAlbumArtistsDeleting:
 
     def test_delete_album_artists_riff(self):
         with TempFileWithMetadata({}, "wav") as test_file:
-            RIFFMetadataSetter.set_multiple_album_artists(test_file.path, ["Test Album Artist"])
-            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
-            assert "Album Artist                      : Test Album Artist" in raw_metadata
-            
+            # Set album artists using the unified API
+            update_metadata(test_file.path, {UnifiedMetadataKey.ALBUM_ARTISTS: ["Test Album Artist"]}, metadata_format=MetadataFormat.RIFF)
+            # Verify album artists are set
+            album_artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ALBUM_ARTISTS, metadata_format=MetadataFormat.RIFF)
+            assert album_artists == ["Test Album Artist"]
         
             # Delete metadata by setting to None
             update_metadata(test_file.path, {UnifiedMetadataKey.ALBUM_ARTISTS: None}, metadata_format=MetadataFormat.RIFF)
