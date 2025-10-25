@@ -12,6 +12,14 @@ from audiometa.test.helpers.id3v2.id3v2_header_verifier import ID3v2HeaderVerifi
 
 @pytest.mark.integration
 class TestWavWriting:
+    def test_writing_default_format_wav(self):
+        with TempFileWithMetadata({}, "wav") as test_file:
+            metadata = {UnifiedMetadataKey.TITLE: "Test Title Default"}
+            update_metadata(test_file.path, metadata)
+            
+            title = RIFFMetadataGetter.get_title(test_file.path)
+            assert title == "Test Title Default"
+
     def test_riff_metadata_writing_wav(self, temp_wav_file):
         with TempFileWithMetadata({}, "wav") as test_file:
             metadata = {UnifiedMetadataKey.TITLE: "Test Title RIFF"}
