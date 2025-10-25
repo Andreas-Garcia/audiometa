@@ -104,7 +104,7 @@ class TestSmartParsingScenarios:
             # Set single artist entry with semicolons (legacy data in modern format)
             VorbisMetadataSetter.set_artists(test_file.path, ["Artist One;Artist Two;Artist Three"])
             raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
-            assert ["Artist One;Artist Two;Artist Three"] == raw_metadata['ARTIST']
+            assert "ARTIST=Artist One;Artist Two;Artist Three" in raw_metadata
             
             # Read metadata
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
@@ -116,7 +116,7 @@ class TestSmartParsingScenarios:
             # Set single artist entry with semicolons in RIFF format
             RIFFMetadataSetter.set_artists(test_file.path, ["Artist One;Artist Two"], in_separate_frames=False)
             raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
-            assert ["Artist One;Artist Two"] == raw_metadata['IART']
+            assert "TAG:artist=Artist One;Artist Two" in raw_metadata
             
             # Read metadata
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF)
