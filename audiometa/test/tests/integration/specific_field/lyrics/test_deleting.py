@@ -11,21 +11,20 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 
 @pytest.mark.integration
 class TestLyricsDeleting:
+    def test_delete_lyrics_id3v1(self):
+        with TempFileWithMetadata({}, "mp3") as test_file:
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.LYRICS metadata not supported by this format"):
+                update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: "Test lyrics"}, metadata_format=MetadataFormat.ID3V1)
+    
     def test_delete_lyrics_id3v2(self):        
         with TempFileWithMetadata({}, "mp3") as test_file:
             ID3v2MetadataSetter.set_lyrics(test_file.path, "Test lyrics")
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
-            assert "USLT=Test lyrics" in raw_metadata
+            assert raw_metadata['USLT'] == ["Test lyrics"]
         
             update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None}, metadata_format=MetadataFormat.ID3V2)
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
-            assert "USLT=Test lyrics" not in raw_metadata
-
-    def test_delete_lyrics_id3v1(self):
-        with TempFileWithMetadata({}, "mp3") as test_file:
-            # ID3v1 doesn't support lyrics, so writing should fail
-            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.LYRICS metadata not supported by this format"):
-                update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: "Test lyrics"}, metadata_format=MetadataFormat.ID3V1)
+            assert raw_metadata['USLT'] is None
 
     def test_delete_lyrics_riff(self):        
         with TempFileWithMetadata({}, "wav") as test_file:
