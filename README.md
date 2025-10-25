@@ -59,7 +59,8 @@ A comprehensive Python library for reading and writing audio metadata across mul
       - [Default Behavior](#default-behavior)
       - [Forced Format Behavior](#forced-format-behavior)
   - [Deleting Metadata (API Reference)](#deleting-metadata-api-reference)
-    - [`delete_all_metadata(file_path, metadata_format=None)`](#delete_all_metadatafile_path-metadata_formatnone)
+    - [Delete All Metadata From All Formats](#delete-all-metadata-from-all-formats)
+    - [Delete All Metadata From A Specific Format](#delete-all-metadata-from-a-specific-format)
   - [AudioFile Class](#audiofile-class)
 - [Error Handling](#error-handling)
 - [Metadata Field Guide: Support and Handling](#metadata-field-guide-support-and-handling)
@@ -1102,9 +1103,9 @@ delete_all_metadata("song.mp3")
 
 #### Delete All Metadata From A Specific Format
 
-**`delete_all_metadata(file_path, metadata_format=MetadataFormat.ID3V2)`**
-
 Deletes all metadata from a specific format.
+
+**`delete_all_metadata(file_path, metadata_format=MetadataFormat.ID3V2)`**
 
 ```python
 from audiometa import delete_all_metadata
