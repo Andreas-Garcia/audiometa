@@ -11,6 +11,7 @@ from ...audio_file import AudioFile
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from ...utils.rating_profiles import RatingWriteProfile
 from ...utils.types import UnifiedMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
+from ...exceptions import MetadataFieldNotSupportedByMetadataFormatError
 from .RatingSupportingMetadataManager import RatingSupportingMetadataManager
 
 
@@ -237,6 +238,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.COPYRIGHT: self.Id3TextFrame.COPYRIGHT,
             UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: self.Id3TextFrame.UNSYNCHRONIZED_LYRICS,
             UnifiedMetadataKey.COMMENT: self.Id3TextFrame.COMMENT,
+            UnifiedMetadataKey.REPLAYGAIN: None,
         }
         metadata_keys_direct_map_write: dict = {
             UnifiedMetadataKey.TITLE: self.Id3TextFrame.TITLE,
@@ -254,6 +256,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.COPYRIGHT: self.Id3TextFrame.COPYRIGHT,
             UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: self.Id3TextFrame.UNSYNCHRONIZED_LYRICS,
             UnifiedMetadataKey.COMMENT: self.Id3TextFrame.COMMENT,
+            UnifiedMetadataKey.REPLAYGAIN: None,
         }
 
         super().__init__(audio_file=audio_file,
@@ -330,6 +333,14 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                 
                 result[frame_key] = frame_value.text
 
+        # Handle TXXX frames for REPLAYGAIN
+        for raw_mutagen_frame in raw_mutagen_metadata.items():
+            if raw_mutagen_frame[0].startswith('TXXX'):
+                txxx_frame = raw_mutagen_frame[1]
+                if hasattr(txxx_frame, 'desc') and txxx_frame.desc == 'REPLAYGAIN':
+                    result['REPLAYGAIN'] = txxx_frame.text
+                    break
+
         # Special handling for release date: if TDRC is not present, try to construct from TYER + TDAT
         # Only do this for ID3v2 files (not ID3v1) and only when both TYER and TDAT are present
         if self.Id3TextFrame.RECORDING_TIME not in result:
@@ -363,6 +374,25 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                     return int(first_popm_rating), False
 
         return None, False
+
+    def _update_undirectly_mapped_metadata(self, raw_mutagen_metadata: ID3, app_metadata_value: AppMetadataValue, unified_metadata_key: UnifiedMetadataKey):
+        if unified_metadata_key == UnifiedMetadataKey.REPLAYGAIN:
+            # Remove existing TXXX:REPLAYGAIN frames
+            raw_mutagen_metadata.delall('TXXX:REPLAYGAIN')
+            if app_metadata_value is not None:
+                # Add new TXXX frame with desc 'REPLAYGAIN'
+                from mutagen.id3._frames import TXXX
+                raw_mutagen_metadata.add(TXXX(encoding=3, desc='REPLAYGAIN', text=str(app_metadata_value)))
+        else:
+            super()._update_undirectly_mapped_metadata(raw_mutagen_metadata, app_metadata_value, unified_metadata_key)
+
+    def _get_undirectly_mapped_metadata_value_other_than_rating_from_raw_clean_metadata(
+            self, unified_metadata_key: UnifiedMetadataKey, raw_clean_metadata: RawMetadataDict) -> AppMetadataValue:
+
+        if unified_metadata_key == UnifiedMetadataKey.REPLAYGAIN:
+            return raw_clean_metadata.get('REPLAYGAIN', [None])[0]
+        else:
+            raise MetadataFieldNotSupportedByMetadataFormatError(f'Metadata key not handled: {unified_metadata_key}')
 
     def _update_formatted_value_in_raw_mutagen_metadata(self, raw_mutagen_metadata: RawMetadataDict,
                                                         raw_metadata_key: RawMetadataKey,
