@@ -21,6 +21,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
     - [ffprobe (for WAV file processing)](#ffprobe-for-wav-file-processing)
     - [flac (for FLAC MD5 validation)](#flac-for-flac-md5-validation)
   - [Verifying Installation](#verifying-installation)
+- [External Tools Usage](#external-tools-usage)
 - [Getting Started](#getting-started)
   - [What You Need](#what-you-need)
   - [Your First Steps](#your-first-steps)
@@ -29,7 +30,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
   - [Reading Metadata](#reading-metadata)
     - [Reading from a specific metadata format](#reading-from-a-specific-metadata-format)
     - [Reading All Metadata](#reading-all-metadata)
-    - [Reading Specific Metadata Fields](#reading-specific-metadata-fields)
+    - [Reading Specific Metadata Fields (Quick Start)](#reading-specific-metadata-fields)
     - [Reading Full Metadata From All Formats Including Headers and Technical Info](#reading-full-metadata-from-all-formats-including-headers-and-technical-info)
   - [Writing Metadata](#writing-metadata)
   - [Deleting Metadata](#deleting-metadata)
@@ -445,7 +446,7 @@ print(f"Artist: {metadata.get(UnifiedMetadataKey.ARTISTS, ['Unknown'])}")
 print(f"Album: {metadata.get(UnifiedMetadataKey.ALBUM, 'Unknown')}")
 ```
 
-#### Reading Specific Metadata Fields
+#### Reading Specific Metadata Fields (Quick Start)
 
 **`get_unified_metadata_field(file_path, field, metadata_format=None)`**
 
