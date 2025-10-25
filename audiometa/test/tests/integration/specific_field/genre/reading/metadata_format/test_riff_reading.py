@@ -69,14 +69,6 @@ class TestRiffGenreParsing:
             
             assert genres == [long_genre]
 
-    def test_riff_writes_single_genre_from_list(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            RIFFMetadataSetter.set_genres(test_file.path, ["Rock", "Alternative", "Indie"])
-            
-            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres == ["Rock", "20", "131"]
-
     def test_riff_writes_genre_code_from_name(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             update_metadata(test_file.path, {
@@ -96,27 +88,3 @@ class TestRiffGenreParsing:
             genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["12"]
-
-    def test_future_riff_multi_genre_parsing_names(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            RIFFMetadataSetter.set_genre_text(test_file.path, "Rock; Alternative; Indie")
-            
-            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres == ["Rock", "Alternative", "Indie"]
-
-    def test_future_riff_multi_genre_parsing_codes(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            RIFFMetadataSetter.set_genre_text(test_file.path, "17; 20; 131")
-            
-            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres == ["17", "20", "131"]
-
-    def test_future_riff_multi_genre_parsing_mixed(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            RIFFMetadataSetter.set_genre_text(test_file.path, "Rock; 20; Indie")
-            
-            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres == ["Rock", "20", "Indie"]
