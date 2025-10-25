@@ -30,6 +30,17 @@ class ConfigurationError(Exception):
     """
     pass
 
+class MetadataFormatNotSupportedByAudioFormatError(Exception):
+    """Raised when attempting to read metadata from a format not supported by the audio format of the file.
+    
+    This error indicates that the requested metadata format is not supported by the audio format of the file.
+    
+    Examples:
+        - Trying to read metadata from RIFF format from an MP3 file
+        - Trying to read metadata from Vorbis format from a WAV file
+    """
+    pass
+
 
 class MetadataFieldNotSupportedByMetadataFormatError(Exception):
     """Raised when attempting to read or write metadata not supported by the format.
