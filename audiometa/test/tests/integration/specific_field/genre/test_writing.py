@@ -48,12 +48,12 @@ class TestGenreWriting:
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
             
             raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
-            assert 'genre:Rock' in raw_metadata
+            assert 'TAG:genre=Rock' in raw_metadata
 
     def test_vorbis(self):
         with TempFileWithMetadata({}, "flac") as test_file:
             test_genre = "Test Genre Vorbis"
-            test_metadata = {UnifiedMetadataKey.GENRES_NAMES: test_genre}
+            test_metadata = {UnifiedMetadataKey.GENRES_NAMES: [test_genre]}
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
             metadata = get_unified_metadata(test_file.path)
             assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == [test_genre]
