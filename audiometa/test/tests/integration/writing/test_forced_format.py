@@ -13,7 +13,7 @@ from audiometa import (
 from audiometa.exceptions import (
     MetadataFieldNotSupportedByMetadataFormatError,
     MetadataWritingConflictParametersError,
-    FileTypeNotSupportedError
+    MetadataFormatNotSupportedByAudioFormatError
 )
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
@@ -138,7 +138,7 @@ class TestForcedFormat:
             }
             
             # Try to force Vorbis format on MP3 file (not supported)
-            with pytest.raises(FileTypeNotSupportedError, match="Tag format MetadataFormat.VORBIS not supported for file extension .mp3"):
+            with pytest.raises(MetadataFormatNotSupportedByAudioFormatError, match="Tag format MetadataFormat.VORBIS not supported for file extension .mp3"):
                 update_metadata(test_file.path, metadata, 
                                    metadata_format=MetadataFormat.VORBIS)
 
