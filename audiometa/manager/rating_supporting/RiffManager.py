@@ -85,6 +85,7 @@ class RiffManager(RatingSupportingMetadataManager):
         SOFTWARE = 'ISFT'  # Software used to create the file
         COPYRIGHT = 'ICOP'
         TECHNICIAN = 'ITCH'  # Technician who worked on the track
+        BPM = 'IBPM'
 
     def __init__(self, audio_file: AudioFile, normalized_rating_max_value: None | int = None):
         # Validate that the file is a WAV file
@@ -103,6 +104,7 @@ class RiffManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.COMPOSERS: self.RiffTagKey.COMPOSERS,
             UnifiedMetadataKey.COPYRIGHT: self.RiffTagKey.COPYRIGHT,
             UnifiedMetadataKey.COMMENT: self.RiffTagKey.COMMENT,
+            UnifiedMetadataKey.BPM: self.RiffTagKey.BPM,
             # AppMetadataKey.TRACK_NUMBER: None,
         }
         metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] = {
@@ -117,6 +119,7 @@ class RiffManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.COMPOSERS: self.RiffTagKey.COMPOSERS,
             UnifiedMetadataKey.COPYRIGHT: self.RiffTagKey.COPYRIGHT,
             UnifiedMetadataKey.COMMENT: self.RiffTagKey.COMMENT,
+            UnifiedMetadataKey.BPM: self.RiffTagKey.BPM,
             # AppMetadataKey.TRACK_NUMBER: self.RiffTagKey.TRACK_NUMBER,
         }
         super().__init__(audio_file=audio_file,
