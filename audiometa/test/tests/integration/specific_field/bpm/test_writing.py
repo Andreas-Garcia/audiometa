@@ -17,15 +17,13 @@ class TestBpmWriting:
             assert bpm == test_bpm
 
     def test_riff(self):
-        from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
-        
         with TempFileWithMetadata({}, "wav") as test_file:
             test_bpm = 120
             test_metadata = {UnifiedMetadataKey.BPM: test_bpm}
-        
-            # RIFF format raises exception for unsupported metadata when format is forced
-            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
-                update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
+            
+            raw_metadata = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM)
+            assert raw_metadata == test_bpm
 
     def test_vorbis(self):
         with TempFileWithMetadata({}, "flac") as test_file:
