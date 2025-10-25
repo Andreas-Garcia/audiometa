@@ -1213,7 +1213,7 @@ The library supports a comprehensive set of metadata fields across different aud
 | Composers         | ✗            | TCOM                       | COMPOSER                       | ICMP            | ✓ as list         |
 | Publisher         | ✗            | TPUB                       | ORGANIZATION                   | ✗               | ✓                 |
 | Copyright         | ✗            | TCOP                       | COPYRIGHT                      | ICOP            | ✓                 |
-| Lyrics            | ✗            | USLT                       | ✗                              | ✗               | ✓                 |
+| Lyrics            | ✗            | USLT                       | LYRICS\*                       | ✗               | ✓                 |
 | Comment           | COMMENT (28) | COMM                       | COMMENT                        | ICMT            | ✓                 |
 | Encoder           | ✗            | TENC                       | ENCODEDBY                      | ISFT            |                   |
 | URL               | ✗            | WOAR                       | ✗                              | ✗               |                   |
