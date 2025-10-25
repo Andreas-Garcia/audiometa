@@ -120,6 +120,13 @@ A comprehensive Python library for reading and writing audio metadata across mul
       - [Normalized Rating Scale](#normalized-rating-scale)
       - [Format-Specific Rating Writing](#format-specific-rating-writing)
   - [Track Number Formats](#track-number-formats)
+  - [Lyrics Support](#lyrics-support)
+    - [Synchronized Lyrics](#synchronized-lyrics)
+    - [Unsynchronized Lyrics](#unsynchronized-lyrics)
+      - [ID3v1 Unsynchronized Lyrics](#id3v1-unsynchronized-lyrics)
+      - [ID3v2 Unsynchronized Lyrics](#id3v2-unsynchronized-lyrics)
+      - [RIFF Unsynchronized Lyrics](#riff-unsynchronized-lyrics)
+      - [Vorbis Unsynchronized Lyrics](#vorbis-unsynchronized-lyrics)
   - [Unsupported Metadata Handling](#unsupported-metadata-handling)
     - [Format-Specific Limitations](#format-specific-limitations-unsupported)
     - [Atomic Write Operations](#atomic-write-operations)
@@ -1962,6 +1969,50 @@ The library gracefully handles common edge cases:
 - `""` → Track number: `None` (empty string)
 - `"5/12/15"` → Track number: `5` (takes first part before first slash)
 - `"5-12"` → `ValueError` (different separator, no slash)
+
+### Lyrics Support
+
+Two types of lyrics are supported: synchronized lyrics (synchronized with music, for karaoke) and unsynchronized lyrics (plain text).
+
+#### Synchronized Lyrics
+
+TODO: Implement synchronized lyrics support in future versions.
+
+#### Unsynchronized Lyrics
+
+Unsynchronized lyrics are supported differently across formats:
+
+##### ID3v1 Unsynchronized Lyrics
+
+ID3v1 does not support unsynchronized lyrics due to its limited structure.
+
+##### ID3v2 Unsynchronized Lyrics
+
+ID3v2 supports unsynchronized lyrics through the `USLT` (Unsynchronized Lyrics/Text transcription) frame. Multiple `USLT` frames can be used to store lyrics in different languages or formats within the same file.
+
+This is done by specifying different language codes in each `USLT` frame:
+
+```
+USLT[eng][lyrics]: Primary lyrics in English
+USLT[spa][translation]: Spanish translation of lyrics
+USLT[jpn][transliteration]: Romanized Japanese lyrics
+USLT[xxx][instrumental]: Lyrics placeholder for instrumental tracks
+```
+
+##### RIFF Unsynchronized Lyrics
+
+RIFF INFO chunks do not have native support for lyrics. The library supports storing unsynchronized lyrics in the `LYRICS` chunk.
+
+It does not support language codes or multiple lyrics entries due to lack of standardization.
+
+##### Vorbis Unsynchronized Lyrics
+
+Vorbis comments support lyrics through the `LYRICS` field.
+It does not support language codes or multiple lyrics entries due to lack of standardization.
+
+#### Synchronized Lyrics
+
+Synchronized lyrics (SYLT frames in ID3v2) are not currently supported by the library.
 
 ### Unsupported Metadata Handling
 
