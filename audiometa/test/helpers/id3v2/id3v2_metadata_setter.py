@@ -126,6 +126,43 @@ class ID3v2MetadataSetter:
             run_external_tool(command, "mid3v2")
 
     @staticmethod
+    def set_release_date(file_path: Path, date_str: str, version: str = "2.4") -> None:
+        """Set ID3v2 release date using version-specific frames.
+        
+        For ID3v2.3: Uses TYER (year) and TDAT (MMDD) frames
+        For ID3v2.4: Uses TDRC frame with full date
+        
+        Args:
+            file_path: Path to the audio file
+            date_str: Date string in YYYY-MM-DD format
+            version: ID3v2 version to use ("2.3" or "2.4")
+        """
+        if version == "2.3":
+            # Parse YYYY-MM-DD format
+            if len(date_str) >= 10:
+                year = date_str[:4]
+                month = date_str[5:7]
+                day = date_str[8:10]
+                # TDAT format is DDMM
+                date_mmdd = f"{day}{month}"
+                
+                # Set TYER frame
+                command_year = ["id3v2", "--id3v2-only", "--TYER", year, str(file_path)]
+                run_external_tool(command_year, "id3v2")
+                
+                # Set TDAT frame
+                command_date = ["id3v2", "--id3v2-only", "--TDAT", date_mmdd, str(file_path)]
+                run_external_tool(command_date, "id3v2")
+            else:
+                # Fallback for year-only dates
+                command = ["id3v2", "--id3v2-only", "--TYER", date_str, str(file_path)]
+                run_external_tool(command, "id3v2")
+        else:
+            # ID3v2.4: Use TDRC with full date
+            command = ["mid3v2", "--TDRC", date_str, str(file_path)]
+            run_external_tool(command, "mid3v2")
+
+    @staticmethod
     def set_max_metadata(file_path: Path) -> None:
         from ..common.external_tool_runner import run_script
         from pathlib import Path
