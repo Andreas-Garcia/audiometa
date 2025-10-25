@@ -47,9 +47,9 @@ class TestBpmWriting:
                 update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
 
     def test_invalid_type_raises(self):
-        from audiometa.exceptions import InvalidMetadataTypeError
+        from audiometa.exceptions import InvalidMetadataFieldTypeError
 
         with TempFileWithMetadata({}, "mp3") as test_file:
             bad_metadata = {UnifiedMetadataKey.BPM: "not-an-int"}
-            with pytest.raises(InvalidMetadataTypeError):
+            with pytest.raises(InvalidMetadataFieldTypeError):
                 update_metadata(test_file.path, bad_metadata)

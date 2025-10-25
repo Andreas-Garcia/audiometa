@@ -83,7 +83,7 @@ class InvalidRatingValueError(Exception):
     pass
 
 
-class InvalidMetadataTypeError(TypeError):
+class InvalidMetadataFieldTypeError(TypeError):
     """Raised when a metadata field value has an unexpected type.
 
     Attributes:

@@ -43,7 +43,7 @@ class TestAlbumArtistsWriting:
                 update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
 
     def test_invalid_type_raises(self):
-        from audiometa.exceptions import InvalidMetadataTypeError
+        from audiometa.exceptions import InvalidMetadataFieldTypeError
 
         with TempFileWithMetadata({}, "mp3") as test_file:
             # Single-string shorthand should be accepted and normalized to a list on read

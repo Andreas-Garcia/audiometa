@@ -31,10 +31,10 @@ class TestReadingErrorHandling:
         with pytest.raises(FileNotFoundError):
             get_unified_metadata_field(nonexistent_file, UnifiedMetadataKey.TITLE)
 
-    def test_invalid_metadata_key_returns_none(self, sample_mp3_file: Path):
-        # This should not raise an error, but return None
-        invalid_key = "INVALID_KEY"
-        result = get_unified_metadata_field(sample_mp3_file, invalid_key)
+    def test_metadata_key_not_found_returns_none(self, sample_mp3_file: Path):
+        # This should not raise an error, but return None when the field is not found
+        # Using a valid UnifiedMetadataKey that might not be present in the file
+        result = get_unified_metadata_field(sample_mp3_file, UnifiedMetadataKey.LYRICS)
         assert result is None
 
     def test_invalid_format_raises_error(self, sample_mp3_file: Path):

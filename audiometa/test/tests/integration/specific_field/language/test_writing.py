@@ -36,9 +36,9 @@ class TestLanguageWriting:
             assert language == test_language
 
     def test_invalid_type_raises(self):
-        from audiometa.exceptions import InvalidMetadataTypeError
+        from audiometa.exceptions import InvalidMetadataFieldTypeError
 
         with TempFileWithMetadata({}, "mp3") as test_file:
             bad_metadata = {UnifiedMetadataKey.LANGUAGE: 123}
-            with pytest.raises(InvalidMetadataTypeError):
+            with pytest.raises(InvalidMetadataFieldTypeError):
                 update_metadata(test_file.path, bad_metadata)

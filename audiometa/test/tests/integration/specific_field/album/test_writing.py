@@ -42,10 +42,10 @@ class TestAlbumWriting:
             assert metadata.get(UnifiedMetadataKey.ALBUM) == test_album
 
     def test_invalid_type_raises(self):
-        from audiometa.exceptions import InvalidMetadataTypeError
+        from audiometa.exceptions import InvalidMetadataFieldTypeError
 
         with TempFileWithMetadata({}, "mp3") as test_file:
             # pass an int where a string is expected
             bad_metadata = {UnifiedMetadataKey.ALBUM: 123}
-            with pytest.raises(InvalidMetadataTypeError):
+            with pytest.raises(InvalidMetadataFieldTypeError):
                 update_metadata(test_file.path, bad_metadata)
