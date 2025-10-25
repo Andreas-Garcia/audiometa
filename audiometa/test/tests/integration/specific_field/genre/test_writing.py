@@ -25,11 +25,11 @@ class TestGenreWriting:
     def test_id3v2_3(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             test_genre = "Test Genre ID3v2"
-            test_metadata = {UnifiedMetadataKey.GENRES_NAMES: test_genre}
+            test_metadata = {UnifiedMetadataKey.GENRES_NAMES: [test_genre]}
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
 
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
-            assert f"TCON={test_genre}" in raw_metadata
+            assert raw_metadata['TCON'] == [test_genre]
 
     def test_id3v2_4(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
