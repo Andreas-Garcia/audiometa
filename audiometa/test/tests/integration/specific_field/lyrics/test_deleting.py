@@ -41,9 +41,17 @@ class TestLyricsDeleting:
 
     def test_delete_lyrics_riff(self):        
         with TempFileWithMetadata({}, "wav") as test_file:
-            # RIFF doesn't support lyrics, so writing should fail
-            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS metadata not supported by RIFF format"):
-                update_metadata(test_file.path, {UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: "Test lyrics"}, metadata_format=MetadataFormat.RIFF)
+            from audiometa.test.helpers.riff.riff_metadata_setter import RIFFMetadataSetter
+            from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
+            
+            RIFFMetadataSetter.set_lyrics(test_file.path, "Test lyrics")
+            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
+            assert "TAG:lyrics=Test lyrics" in raw_metadata
+        
+            update_metadata(test_file.path, {UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: None}, metadata_format=MetadataFormat.RIFF)
+            
+            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
+            assert "TAG:lyrics=" not in raw_metadata
 
     def test_delete_lyrics_vorbis(self):        
         with TempFileWithMetadata({}, "flac") as test_file:
