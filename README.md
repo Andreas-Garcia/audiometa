@@ -1152,6 +1152,19 @@ from audiometa import delete_all_metadata
 delete_all_metadata("song.mp3", metadata_format=MetadataFormat.ID3V2)
 ```
 
+When specifying a metadata format not supported by the audio format of the file, raises a MetadataFormatNotSupportedByAudioFormatError.
+
+```python
+from audiometa import delete_all_metadata
+from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.exceptions import MetadataFormatNotSupportedByAudioFormatError
+
+try:
+    delete_all_metadata("path/to/your/audio.mp3", metadata_format=MetadataFormat.RIFF)
+except MetadataFormatNotSupportedByAudioFormatError as e:
+    print(f"Error: {e}")
+```
+
 ### AudioFile Class
 
 Object-oriented approach for working with audio files
