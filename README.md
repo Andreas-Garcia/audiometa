@@ -53,12 +53,12 @@ A comprehensive Python library for reading and writing audio metadata across mul
     - [Metadata Dictionary Structure](#metadata-dictionary-structure)
     - [Validation](#validation)
     - [`update_metadata(file_path, metadata, **options)`](#update_metadatafile_path-metadata-options)
+    - [Writing Defaults by Audio Format](#writing-defaults-by-audio-format)
     - [Writing Strategies](#writing-strategies)
       - [Available Strategies](#available-strategies)
       - [Usage Examples](#usage-examples)
       - [Default Behavior](#default-behavior)
       - [Forced Format Behavior](#forced-format-behavior)
-  - [Writing Defaults by Audio Format](#writing-defaults-by-audio-format)
   - [Deleting Metadata (API Reference)](#deleting-metadata-api-reference)
     - [`delete_all_metadata(file_path, metadata_format=None)`](#delete_all_metadatafile_path-metadata_formatnone)
   - [AudioFile Class](#audiofile-class)
@@ -932,6 +932,42 @@ from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 update_metadata("song.mp3", metadata, metadata_strategy=MetadataWritingStrategy.CLEANUP)
 ```
 
+##### Writing Defaults by Audio Format
+
+The library automatically selects appropriate default metadata formats for different audio file types:
+
+#### MP3 Files (ID3v2)
+
+- **Default Format**: ID3v2.4
+- **Why ID3v2.4?**: Most compatible with modern software and supports Unicode
+- **Fallback**: If ID3v2.4 writing fails, automatically falls back to ID3v2.3
+
+#### FLAC Files (Vorbis Comments)
+
+- **Default Format**: Vorbis Comments
+- **Why Vorbis?**: Native format for FLAC files, full Unicode support
+
+#### WAV Files (RIFF INFO)
+
+- **Default Format**: RIFF INFO chunks
+- **Why RIFF?**: Native format for WAV files, widely supported
+
+#### ID3v2 Version Selection
+
+When writing to MP3 files, the library intelligently selects the best ID3v2 version:
+
+```python
+from audiometa import update_metadata
+
+# The library automatically chooses ID3v2.3 for MP3 files for best compatibility
+update_metadata("song.mp3", {"title": "Song Title"})
+
+# You can override the version if needed
+from audiometa.utils.MetadataFormat import MetadataFormat
+update_metadata("song.mp3", {"title": "Song Title"},
+                    metadata_format=MetadataFormat.ID3V2_4)  # Force ID3v2.4
+```
+
 #### Writing Strategies
 
 The library provides flexible control over how metadata is written to files that may already contain metadata in other formats.
@@ -1049,48 +1085,6 @@ update_metadata("song.wav", {"title": "New Title"},
 update_metadata("song.wav", {"title": "New Title"},
                     metadata_format=MetadataFormat.RIFF)
 ```
-
-### Writing Defaults by Audio Format
-
-The library automatically selects appropriate default metadata formats for different audio file types:
-
-#### MP3 Files (ID3v2)
-
-- **Default Format**: ID3v2.4
-- **Why ID3v2.4?**: Most compatible with modern software and supports Unicode
-- **Fallback**: If ID3v2.4 writing fails, automatically falls back to ID3v2.3
-
-#### FLAC Files (Vorbis Comments)
-
-- **Default Format**: Vorbis Comments
-- **Why Vorbis?**: Native format for FLAC files, full Unicode support
-
-#### WAV Files (RIFF INFO)
-
-- **Default Format**: RIFF INFO chunks
-- **Why RIFF?**: Native format for WAV files, widely supported
-
-#### ID3v2 Version Selection
-
-When writing to MP3 files, the library intelligently selects the best ID3v2 version:
-
-```python
-from audiometa import update_metadata
-
-# The library automatically chooses ID3v2.4 for MP3 files
-update_metadata("song.mp3", {"title": "Song Title"})
-
-# You can override the version if needed
-from audiometa.utils.MetadataFormat import MetadataFormat
-update_metadata("song.mp3", {"title": "Song Title"},
-                    metadata_format=MetadataFormat.ID3V2_3)  # Force ID3v2.3
-```
-
-**Version Selection Logic:**
-
-1. **Default**: ID3v2.4 (most compatible)
-2. **Automatic Fallback**: If ID3v2.4 fails, tries ID3v2.3
-3. **Manual Override**: You can specify exact version when needed
 
 ### Deleting Metadata (API Reference)
 
