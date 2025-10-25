@@ -327,7 +327,7 @@ AudioMeta uses a combination of Python libraries and external command-line tools
 | **ID3v1**  | Custom (Python)  | Custom (Python)   | mutagen (Python)                       | N/A                  |
 | **ID3v2**  | mutagen (Python) | mutagen (Python)  | mutagen (Python)                       | N/A                  |
 | **Vorbis** | Custom (Python)  | pytaglib (Python) | mutagen (Python)                       | flac (external tool) |
-| **RIFF**   | mutagen (Python) | mutagen (Python)  | ffprobe (external tool)                | N/A                  |
+| **RIFF**   | mutagen (Python) | Custom (Python)   | ffprobe (external tool)                | N/A                  |
 
 ### When External Tools Are Required
 
@@ -349,7 +349,7 @@ AudioMeta uses a combination of Python libraries and external command-line tools
 
 - All metadata reading and writing operations use pure Python libraries
 - No external tools required for basic metadata functionality
-- mutagen handles ID3v2 and RIFF metadata
+- mutagen handles ID3v2 and RIFF metadata reading
 - ID3v1 uses custom direct file manipulation
 - pytaglib handles Vorbis comments (FLAC)
 
