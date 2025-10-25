@@ -47,8 +47,8 @@ A comprehensive Python library for reading and writing audio metadata across mul
     - [Reading All Metadata From All Metadata Formats Including Priority Logic](#reading-all-metadata-from-all-metadata-formats-including-priority-logic)
     - [Reading All Metadata From A Specific Format](#reading-all-metadata-from-a-specific-format)
     - [Reading All Metadata From A ID3v2 Format With Version](#reading-all-metadata-from-a-id3v2-format-with-version)
-    - [Reading Specific Metadata Fields](#reading-specific-metadata-fields)
-    - [Reading Full Metadata From All Formats Including Headers and Technical Info](#reading-full-metadata-from-all-formats-including-headers-and-technical-info)
+    - [Reading Specific Metadata Fields](#reading-specific-metadata-fields-1)
+    - [Reading Full Metadata From All Formats Including Headers and Technical Info](#reading-full-metadata-from-all-formats-including-headers-and-technical-info-1)
   - [Writing Metadata (API Reference)](#writing-metadata-api-reference)
     - [Metadata Dictionary Structure](#metadata-dictionary-structure)
     - [Validation](#validation)
@@ -62,7 +62,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
       - [Strategy Benefits](#strategy-benefits)
   - [Writing Defaults by Audio Format](#writing-defaults-by-audio-format)
   - [Deleting Metadata (API Reference)](#deleting-metadata-api-reference)
-    - [`delete_all_metadata(file_path, metadata_format=None)`](#delete_all_metadatafile_path-tag_formatnone)
+    - [`delete_all_metadata(file_path, metadata_format=None)`](#delete_all_metadatafile_path-metadata_formatnone)
   - [AudioFile Class](#audiofile-class)
 - [Error Handling](#error-handling)
 - [Metadata Field Guide: Support and Handling](#metadata-field-guide-support-and-handling)
@@ -875,7 +875,7 @@ The library validates metadata value types passed to `update_metadata` when keys
 - `None` values are allowed and indicate field removal.
 - For fields whose expected type is `list[...]` (for example `ARTISTS` or `GENRES_NAMES`) the validator accepts only lists. Each list element is checked against the expected inner type (e.g., `str` for `ARTISTS`).
 - For plain types (`str`, `int`, etc.) the value must be an instance of that type.
-- On type mismatch the library raises `InvalidMetadataFieldTypeError` (a subclass of `TypeError`).
+- On type mismatch the library raises `InvalidMetadataFieldTypeError`.
 
 Note: the validator currently uses the `UnifiedMetadataKey` enum to determine expected types. Calls that use plain string keys (the older examples in this README) are accepted by the API but are not validated by this mechanism unless you pass `UnifiedMetadataKey` instances. You can continue using string keys, or prefer `UnifiedMetadataKey` for explicit validation and IDE-friendly code.
 
