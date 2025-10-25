@@ -2,6 +2,7 @@ import pytest
 
 
 
+from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
@@ -24,12 +25,8 @@ class TestCopyrightDeleting:
 
     def test_delete_copyright_id3v1(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-        
-            update_metadata(test_file.path, {UnifiedMetadataKey.COPYRIGHT: "Test Copyright"}, metadata_format=MetadataFormat.ID3V1)
-            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.COPYRIGHT) == "Test Copyright"
-        
-            update_metadata(test_file.path, {UnifiedMetadataKey.COPYRIGHT: None}, metadata_format=MetadataFormat.ID3V1)
-            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.COPYRIGHT) is None
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.COPYRIGHT metadata not supported by this format"):
+                update_metadata(test_file.path, {UnifiedMetadataKey.COPYRIGHT: "Test Copyright"}, metadata_format=MetadataFormat.ID3V1)
 
     def test_delete_copyright_riff(self):
         with TempFileWithMetadata({}, "wav") as test_file:
