@@ -97,7 +97,7 @@ class TestNoWritingOnFailure:
             test_metadata = {
                 UnifiedMetadataKey.TITLE: "New WAV Title",  # Should NOT be written
                 UnifiedMetadataKey.ARTISTS: ["New WAV Artist"],  # Should NOT be written
-                UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # Not supported by any format
+                UnifiedMetadataKey.PUBLISHER: "Test Publisher"  # Not supported by RIFF format
             }
             
             with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError):
@@ -106,4 +106,4 @@ class TestNoWritingOnFailure:
             final_read = get_unified_metadata(test_file)
             assert final_read.get(UnifiedMetadataKey.TITLE) == "Original WAV Title"  # Should be unchanged
             assert final_read.get(UnifiedMetadataKey.ARTISTS) == ["Original WAV Artist"]  # Should be unchanged
-            assert final_read.get(UnifiedMetadataKey.REPLAYGAIN) is None  # Should not exist
+            assert final_read.get(UnifiedMetadataKey.PUBLISHER) is None  # Should not exist
