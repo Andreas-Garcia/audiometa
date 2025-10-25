@@ -32,7 +32,11 @@ class RIFFMetadataSetter:
         
         for key, value in metadata.items():
             if key.lower() in key_mapping:
-                cmd.extend([f"{key_mapping[key.lower()]}={value}"])
+                if key.lower() == 'bpm':
+                    from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
+                    ManualRIFFMetadataCreator.create_bpm_field(file_path, str(value))
+                else:
+                    cmd.extend([f"{key_mapping[key.lower()]}={value}"])
         
         cmd.append(str(file_path))
         run_external_tool(cmd, "bwfmetaedit")
