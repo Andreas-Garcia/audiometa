@@ -13,6 +13,13 @@ from audiometa.test.helpers.id3v1.id3v1_metadata_setter import ID3v1MetadataSett
 
 @pytest.mark.integration
 class TestFlacReading:
+    def test_all_metadata_format_reading_flac(self):
+        with TempFileWithMetadata({}, "flac") as test_file:
+            VorbisMetadataSetter.add_title(test_file.path, 'a' * 30)
+
+            title = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.TITLE)
+            assert title == 'a' * 30
+
     def test_vorbis_metadata_reading_flac(self):
         with TempFileWithMetadata({}, "flac") as test_file:
             VorbisMetadataSetter.add_title(test_file.path, 'a' * 30)
