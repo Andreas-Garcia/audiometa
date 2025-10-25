@@ -1136,6 +1136,8 @@ The library supports a comprehensive set of metadata fields across different aud
 | Text Encoding     | ASCII        | UTF-16/ISO (v2.3) | UTF-8                          | ASCII/UTF-8     | UTF-8             |
 |                   |              | + UTF-8 (v2.4)    |                                |                 |                   |
 | Max Text Length   | 30 chars     | ~8M chars         | ~8M chars                      | ~1M chars       | Format limit      |
+| Date Time Formats | YYYY         | YYYY+DDMM (v2.3)  | YYYY-MM-DD                     | YYYY-MM-DD      | ISO 8601          |
+|                   |              | YYYY-MM-DD (v2.4) |                                |                 |                   |
 | Technical Info    |              |                   |                                |                 |                   |
 | - Duration        | ✓            | ✓                 | ✓                              | ✓               | ✓                 |
 | - Bitrate         | ✓            | ✓                 | ✓                              | ✓               | ✓                 |
