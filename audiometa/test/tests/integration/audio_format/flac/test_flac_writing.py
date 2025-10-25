@@ -1,6 +1,7 @@
 import pytest
 
 from audiometa import update_metadata
+from audiometa.exceptions import MetadataFormatNotSupportedByAudioFormatError
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.vorbis.vorbis_metadata_getter import VorbisMetadataGetter
@@ -45,3 +46,8 @@ class TestFlacWriting:
             update_metadata(temp_flac_file, metadata, metadata_format=MetadataFormat.ID3V1)
             title = ID3v1MetadataGetter.get_title(temp_flac_file.path)
             assert title == "Test Title ID3v1"
+            
+    def test_riff_metadata_writing_flac(self):
+        with TempFileWithMetadata({}, "flac") as test_file:
+            with pytest.raises(MetadataFormatNotSupportedByAudioFormatError):
+                update_metadata(test_file.path, {UnifiedMetadataKey.TITLE: "Test Title RIFF"}, metadata_format=MetadataFormat.RIFF)

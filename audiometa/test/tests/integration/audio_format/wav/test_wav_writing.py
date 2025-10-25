@@ -1,6 +1,7 @@
 import pytest
 
 from audiometa import update_metadata
+from audiometa.exceptions import MetadataFormatNotSupportedByAudioFormatError
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -38,3 +39,8 @@ class TestWavWriting:
             
             title = ID3v2MetadataGetter.get_title(test_file.path)
             assert title == "Test Title ID3v2.4"
+            
+    def test_vorbis_metadata_writing_wav(self):
+        with TempFileWithMetadata({}, "wav") as test_file:
+            with pytest.raises(MetadataFormatNotSupportedByAudioFormatError):
+                update_metadata(test_file.path, {UnifiedMetadataKey.TITLE: "Test Title Vorbis"}, metadata_format=MetadataFormat.VORBIS)

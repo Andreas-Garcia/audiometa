@@ -1,6 +1,7 @@
 import pytest
 
 from audiometa import get_unified_metadata_field
+from audiometa.exceptions import MetadataFormatNotSupportedByAudioFormatError
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -44,3 +45,8 @@ class TestFlacReading:
             
             title = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.ID3V1)
             assert title == 'a' * 30
+            
+    def test_riff_metadata_reading_flac(self):
+        with TempFileWithMetadata({}, "flac") as test_file:
+            with pytest.raises(MetadataFormatNotSupportedByAudioFormatError):
+                get_unified_metadata_field(test_file.path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.RIFF)

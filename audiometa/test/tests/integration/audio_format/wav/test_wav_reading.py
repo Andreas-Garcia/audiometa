@@ -1,5 +1,6 @@
 import pytest
 from audiometa import get_unified_metadata
+from audiometa.exceptions import MetadataFormatNotSupportedByAudioFormatError
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -44,3 +45,8 @@ class TestWavReading:
             assert isinstance(metadata, dict)
             assert UnifiedMetadataKey.TITLE in metadata
             assert metadata[UnifiedMetadataKey.TITLE] == "ID3v2.4 Long Title That Exceeds RIFF Limits"
+            
+    def test_vorbis_metadata_reading_wav(self):
+        with TempFileWithMetadata({}, "wav") as test_file:
+            with pytest.raises(MetadataFormatNotSupportedByAudioFormatError):
+                get_unified_metadata(test_file.path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.VORBIS)
