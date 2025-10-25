@@ -26,12 +26,11 @@ class VorbisManager(RatingSupportingMetadataManager):
     Common fields are defined in the VorbisKey enum class, which includes standardized keys for metadata like
     title, artist, album, genre, rating, and more.
 
-    Note: This implementation uses TagLib instead of mutagen because mutagen converts all Vorbis comment
-    keys to lowercase during both reading and writing operations. 
-    - for reading, this falsifies the raw data
-    representation. 
-    - for writing, converting keys to lowercase is not recommended by the Vorbis specification, which suggests 
-    uppercase..
+    Implementation Details:
+    - Reading: Custom FLAC parsing to preserve original Vorbis comment key casing
+    - Writing: TagLib library to maintain proper key casing per Vorbis specification
+    - The Vorbis specification recommends uppercase keys, which TagLib preserves during writing
+    - Custom parsing for reading avoids mutagen's lowercase conversion behavior
 
     Compatible Extensions:
     - FLAC: Fully supports Vorbis comments.
