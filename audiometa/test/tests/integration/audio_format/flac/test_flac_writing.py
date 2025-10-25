@@ -13,6 +13,14 @@ from audiometa.test.helpers.id3v2.id3v2_header_verifier import ID3v2HeaderVerifi
 
 @pytest.mark.integration
 class TestFlacWriting:
+    def test_writing_default_format_flac(self):
+        with TempFileWithMetadata({}, "flac") as temp_flac_file:
+            metadata = {UnifiedMetadataKey.TITLE: "Test Title Default"}
+            update_metadata(temp_flac_file, metadata)
+            
+            vorbis_title = VorbisMetadataGetter.get_title(temp_flac_file.path)
+            assert vorbis_title == "Test Title Default"
+
     def test_vorbis_metadata_writing_flac(self):
         with TempFileWithMetadata({}, "flac") as temp_flac_file:
             metadata = {UnifiedMetadataKey.TITLE: "Test Title Vorbis"}
