@@ -22,11 +22,11 @@ class TestLanguageDeleting:
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LANGUAGE) is None
 
     def test_delete_language_id3v1(self):
-        from audiometa.exceptions import MetadataNotSupportedError
+        from audiometa.exceptions import MetadataNotSupportedByFormatError
         
         with TempFileWithMetadata({}, "id3v1") as test_file:
             # Deleting should fail since the field isn't supported
-            with pytest.raises(MetadataNotSupportedError):
+            with pytest.raises(MetadataNotSupportedByFormatError):
                 update_metadata(test_file.path, {UnifiedMetadataKey.LANGUAGE: None}, metadata_format=MetadataFormat.ID3V1)
 
     def test_delete_language_riff(self):

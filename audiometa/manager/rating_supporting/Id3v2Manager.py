@@ -229,7 +229,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.GENRES_NAMES: self.Id3TextFrame.GENRES_NAMES,
             UnifiedMetadataKey.RATING: None,
             UnifiedMetadataKey.LANGUAGE: self.Id3TextFrame.LANGUAGE,
-            UnifiedMetadataKey.RELEASE_DATE: self.Id3TextFrame.RELEASE_TIME,
+            UnifiedMetadataKey.RELEASE_DATE: self.Id3TextFrame.RECORDING_TIME,
             UnifiedMetadataKey.TRACK_NUMBER: self.Id3TextFrame.TRACK_NUMBER,
             UnifiedMetadataKey.BPM: self.Id3TextFrame.BPM,
             UnifiedMetadataKey.COMPOSERS: self.Id3TextFrame.COMPOSERS,
@@ -246,7 +246,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.GENRES_NAMES: self.Id3TextFrame.GENRES_NAMES,
             UnifiedMetadataKey.RATING: self.Id3TextFrame.RATING,
             UnifiedMetadataKey.LANGUAGE: self.Id3TextFrame.LANGUAGE,
-            UnifiedMetadataKey.RELEASE_DATE: self.Id3TextFrame.RELEASE_TIME,
+            UnifiedMetadataKey.RELEASE_DATE: self.Id3TextFrame.RECORDING_TIME,
             UnifiedMetadataKey.TRACK_NUMBER: self.Id3TextFrame.TRACK_NUMBER,
             UnifiedMetadataKey.BPM: self.Id3TextFrame.BPM,
             UnifiedMetadataKey.COMPOSERS: self.Id3TextFrame.COMPOSERS,
@@ -329,6 +329,25 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                     continue
                 
                 result[frame_key] = frame_value.text
+
+        # Special handling for release date: if TDRC is not present, try to construct from TYER + TDAT
+        # Only do this for ID3v2 files (not ID3v1) and only when both TYER and TDAT are present
+        if self.Id3TextFrame.RECORDING_TIME not in result:
+            tyer_value = result.get(self.Id3TextFrame.YEAR)
+            tdat_value = result.get(self.Id3TextFrame.DATE)
+            if tyer_value and tdat_value:
+                # Parse TDAT (MMDD) and TYER to construct YYYY-MM-DD
+                try:
+                    year = str(tyer_value[0]) if isinstance(tyer_value, list) else str(tyer_value)
+                    date_str = str(tdat_value[0]) if isinstance(tdat_value, list) else str(tdat_value)
+                    if len(date_str) == 4:  # MMDD format
+                        month = date_str[:2]
+                        day = date_str[2:]
+                        # Construct YYYY-MM-DD
+                        release_date = f"{year}-{month}-{day}"
+                        result[self.Id3TextFrame.RECORDING_TIME] = [release_date]
+                except (IndexError, ValueError):
+                    pass  # If parsing fails, don't add release date
 
         return result
 
@@ -508,7 +527,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
     def update_metadata(self, unified_metadata: UnifiedMetadata):
         """Override to use custom save method with version control and ID3v1 preservation."""
         if not self.metadata_keys_direct_map_write:
-            raise MetadataNotSupportedError('This format does not support metadata modification')
+            raise MetadataNotSupportedByFormatError('This format does not support metadata modification')
 
         # Handle rating conversion first (from parent class)
         if UnifiedMetadataKey.RATING in unified_metadata:
@@ -545,8 +564,8 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         for unified_metadata_key in list(unified_metadata.keys()):
             app_metadata_value = unified_metadata[unified_metadata_key]
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
-                from ...exceptions import MetadataNotSupportedError
-                raise MetadataNotSupportedError(f'{unified_metadata_key} metadata not supported by this format')
+                from ...exceptions import MetadataNotSupportedByFormatError
+                raise MetadataNotSupportedByFormatError(f'{unified_metadata_key} metadata not supported by this format')
             else:
                 raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
                 if raw_metadata_key:

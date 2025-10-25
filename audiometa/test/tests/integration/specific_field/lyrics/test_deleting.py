@@ -2,7 +2,7 @@ import pytest
 
 from audiometa import update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.exceptions import MetadataNotSupportedError
+from audiometa.exceptions import MetadataNotSupportedByFormatError
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGetter
 from audiometa.test.helpers.id3v2.id3v2_metadata_setter import ID3v2MetadataSetter
@@ -24,19 +24,19 @@ class TestLyricsDeleting:
     def test_delete_lyrics_id3v1(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             # ID3v1 doesn't support lyrics, so writing should fail
-            with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.LYRICS metadata not supported by this format"):
+            with pytest.raises(MetadataNotSupportedByFormatError, match="UnifiedMetadataKey.LYRICS metadata not supported by this format"):
                 update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: "Test lyrics"}, metadata_format=MetadataFormat.ID3V1)
 
     def test_delete_lyrics_riff(self):        
         with TempFileWithMetadata({}, "wav") as test_file:
             # RIFF doesn't support lyrics, so writing should fail
-            with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.LYRICS metadata not supported by RIFF format"):
+            with pytest.raises(MetadataNotSupportedByFormatError, match="UnifiedMetadataKey.LYRICS metadata not supported by RIFF format"):
                 update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: "Test lyrics"}, metadata_format=MetadataFormat.RIFF)
 
     def test_delete_lyrics_vorbis(self):        
         with TempFileWithMetadata({}, "flac") as test_file:
             # Vorbis doesn't support lyrics in this implementation, so writing should fail
-            with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.LYRICS metadata not supported by this format"):
+            with pytest.raises(MetadataNotSupportedByFormatError, match="UnifiedMetadataKey.LYRICS metadata not supported by this format"):
                 update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: "Test lyrics"}, metadata_format=MetadataFormat.VORBIS)
 
     def test_delete_lyrics_preserves_other_fields(self):

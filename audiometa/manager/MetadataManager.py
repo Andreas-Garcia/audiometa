@@ -6,7 +6,7 @@ from mutagen._file import FileType as MutagenMetadata
 from ..audio_file import AudioFile
 from ..utils.id3v1_genre_code_map import ID3V1_GENRE_CODE_MAP
 
-from ..exceptions import MetadataNotSupportedError
+from ..exceptions import MetadataNotSupportedByFormatError
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from ..utils.types import UnifiedMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
 
@@ -395,7 +395,7 @@ class MetadataManager:
 
     def get_unified_metadata_field(self, unified_metadata_key: UnifiedMetadataKey) -> AppMetadataValue:
         if unified_metadata_key not in self.metadata_keys_direct_map_read:
-            raise MetadataNotSupportedError(f'{unified_metadata_key} metadata not supported by this format')
+            raise MetadataNotSupportedByFormatError(f'{unified_metadata_key} metadata not supported by this format')
         
         if self.raw_clean_metadata_uppercase_keys is None:
             self._extract_raw_clean_metadata_uppercase_keys_from_file()
@@ -486,7 +486,7 @@ class MetadataManager:
 
     def update_metadata(self, unified_metadata: UnifiedMetadata):
         if not self.metadata_keys_direct_map_write:
-            raise MetadataNotSupportedError('This format does not support metadata modification')
+            raise MetadataNotSupportedByFormatError('This format does not support metadata modification')
 
         if not self.update_using_mutagen_metadata:
             self._update_not_using_mutagen_metadata(unified_metadata)
@@ -505,7 +505,7 @@ class MetadataManager:
                         app_metadata_value = None
                 
                 if unified_metadata_key not in self.metadata_keys_direct_map_write:
-                    raise MetadataNotSupportedError(f'{unified_metadata_key} metadata not supported by this format')
+                    raise MetadataNotSupportedByFormatError(f'{unified_metadata_key} metadata not supported by this format')
                 else:
                     raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
                     if raw_metadata_key:

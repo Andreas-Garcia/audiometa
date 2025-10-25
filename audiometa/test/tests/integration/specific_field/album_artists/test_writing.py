@@ -33,13 +33,13 @@ class TestAlbumArtistsWriting:
             assert metadata.get(UnifiedMetadataKey.ALBUM_ARTISTS) == test_album_artists
 
     def test_id3v1(self):
-        from audiometa.exceptions import MetadataNotSupportedError
+        from audiometa.exceptions import MetadataNotSupportedByFormatError
         
         test_album_artists = ["ID3v1 Album Artist"]
         test_metadata = {UnifiedMetadataKey.ALBUM_ARTISTS: test_album_artists}
         with TempFileWithMetadata({}, "mp3") as test_file:
             # ID3v1 format raises exception for unsupported metadata
-            with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.ALBUM_ARTISTS metadata not supported by this format"):
+            with pytest.raises(MetadataNotSupportedByFormatError, match="UnifiedMetadataKey.ALBUM_ARTISTS metadata not supported by this format"):
                 update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V1)
 
     def test_invalid_type_raises(self):

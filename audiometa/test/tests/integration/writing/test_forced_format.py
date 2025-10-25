@@ -11,7 +11,7 @@ from audiometa import (
     get_unified_metadata,
 )
 from audiometa.exceptions import (
-    MetadataNotSupportedError,
+    MetadataNotSupportedByFormatError,
     MetadataWritingConflictParametersError,
     FileTypeNotSupportedError
 )
@@ -78,8 +78,8 @@ class TestForcedFormat:
                 UnifiedMetadataKey.BPM: 120  # BPM not supported by RIFF format
             }
             
-            # This should raise MetadataNotSupportedError because format is forced
-            with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
+            # This should raise MetadataNotSupportedByFormatError because format is forced
+            with pytest.raises(MetadataNotSupportedByFormatError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
                 update_metadata(test_file.path, unsupported_metadata, 
                                    metadata_format=MetadataFormat.RIFF)
 
@@ -263,7 +263,7 @@ class TestForcedFormat:
             }
             
             # This should fail because BPM is not supported by RIFF
-            with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
+            with pytest.raises(MetadataNotSupportedByFormatError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
                 update_metadata(test_file.path, mixed_metadata, 
                                    metadata_format=MetadataFormat.RIFF)
             

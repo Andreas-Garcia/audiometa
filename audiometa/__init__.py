@@ -13,7 +13,7 @@ import warnings
 from mutagen.id3 import ID3
 
 from .audio_file import AudioFile
-from .exceptions import FileTypeNotSupportedError, MetadataNotSupportedError, MetadataWritingConflictParametersError, InvalidMetadataTypeError
+from .exceptions import FileTypeNotSupportedError, MetadataNotSupportedByFormatError, MetadataWritingConflictParametersError, InvalidMetadataTypeError
 from .utils.types import UnifiedMetadata, AppMetadataValue
 from .utils.MetadataFormat import MetadataFormat
 from .utils.MetadataWritingStrategy import MetadataWritingStrategy
@@ -328,7 +328,7 @@ def update_metadata(
     Raises:
         FileTypeNotSupportedError: If the file format is not supported
         FileNotFoundError: If the file does not exist
-        MetadataNotSupportedError: If the metadata field is not supported by the format (only for PRESERVE, CLEANUP strategies)
+        MetadataNotSupportedByFormatError: If the metadata field is not supported by the format (only for PRESERVE, CLEANUP strategies)
         MetadataWritingConflictParametersError: If both metadata_strategy and metadata_format are specified
         InvalidRatingValueError: If invalid rating values are provided
         
@@ -339,10 +339,10 @@ def update_metadata(
         - Use metadata_format for single-format writing (writes only to specified format)
         
         When metadata_format is specified, metadata is written only to that format and unsupported
-        fields will raise MetadataNotSupportedError.
+        fields will raise MetadataNotSupportedByFormatError.
         
         When metadata_strategy is used, unsupported metadata fields are handled based on the
-        fail_on_unsupported_field parameter: True raises MetadataNotSupportedError, False (default)
+        fail_on_unsupported_field parameter: True raises MetadataNotSupportedByFormatError, False (default)
         handles gracefully with warnings.
         
         Data Filtering:
@@ -455,7 +455,7 @@ def _handle_metadata_strategy(file: AudioFile, unified_metadata: UnifiedMetadata
         
         if unsupported_fields:
             if fail_on_unsupported_field:
-                raise MetadataNotSupportedError(f"Fields not supported by {target_format_actual.value} format: {unsupported_fields}")
+                raise MetadataNotSupportedByFormatError(f"Fields not supported by {target_format_actual.value} format: {unsupported_fields}")
             else:
                 warnings.warn(f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}")
                 # Create filtered metadata without unsupported fields
@@ -471,7 +471,7 @@ def _handle_metadata_strategy(file: AudioFile, unified_metadata: UnifiedMetadata
         if fail_on_unsupported_field:
             unsupported_fields = _check_unsupported_fields(unified_metadata, all_managers)
             if unsupported_fields:
-                raise MetadataNotSupportedError(f"Fields not supported by any format: {unsupported_fields}")
+                raise MetadataNotSupportedByFormatError(f"Fields not supported by any format: {unsupported_fields}")
         else:
             # Filter out unsupported fields when fail_on_unsupported_field is False
             unsupported_fields = _check_unsupported_fields(unified_metadata, all_managers)
@@ -485,7 +485,7 @@ def _handle_metadata_strategy(file: AudioFile, unified_metadata: UnifiedMetadata
         target_manager = all_managers[target_format_actual]
         try:
             target_manager.update_metadata(unified_metadata)
-        except MetadataNotSupportedError as e:
+        except MetadataNotSupportedByFormatError as e:
             # For SYNC strategy, log warning but continue with other formats
             warnings.warn(f"Format {target_format_actual} doesn't support some metadata fields: {e}")
         except Exception as e:
@@ -501,7 +501,7 @@ def _handle_metadata_strategy(file: AudioFile, unified_metadata: UnifiedMetadata
         for fmt, manager in other_managers.items():
             try:
                 manager.update_metadata(unified_metadata)
-            except MetadataNotSupportedError as e:
+            except MetadataNotSupportedByFormatError as e:
                 # For SYNC strategy, log warning but continue with other formats
                 warnings.warn(f"Format {fmt} doesn't support some metadata fields: {e}")
                 continue
@@ -530,7 +530,7 @@ def _handle_metadata_strategy(file: AudioFile, unified_metadata: UnifiedMetadata
         
         if unsupported_fields:
             if fail_on_unsupported_field:
-                raise MetadataNotSupportedError(f"Fields not supported by {target_format_actual.value} format: {unsupported_fields}")
+                raise MetadataNotSupportedByFormatError(f"Fields not supported by {target_format_actual.value} format: {unsupported_fields}")
             else:
                 warnings.warn(f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}")
                 # Create filtered metadata without unsupported fields

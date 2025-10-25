@@ -5,7 +5,7 @@ from audiometa import (
     update_metadata,
     get_unified_metadata,
 )
-from audiometa.exceptions import MetadataNotSupportedError
+from audiometa.exceptions import MetadataNotSupportedByFormatError
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
@@ -20,7 +20,7 @@ class TestFailBehavior:
                 UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # REPLAYGAIN is not supported by any format
             }
             
-            with pytest.raises(MetadataNotSupportedError) as exc_info:
+            with pytest.raises(MetadataNotSupportedByFormatError) as exc_info:
                 update_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
             
             assert "Fields not supported by any format" in str(exc_info.value)

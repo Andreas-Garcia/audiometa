@@ -4,7 +4,7 @@ from audiometa import (
     update_metadata,
     get_unified_metadata,
 )
-from audiometa.exceptions import MetadataNotSupportedError
+from audiometa.exceptions import MetadataNotSupportedByFormatError
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
@@ -29,7 +29,7 @@ class TestStrategySpecific:
                 UnifiedMetadataKey.BPM: 120  # Not supported by RIFF format
             }
             
-            with pytest.raises(MetadataNotSupportedError) as exc_info:
+            with pytest.raises(MetadataNotSupportedByFormatError) as exc_info:
                 update_metadata(test_file.path, test_metadata, 
                                    metadata_strategy=MetadataWritingStrategy.PRESERVE,
                                    fail_on_unsupported_field=True)
@@ -58,7 +58,7 @@ class TestStrategySpecific:
                 UnifiedMetadataKey.BPM: 120  # Not supported by RIFF format
             }
             
-            with pytest.raises(MetadataNotSupportedError) as exc_info:
+            with pytest.raises(MetadataNotSupportedByFormatError) as exc_info:
                 update_metadata(test_file.path, test_metadata, 
                                    metadata_strategy=MetadataWritingStrategy.CLEANUP,
                                    fail_on_unsupported_field=True)
@@ -87,7 +87,7 @@ class TestStrategySpecific:
                 UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # Not supported by any format - should cause failure
             }
             
-            with pytest.raises(MetadataNotSupportedError) as exc_info:
+            with pytest.raises(MetadataNotSupportedByFormatError) as exc_info:
                 update_metadata(test_file.path, test_metadata, 
                                    metadata_strategy=MetadataWritingStrategy.SYNC,
                                    fail_on_unsupported_field=True)
