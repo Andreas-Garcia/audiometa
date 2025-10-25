@@ -95,7 +95,7 @@ GENRE_MAX=1     # Single byte index
 TITLE=$(printf 'a%.0s' $(seq 1 $TITLE_MAX))
 ARTIST=$(printf 'a%.0s' $(seq 1 $ARTIST_MAX))
 ALBUM=$(printf 'a%.0s' $(seq 1 $ALBUM_MAX))
-YEAR="2024"
+YEAR="9999"
 COMMENT=$(printf 'a%.0s' $(seq 1 $COMMENT_MAX))
 TRACK="1"
 GENRE="0"  # Blues = 0
