@@ -92,6 +92,12 @@ class ManualRIFFMetadataCreator:
         ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, fields)
     
     @staticmethod
+    def create_bpm_field(file_path: Path, bpm: str) -> None:
+        """Create TBPM field in the RIFF INFO chunk."""
+        field_data = ManualRIFFMetadataCreator._create_info_field('IBPM', bpm)
+        ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, [field_data])
+    
+    @staticmethod
     def _create_info_field(field_id: str, text: str) -> bytes:
         """Create a single RIFF INFO field with the given FourCC and text."""
         # Encode text as UTF-8 with null terminator
