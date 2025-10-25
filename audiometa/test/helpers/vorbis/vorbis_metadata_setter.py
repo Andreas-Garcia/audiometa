@@ -90,10 +90,16 @@ class VorbisMetadataSetter:
     def set_language(file_path: Path, language: str) -> None:
         command = ["metaflac", "--set-tag", f"LANGUAGE={language}", str(file_path)]
         run_external_tool(command, "metaflac")
-    
+        
     @staticmethod
     def set_bpm(file_path: Path, bpm: int) -> None:
         command = ["metaflac", "--set-tag", f"BPM={bpm}", str(file_path)]
+        run_external_tool(command, "metaflac")
+    
+    @staticmethod
+    def set_release_date(file_path: Path, date_str: str) -> None:
+        """Set Vorbis release date using DATE tag."""
+        command = ["metaflac", "--set-tag", f"DATE={date_str}", str(file_path)]
         run_external_tool(command, "metaflac")
     
     @staticmethod
