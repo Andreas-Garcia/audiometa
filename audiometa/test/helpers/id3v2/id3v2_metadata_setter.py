@@ -114,10 +114,10 @@ class ID3v2MetadataSetter:
     @staticmethod
     def set_lyrics(file_path: Path, lyrics: str, version: str = "2.4") -> None:
         if version == "2.3":
-            command = ["id3v2", "--id3v2-only", "--USLT", f"eng:{lyrics}", str(file_path)]
+            command = ["id3v2", "--id3v2-only", "--USLT", lyrics, str(file_path)]
             run_external_tool(command, "id3v2")
         else:
-            command = ["mid3v2", "--USLT", f"eng:{lyrics}", str(file_path)]
+            command = ["mid3v2", "--USLT", lyrics, str(file_path)]
             run_external_tool(command, "mid3v2")
     
     @staticmethod
