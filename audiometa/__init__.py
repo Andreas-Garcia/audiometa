@@ -267,34 +267,6 @@ def get_unified_metadata_field(file: FILE_TYPE, unified_metadata_key: UnifiedMet
         return None
 
 
-def _check_unsupported_fields(unified_metadata: UnifiedMetadata, all_managers: dict[MetadataFormat, MetadataManager]) -> list[UnifiedMetadataKey]:
-    """
-    Check if any metadata fields are not supported by ANY format.
-    
-    Args:
-        unified_metadata: Dictionary containing metadata to check
-        all_managers: Dictionary of format managers to check against
-        
-    Returns:
-        List of unsupported metadata keys (empty if all fields are supported by at least one format)
-    """
-    unsupported_fields = []
-    
-    for field in unified_metadata.keys():
-        is_supported = False
-        for manager in all_managers.values():
-            # Check if the field is supported by this manager for writing
-            if hasattr(manager, 'metadata_keys_direct_map_write') and manager.metadata_keys_direct_map_write:
-                if field in manager.metadata_keys_direct_map_write:
-                    is_supported = True
-                    break
-        
-        if not is_supported:
-            unsupported_fields.append(field)
-    
-    return unsupported_fields
-
-
 def _validate_unified_metadata_types(unified_metadata: UnifiedMetadata) -> None:
     """Validate types of values in unified_metadata against UnifiedMetadataKey.get_optional_type().
 
@@ -505,16 +477,24 @@ def _handle_metadata_strategy(file: AudioFile, unified_metadata: UnifiedMetadata
         
     elif strategy == MetadataWritingStrategy.SYNC:
         # For SYNC, we need to write to all available formats
-        # Check if any fields are unsupported by ALL formats when fail_on_unsupported_field is True
+        # Check if any fields are unsupported by the target format when fail_on_unsupported_field is True
         if fail_on_unsupported_field:
-            unsupported_fields = _check_unsupported_fields(unified_metadata, all_managers)
+            target_manager = all_managers[target_format_actual]
+            unsupported_fields = []
+            for field in unified_metadata.keys():
+                if field not in target_manager.metadata_keys_direct_map_write:
+                    unsupported_fields.append(field)
             if unsupported_fields:
-                raise MetadataFieldNotSupportedByMetadataFormatError(f"Fields not supported by any format: {unsupported_fields}")
+                raise MetadataFieldNotSupportedByMetadataFormatError(f"Fields not supported by {target_format_actual.value} format: {unsupported_fields}")
         else:
             # Filter out unsupported fields when fail_on_unsupported_field is False
-            unsupported_fields = _check_unsupported_fields(unified_metadata, all_managers)
+            target_manager = all_managers[target_format_actual]
+            unsupported_fields = []
+            for field in unified_metadata.keys():
+                if field not in target_manager.metadata_keys_direct_map_write:
+                    unsupported_fields.append(field)
             if unsupported_fields:
-                warnings.warn(f"Fields not supported by any format will be skipped: {unsupported_fields}")
+                warnings.warn(f"Fields not supported by {target_format_actual.value} format will be skipped: {unsupported_fields}")
                 # Create filtered metadata without unsupported fields
                 filtered_metadata = {k: v for k, v in unified_metadata.items() if k not in unsupported_fields}
                 unified_metadata = filtered_metadata
