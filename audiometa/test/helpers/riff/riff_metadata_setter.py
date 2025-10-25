@@ -24,7 +24,7 @@ class RIFFMetadataSetter:
             'track': '--ITRK',
             'bpm': '--TBPM',
             'composer': '--ICMP',
-            'lyrics': '--ILYT',
+            'lyrics': '--ILYR',
             'language': '--ILNG',
             'album_artist': '--IAAR',
             'rating': '--IRTD'
@@ -94,8 +94,8 @@ class RIFFMetadataSetter:
     
     @staticmethod
     def set_lyrics(file_path: Path, lyrics: str) -> None:
-        command = ["bwfmetaedit", f"--ILYT={lyrics}", str(file_path)]
-        run_external_tool(command, "bwfmetaedit")
+        from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
+        ManualRIFFMetadataCreator.create_lyrics_field(file_path, lyrics)
     
     @staticmethod
     def set_language(file_path: Path, language: str) -> None:
@@ -178,13 +178,6 @@ class RIFFMetadataSetter:
         ManualRIFFMetadataCreator.create_multiple_album_artist_fields(file_path, album_artists)
     
     @staticmethod
-    def set_multiple_comments(file_path: Path, comments: List[str], in_separate_frames: bool = False):
-        """Set multiple comments, optionally in separate ICMT frames."""
-        if in_separate_frames:
-            from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
-            ManualRIFFMetadataCreator.create_multiple_comment_fields(file_path, comments)
-        else:
-            # For now, just set the first comment
-            if comments:
-                command = ["bwfmetaedit", f"--ICMT={comments[0]}", str(file_path)]
-                run_external_tool(command, "bwfmetaedit")
+    def set_release_date(file_path: Path, release_date: str) -> None:
+        command = ["bwfmetaedit", f"--ICRD={release_date}", str(file_path)]
+        run_external_tool(command, "bwfmetaedit")
