@@ -28,7 +28,7 @@ from .manager.rating_supporting.VorbisManager import VorbisManager
 
 FILE_EXTENSION_NOT_HANDLED_MESSAGE = "The file's format is not handled by the service."
 
-TAG_FORMAT_MANAGER_CLASS_MAP = {
+METADATA_FORMAT_MANAGER_CLASS_MAP = {
     MetadataFormat.ID3V1: Id3v1Manager,
     MetadataFormat.ID3V2: Id3v2Manager,
     MetadataFormat.VORBIS: VorbisManager,
@@ -55,7 +55,7 @@ def _get_metadata_manager(
             raise MetadataFormatNotSupportedByAudioFormatError(
                 f"Tag format {metadata_format} not supported for file extension {file.file_extension}")
 
-    manager_class = TAG_FORMAT_MANAGER_CLASS_MAP[metadata_format]
+    manager_class = METADATA_FORMAT_MANAGER_CLASS_MAP[metadata_format]
     if issubclass(manager_class, RatingSupportingMetadataManager):
         if manager_class == Id3v2Manager:
             # Determine ID3v2 version based on provided version or use default
