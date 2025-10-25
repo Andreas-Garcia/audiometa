@@ -28,14 +28,13 @@ class TestLyricsWriting:
             assert raw_metadata['USLT'] == [f"eng\x00{test_lyrics}"]
             
     def test_riff(self):
-        from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
-        
         with TempFileWithMetadata({}, "wav") as test_file:
             test_lyrics = "RIFF test lyrics\nWith multiple lines\nFor testing purposes"
             test_metadata = {UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: test_lyrics}
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
             
-            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS metadata not supported by RIFF format"):
-                update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
+            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
+            assert f"TAG:lyrics={test_lyrics}" in raw_metadata
 
     def test_vorbis(self):
         from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
