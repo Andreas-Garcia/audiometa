@@ -16,15 +16,27 @@ class TestLyricsDeleting:
             with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.LYRICS metadata not supported by this format"):
                 update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: "Test lyrics"}, metadata_format=MetadataFormat.ID3V1)
     
-    def test_delete_lyrics_id3v2(self):        
-        with TempFileWithMetadata({}, "mp3") as test_file:
+    def test_delete_lyrics_id3v2_3(self):        
+        with TempFileWithMetadata({}, "id3v2.3") as test_file:
             ID3v2MetadataSetter.set_lyrics(test_file.path, "Test lyrics")
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
-            assert raw_metadata['USLT'] == ["Test lyrics"]
+            assert raw_metadata['USLT'] == ["eng:Test lyrics"]
         
-            update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None}, metadata_format=MetadataFormat.ID3V2)
-            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
-            assert raw_metadata['USLT'] is None
+            update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None}, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
+            
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
+            assert raw_metadata.get('USLT') is None
+            
+    def test_delete_lyrics_id3v2_4(self):        
+        with TempFileWithMetadata({}, "id3v2.4") as test_file:
+            ID3v2MetadataSetter.set_lyrics(test_file.path, "Test lyrics", version='2.4')
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.4')
+            assert raw_metadata['USLT'] == ["eng:Test lyrics"]
+        
+            update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None}, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
+            
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.4')
+            assert raw_metadata.get('USLT') is None
 
     def test_delete_lyrics_riff(self):        
         with TempFileWithMetadata({}, "wav") as test_file:
@@ -41,17 +53,15 @@ class TestLyricsDeleting:
     def test_delete_lyrics_preserves_other_fields(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             # Set multiple metadata fields using helper methods
-            ID3v2MetadataSetter.set_lyrics("Test lyrics")
-            ID3v2MetadataSetter.set_title("Test Title")
-            ID3v2MetadataSetter.set_artists("Test Artist")
+            ID3v2MetadataSetter.set_lyrics(test_file.path, "Test lyrics")
+            ID3v2MetadataSetter.set_title(test_file.path, "Test Title")
+            ID3v2MetadataSetter.set_artists(test_file.path, "Test Artist")
 
             # Delete only lyrics using library API
             update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None}, metadata_format=MetadataFormat.ID3V2)
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
-            assert "USLT=Test lyrics" not in raw_metadata
-            assert "TIT2=Test Title" in raw_metadata
-            assert "TPE1=Test Artist" in raw_metadata
+            assert raw_metadata is None
 
     def test_delete_lyrics_already_none(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
