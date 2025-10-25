@@ -61,6 +61,7 @@ class VorbisManager(RatingSupportingMetadataManager):
         CONTACT = 'CONTACT'  # Contact information
         ISRC = 'ISRC'  # International Standard Recording Code
         ENCODED_BY = 'ENCODEDBY'  # Encoder software
+        UNSYNCHRONIZED_LYRICS = 'LYRICS' # Not standard
 
     def __init__(self, audio_file: AudioFile, normalized_rating_max_value: int | None = None):
         metadata_keys_direct_map_read = {
@@ -76,6 +77,7 @@ class VorbisManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.COMPOSERS: self.VorbisKey.COMPOSERS,
             UnifiedMetadataKey.COPYRIGHT: self.VorbisKey.COPYRIGHT,
             UnifiedMetadataKey.COMMENT: self.VorbisKey.COMMENT,
+            UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: self.VorbisKey.UNSYNCHRONIZED_LYRICS,
         }
         metadata_keys_direct_map_write = {
             UnifiedMetadataKey.TITLE: self.VorbisKey.TITLE,
@@ -90,6 +92,7 @@ class VorbisManager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.COMPOSERS: self.VorbisKey.COMPOSERS,
             UnifiedMetadataKey.COPYRIGHT: self.VorbisKey.COPYRIGHT,
             UnifiedMetadataKey.COMMENT: self.VorbisKey.COMMENT,
+            UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: self.VorbisKey.UNSYNCHRONIZED_LYRICS,
         }
         super().__init__(audio_file=audio_file,
                          metadata_keys_direct_map_read=metadata_keys_direct_map_read,
