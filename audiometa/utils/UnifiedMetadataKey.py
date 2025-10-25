@@ -16,7 +16,7 @@ class UnifiedMetadataKey(str, Enum):
     COMPOSERS = 'composer'
     PUBLISHER = 'publisher'
     COPYRIGHT = 'copyright'
-    LYRICS = 'lyrics'
+    UNSYNCHRONIZED_LYRICS = 'unsynchronized_lyrics'
     COMMENT = 'comment'
 
     def can_semantically_have_multiple_values(self) -> bool:
@@ -48,7 +48,7 @@ class UnifiedMetadataKey(str, Enum):
             UnifiedMetadataKey.COMPOSERS: list[str],
             UnifiedMetadataKey.PUBLISHER: str,
             UnifiedMetadataKey.COPYRIGHT: str,
-            UnifiedMetadataKey.LYRICS: str,
+            UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: str,
             UnifiedMetadataKey.COMMENT: str,
         }
         type = APP_METADATA_KEYS_OPTIONAL_TYPES_MAP.get(self)

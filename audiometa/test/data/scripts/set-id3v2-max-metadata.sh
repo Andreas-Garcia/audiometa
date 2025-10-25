@@ -134,7 +134,7 @@ PUBLISHER=$(printf 'a%.0s' $(seq 1 $TEXT_BIG_LENGTH))
 CONDUCTOR=$(printf 'a%.0s' $(seq 1 $TEXT_BIG_LENGTH))
 REMIXER=$(printf 'a%.0s' $(seq 1 $TEXT_BIG_LENGTH))
 MOOD=$(printf 'a%.0s' $(seq 1 $TEXT_BIG_LENGTH))
-LYRICS=$(printf 'a%.0s' $(seq 1 $MAX_COMMENT))
+UNSYNCHRONIZED_LYRICS=$(printf 'a%.0s' $(seq 1 $MAX_COMMENT))
 URL=$(printf 'a%.0s' $(seq 1 $MAX_URL))
 ISRC="USXXX9999999"  # Maximum ISRC format
 
@@ -188,7 +188,7 @@ mid3v2 \
     --WXXX "$URL" \
     --TDRC "$RECORDING_DATE" \
     --TDOR "$ORIGINAL_RELEASE" \
-    --USLT "eng:$LYRICS" \
+    --USLT "eng:$UNSYNCHRONIZED_LYRICS" \
     "$RESOLVED_FILE"
 
 if [ $? -ne 0 ]; then

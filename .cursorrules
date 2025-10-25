@@ -253,11 +253,11 @@ def test_id3v1_genre_reading(self):
 def test_delete_lyrics_id3v2(self):
     with TempFileWithMetadata({}, "mp3") as test_file:
         # ❌ Using our own library to set initial data - poor test isolation
-        update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: "Test lyrics"})
+        update_metadata(test_file.path, {UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: "Test lyrics"})
 
         # Testing deletion - but we used our own writing logic to set up!
-        update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None})
-        assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LYRICS) is None
+        update_metadata(test_file.path, {UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: None})
+        assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS) is None
 ```
 
 #### ✅ CORRECT - Use external tools for proper test isolation:
@@ -278,8 +278,8 @@ def test_delete_lyrics_id3v2(self):
         test_file.set_id3v2_lyrics("Test lyrics")
 
         # Test deletion using our library
-        update_metadata(test_file.path, {UnifiedMetadataKey.LYRICS: None})
-        assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LYRICS) is None
+        update_metadata(test_file.path, {UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: None})
+        assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS) is None
 ```
 
 #### ✅ ALTERNATIVE - Use TempFileWithMetadata with specific format:

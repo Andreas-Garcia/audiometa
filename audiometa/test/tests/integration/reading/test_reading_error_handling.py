@@ -34,5 +34,5 @@ class TestReadingErrorHandling:
     def test_metadata_key_not_found_returns_none(self, sample_mp3_file: Path):
         # This should not raise an error, but return None when the field is not found
         # Using a valid UnifiedMetadataKey that might not be present in the file
-        result = get_unified_metadata_field(sample_mp3_file, UnifiedMetadataKey.LYRICS)
+        result = get_unified_metadata_field(sample_mp3_file, UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS)
         assert result is None

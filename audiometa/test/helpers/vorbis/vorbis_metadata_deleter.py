@@ -39,7 +39,7 @@ class VorbisMetadataDeleter:
     
     @staticmethod
     def delete_lyrics(file_path: Path) -> None:
-        VorbisMetadataDeleter.delete_tag(file_path, "LYRICS")
+        VorbisMetadataDeleter.delete_tag(file_path, "UNSYNCHRONIZED_LYRICS")
     
     @staticmethod
     def delete_language(file_path: Path) -> None:

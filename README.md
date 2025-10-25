@@ -1232,7 +1232,7 @@ The library supports a comprehensive set of metadata fields across different aud
 | Composers           | ✗            | TCOM                       | COMPOSER                       | ICMP            | ✓ as list         |
 | Publisher           | ✗            | TPUB                       | ORGANIZATION                   | ✗               | ✓                 |
 | Copyright           | ✗            | TCOP                       | COPYRIGHT                      | ICOP            | ✓                 |
-| Lyrics              | ✗            | USLT                       | LYRICS\*                       | ✗               | ✓                 |
+| Lyrics              | ✗            | USLT                       | UNSYNCHRONIZED_LYRICS\*        | ✗               | ✓                 |
 | Synchronized Lyrics | ✗            | SYLT                       | ✗                              | ✗               |                   |
 | Comment             | COMMENT (28) | COMM                       | COMMENT                        | ICMT            | ✓                 |
 | Encoder             | ✗            | TENC                       | ENCODEDBY                      | ISFT            |                   |
@@ -1996,13 +1996,13 @@ TODO: Implement full multi-language support in future versions.
 
 ##### RIFF Unsynchronized Lyrics
 
-RIFF INFO chunks do not have native support for lyrics. The library supports storing unsynchronized lyrics in the `LYRICS` chunk.
+RIFF INFO chunks do not have native support for lyrics. The library supports storing unsynchronized lyrics in the `UNSYNCHRONIZED_LYRICS` chunk.
 
 It does not support language codes or multiple lyrics entries due to lack of standardization.
 
 ##### Vorbis Unsynchronized Lyrics
 
-Vorbis comments support lyrics through the `LYRICS` field.
+Vorbis comments support lyrics through the `UNSYNCHRONIZED_LYRICS` field.
 It does not support language codes or multiple lyrics entries due to lack of standardization.
 
 #### Synchronized Lyrics

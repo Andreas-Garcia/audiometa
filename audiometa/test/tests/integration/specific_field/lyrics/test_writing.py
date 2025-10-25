@@ -12,7 +12,7 @@ class TestLyricsWriting:
     def test_id3v2_3_default_en(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             test_lyrics = "These are test lyrics\nWith multiple lines\nFor testing purposes"
-            test_metadata = {UnifiedMetadataKey.LYRICS: test_lyrics}
+            test_metadata = {UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: test_lyrics}
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
@@ -21,7 +21,7 @@ class TestLyricsWriting:
     def test_id3v2_4_default_en(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             test_lyrics = "These are test lyrics\nWith multiple lines\nFor testing purposes"
-            test_metadata = {UnifiedMetadataKey.LYRICS: test_lyrics}
+            test_metadata = {UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: test_lyrics}
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.4')
@@ -32,9 +32,9 @@ class TestLyricsWriting:
         
         with TempFileWithMetadata({}, "wav") as test_file:
             test_lyrics = "RIFF test lyrics\nWith multiple lines\nFor testing purposes"
-            test_metadata = {UnifiedMetadataKey.LYRICS: test_lyrics}
+            test_metadata = {UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: test_lyrics}
             
-            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.LYRICS metadata not supported by RIFF format"):
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS metadata not supported by RIFF format"):
                 update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
 
     def test_vorbis(self):
@@ -42,16 +42,16 @@ class TestLyricsWriting:
         
         with TempFileWithMetadata({}, "flac") as test_file:
             test_lyrics = "Vorbis test lyrics\nWith multiple lines\nFor testing purposes"
-            test_metadata = {UnifiedMetadataKey.LYRICS: test_lyrics}
+            test_metadata = {UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: test_lyrics}
         
             # Vorbis format raises exception for unsupported metadata
-            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.LYRICS metadata not supported by this format"):
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS metadata not supported by this format"):
                 update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
 
     def test_invalid_type_raises(self):
         from audiometa.exceptions import InvalidMetadataFieldTypeError
 
         with TempFileWithMetadata({}, "mp3") as test_file:
-            bad_metadata = {UnifiedMetadataKey.LYRICS: 12345}
+            bad_metadata = {UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: 12345}
             with pytest.raises(InvalidMetadataFieldTypeError):
                 update_metadata(test_file.path, bad_metadata)

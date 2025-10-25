@@ -185,7 +185,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         COMPOSERS = 'TCOM'
         PUBLISHER = 'TPUB'
         COPYRIGHT = 'TCOP'
-        LYRICS = 'USLT'  # Unsynchronized lyrics frame
+        UNSYNCHRONIZED_LYRICS = 'USLT'  # Unsynchronized lyrics frame
         COMMENT = 'COMM'  # Comment frame
         ENCODER = 'TENC'
         URL = 'WOAR'  # Official artist/performer webpage
@@ -210,7 +210,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         Id3TextFrame.COMPOSERS: TCOM,
         Id3TextFrame.PUBLISHER: TPUB,
         Id3TextFrame.COPYRIGHT: TCOP,
-        Id3TextFrame.LYRICS: USLT,
+        Id3TextFrame.UNSYNCHRONIZED_LYRICS: USLT,
         Id3TextFrame.COMMENT: COMM,
         Id3TextFrame.ENCODER: TENC,
         Id3TextFrame.URL: WOAR,
@@ -235,7 +235,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.COMPOSERS: self.Id3TextFrame.COMPOSERS,
             UnifiedMetadataKey.PUBLISHER: self.Id3TextFrame.PUBLISHER,
             UnifiedMetadataKey.COPYRIGHT: self.Id3TextFrame.COPYRIGHT,
-            UnifiedMetadataKey.LYRICS: self.Id3TextFrame.LYRICS,
+            UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: self.Id3TextFrame.UNSYNCHRONIZED_LYRICS,
             UnifiedMetadataKey.COMMENT: self.Id3TextFrame.COMMENT,
         }
         metadata_keys_direct_map_write: dict = {
@@ -252,7 +252,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
             UnifiedMetadataKey.COMPOSERS: self.Id3TextFrame.COMPOSERS,
             UnifiedMetadataKey.PUBLISHER: self.Id3TextFrame.PUBLISHER,
             UnifiedMetadataKey.COPYRIGHT: self.Id3TextFrame.COPYRIGHT,
-            UnifiedMetadataKey.LYRICS: self.Id3TextFrame.LYRICS,
+            UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: self.Id3TextFrame.UNSYNCHRONIZED_LYRICS,
             UnifiedMetadataKey.COMMENT: self.Id3TextFrame.COMMENT,
         }
 
@@ -306,7 +306,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
                         comm_frame = raw_mutagen_frame[1]
                         result[frame_key] = comm_frame.text
                         break
-            elif frame_key == self.Id3TextFrame.LYRICS:
+            elif frame_key == self.Id3TextFrame.UNSYNCHRONIZED_LYRICS:
                 # Handle USLT frames (unsynchronized lyrics frames)
                 for raw_mutagen_frame in raw_mutagen_metadata.items():
                     if raw_mutagen_frame[0].startswith('USLT'):
@@ -430,7 +430,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         elif raw_metadata_key == self.Id3TextFrame.COMMENT:
             # Handle COMM frames (comment frames)
             raw_mutagen_metadata_id3.add(text_frame_class(encoding=encoding, lang='eng', desc='', text=app_metadata_value))
-        elif raw_metadata_key == self.Id3TextFrame.LYRICS:
+        elif raw_metadata_key == self.Id3TextFrame.UNSYNCHRONIZED_LYRICS:
             # Handle USLT frames (unsynchronized lyrics frames)
             raw_mutagen_metadata_id3.add(text_frame_class(encoding=encoding, lang='eng', desc='', text=app_metadata_value))
         elif raw_metadata_key == self.Id3TextFrame.URL:

@@ -19,11 +19,11 @@ class TestMetadataFieldValidation:
         assert "UnifiedMetadataKey.BPM metadata not supported by this format" in str(exc_info.value)
 
     def test_lyrics_not_supported_by_riff(self, sample_wav_file: Path):
-        """Test that LYRICS is not supported by RIFF format."""
+        """Test that UNSYNCHRONIZED_LYRICS is not supported by RIFF format."""
         with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError) as exc_info:
-            get_unified_metadata_field(sample_wav_file, UnifiedMetadataKey.LYRICS, metadata_format=MetadataFormat.RIFF)
+            get_unified_metadata_field(sample_wav_file, UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS, metadata_format=MetadataFormat.RIFF)
         
-        assert "UnifiedMetadataKey.LYRICS metadata not supported by this format" in str(exc_info.value)
+        assert "UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS metadata not supported by this format" in str(exc_info.value)
 
     def test_bpm_not_supported_by_id3v1(self, sample_mp3_file: Path):
         """Test that BPM is not supported by ID3v1 format."""
