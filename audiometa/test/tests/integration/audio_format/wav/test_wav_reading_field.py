@@ -21,14 +21,14 @@ class TestWavReading:
 
     def test_riff_metadata_reading_wav(self, metadata_riff_small_wav):
         with TempFileWithMetadata({}, "wav") as test_file:
-            RIFFMetadataSetter.set_metadata(test_file.path, {"title": "RIFF Small Title"})
+            RIFFMetadataSetter.set_title(test_file.path, "RIFF Small Title")
 
             title = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.TITLE, metadata_format=MetadataFormat.RIFF)
             assert title == "RIFF Small Title"
 
     def test_id3v2_3_metadata_reading_wav(self):
         with TempFileWithMetadata({}, "id3v2.3") as test_file:
-            ID3v2MetadataSetter.set_metadata(test_file.path, {"title": "ID3v2.3 Long Title That Exceeds RIFF Limits"}, version='2.3')
+            ID3v2MetadataSetter.set_title(test_file.path, "ID3v2.3 Long Title That Exceeds RIFF Limits", version='2.3')
             
             assert ID3v2HeaderVerifier.get_id3v2_version(test_file.path) == (2, 3, 0)
 
