@@ -16,7 +16,7 @@ class TestLyricsWriting:
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
-            assert f"USLT={test_lyrics}" in raw_metadata
+            assert raw_metadata['USLT'] == [f"eng\x00{test_lyrics}"]
 
     def test_id3v2_4(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
@@ -25,7 +25,7 @@ class TestLyricsWriting:
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.4')
-            assert f"USLT={test_lyrics}" in raw_metadata
+            assert raw_metadata['USLT'] == [f"eng\x00{test_lyrics}"]
             
     def test_riff(self):
         from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
