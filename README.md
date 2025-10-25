@@ -52,7 +52,6 @@ A comprehensive Python library for reading and writing audio metadata across mul
   - [Writing Metadata (API Reference)](#writing-metadata-api-reference)
     - [Metadata Dictionary Structure](#metadata-dictionary-structure)
     - [Validation](#validation)
-    - [`update_metadata(file_path, metadata, **options)`](#update_metadatafile_path-metadata-options)
     - [Writing Defaults by Audio Format](#writing-defaults-by-audio-format)
     - [Writing Strategies](#writing-strategies)
       - [Available Strategies](#available-strategies)
