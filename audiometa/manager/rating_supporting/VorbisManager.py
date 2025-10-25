@@ -105,8 +105,24 @@ class VorbisManager(RatingSupportingMetadataManager):
         """
         comments = {}
         with open(self.audio_file.get_file_path_or_object(), "rb") as f:
-            # --- Step 1: Skip FLAC header ---
+            # --- Step 1: Skip ID3v2 tags if present, then find FLAC header ---
             header = f.read(4)
+            if header == b'ID3\x03' or header == b'ID3\x04':
+                # ID3v2 tag present, skip it
+                f.seek(0)  # Reset to beginning
+                # Read ID3v2 header to get tag size
+                id3_header = f.read(10)
+                if len(id3_header) >= 10:
+                    # ID3v2 tag size is stored in bytes 6-9 (syncsafe integer)
+                    tag_size = ((id3_header[6] & 0x7F) << 21) | \
+                              ((id3_header[7] & 0x7F) << 14) | \
+                              ((id3_header[8] & 0x7F) << 7) | \
+                              (id3_header[9] & 0x7F)
+                    # Skip the ID3v2 tag
+                    f.seek(tag_size + 10)
+                # Now read the FLAC header
+                header = f.read(4)
+            
             if header != b'fLaC':
                 raise ValueError("Not a valid FLAC file")
 
