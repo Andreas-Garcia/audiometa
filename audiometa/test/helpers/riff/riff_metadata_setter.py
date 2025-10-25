@@ -64,8 +64,8 @@ class RIFFMetadataSetter:
         run_external_tool(command, "bwfmetaedit")
     
     @staticmethod
-    def set_genre(file_path: Path, genre: str) -> None:
-        command = ["bwfmetaedit", f"--IGNR={genre}", str(file_path)]
+    def set_genres(file_path: Path, genres: List[str]) -> None:
+        command = ["bwfmetaedit", f"--IGNR={','.join(genres)}", str(file_path)]
         run_external_tool(command, "bwfmetaedit")
     
     @staticmethod
@@ -77,7 +77,7 @@ class RIFFMetadataSetter:
         except ExternalMetadataToolError:
             try:
                 # Fallback to bwfmetaedit
-                RIFFMetadataSetter.set_genre(file_path, genre_text)
+                RIFFMetadataSetter.set_genres(file_path, genre_text)
             except ExternalMetadataToolError as e:
                 raise RuntimeError(f"Failed to set RIFF genre: {e}") from e
     
