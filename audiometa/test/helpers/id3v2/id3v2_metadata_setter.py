@@ -35,7 +35,8 @@ class ID3v2MetadataSetter:
             'genre': '--genre',
             'comment': '--comment',
             'track': '--track',
-            'bpm': '--TBPM'
+            'bpm': '--TBPM',
+            'composer': '--TCOM'
         }
         
         for key, value in metadata.items():
