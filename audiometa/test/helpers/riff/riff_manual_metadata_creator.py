@@ -99,8 +99,8 @@ class ManualRIFFMetadataCreator:
     
     @staticmethod
     def create_lyrics_field(file_path: Path, lyrics: str) -> None:
-        """Create ILYT field in the RIFF INFO chunk."""
-        field_data = ManualRIFFMetadataCreator._create_info_field('ILYT', lyrics)
+        """Create ILYR field in the RIFF INFO chunk."""
+        field_data = ManualRIFFMetadataCreator._create_info_field('ILYR', lyrics)
         ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, [field_data])
     
     @staticmethod
