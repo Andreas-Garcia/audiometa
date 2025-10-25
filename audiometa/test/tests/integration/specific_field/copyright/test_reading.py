@@ -23,7 +23,6 @@ class TestCopyrightReading:
 
     def test_vorbis(self):
         with TempFileWithMetadata({"title": "Test Song", "copyright": "Test Copyright"}, "flac") as test_file:
-            test_file.set_vorbis_max_metadata()
             copyright_info = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.COPYRIGHT)
             assert copyright_info == "Test Copyright"
 
