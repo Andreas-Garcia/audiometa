@@ -6,7 +6,8 @@ from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.exceptions import MetadataNotSupportedError
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGetter
-
+from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
+from audiometa.test.helpers.riff.riff_metadata_setter import RIFFMetadataSetter
 
 @pytest.mark.integration
 class TestLyricsWriting:
@@ -20,13 +21,13 @@ class TestLyricsWriting:
             assert f"USLT={test_lyrics}" in raw_metadata
 
     def test_riff(self):
-     TempFileWithMetadata({}, "wav") as test_file:
+        with TempFileWithMetadata({}, "wav") as test_file:
             test_lyrics = "RIFF test lyrics\nWith multiple lines\nFor testing purposes"
             test_metadata = {UnifiedMetadataKey.LYRICS: test_lyrics}
-        
-            # RIFF format raises exception for unsupported metadata
-            with pytest.raises(MetadataNotSupportedError, match="UnifiedMetadataKey.LYRICS metadata not supported by RIFF format"):
-                update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
+            update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
+            
+            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
+            assert f"USLT={test_lyrics}" in raw_metadata
 
     def test_vorbis(self):
         from audiometa.exceptions import MetadataNotSupportedError
