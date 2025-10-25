@@ -1220,7 +1220,7 @@ The library supports a comprehensive set of metadata fields across different aud
 | Track Number      | TRACK (1#)   | TRCK (0-255#)              | TRACKNUMBER (Unlim#)           | IPRT (Unlim#)   | ✓                 |
 | Disc Number       | ✗            | TPOS (0-255#)              | DISCNUMBER (Unlim#)            | ✗               | Format limit      |
 | Rating            | ✗            | POPM (0-255#)              | RATING (0-100#)                | IRTD\* (0-100#) | ✓                 |
-| BPM               | ✗            | TBPM (0-65535#)            | BPM (0-65535#)                 | ✗               | ✓                 |
+| BPM               | ✗            | TBPM (0-65535#)            | BPM (0-65535#)                 | IBPM\*          | ✓                 |
 | Language          | ✗            | TLAN (3)                   | LANGUAGE (3)                   | ILNG\* (3)      | ✓                 |
 | Composers         | ✗            | TCOM                       | COMPOSER                       | ICMP            | ✓ as list         |
 | Publisher         | ✗            | TPUB                       | ORGANIZATION                   | ✗               | ✓                 |
