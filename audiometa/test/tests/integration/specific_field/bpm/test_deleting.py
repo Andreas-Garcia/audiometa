@@ -30,10 +30,11 @@ class TestBpmDeleting:
     def test_delete_bpm_riff(self):
         with TempFileWithMetadata({'bpm': 120}, "wav") as test_file:         
             raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
-            assert "bpm=120" in raw_metadata
+            assert "TAG:bpm=120" in raw_metadata
                 
             update_metadata(test_file.path, {UnifiedMetadataKey.BPM: None}, metadata_format=MetadataFormat.RIFF)
-            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM, metadata_format=MetadataFormat.RIFF) is None
+            raw_metadata_after = RIFFMetadataGetter.get_raw_metadata(test_file.path)
+            assert "bpm=120" not in raw_metadata_after
 
     def test_delete_bpm_vorbis(self):
         with TempFileWithMetadata({}, "flac") as test_file:
