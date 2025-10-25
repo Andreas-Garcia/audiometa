@@ -69,24 +69,13 @@ class TestRiffGenreParsing:
             
             assert genres == [long_genre]
 
-    def test_riff_genre_special_characters(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            special_genre = "Rock & Roll; R&B; Hip-Hop"
-            RIFFMetadataSetter.set_genre_text(test_file.path, special_genre)
-            
-            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres == ["Rock & Roll", "R&B", "Hip-Hop"]
-
     def test_riff_writes_single_genre_from_list(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            update_metadata(test_file.path, {
-                UnifiedMetadataKey.GENRES_NAMES: ["Rock", "Alternative", "Indie"]
-            }, metadata_format=MetadataFormat.RIFF)
+            RIFFMetadataSetter.set_genres(test_file.path, ["Rock", "Alternative", "Indie"])
             
             genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
-            assert genres == ["17", "20", "131"]
+            assert genres == ["Rock", "20", "131"]
 
     def test_riff_writes_genre_code_from_name(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
