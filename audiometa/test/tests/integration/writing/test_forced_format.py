@@ -72,14 +72,14 @@ class TestForcedFormat:
             "artist": "Test Artist"
         }
         with TempFileWithMetadata(initial_metadata, "wav") as test_file:
-            # Try to write BPM to RIFF format (not supported)
+            # Try to write ARCHIVAL_LOCATION to RIFF format (not supported)
             unsupported_metadata = {
                 UnifiedMetadataKey.TITLE: "Test Title",
-                UnifiedMetadataKey.BPM: 120  # BPM not supported by RIFF format
+                UnifiedMetadataKey.ARCHIVAL_LOCATION: "some location"  # ARCHIVAL_LOCATION not supported by RIFF format
             }
             
             # This should raise MetadataFieldNotSupportedByMetadataFormatError because format is forced
-            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.ARCHIVAL_LOCATION metadata not supported by RIFF format"):
                 update_metadata(test_file.path, unsupported_metadata, 
                                    metadata_format=MetadataFormat.RIFF)
 
@@ -258,12 +258,12 @@ class TestForcedFormat:
             mixed_metadata = {
                 UnifiedMetadataKey.TITLE: "New Title",  # Supported
                 UnifiedMetadataKey.ARTISTS: ["New Artist"],  # Supported
-                UnifiedMetadataKey.BPM: 120,  # NOT supported by RIFF
+                UnifiedMetadataKey.ARCHIVAL_LOCATION: "some location",  # NOT supported by RIFF
                 UnifiedMetadataKey.ALBUM: "New Album"  # Supported
             }
             
-            # This should fail because BPM is not supported by RIFF
-            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.BPM metadata not supported by RIFF format"):
+            # This should fail because ARCHIVAL_LOCATION is not supported by RIFF
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.ARCHIVAL_LOCATION metadata not supported by RIFF format"):
                 update_metadata(test_file.path, mixed_metadata, 
                                    metadata_format=MetadataFormat.RIFF)
             
