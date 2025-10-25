@@ -1,7 +1,6 @@
 import pytest
 
-
-
+from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
 from audiometa.test.helpers.id3v2 import ID3v2MetadataGetter
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
@@ -24,12 +23,9 @@ class TestComposerDeleting:
 
     def test_delete_composer_id3v1(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-        
-            update_metadata(test_file.path, {UnifiedMetadataKey.COMPOSERS: ["Test Composer"]}, metadata_format=MetadataFormat.ID3V1)
-            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.COMPOSERS) == ["Test Composer"]
-        
-            update_metadata(test_file.path, {UnifiedMetadataKey.COMPOSERS: None}, metadata_format=MetadataFormat.ID3V1)
-            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.COMPOSERS) is None
+            # ID3v1 format raises exception for unsupported metadata
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.COMPOSERS metadata not supported by this format"):
+                update_metadata(test_file.path, {UnifiedMetadataKey.COMPOSERS: ["Test Composer"]}, metadata_format=MetadataFormat.ID3V1)
 
     def test_delete_composer_riff(self):
         with TempFileWithMetadata({}, "wav") as test_file:
