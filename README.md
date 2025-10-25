@@ -27,6 +27,7 @@ A comprehensive Python library for reading and writing audio metadata across mul
   - [Common Use Cases](#common-use-cases)
 - [Quick Start](#quick-start)
   - [Reading Metadata](#reading-metadata)
+    - [Reading from a specific metadata format](#reading-from-a-specific-metadata-format)
     - [Reading All Metadata](#reading-all-metadata)
     - [Reading Specific Metadata Fields](#reading-specific-metadata-fields)
     - [Reading Full Metadata From All Formats Including Headers and Technical Info](#reading-full-metadata-from-all-formats-including-headers-and-technical-info)
@@ -343,6 +344,37 @@ flac --version
 ## Quick Start
 
 ### Reading Metadata
+
+When reading metadata, there are three functions to use: `get_unified_metadata` and `get_unified_metadata_field`, and `get_full_metadata`.
+
+- `get_unified_metadata`: Reads all metadata from a file and returns a unified dictionary.
+- `get_unified_metadata_field`: Reads a specific metadata field from a file.
+- `get_full_metadata`: Reads all metadata from a file and returns a dictionary including headers and technical info.
+
+#### Reading from a specific metadata format
+
+The library supports reading metadata from specific formats (ID3v1, ID3v2.3, ID3v2.4, Vorbis, RIFF). This is useful when you know the format of the file you are working with and you want to read only from that format.
+
+```python
+from audiometa import get_unified_metadata, UnifiedMetadataKey
+from audiometa.utils.MetadataFormat import MetadataFormat
+
+metadata = get_unified_metadata("path/to/your/audio.mp3", metadata_format=MetadataFormat.ID3V2)
+print(f"Title: {metadata.get(UnifiedMetadataKey.TITLE, 'Unknown')}")
+```
+
+When specifying a metadata format not supported by the audio format of the file, raises a MetadataFormatNotSupportedByAudioFormatError.
+
+```python
+from audiometa import get_unified_metadata, UnifiedMetadataKey
+from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.exceptions import MetadataFormatNotSupportedByAudioFormatError
+
+try:
+    metadata = get_unified_metadata("path/to/your/audio.mp3", metadata_format=MetadataFormat.RIFF)
+except MetadataFormatNotSupportedByAudioFormatError as e:
+    print(f"Error: {e}")
+```
 
 #### Reading All Metadata
 
