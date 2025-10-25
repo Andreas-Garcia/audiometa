@@ -364,14 +364,38 @@ print(f"Album: {metadata.get(UnifiedMetadataKey.ALBUM, 'Unknown')}")
 
 **`get_unified_metadata_field(file_path, field, metadata_format=None)`**
 
-Reads a specific metadata field. If `metadata_format` is specified, reads only from that format; otherwise uses priority order across all formats.
+Reads a specific metadata field. If no metadata format is specified, uses priority order across all formats.
+
+```python
+from audiometa import get_unified_metadata_field, UnifiedMetadataKey
+
+# Get title using priority order (all formats)
+title = get_unified_metadata_field("song.mp3", UnifiedMetadataKey.TITLE)
+```
+
+If `metadata_format` is specified, reads only from that format.
 
 ```python
 from audiometa import get_unified_metadata_field, UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 
-# Get title using priority order (all formats)
-title = get_unified_metadata_field("song.mp3", UnifiedMetadataKey.TITLE)
+# Get raw rating from specific format only
+id3v2_rating = get_unified_metadata_field("song.mp3", UnifiedMetadataKey.RATING, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
+```
+
+If `metadata_format` is specified and the field is not supported by that format, raises a MetadataFieldNotSupportedError.
+
+```python
+from audiometa import get_unified_metadata_field, UnifiedMetadataKey
+from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.exceptions import MetadataNotSupportedByFormatError
+
+# Attempt to get unsupported field from specific format
+
+try:
+    riff_bpm = get_unified_metadata_field("song.wav", UnifiedMetadataKey.BPM, metadata_format=MetadataFormat.RIFF)
+except MetadataNotSupportedByFormatError as e:
+    print(f"Error: {e}")
 ```
 
 #### Reading Full Metadata From All Formats Including Headers and Technical Info
@@ -927,7 +951,7 @@ You can control metadata writing behavior using the `metadata_strategy` paramete
 When you specify a `metadata_format` parameter, you **cannot** also specify a `metadata_strategy`:
 
 - **Write only to the specified format**: Other formats are left completely untouched
-- **Fail fast on unsupported fields**: Raises `MetadataNotSupportedError` for any unsupported metadata
+- **Fail fast on unsupported fields**: Raises `MetadataNotSupportedByFormatError` for any unsupported metadata
 - **Predictable behavior**: No side effects on other metadata formats
 
 ```python
@@ -1145,7 +1169,7 @@ The library provides specific exception types for different error conditions:
 from audiometa.exceptions import (
     FileCorruptedError,
     FileTypeNotSupportedError,
-    MetadataNotSupportedError
+    MetadataNotSupportedByFormatError
 )
 
 try:
@@ -1154,7 +1178,7 @@ except FileTypeNotSupportedError:
     print("File format not supported")
 except FileCorruptedError:
     print("File is corrupted")
-except MetadataNotSupportedError:
+except MetadataNotSupportedByFormatError:
     print("Metadata field not supported for this format")
 ```
 
@@ -1937,7 +1961,7 @@ The library gracefully handles common edge cases:
 
 The library handles unsupported metadata consistently across all strategies:
 
-- **Forced format** (when `metadata_format` is specified): Always fails fast by raising `MetadataNotSupportedError` for any unsupported field. **No writing is performed** - the file remains completely unchanged.
+- **Forced format** (when `metadata_format` is specified): Always fails fast by raising `MetadataNotSupportedByFormatError` for any unsupported field. **No writing is performed** - the file remains completely unchanged.
 - **All strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=False` (default)**: Handle unsupported fields gracefully by logging warnings and continuing with supported fields
 - **All strategies (SYNC, PRESERVE, CLEANUP) with `fail_on_unsupported_field=True`**: Fails fast if any field is not supported by the target format. **No writing is performed** - the file remains completely unchanged (atomic operation).
 
@@ -1970,7 +1994,7 @@ This atomic behavior is crucial for:
 
 ```python
 from audiometa import update_metadata
-from audiometa.exceptions import MetadataNotSupportedError
+from audiometa.exceptions import MetadataNotSupportedByFormatError
 from audiometa.utils.MetadataFormat import MetadataFormat
 from audiometa.utils.MetadataWritingStrategy import MetadataWritingStrategy
 
@@ -1990,7 +2014,7 @@ update_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
 try:
     update_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
                         metadata_format=MetadataFormat.RIFF)
-except MetadataNotSupportedError as e:
+except MetadataNotSupportedByFormatError as e:
     print(f"BPM not supported in RIFF format: {e}")
     # File remains completely unchanged - no metadata was written
 
@@ -1999,7 +2023,7 @@ try:
     update_metadata("song.wav", {"title": "Song", "rating": 85, "bpm": 120},
                         metadata_strategy=MetadataWritingStrategy.SYNC,
                         fail_on_unsupported_field=True)
-except MetadataNotSupportedError as e:
+except MetadataNotSupportedByFormatError as e:
     print(f"BPM not supported: {e}")
     # File remains completely unchanged - no metadata was written (atomic operation)
 
@@ -2017,7 +2041,7 @@ try:
         "rating": 85,              # This would be supported
         "bpm": 120                 # This is NOT supported by RIFF format
     }, fail_on_unsupported_field=True)
-except MetadataNotSupportedError:
+except MetadataNotSupportedByFormatError:
     pass
 
 # Verify file is unchanged (atomic behavior)
