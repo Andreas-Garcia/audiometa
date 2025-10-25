@@ -1,9 +1,11 @@
 import pytest
 
-from audiometa import get_unified_metadata_field, update_metadata
+from audiometa import update_metadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.exceptions import MetadataNotSupportedError
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
+from audiometa.test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGetter
 
 
 @pytest.mark.integration
@@ -13,13 +15,12 @@ class TestLyricsWriting:
             test_lyrics = "These are test lyrics\nWith multiple lines\nFor testing purposes"
             test_metadata = {UnifiedMetadataKey.LYRICS: test_lyrics}
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.ID3V2)
-            lyrics = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LYRICS)
-            assert lyrics == test_lyrics
+            
+            raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path)
+            assert f"USLT={test_lyrics}" in raw_metadata
 
     def test_riff(self):
-        from audiometa.exceptions import MetadataNotSupportedError
-        
-        with TempFileWithMetadata({}, "wav") as test_file:
+     TempFileWithMetadata({}, "wav") as test_file:
             test_lyrics = "RIFF test lyrics\nWith multiple lines\nFor testing purposes"
             test_metadata = {UnifiedMetadataKey.LYRICS: test_lyrics}
         
