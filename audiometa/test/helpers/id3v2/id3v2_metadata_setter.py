@@ -144,14 +144,14 @@ class ID3v2MetadataSetter:
                 month = date_str[5:7]
                 day = date_str[8:10]
                 # TDAT format is DDMM
-                date_mmdd = f"{day}{month}"
+                date_ddmm = f"{day}{month}"
                 
                 # Set TYER frame
                 command_year = ["id3v2", "--id3v2-only", "--TYER", year, str(file_path)]
                 run_external_tool(command_year, "id3v2")
                 
                 # Set TDAT frame
-                command_date = ["id3v2", "--id3v2-only", "--TDAT", date_mmdd, str(file_path)]
+                command_date = ["id3v2", "--id3v2-only", "--TDAT", date_ddmm, str(file_path)]
                 run_external_tool(command_date, "id3v2")
             else:
                 # Fallback for year-only dates
