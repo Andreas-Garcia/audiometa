@@ -879,7 +879,7 @@ The library validates metadata value types passed to `update_metadata` when keys
 
 Note: the validator currently uses the `UnifiedMetadataKey` enum to determine expected types. Calls that use plain string keys (the older examples in this README) are accepted by the API but are not validated by this mechanism unless you pass `UnifiedMetadataKey` instances. You can continue using string keys, or prefer `UnifiedMetadataKey` for explicit validation and IDE-friendly code.
 
-#### `update_metadata(file_path, metadata, **options)`
+**`update_metadata(file_path, metadata, **options)`\*\*
 
 Updates metadata in a file.
 
@@ -963,7 +963,7 @@ update_metadata("song.wav", {"title": "New Title"},
                     metadata_strategy=MetadataWritingStrategy.PRESERVE)
 ```
 
-#### Default Behavior
+##### Default Behavior
 
 By default, the library uses the **SYNC strategy** which writes metadata to the native format and synchronizes other metadata formats that are already present. This provides the best user experience by writing metadata where possible and handling unsupported fields gracefully.
 
@@ -1061,26 +1061,6 @@ update_metadata("song.wav", {"title": "New Title"},
 update_metadata("song.wav", {"title": "New Title"},
                     metadata_format=MetadataFormat.RIFF)
 ```
-
-#### Strategy Benefits
-
-**PRESERVE (Default)**
-
-- **Maximum Compatibility**: Older players can still read legacy formats
-- **Non-Destructive**: Never loses existing metadata
-- **Safe**: Default behavior that won't break existing workflows
-
-**CLEANUP**
-
-- **Best Practice**: Uses only native format for each file type
-- **Clean Files**: Removes format confusion and reduces file size
-- **Standards Compliant**: Follows established audio metadata standards
-
-**SYNC**
-
-- **Consistency**: Keeps all formats synchronized
-- **Compatibility**: Maintains support for different players
-- **Convenience**: Single update affects all existing formats
 
 ### Writing Defaults by Audio Format
 
