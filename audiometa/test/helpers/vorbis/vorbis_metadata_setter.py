@@ -43,7 +43,8 @@ class VorbisMetadataSetter:
             'date': 'DATE',
             'genre': 'GENRE',
             'comment': 'COMMENT',
-            'tracknumber': 'TRACKNUMBER'
+            'tracknumber': 'TRACKNUMBER',
+            'bpm': 'BPM',
         }
         
         for key, value in metadata.items():
