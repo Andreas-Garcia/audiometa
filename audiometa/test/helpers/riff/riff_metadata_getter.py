@@ -106,7 +106,8 @@ class RIFFMetadataGetter:
             'IPUB': 'publisher',
             'ICOP': 'copyright',
             'IRTD': 'release_date',
-            'IRTG': 'rating'
+            'IRTG': 'rating',
+            'TBPM': 'bpm'
         }
         return mapping.get(field_id, field_id.lower())
     
