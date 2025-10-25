@@ -56,6 +56,7 @@ class MetadataFieldNotSupportedByLib(Exception):
         - Trying to read/write a field that is not implemented in any metadata manager
     """
     pass
+
 class MetadataWritingConflictParametersError(Exception):
     """Raised when conflicting metadata writing parameters are specified.
     
