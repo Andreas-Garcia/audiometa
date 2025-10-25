@@ -316,6 +316,61 @@ ffprobe -version
 flac --version
 ```
 
+## External Tools Usage
+
+AudioMeta uses a combination of Python libraries and external command-line tools depending on the operation and audio format. This section provides a comprehensive overview of when external tools are required versus when pure Python libraries are used.
+
+### External Tools Matrix
+
+| Format     | Read Metadata    | Write Metadata    | Technical Info (Duration/Bitrate/etc.) | Validation           |
+| ---------- | ---------------- | ----------------- | -------------------------------------- | -------------------- |
+| **ID3v1**  | Custom (Python)  | Custom (Python)   | mutagen (Python)                       | N/A                  |
+| **ID3v2**  | mutagen (Python) | mutagen (Python)  | mutagen (Python)                       | N/A                  |
+| **Vorbis** | Custom (Python)  | pytaglib (Python) | mutagen (Python)                       | flac (external tool) |
+| **RIFF**   | mutagen (Python) | mutagen (Python)  | ffprobe (external tool)                | N/A                  |
+
+### When External Tools Are Required
+
+**ffprobe** (required for WAV files):
+
+- Used to extract technical audio information from WAV files (duration, bitrate, sample rate, channels)
+- WAV files use a complex RIFF container format that requires specialized parsing
+- Python libraries like mutagen cannot reliably extract this information from all WAV variants
+
+**flac** (required for FLAC validation):
+
+- Used only for MD5 checksum validation of FLAC files (`is_flac_file_md5_valid()`)
+- Verifies file integrity by checking the embedded MD5 signature
+- This is a specialized operation that requires the official FLAC reference implementation
+
+### When Only Python Libraries Are Used
+
+**Metadata Operations** (read/write):
+
+- All metadata reading and writing operations use pure Python libraries
+- No external tools required for basic metadata functionality
+- mutagen handles ID3v2 and RIFF metadata
+- ID3v1 uses custom direct file manipulation
+- pytaglib handles Vorbis comments (FLAC)
+
+**Technical Information** (most formats):
+
+- MP3 files: mutagen calculates bitrate from file size and duration
+- FLAC files: mutagen extracts all technical information directly
+- Only WAV files require ffprobe for reliable technical data extraction
+
+### Installation Impact
+
+- **Basic usage**: If you only need metadata read/write operations, no external tools are required
+- **Full functionality**: Install ffprobe and flac for complete WAV processing and FLAC validation
+- **Cross-platform**: All external tools are available on Windows, macOS, and Linux
+
+### Performance Considerations
+
+- **Python libraries**: Faster startup, no process overhead, integrated error handling
+- **External tools**: May have slight latency for subprocess calls, but provide authoritative results
+- **Memory usage**: Python libraries typically use less memory than spawning subprocesses
+
 ## Getting Started
 
 ### What You Need
