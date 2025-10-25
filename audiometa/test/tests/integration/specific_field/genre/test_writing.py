@@ -8,6 +8,7 @@ from audiometa.test.helpers.id3v2.id3v2_metadata_getter import ID3v2MetadataGett
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
+from audiometa.test.helpers.riff.riff_metadata_getter import RIFFMetadataGetter
 
 
 @pytest.mark.integration
@@ -43,10 +44,11 @@ class TestGenreWriting:
     def test_riff(self):
         with TempFileWithMetadata({}, "wav") as test_file:
             test_genre = "Rock"
-            test_metadata = {UnifiedMetadataKey.GENRES_NAMES: test_genre}
+            test_metadata = {UnifiedMetadataKey.GENRES_NAMES: [test_genre]}
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
-            metadata = get_unified_metadata(test_file.path)
-            assert metadata.get(UnifiedMetadataKey.GENRES_NAMES) == [test_genre]
+            
+            raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
+            assert 'genre:Rock' in raw_metadata
 
     def test_vorbis(self):
         with TempFileWithMetadata({}, "flac") as test_file:
