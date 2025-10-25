@@ -10,9 +10,9 @@ class RIFFMetadataGetter:
     
     @staticmethod
     def get_raw_metadata(file_path: Path) -> Dict[str, Any]:
-        """Inspect a specific RIFF chunk in raw metadata using exiftool."""
+        """Inspect RIFF metadata using ffprobe, which supports non-standard fields like IAAR."""
         result = subprocess.run(
-            ['exiftool', '-a', '-G', str(file_path)],
+            ['ffprobe', '-v', 'quiet', '-show_format', str(file_path)],
             capture_output=True, text=True, check=True
         )
         return result.stdout
