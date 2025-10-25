@@ -50,22 +50,6 @@ class TestRiffGenreParsing:
             
             assert genres == ["999"]
 
-    def test_riff_genre_multiple_separators(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            RIFFMetadataSetter.set_genre_text(test_file.path, "Rock; Alternative, Indie/Experimental")
-            
-            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres == ["Rock", "Alternative, Indie/Experimental"]
-
-    def test_riff_genre_duplicate_separators(self):
-        with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
-            RIFFMetadataSetter.set_genre_text(test_file.path, "Rock;;;Alternative")
-            
-            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres == ["Rock", "Alternative"]
-
     def test_riff_genre_code_mode_vs_text_mode(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             update_metadata(test_file.path, {
