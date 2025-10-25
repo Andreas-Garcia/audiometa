@@ -19,14 +19,14 @@ class TestMultipleValuesId3v2_4:
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.4')
             
-            assert "TPE1=Artist One\x00Artist Two" in raw_metadata
+            assert ["Artist One\x00Artist Two"] == raw_metadata['TPE1']
 
     def test_write_on_existing_artists_field(self):
         with TempFileWithMetadata({}, "id3v2.4") as test_file:
             ID3v2MetadataSetter.set_artists(test_file.path,["Existing A\x00Existing B"], version="2.4")
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.4')
             
-            assert "TPE1=Existing A\x00Existing B" in raw_metadata
+            assert ["Existing A\x00Existing B"] == raw_metadata['TPE1']
             
             metadata = {
                 UnifiedMetadataKey.ARTISTS: ["Existing A", "New B"]
@@ -34,4 +34,4 @@ class TestMultipleValuesId3v2_4:
             update_metadata(test_file.path, metadata, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.4')
-            assert "TPE1=Existing A\x00New B" in raw_metadata
+            assert ["Existing A\x00New B"] == raw_metadata['TPE1']
