@@ -16,6 +16,18 @@ This file tracks future work, improvements, and testing tasks for AudioMeta Pyth
 
 ### Medium Priority
 
+- [ ] **Implement synchronized lyrics support in future versions**
+
+  - Add support for SYLT (Synchronized Lyrics/Text) frames in ID3v2
+  - Implement time-stamped lyrics for karaoke and synchronized text display
+  - Support multiple synchronized lyrics entries with different languages
+
+- [ ] **Implement full multi-language unsynchronized lyrics support in future versions**
+
+  - Extend USLT (Unsynchronized Lyrics) frame support for multiple languages
+  - Add language code handling (ISO 639-2) for lyrics and other text fields
+  - Support multiple lyrics entries in different languages within the same file
+
 - [ ] **OGG file support**
 
   - Currently planned but not implemented
