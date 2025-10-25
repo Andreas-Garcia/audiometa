@@ -165,9 +165,9 @@ class RIFFMetadataSetter:
             from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
             ManualRIFFMetadataCreator.create_multiple_album_artist_fields(file_path, album_artists)
         else:
-            # For now, just set the first album artist
             if album_artists:
-                command = ["bwfmetaedit", f"--IAAR={album_artists[0]}", str(file_path)]
+                concatenated_album_artists = "; ".join(album_artists)
+                command = ["bwfmetaedit", f"--IAAR={concatenated_album_artists}", str(file_path)]
                 run_external_tool(command, "bwfmetaedit")
     
     @staticmethod
