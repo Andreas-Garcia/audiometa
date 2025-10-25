@@ -444,7 +444,7 @@ full_metadata = get_full_metadata("song.mp3")
 
 ### Writing Metadata
 
-````python
+```python
 from audiometa import update_metadata
 
 # Update metadata (use UnifiedMetadataKey for explicit typing)
@@ -457,11 +457,14 @@ new_metadata = {
     UnifiedMetadataKey.RATING: 85,
 }
 update_metadata("path/to/your/audio.mp3", new_metadata)
+```
 
 **Format-specific Writing**
 
+```python
 from audiometa.utils.MetadataFormat import MetadataFormat
 update_metadata("song.wav", new_metadata, metadata_format=MetadataFormat.RIFF)
+```
 
 ### Deleting Metadata
 
@@ -480,7 +483,7 @@ print(f"All metadata deleted: {success}")
 from audiometa.utils.MetadataFormat import MetadataFormat
 success = delete_all_metadata("song.wav", tag_format=MetadataFormat.ID3V2)
 # This removes only ID3v2 tags, keeps RIFF metadata
-````
+```
 
 **Important**: This function removes the metadata headers/containers entirely from the file, not just the content. This means:
 
