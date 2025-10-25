@@ -30,7 +30,7 @@ class TestDeleteAllMetadataFormatSpecificFLAC:
             assert id3v2_before.get(UnifiedMetadataKey.TITLE) == "ID3v2 Title"
             
             # Add Vorbis metadata using external tools for proper test isolation
-            VorbisMetadataSetter.set_metadata(test_file.path, {"title": "Vorbis Title", "artist": "Vorbis Artist"})
+            VorbisMetadataSetter.add_title(test_file.path, "Vorbis Title")
             
             # Verify Vorbis has metadata
             vorbis_before = get_unified_metadata(test_file.path, metadata_format=MetadataFormat.VORBIS)
