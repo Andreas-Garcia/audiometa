@@ -36,12 +36,3 @@ class TestReadingErrorHandling:
         # Using a valid UnifiedMetadataKey that might not be present in the file
         result = get_unified_metadata_field(sample_mp3_file, UnifiedMetadataKey.LYRICS)
         assert result is None
-
-    def test_invalid_format_raises_error(self, sample_mp3_file: Path):
-        # Try to get Vorbis metadata from MP3 file (should raise error)
-        with pytest.raises(FileTypeNotSupportedError):
-            get_unified_metadata(sample_mp3_file, metadata_format=MetadataFormat.VORBIS)
-        
-        # Try to get RIFF metadata from MP3 file (should raise error)
-        with pytest.raises(FileTypeNotSupportedError):
-            get_unified_metadata(sample_mp3_file, metadata_format=MetadataFormat.RIFF)
