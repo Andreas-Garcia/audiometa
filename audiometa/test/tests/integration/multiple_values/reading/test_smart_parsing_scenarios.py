@@ -69,9 +69,9 @@ class TestSmartParsingScenarios:
             # Set multiple separate artist entries (modern format)
             RIFFMetadataSetter.set_artists(test_file.path, ["Artist One", "Artist; with; semicolons", "Artist Three"], in_separate_frames=True)
             raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
-            assert "Artist                          : Artist One" in raw_metadata
-            assert "Artist                          : Artist; with; semicolons" in raw_metadata
-            assert "Artist                          : Artist Three" in raw_metadata
+            assert "TAG:artist=Artist One" in raw_metadata
+            assert "TAG:artist=Artist; with; semicolons" in raw_metadata
+            assert "TAG:artist=Artist Three" in raw_metadata
             
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF)
             assert artists == ["Artist One", "Artist; with; semicolons", "Artist Three"]
@@ -120,7 +120,7 @@ class TestSmartParsingScenarios:
             # Set single artist entry with semicolons in RIFF format
             RIFFMetadataSetter.set_artists(test_file.path, ["Artist One;Artist Two"], in_separate_frames=False)
             raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
-            assert "Artist                          : Artist One;Artist Two" in raw_metadata
+            assert "TAG:artist=Artist One;Artist Two" in raw_metadata
             
             # Read metadata
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF)

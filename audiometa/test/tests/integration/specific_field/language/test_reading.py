@@ -35,7 +35,7 @@ class TestLanguageReading:
     def test_riff(self):
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             RIFFMetadataSetter.set_language(test_file.path, "en")
-            assert "Language                        : en" in RIFFMetadataGetter.get_raw_metadata(test_file.path)
+            assert "TAG:language=en" in RIFFMetadataGetter.get_raw_metadata(test_file.path)
             
             language = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.LANGUAGE)
             assert language == "en"

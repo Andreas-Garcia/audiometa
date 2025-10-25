@@ -25,7 +25,7 @@ class TestLanguageWriting:
             update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
             
             raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
-            assert "Language                        : fr" in raw_metadata
+            assert "TAG:language=fr" in raw_metadata
 
     def test_vorbis(self):
         with TempFileWithMetadata({}, "flac") as test_file:

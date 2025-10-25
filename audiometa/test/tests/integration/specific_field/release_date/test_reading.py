@@ -55,7 +55,7 @@ class TestReleaseDateReading:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             RIFFMetadataSetter.set_release_date(test_file.path, "9999-12-31")
             raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
-            assert "Date Created                    : 9999:12:31" in raw_metadata
+            assert "TAG:date=9999-12-31" in raw_metadata
             
             release_date = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.RELEASE_DATE)
             assert release_date == "9999-12-31"

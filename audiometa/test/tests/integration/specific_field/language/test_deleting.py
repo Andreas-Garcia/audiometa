@@ -33,7 +33,7 @@ class TestLanguageDeleting:
         with TempFileWithMetadata({}, "wav") as test_file:
             RIFFMetadataSetter.set_language(test_file.path, "en")
             raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
-            assert "Language                        : en" in raw_metadata
+            assert "TAG:language=en" in raw_metadata
             
             # Delete metadata using library API
             update_metadata(test_file.path, {UnifiedMetadataKey.LANGUAGE: None}, metadata_format=MetadataFormat.RIFF)
