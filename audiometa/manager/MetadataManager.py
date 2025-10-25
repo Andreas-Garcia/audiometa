@@ -361,6 +361,7 @@ class MetadataManager:
         Examples:
         - "(17)" -> "Rock"
         - "(17)Rock" -> "Rock" (text part preferred)
+        - "17" -> "Rock" (bare numeric code)
         - "Rock" -> "Rock"
         - "(999)" -> None (invalid code)
         """
@@ -379,6 +380,12 @@ class MetadataManager:
         code_only_match = re.match(r'^\((\d+)\)$', genre_entry)
         if code_only_match:
             code = int(code_only_match.group(1))
+            genre_name = ID3V1_GENRE_CODE_MAP.get(code)
+            return genre_name
+
+        # Check for bare numeric code: number (without parentheses)
+        if genre_entry.isdigit():
+            code = int(genre_entry)
             genre_name = ID3V1_GENRE_CODE_MAP.get(code)
             return genre_name
 
