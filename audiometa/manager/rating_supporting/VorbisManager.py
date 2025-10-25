@@ -1,5 +1,5 @@
 import struct
-from typing import TypeVar, cast
+from typing import TypeVar
 
 import taglib
 
