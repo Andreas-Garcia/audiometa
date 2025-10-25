@@ -3,7 +3,7 @@ from pathlib import Path
 
 from audiometa import get_unified_metadata_field, UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
-from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError, FieldNotSupportedByLib
+from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError, MetadataFieldNotSupportedByLib
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
@@ -75,25 +75,25 @@ class TestMetadataFieldValidation:
         assert rating is None or isinstance(rating, int)
 
     def test_field_not_supported_by_lib_exception_exists(self):
-        """Test that FieldNotSupportedByLib exception exists and can be imported."""
+        """Test that MetadataFieldNotSupportedByLib exception exists and can be imported."""
         # This test verifies that the exception is properly defined
-        from audiometa.exceptions import FieldNotSupportedByLib
+        from audiometa.exceptions import MetadataFieldNotSupportedByLib
         
         # Test that the exception can be raised
-        with pytest.raises(FieldNotSupportedByLib) as exc_info:
-            raise FieldNotSupportedByLib("Test field not supported by library")
+        with pytest.raises(MetadataFieldNotSupportedByLib) as exc_info:
+            raise MetadataFieldNotSupportedByLib("Test field not supported by library")
         
         assert "Test field not supported by library" in str(exc_info.value)
         assert isinstance(exc_info.value, Exception)
 
     def test_field_not_supported_by_lib_concept(self, sample_wav_file: Path):
-        """Test the concept of FieldNotSupportedByLib exception.
+        """Test the concept of MetadataFieldNotSupportedByLib exception.
         
         Note: In the current implementation, all fields in UnifiedMetadataKey are supported
         by at least one format, so this exception is not raised in practice. However,
         this test documents the concept and shows when it would be raised.
         
-        The FieldNotSupportedByLib exception would be raised when:
+        The MetadataFieldNotSupportedByLib exception would be raised when:
         1. A field is not supported by ANY format in the library
         2. All managers raise MetadataFieldNotSupportedByMetadataFormatError for the same field
         3. This indicates a library limitation, not a format limitation
@@ -101,15 +101,15 @@ class TestMetadataFieldValidation:
         # This test demonstrates the concept - in practice, all current fields are supported
         # by at least one format, so this exception is not raised
         
-        # Test that all current fields work without raising FieldNotSupportedByLib
+        # Test that all current fields work without raising MetadataFieldNotSupportedByLib
         # when no format is specified (uses priority order)
         for field in UnifiedMetadataKey:
             try:
                 value = get_unified_metadata_field(sample_wav_file, field)
-                # Should not raise FieldNotSupportedByLib for any current field
+                # Should not raise MetadataFieldNotSupportedByLib for any current field
                 assert value is None or isinstance(value, (str, int, list))
-            except FieldNotSupportedByLib:
-                pytest.fail(f"FieldNotSupportedByLib should not be raised for {field} - all current fields are supported by at least one format")
+            except MetadataFieldNotSupportedByLib:
+                pytest.fail(f"MetadataFieldNotSupportedByLib should not be raised for {field} - all current fields are supported by at least one format")
             except Exception as e:
                 # Other exceptions are acceptable (file format issues, etc.)
                 pass
