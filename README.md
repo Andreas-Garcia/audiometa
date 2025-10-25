@@ -27,6 +27,9 @@ A comprehensive Python library for reading and writing audio metadata across mul
   - [Common Use Cases](#common-use-cases)
 - [Quick Start](#quick-start)
   - [Reading Metadata](#reading-metadata)
+    - [Reading All Metadata](#reading-all-metadata)
+    - [Reading Specific Metadata Fields](#reading-specific-metadata-fields)
+    - [Reading Full Metadata From All Formats Including Headers and Technical Info](#reading-full-metadata-from-all-formats-including-headers-and-technical-info)
   - [Writing Metadata](#writing-metadata)
   - [Deleting Metadata](#deleting-metadata)
     - [Delete All Metadata (Complete Removal)](#delete-all-metadata-complete-removal)
@@ -341,14 +344,46 @@ flac --version
 
 ### Reading Metadata
 
+#### Reading All Metadata
+
+**`get_unified_metadata(file_path, metadata_format=None)`**
+Reads all metadata from a file and returns a unified dictionary.
+If `metadata_format` is specified, reads only from that format.
+If not specified, uses priority order across all formats.
+
 ```python
 from audiometa import get_unified_metadata
 
-# Read all metadata from a file
 metadata = get_unified_metadata("path/to/your/audio.mp3")
 print(f"Title: {metadata.get(UnifiedMetadataKey.TITLE, 'Unknown')}")
 print(f"Artist: {metadata.get(UnifiedMetadataKey.ARTISTS, ['Unknown'])}")
 print(f"Album: {metadata.get(UnifiedMetadataKey.ALBUM, 'Unknown')}")
+```
+
+#### Reading Specific Metadata Fields
+
+**`get_unified_metadata_field(file_path, field, metadata_format=None)`**
+
+Reads a specific metadata field. If `metadata_format` is specified, reads only from that format; otherwise uses priority order across all formats.
+
+```python
+from audiometa import get_unified_metadata_field, UnifiedMetadataKey
+from audiometa.utils.MetadataFormat import MetadataFormat
+
+# Get title using priority order (all formats)
+title = get_unified_metadata_field("song.mp3", UnifiedMetadataKey.TITLE)
+```
+
+#### Reading Full Metadata From All Formats Including Headers and Technical Info
+
+**`get_full_metadata(file_path, include_headers=True, include_technical=True)`**
+
+Gets comprehensive metadata including all available information from a file, including headers and technical details even when no metadata is present.
+
+```python
+from audiometa import get_full_metadata
+
+full_metadata = get_full_metadata("song.mp3")
 ```
 
 ### Writing Metadata
