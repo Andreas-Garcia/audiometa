@@ -37,14 +37,14 @@ class TestLyricsWriting:
             assert f"USLT={test_lyrics}" in raw_metadata
 
     def test_vorbis(self):
-        from audiometa.exceptions import MetadataNotSupportedByFormatError
+        from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
         
         with TempFileWithMetadata({}, "flac") as test_file:
             test_lyrics = "Vorbis test lyrics\nWith multiple lines\nFor testing purposes"
             test_metadata = {UnifiedMetadataKey.LYRICS: test_lyrics}
         
             # Vorbis format raises exception for unsupported metadata
-            with pytest.raises(MetadataNotSupportedByFormatError, match="UnifiedMetadataKey.LYRICS metadata not supported by this format"):
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.LYRICS metadata not supported by this format"):
                 update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
 
     def test_invalid_type_raises(self):

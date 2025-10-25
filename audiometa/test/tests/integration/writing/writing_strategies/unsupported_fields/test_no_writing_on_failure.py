@@ -4,7 +4,7 @@ from audiometa import (
     update_metadata,
     get_unified_metadata,
 )
-from audiometa.exceptions import MetadataNotSupportedByFormatError
+from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
@@ -28,7 +28,7 @@ class TestNoWritingOnFailure:
                 UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # REPLAYGAIN is not supported by any format
             }
             
-            with pytest.raises(MetadataNotSupportedByFormatError):
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError):
                 update_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
             
             final_read = get_unified_metadata(test_file)
@@ -52,7 +52,7 @@ class TestNoWritingOnFailure:
                 UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # Not supported by any format
             }
             
-            with pytest.raises(MetadataNotSupportedByFormatError):
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError):
                 update_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
             
             final_read = get_unified_metadata(test_file)
@@ -76,7 +76,7 @@ class TestNoWritingOnFailure:
                 UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # Not supported by any format
             }
             
-            with pytest.raises(MetadataNotSupportedByFormatError):
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError):
                 update_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
             
             final_read = get_unified_metadata(test_file)
@@ -100,7 +100,7 @@ class TestNoWritingOnFailure:
                 UnifiedMetadataKey.REPLAYGAIN: "89 dB"  # Not supported by any format
             }
             
-            with pytest.raises(MetadataNotSupportedByFormatError):
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError):
                 update_metadata(test_file.path, test_metadata, fail_on_unsupported_field=True)
             
             final_read = get_unified_metadata(test_file)

@@ -19,25 +19,25 @@ class TestTrackNumberWriting:
             assert track_number == test_track_number
 
     def test_riff(self):
-        from audiometa.exceptions import MetadataNotSupportedByFormatError
+        from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
         
         with TempFileWithMetadata({}, "wav") as test_file:
             test_track_number = 2
             test_metadata = {UnifiedMetadataKey.TRACK_NUMBER: test_track_number}
         
             # RIFF format raises exception for unsupported metadata
-            with pytest.raises(MetadataNotSupportedByFormatError, match="UnifiedMetadataKey.TRACK_NUMBER metadata not supported by RIFF format"):
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.TRACK_NUMBER metadata not supported by RIFF format"):
                 update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
 
     def test_vorbis(self):
-        from audiometa.exceptions import MetadataNotSupportedByFormatError
+        from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
         
         with TempFileWithMetadata({}, "flac") as test_file:
             test_track_number = 3
             test_metadata = {UnifiedMetadataKey.TRACK_NUMBER: test_track_number}
         
             # Vorbis format raises exception for unsupported metadata
-            with pytest.raises(MetadataNotSupportedByFormatError, match="UnifiedMetadataKey.TRACK_NUMBER metadata not supported by this format"):
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.TRACK_NUMBER metadata not supported by this format"):
                 update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
 
     def test_id3v1(self):

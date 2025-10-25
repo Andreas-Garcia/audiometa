@@ -6,7 +6,7 @@ from pathlib import Path
 from audiometa import AudioFile
 from audiometa.manager.id3v1.Id3v1Manager import Id3v1Manager
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
-from audiometa.exceptions import MetadataNotSupportedByFormatError
+from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
 from audiometa.test.helpers.temp_file_with_metadata import TempFileWithMetadata
 
 
@@ -68,7 +68,7 @@ class TestId3v1Manager:
             audio_file = AudioFile(test_file.path)
             manager = Id3v1Manager(audio_file)
             
-            # Test unsupported fields that should raise MetadataNotSupportedByFormatError
+            # Test unsupported fields that should raise MetadataFieldNotSupportedByMetadataFormatError
             unsupported_metadata = {
                 UnifiedMetadataKey.BPM: 120,  # BPM not supported by ID3v1
                 UnifiedMetadataKey.RATING: 85,  # Rating not supported by ID3v1
@@ -76,5 +76,5 @@ class TestId3v1Manager:
             }
             
             # ID3v1 manager should raise error when trying to write unsupported fields
-            with pytest.raises(MetadataNotSupportedByFormatError):
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError):
                 manager.update_metadata(unsupported_metadata)

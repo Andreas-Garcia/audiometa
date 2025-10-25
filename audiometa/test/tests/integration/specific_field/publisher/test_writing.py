@@ -17,25 +17,25 @@ class TestPublisherWriting:
             assert publisher == test_publisher
 
     def test_riff(self):
-        from audiometa.exceptions import MetadataNotSupportedByFormatError
+        from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
         
         with TempFileWithMetadata({}, "wav") as test_file:
             test_publisher = "Test Publisher RIFF"
             test_metadata = {UnifiedMetadataKey.PUBLISHER: test_publisher}
         
             # RIFF format raises exception for unsupported metadata
-            with pytest.raises(MetadataNotSupportedByFormatError, match="UnifiedMetadataKey.PUBLISHER metadata not supported by RIFF format"):
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.PUBLISHER metadata not supported by RIFF format"):
                 update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.RIFF)
 
     def test_vorbis(self):
-        from audiometa.exceptions import MetadataNotSupportedByFormatError
+        from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
         
         with TempFileWithMetadata({}, "flac") as test_file:
             test_publisher = "Test Publisher Vorbis"
             test_metadata = {UnifiedMetadataKey.PUBLISHER: test_publisher}
         
             # Vorbis format raises exception for unsupported metadata
-            with pytest.raises(MetadataNotSupportedByFormatError, match="UnifiedMetadataKey.PUBLISHER metadata not supported by this format"):
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.PUBLISHER metadata not supported by this format"):
                 update_metadata(test_file.path, test_metadata, metadata_format=MetadataFormat.VORBIS)
 
     def test_invalid_type_raises(self):

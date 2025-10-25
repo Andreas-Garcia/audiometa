@@ -527,7 +527,7 @@ class Id3v2Manager(RatingSupportingMetadataManager):
     def update_metadata(self, unified_metadata: UnifiedMetadata):
         """Override to use custom save method with version control and ID3v1 preservation."""
         if not self.metadata_keys_direct_map_write:
-            raise MetadataNotSupportedByFormatError('This format does not support metadata modification')
+            raise MetadataFieldNotSupportedByMetadataFormatError('This format does not support metadata modification')
 
         # Handle rating conversion first (from parent class)
         if UnifiedMetadataKey.RATING in unified_metadata:
@@ -564,8 +564,8 @@ class Id3v2Manager(RatingSupportingMetadataManager):
         for unified_metadata_key in list(unified_metadata.keys()):
             app_metadata_value = unified_metadata[unified_metadata_key]
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
-                from ...exceptions import MetadataNotSupportedByFormatError
-                raise MetadataNotSupportedByFormatError(f'{unified_metadata_key} metadata not supported by this format')
+                from ...exceptions import MetadataFieldNotSupportedByMetadataFormatError
+                raise MetadataFieldNotSupportedByMetadataFormatError(f'{unified_metadata_key} metadata not supported by this format')
             else:
                 raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
                 if raw_metadata_key:

@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
 from ...audio_file import AudioFile
-from ...exceptions import ConfigurationError, InvalidRatingValueError, MetadataNotSupportedByFormatError
+from ...exceptions import ConfigurationError, InvalidRatingValueError, MetadataFieldNotSupportedByMetadataFormatError
 from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
 from ...utils.rating_profiles import RatingReadProfile, RatingWriteProfile
 from ...utils.types import UnifiedMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
@@ -85,7 +85,7 @@ class RatingSupportingMetadataManager(MetadataManager):
                     format_name = 'ID3v2'
                 elif format_name == 'VORBIS':
                     format_name = 'Vorbis'
-                raise MetadataNotSupportedByFormatError(f"{UnifiedMetadataKey.RATING} metadata not supported by {format_name} format")
+                raise MetadataFieldNotSupportedByMetadataFormatError(f"{UnifiedMetadataKey.RATING} metadata not supported by {format_name} format")
             
             # If rating is mapped to None, it means it's handled indirectly by the manager
             # We should let the manager handle it in its own way

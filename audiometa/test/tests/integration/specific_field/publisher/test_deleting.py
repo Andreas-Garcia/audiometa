@@ -23,27 +23,27 @@ class TestPublisherDeleting:
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.PUBLISHER) is None
 
     def test_delete_publisher_id3v1(self):
-        from audiometa.exceptions import MetadataNotSupportedByFormatError
+        from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
         
         with TempFileWithMetadata({}, "mp3") as test_file:
             # ID3v1 format raises exception for unsupported metadata
-            with pytest.raises(MetadataNotSupportedByFormatError, match="UnifiedMetadataKey.PUBLISHER metadata not supported by this format"):
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.PUBLISHER metadata not supported by this format"):
                 update_metadata(test_file.path, {UnifiedMetadataKey.PUBLISHER: "Test Publisher"}, metadata_format=MetadataFormat.ID3V1)
 
     def test_delete_publisher_riff(self):
-        from audiometa.exceptions import MetadataNotSupportedByFormatError
+        from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
         
         with TempFileWithMetadata({}, "wav") as test_file:
             # RIFF format raises exception for unsupported metadata
-            with pytest.raises(MetadataNotSupportedByFormatError, match="UnifiedMetadataKey.PUBLISHER metadata not supported by RIFF format"):
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.PUBLISHER metadata not supported by RIFF format"):
                 update_metadata(test_file.path, {UnifiedMetadataKey.PUBLISHER: "Test Publisher"}, metadata_format=MetadataFormat.RIFF)
 
     def test_delete_publisher_vorbis(self):
-        from audiometa.exceptions import MetadataNotSupportedByFormatError
+        from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
         
         with TempFileWithMetadata({}, "flac") as test_file:
             # Vorbis format raises exception for unsupported metadata
-            with pytest.raises(MetadataNotSupportedByFormatError, match="UnifiedMetadataKey.PUBLISHER metadata not supported by this format"):
+            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError, match="UnifiedMetadataKey.PUBLISHER metadata not supported by this format"):
                 update_metadata(test_file.path, {UnifiedMetadataKey.PUBLISHER: "Test Publisher"}, metadata_format=MetadataFormat.VORBIS)
 
     def test_delete_publisher_preserves_other_fields(self):

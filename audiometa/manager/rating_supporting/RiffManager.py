@@ -6,7 +6,7 @@ from mutagen._file import FileType as MutagenMetadata
 from mutagen.wave import WAVE
 
 from ...audio_file import AudioFile
-from ...exceptions import ConfigurationError, MetadataNotSupportedByFormatError, FileTypeNotSupportedError
+from ...exceptions import ConfigurationError, MetadataFieldNotSupportedByMetadataFormatError, FileTypeNotSupportedError
 from ...utils.id3v1_genre_code_map import ID3V1_GENRE_CODE_MAP
 from ...utils.rating_profiles import RatingWriteProfile
 from ...utils.types import UnifiedMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
@@ -49,7 +49,7 @@ class RiffManager(RatingSupportingMetadataManager):
 
     Unsupported Metadata:
     RIFF format has limited metadata support compared to other formats. The following metadata fields are NOT supported
-    and will raise MetadataNotSupportedByFormatError if provided:
+    and will raise MetadataFieldNotSupportedByMetadataFormatError if provided:
     - Genre: Limited to predefined genre codes (0-147) or text mode
     
     Rating Support:
@@ -57,7 +57,7 @@ class RiffManager(RatingSupportingMetadataManager):
     as an analogy to ID3 tags. While not part of the official RIFF specification, it's widely
     recognized and supported by many audio applications.
     
-    When attempting to update unsupported metadata, the manager will raise MetadataNotSupportedByFormatError with a clear
+    When attempting to update unsupported metadata, the manager will raise MetadataFieldNotSupportedByMetadataFormatError with a clear
     message indicating which field is not supported by the RIFF format.
 
     Note: This manager is the preferred way to handle WAV metadata, as it uses the format's native metadata system
@@ -288,7 +288,7 @@ class RiffManager(RatingSupportingMetadataManager):
         if unified_metadata_key == UnifiedMetadataKey.GENRES_NAMES:
             return self._get_genres_from_raw_clean_metadata_uppercase_keys(raw_clean_metadata, self.RiffTagKey.GENRES_NAMES_OR_CODES)
         else:
-            raise MetadataNotSupportedByFormatError(f'Metadata key not handled: {unified_metadata_key}')
+            raise MetadataFieldNotSupportedByMetadataFormatError(f'Metadata key not handled: {unified_metadata_key}')
 
     def _update_not_using_mutagen_metadata(self, unified_metadata: UnifiedMetadata):
         """
@@ -305,7 +305,7 @@ class RiffManager(RatingSupportingMetadataManager):
         # Validate that all metadata fields are supported by RIFF format
         for unified_metadata_key in unified_metadata.keys():
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
-                raise MetadataNotSupportedByFormatError(f'{unified_metadata_key} metadata not supported by RIFF format')
+                raise MetadataFieldNotSupportedByMetadataFormatError(f'{unified_metadata_key} metadata not supported by RIFF format')
 
         # Read the entire file into a mutable bytearray
         self.audio_file.seek(0)
@@ -330,14 +330,14 @@ class RiffManager(RatingSupportingMetadataManager):
             # Find RIFF header after ID3v2 tags
             riff_start = self._find_riff_header_after_id3v2(file_data)
             if riff_start == -1:
-                raise MetadataNotSupportedByFormatError("Invalid WAV file format - RIFF header not found after ID3v2 tags")
+                raise MetadataFieldNotSupportedByMetadataFormatError("Invalid WAV file format - RIFF header not found after ID3v2 tags")
             # Work with the RIFF portion only for metadata updates
             riff_data = file_data[riff_start:]
         else:
             riff_data = file_data
             
         if len(riff_data) < 12 or bytes(riff_data[:4]) != b'RIFF' or bytes(riff_data[8:12]) != b'WAVE':
-            raise MetadataNotSupportedByFormatError("Invalid WAV file format")
+            raise MetadataFieldNotSupportedByMetadataFormatError("Invalid WAV file format")
 
         # Find or create LIST INFO chunk in the RIFF data
         info_chunk_start = self._find_info_chunk_in_file_data(riff_data)

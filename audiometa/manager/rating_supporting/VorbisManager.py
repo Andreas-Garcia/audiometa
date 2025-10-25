@@ -4,7 +4,7 @@ from typing import TypeVar, cast
 import taglib
 
 from ...audio_file import AudioFile
-from ...exceptions import FileCorruptedError, MetadataNotSupportedByFormatError
+from ...exceptions import FileCorruptedError, MetadataFieldNotSupportedByMetadataFormatError
 from ...utils.rating_profiles import RatingWriteProfile
 from ...utils.types import UnifiedMetadata, AppMetadataValue, RawMetadataDict, RawMetadataKey
 from ..MetadataManager import UnifiedMetadataKey
@@ -182,7 +182,7 @@ class VorbisManager(RatingSupportingMetadataManager):
 
     def update_metadata(self, unified_metadata: UnifiedMetadata):
         if not self.metadata_keys_direct_map_write:
-            raise MetadataNotSupportedByFormatError('This format does not support metadata modification')
+            raise MetadataFieldNotSupportedByMetadataFormatError('This format does not support metadata modification')
 
         # Get current metadata
         current_metadata = self._extract_mutagen_metadata()
@@ -191,7 +191,7 @@ class VorbisManager(RatingSupportingMetadataManager):
         for unified_metadata_key in list(unified_metadata.keys()):
             app_metadata_value = unified_metadata[unified_metadata_key]
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
-                raise MetadataNotSupportedByFormatError(f'{unified_metadata_key} metadata not supported by this format')
+                raise MetadataFieldNotSupportedByMetadataFormatError(f'{unified_metadata_key} metadata not supported by this format')
             else:
                 raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
                 if raw_metadata_key:

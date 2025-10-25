@@ -8,7 +8,7 @@ from audiometa.exceptions import (
     InvalidChunkDecodeError,
     DurationNotFoundError,
     FileTypeNotSupportedError,
-    MetadataNotSupportedByFormatError
+    MetadataFieldNotSupportedByMetadataFormatError
 )
 
 
@@ -49,7 +49,7 @@ class TestExceptions:
         assert isinstance(error, Exception)
 
     def test_metadata_not_supported_error(self):
-        error = MetadataNotSupportedByFormatError("Metadata field not supported for this format")
+        error = MetadataFieldNotSupportedByMetadataFormatError("Metadata field not supported for this format")
         assert str(error) == "Metadata field not supported for this format"
         assert isinstance(error, Exception)
 
@@ -63,7 +63,7 @@ class TestExceptions:
         # All should be subclasses of Exception
         assert issubclass(FileCorruptedError, Exception)
         assert issubclass(FileTypeNotSupportedError, Exception)
-        assert issubclass(MetadataNotSupportedByFormatError, Exception)
+        assert issubclass(MetadataFieldNotSupportedByMetadataFormatError, Exception)
 
     def test_exception_raising(self):
         with pytest.raises(FileCorruptedError):
@@ -75,8 +75,8 @@ class TestExceptions:
         with pytest.raises(FileTypeNotSupportedError):
             raise FileTypeNotSupportedError("Unsupported format")
         
-        with pytest.raises(MetadataNotSupportedByFormatError):
-            raise MetadataNotSupportedByFormatError("Unsupported metadata field")
+        with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError):
+            raise MetadataFieldNotSupportedByMetadataFormatError("Unsupported metadata field")
 
     def test_exception_with_context(self):
         error = FileCorruptedError("File corrupted during processing")
