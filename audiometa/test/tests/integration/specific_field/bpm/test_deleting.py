@@ -23,24 +23,23 @@ class TestBpmDeleting:
         from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
         
         with TempFileWithMetadata({}, "mp3") as test_file:            
-            # Deleting should fail since the field isn't supported
             with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError):
                 update_metadata(test_file.path, {UnifiedMetadataKey.BPM: None}, metadata_format=MetadataFormat.ID3V1)
 
     def test_delete_bpm_riff(self):
-        from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
+        with TempFileWithMetadata({'BPM': 120}, "wav") as test_file:
+            from audiometa.test.helpers.riff.riff_metadata_setter import RIFFMetadataSetter
+            
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM) == 120
         
-        with TempFileWithMetadata({}, "wav") as test_file:            
-            # Deleting should fail since the field isn't supported
-            with pytest.raises(MetadataFieldNotSupportedByMetadataFormatError):
-                update_metadata(test_file.path, {UnifiedMetadataKey.BPM: None}, metadata_format=MetadataFormat.RIFF)
+            update_metadata(test_file.path, {UnifiedMetadataKey.BPM: None}, metadata_format=MetadataFormat.RIFF)
+            assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM) is None
 
     def test_delete_bpm_vorbis(self):
         with TempFileWithMetadata({}, "flac") as test_file:
             VorbisMetadataSetter.set_bpm(test_file.path, 120)
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM) == 120
         
-            # Delete metadata using library API
             update_metadata(test_file.path, {UnifiedMetadataKey.BPM: None}, metadata_format=MetadataFormat.VORBIS)
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM) is None
 
@@ -50,7 +49,6 @@ class TestBpmDeleting:
             ID3v2MetadataSetter.set_title(test_file.path, "Test Title")
             ID3v2MetadataSetter.set_artists(test_file.path, "Test Artist")
         
-            # Delete only BPM using library API
             update_metadata(test_file.path, {UnifiedMetadataKey.BPM: None}, metadata_format=MetadataFormat.ID3V2)
         
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM) is None
@@ -59,13 +57,12 @@ class TestBpmDeleting:
 
     def test_delete_bpm_already_none(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
-            # Try to delete BPM that doesn't exist
             update_metadata(test_file.path, {UnifiedMetadataKey.BPM: None}, metadata_format=MetadataFormat.ID3V2)
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM) is None
 
     def test_delete_bpm_zero(self):
         with TempFileWithMetadata({}, "mp3") as test_file:
             ID3v2MetadataSetter.set_bpm(test_file.path, 0)
-            # Delete the zero BPM using library API
+
             update_metadata(test_file.path, {UnifiedMetadataKey.BPM: None}, metadata_format=MetadataFormat.ID3V2)
             assert get_unified_metadata_field(test_file.path, UnifiedMetadataKey.BPM) is None
