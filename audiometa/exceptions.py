@@ -70,20 +70,6 @@ class MetadataWritingConflictParametersError(Exception):
     pass
 
 
-class InvalidRatingValueError(Exception):
-    """Raised when an invalid rating value is provided.
-    
-    This error indicates that the rating value cannot be converted to a valid
-    numeric rating or is not in the expected format.
-    
-    Examples:
-        - Non-numeric string values like "invalid" or "abc"
-        - Values that cannot be converted to integers
-        - None values when a rating is expected
-    """
-    pass
-
-
 class InvalidMetadataFieldTypeError(TypeError):
     """Raised when a metadata field value has an unexpected type.
 
@@ -104,3 +90,17 @@ class InvalidMetadataFieldTypeError(TypeError):
         self.expected_type = expected_type
         self.actual_type = actual_type
         self.value = actual_value
+
+
+class InvalidRatingValueError(Exception):
+    """Raised when an invalid rating value is provided.
+    
+    This error indicates that the rating value cannot be converted to a valid
+    numeric rating or is not in the expected format.
+    
+    Examples:
+        - Non-numeric string values like "invalid" or "abc"
+        - Values that cannot be converted to integers
+        - None values when a rating is expected
+    """
+    pass
