@@ -45,6 +45,17 @@ class VorbisMetadataSetter:
             'comment': 'COMMENT',
             'tracknumber': 'TRACKNUMBER',
             'bpm': 'BPM',
+            'composer': 'COMPOSER',
+            'copyright': 'COPYRIGHT',
+            'lyrics': 'LYRICS',
+            'language': 'LANGUAGE',
+            'rating': 'RATING',
+            'album_artist': 'ALBUMARTIST',
+            'mood': 'MOOD',
+            'key': 'KEY',
+            'encoder': 'ENCODER',
+            'url': 'URL',
+            'isrc': 'ISRC',
         }
         
         for key, value in metadata.items():
