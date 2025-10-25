@@ -27,9 +27,7 @@ class TestSmartParsingScenarios:
         with TempFileWithMetadata({"title": "Test Song"}, "id3v2.3") as test_file:
             ID3v2MetadataSetter.set_artists(test_file.path, ["Artist One", "Artist; with; semicolons", "Artist Three"], version="2.3", in_separate_frames=True)
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
-            assert "TPE1=Artist One" in raw_metadata
-            assert "TPE1=Artist; with; semicolons" in raw_metadata
-            assert "TPE1=Artist Three" in raw_metadata
+            assert ["Artist One", "Artist; with; semicolons", "Artist Three"] == raw_metadata['TPE1']
             
             # Read metadata
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
@@ -41,9 +39,7 @@ class TestSmartParsingScenarios:
             # Set multiple separate artist entries (ID3v2.4 will concatenate them)
             ID3v2MetadataSetter.set_artists(test_file.path, ["Artist One", "Artist; with; semicolons", "Artist Three"], version="2.4", in_separate_frames=True)
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.4')
-            assert "TPE1=Artist One" in raw_metadata
-            assert "TPE1=Artist; with; semicolons" in raw_metadata
-            assert "TPE1=Artist Three" in raw_metadata
+            assert ["Artist One", "Artist; with; semicolons", "Artist Three"] == raw_metadata['TPE1']
             
             # Read metadata
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 4, 0))
@@ -83,7 +79,7 @@ class TestSmartParsingScenarios:
             ID3v2MetadataSetter.set_artists(test_file.path, ["Artist One;Artist Two;Artist Three"], version="2.3", in_separate_frames=False)
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
-            assert "TPE1=Artist One;Artist Two;Artist Three" in raw_metadata
+            assert ["Artist One;Artist Two;Artist Three"] == raw_metadata['TPE1']
             
             # Read metadata
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
@@ -96,7 +92,7 @@ class TestSmartParsingScenarios:
             ID3v2MetadataSetter.set_artists(test_file.path, ["Artist One;Artist Two;Artist Three"], version="2.4", in_separate_frames=False)
             
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.4')
-            assert "TPE1=Artist One;Artist Two;Artist Three" in raw_metadata
+            assert ["Artist One;Artist Two;Artist Three"] == raw_metadata['TPE1']
             
             # Read metadata
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
@@ -108,7 +104,7 @@ class TestSmartParsingScenarios:
             # Set single artist entry with semicolons (legacy data in modern format)
             VorbisMetadataSetter.set_artists(test_file.path, ["Artist One;Artist Two;Artist Three"])
             raw_metadata = VorbisMetadataGetter.get_raw_metadata(test_file.path)
-            assert "ARTIST=Artist One;Artist Two;Artist Three" in raw_metadata
+            assert ["Artist One;Artist Two;Artist Three"] == raw_metadata['ARTIST']
             
             # Read metadata
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.VORBIS)
@@ -120,7 +116,7 @@ class TestSmartParsingScenarios:
             # Set single artist entry with semicolons in RIFF format
             RIFFMetadataSetter.set_artists(test_file.path, ["Artist One;Artist Two"], in_separate_frames=False)
             raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
-            assert "TAG:artist=Artist One;Artist Two" in raw_metadata
+            assert ["Artist One;Artist Two"] == raw_metadata['IART']
             
             # Read metadata
             artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.RIFF)
@@ -144,10 +140,8 @@ class TestSmartParsingScenarios:
             # Set artists as multiple separate entries (ID3v2 will concatenate them)
             ID3v2MetadataSetter.set_artists(test_file.path, ["Artist One", "Artist; with; semicolons", "Artist Three"], version="2.3", in_separate_frames=True)
             raw_metadata = ID3v2MetadataGetter.get_raw_metadata(test_file.path, version='2.3')
-            assert "TPE1=Artist One" in raw_metadata
-            assert "TPE1=Artist; with; semicolons" in raw_metadata
-            assert "TPE1=Artist Three" in raw_metadata
+            assert ["Artist One", "Artist; with; semicolons", "Artist Three"] == raw_metadata['TPE1']
             
             # Read metadata
-            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2)
+            artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ARTISTS, metadata_format=MetadataFormat.ID3V2, id3v2_version=(2, 3, 0))
             assert artists == ["Artist One", "Artist; with; semicolons", "Artist Three"]
