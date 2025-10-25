@@ -10,7 +10,7 @@ class ID3v2MetadataSetter:
     """Static utility class for ID3v2 metadata setting using external tools."""
     
     @staticmethod
-    def set_metadata(file_path: Path, metadata: Dict[str, Any], version: str = None) -> None:
+    def set_metadata(file_path: Path, metadata: Dict[str, Any], version: str = "2.4") -> None:
         """Set MP3 metadata using appropriate ID3v2 tool based on version.
         
         Args:
