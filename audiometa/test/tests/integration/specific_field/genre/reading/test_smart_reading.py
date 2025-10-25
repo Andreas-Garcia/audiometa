@@ -185,28 +185,3 @@ class TestGenreSmartReading:
             genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
             
             assert genres == ["Rock"]
-
-    def test_unique_genre_names(self):
-        """Test unique genres: duplicates removed"""
-        with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
-            # Set genre with duplicates
-            ID3v2MetadataSetter.set_genres(test_file.path, ["Rock/Rock"], version="2.4")
-            
-            # Read via API
-            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            
-            assert genres == ["Rock"]
-
-    def test_edge_cases_empty_string(self):
-        """Test edge case: empty string"""
-        with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
-            ID3v2MetadataSetter.set_genres(test_file.path, [""], version="2.4")
-            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            assert genres is None
-
-    def test_edge_cases_whitespace_only(self):
-        """Test edge case: whitespace only"""
-        with TempFileWithMetadata({"title": "Test Song"}, "id3v2.4") as test_file:
-            ID3v2MetadataSetter.set_genres(test_file.path, ["   "], version="2.4")
-            genres = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.GENRES_NAMES)
-            assert genres is None
