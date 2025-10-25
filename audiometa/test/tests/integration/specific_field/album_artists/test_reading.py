@@ -32,7 +32,7 @@ class TestAlbumArtistsReading:
         with TempFileWithMetadata({"title": "Test Song"}, "wav") as test_file:
             RIFFMetadataSetter.set_multiple_album_artists(test_file.path, ["Test Album Artist"])
             raw_metadata = RIFFMetadataGetter.get_raw_metadata(test_file.path)
-            assert "Album Artist                      : Test Album Artist" in raw_metadata
+            assert "TAG:IAAR=Test Album Artist" in raw_metadata
             
             album_artists = get_unified_metadata_field(test_file.path, UnifiedMetadataKey.ALBUM_ARTISTS)
             assert album_artists == ["Test Album Artist"]
