@@ -35,7 +35,6 @@ Thumbs.db
 .python-version
 
 # PR descriptions (temporary reference documents)
-.pr-descriptions/
 pr_descriptions/
 
 # Node.js (for git-worktree-scripts dev dependency)
