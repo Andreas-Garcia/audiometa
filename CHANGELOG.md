@@ -48,7 +48,12 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
-### (No changes)
+### Fixed
+
+- **System Dependencies**: Updated exiftool pinned version from 13.42 to 13.43:
+  - Version 13.42 is no longer available on exiftool.org (returns 404)
+  - Updated macOS and Windows pinned versions to 13.43 (latest available from https://exiftool.org/ver.txt)
+  - Fixes download failures when installing exiftool from exiftool.org in macOS CI
 
 ## [0.8.1] - 2025-12-04
 
