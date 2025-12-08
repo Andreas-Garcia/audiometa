@@ -186,6 +186,8 @@ def _write_metadata(args: argparse.Namespace) -> None:
         metadata[UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS] = args.lyrics
     if args.comment and args.comment.strip():
         metadata[UnifiedMetadataKey.COMMENT] = args.comment
+    if args.description and args.description.strip():
+        metadata[UnifiedMetadataKey.DESCRIPTION] = args.description
     if args.replaygain and args.replaygain.strip():
         metadata[UnifiedMetadataKey.REPLAYGAIN] = args.replaygain
     if args.archival_location and args.archival_location.strip():
@@ -429,6 +431,7 @@ Examples:
     write_parser.add_argument("--copyright", help="Copyright information")
     write_parser.add_argument("--lyrics", help="Unsynchronized lyrics text")
     write_parser.add_argument("--comment", help="Comment")
+    write_parser.add_argument("--description", help="Description")
     write_parser.add_argument("--replaygain", help="ReplayGain information")
     write_parser.add_argument("--archival-location", help="Archival location")
     write_parser.add_argument("--isrc", help="International Standard Recording Code (12 characters)")

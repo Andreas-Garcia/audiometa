@@ -8,25 +8,34 @@ from mutagen.wave import WAVE
 
 if TYPE_CHECKING:
     from ...._audio_file import _AudioFile
+
 from ....exceptions import ConfigurationError, FileTypeNotSupportedError, MetadataFieldNotSupportedByMetadataFormatError
 from ....utils.id3v1_genre_code_map import ID3V1_GENRE_CODE_MAP
 from ....utils.rating_profiles import RatingWriteProfile
 from ....utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
 from ....utils.unified_metadata_key import UnifiedMetadataKey
 from .._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
-from ..id3v2._id3v2_constants import ID3V2_HEADER_SIZE
+from ._riff_bext_chunk import extract_bext_chunk, find_bext_chunk, find_fmt_chunk, update_bext_description_in_riff_data
 from ._riff_constants import (
-    BEXT_LOUDNESS_METADATA_SIZE,
-    BEXT_MIN_CHUNK_SIZE,
-    BEXT_ORIGINATION_DATE_SIZE,
-    BEXT_ORIGINATION_TIME_SIZE,
-    BWF_V2_VERSION,
     RIFF_AUDIO_FORMAT_IEEE_FLOAT,
-    RIFF_CHUNK_ID_SIZE,
     RIFF_FORMAT_CHUNK_MIN_SIZE,
     RIFF_HEADER_SIZE,
-    RIFF_MIN_DATA_SIZE_FOR_ID3V2,
     RIFF_WAVE_FORMAT_POSITION,
+)
+from ._riff_file_structure import (
+    extract_and_validate_riff_data,
+    find_riff_header_after_id3v2,
+    get_id3v2_size,
+    reconstruct_final_file_data,
+    skip_id3v2_tags,
+    update_riff_chunk_size,
+)
+from ._riff_info_chunk import (
+    create_aligned_metadata_with_proper_padding,
+    create_info_chunk_after_wave_header,
+    extract_riff_metadata_directly,
+    find_info_chunk_in_file_data,
+    update_info_chunk_in_riff_data,
 )
 
 
@@ -129,6 +138,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: self.RiffTagKey.UNSYNCHRONIZED_LYRICS,
             UnifiedMetadataKey.TRACK_NUMBER: self.RiffTagKey.TRACK_NUMBER,
             UnifiedMetadataKey.ISRC: self.RiffTagKey.ISRC,
+            UnifiedMetadataKey.DESCRIPTION: None,
         }
         metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] = {
             UnifiedMetadataKey.TITLE: self.RiffTagKey.TITLE,
@@ -146,6 +156,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: self.RiffTagKey.UNSYNCHRONIZED_LYRICS,
             UnifiedMetadataKey.TRACK_NUMBER: self.RiffTagKey.TRACK_NUMBER,
             UnifiedMetadataKey.ISRC: self.RiffTagKey.ISRC,
+            UnifiedMetadataKey.DESCRIPTION: None,
         }
         super().__init__(
             audio_file=audio_file,
@@ -161,274 +172,18 @@ class _RiffManager(_RatingSupportingMetadataManager):
 
         Returns the data starting from after any ID3v2 tags.
         """
-        if data.startswith(b"ID3"):
-            # ID3v2 header is 10 bytes:
-            # 3 bytes: ID3
-            # 2 bytes: version
-            # 1 byte: flags
-            # 4 bytes: size (synchsafe integer)
-            if len(data) < ID3V2_HEADER_SIZE:
-                return data
-
-            # Get size from synchsafe integer (7 bits per byte)
-            size_bytes = data[6:ID3V2_HEADER_SIZE]
-            size = (
-                ((size_bytes[0] & 0x7F) << 21)
-                | ((size_bytes[1] & 0x7F) << 14)
-                | ((size_bytes[2] & 0x7F) << 7)
-                | (size_bytes[3] & 0x7F)
-            )
-
-            # Skip the header (10 bytes) plus the size of the tag
-            return data[ID3V2_HEADER_SIZE + size :]
-        return data
+        return skip_id3v2_tags(data)
 
     def _extract_riff_metadata_directly(self, file_data: bytes) -> dict[str, list[str]]:
         """Manually extract metadata from RIFF chunks without relying on external libraries.
 
         This method directly parses the RIFF structure to extract metadata from the INFO chunk.
         """
-        info_tags: dict[str, list[str]] = {}
-
-        # Skip ID3v2 if present
-        file_data = self._skip_id3v2_tags(file_data)
-
-        # Validate RIFF header
-        if (
-            len(file_data) < RIFF_HEADER_SIZE
-            or file_data[:RIFF_CHUNK_ID_SIZE] != b"RIFF"
-            or file_data[RIFF_WAVE_FORMAT_POSITION:RIFF_HEADER_SIZE] != b"WAVE"
-        ):
-            return info_tags
-
-        pos = 12  # Start after RIFF header
-        while pos < len(file_data) - 8:
-            chunk_id = file_data[pos : pos + 4]
-            chunk_size = int.from_bytes(file_data[pos + 4 : pos + 8], "little")
-
-            if chunk_id == b"LIST" and pos + 12 <= len(file_data) and file_data[pos + 8 : pos + 12] == b"INFO":
-                # Process INFO chunk
-                info_pos = pos + 12
-                info_end = pos + 8 + chunk_size
-
-                while info_pos < info_end - 8:
-                    # Extract each metadata field
-                    field_id = file_data[info_pos : info_pos + 4].decode("ascii", errors="ignore")
-                    field_size = int.from_bytes(file_data[info_pos + 4 : info_pos + 8], "little")
-
-                    if field_size > 0 and info_pos + 8 + field_size <= info_end:
-                        # -1 to exclude null terminator
-                        field_data = file_data[info_pos + 8 : info_pos + 8 + field_size - 1]
-                        try:
-                            # Decode and handle null-terminated strings
-                            field_value = field_data.decode("utf-8", errors="ignore")
-                            # Split on null byte and take first part if exists
-                            field_value = field_value.split("\x00")[0].strip()
-                            # Compare field_id with enum member values (FourCC strings)
-                            if (
-                                any(field_id == member.value for member in self.RiffTagKey.__members__.values())
-                                and field_value
-                            ):
-                                if field_id not in info_tags:
-                                    info_tags[field_id] = []
-                                info_tags[field_id].append(field_value)
-                        except UnicodeDecodeError:
-                            pass
-
-                    # Move to next field, maintaining alignment
-                    info_pos += 8 + ((field_size + 1) & ~1)
-                break
-
-            # Move to next chunk, maintaining alignment
-            pos += 8 + ((chunk_size + 1) & ~1)
-
-        return info_tags
+        return extract_riff_metadata_directly(file_data, self._skip_id3v2_tags, self.RiffTagKey)
 
     def _extract_bext_chunk(self, file_data: bytes) -> dict[str, Any] | None:
-        """Extract and parse the bext chunk from BWF files.
-
-        BWF has multiple versions:
-        - Version 0 (1997): Original specification, no UMID field
-        - Version 1 (2001): Added UMID field (64 bytes)
-        - Version 2 (2011): Added loudness metadata fields (not yet parsed)
-
-        The bext chunk structure (v1):
-        - Description (256 bytes, ASCII, null-terminated)
-        - Originator (32 bytes, ASCII, null-terminated)
-        - OriginatorReference (32 bytes, ASCII, null-terminated)
-        - OriginationDate (10 bytes, ASCII, YYYY-MM-DD)
-        - OriginationTime (8 bytes, ASCII, HH:MM:SS)
-        - TimeReference (8 bytes, uint64, little-endian)
-        - Version (2 bytes, uint16, little-endian): 0x0000 (v0), 0x0001 (v1), 0x0002 (v2)
-        - UMID (64 bytes, binary, v1+ only)
-        - Reserved (190 bytes, zeros)
-        - CodingHistory (variable length, ASCII, null-terminated)
-
-        BWF v2 adds loudness metadata fields (10 bytes total) at the START of reserved bytes (offset 412):
-        - LoudnessValue (2 bytes, int16, little-endian, stored as 0.01 LU units by bwfmetaedit)
-        - LoudnessRange (2 bytes, int16, little-endian, stored as 0.01 LU units)
-        - MaxTruePeakLevel (2 bytes, int16, little-endian, stored as 0.01 dB units)
-        - MaxMomentaryLoudness (2 bytes, int16, little-endian, stored as 0.01 LU units)
-        - MaxShortTermLoudness (2 bytes, int16, little-endian, stored as 0.01 LU units)
-        Note: bwfmetaedit stores loudness values as 0.01 units (centi-units), so values are divided by 100.
-
-        Returns:
-            Dictionary with parsed bext fields or None if bext chunk not found
-        """
-        # Skip ID3v2 if present
-        file_data = self._skip_id3v2_tags(file_data)
-
-        # Validate RIFF header
-        if (
-            len(file_data) < RIFF_HEADER_SIZE
-            or file_data[:RIFF_CHUNK_ID_SIZE] != b"RIFF"
-            or file_data[RIFF_WAVE_FORMAT_POSITION:RIFF_HEADER_SIZE] != b"WAVE"
-        ):
-            return None
-
-        pos = 12  # Start after RIFF header
-        while pos < len(file_data) - 8:
-            chunk_id = file_data[pos : pos + 4]
-            chunk_size = int.from_bytes(file_data[pos + 4 : pos + 8], "little")
-
-            if chunk_id == b"bext":
-                # Found bext chunk
-                bext_data_start = pos + 8
-                bext_data_end = bext_data_start + chunk_size
-
-                if bext_data_end > len(file_data):
-                    return None
-
-                bext_data = file_data[bext_data_start:bext_data_end]
-
-                # Minimum bext chunk size is 602 bytes (256+32+32+10+8+8+2+64+190)
-                if len(bext_data) < BEXT_MIN_CHUNK_SIZE:
-                    return None
-
-                bext_fields: dict[str, Any] = {}
-
-                # Parse fixed fields
-                offset = 0
-
-                # Description (256 bytes)
-                description_bytes = bext_data[offset : offset + 256]
-                description = description_bytes.split(b"\x00")[0].decode("ascii", errors="ignore").strip()
-                if description:
-                    bext_fields["Description"] = description
-                offset += 256
-
-                # Originator (32 bytes)
-                originator_bytes = bext_data[offset : offset + 32]
-                originator = originator_bytes.split(b"\x00")[0].decode("ascii", errors="ignore").strip()
-                if originator:
-                    bext_fields["Originator"] = originator
-                offset += 32
-
-                # OriginatorReference (32 bytes)
-                originator_ref_bytes = bext_data[offset : offset + 32]
-                originator_ref = originator_ref_bytes.split(b"\x00")[0].decode("ascii", errors="ignore").strip()
-                if originator_ref:
-                    bext_fields["OriginatorReference"] = originator_ref
-                offset += 32
-
-                # OriginationDate (10 bytes, YYYY-MM-DD)
-                origination_date_bytes = bext_data[offset : offset + BEXT_ORIGINATION_DATE_SIZE]
-                origination_date = origination_date_bytes.decode("ascii", errors="ignore").strip()
-                if origination_date and len(origination_date) == BEXT_ORIGINATION_DATE_SIZE:
-                    bext_fields["OriginationDate"] = origination_date
-                offset += BEXT_ORIGINATION_DATE_SIZE
-
-                # OriginationTime (8 bytes, HH:MM:SS)
-                origination_time_bytes = bext_data[offset : offset + BEXT_ORIGINATION_TIME_SIZE]
-                origination_time = origination_time_bytes.decode("ascii", errors="ignore").strip()
-                if origination_time and len(origination_time) == BEXT_ORIGINATION_TIME_SIZE:
-                    bext_fields["OriginationTime"] = origination_time
-                offset += BEXT_ORIGINATION_TIME_SIZE
-
-                # TimeReference (8 bytes, uint64, little-endian)
-                if offset + 8 <= len(bext_data):
-                    time_reference = int.from_bytes(bext_data[offset : offset + 8], "little")
-                    bext_fields["TimeReference"] = time_reference
-                offset += 8
-
-                # Version (2 bytes, uint16, little-endian)
-                if offset + 2 <= len(bext_data):
-                    version = int.from_bytes(bext_data[offset : offset + 2], "little")
-                    bext_fields["Version"] = version
-                offset += 2
-
-                # UMID (64 bytes, binary)
-                if offset + 64 <= len(bext_data):
-                    umid_bytes = bext_data[offset : offset + 64]
-                    # Check if UMID is not all zeros
-                    if any(umid_bytes):
-                        # Format as hex string for readability
-                        umid_hex = umid_bytes.hex().upper()
-                        bext_fields["UMID"] = umid_hex
-                offset += 64
-
-                # Reserved (190 bytes) - in BWF v2, loudness metadata is stored at the START of reserved bytes
-                # Parse loudness metadata if BWF v2 (version >= 2)
-                if version >= BWF_V2_VERSION and offset + BEXT_LOUDNESS_METADATA_SIZE <= len(bext_data):
-                    # Loudness metadata starts at offset 412 (start of reserved bytes area)
-                    # LoudnessValue (2 bytes, int16, little-endian, stored as 0.01 LU units by bwfmetaedit)
-                    loudness_value_raw = int.from_bytes(bext_data[offset : offset + 2], "little", signed=True)
-                    if loudness_value_raw != 0:  # 0 means not set
-                        # bwfmetaedit stores as 0.01 units, convert to LU
-                        bext_fields["LoudnessValue"] = round(loudness_value_raw / 100.0, 2)
-                    offset += 2
-
-                    # LoudnessRange (2 bytes, int16, little-endian, stored as 0.01 LU units)
-                    if offset + 2 <= len(bext_data):
-                        loudness_range_raw = int.from_bytes(bext_data[offset : offset + 2], "little", signed=True)
-                        if loudness_range_raw != 0:  # 0 means not set
-                            bext_fields["LoudnessRange"] = round(loudness_range_raw / 100.0, 2)
-                        offset += 2
-
-                    # MaxTruePeakLevel (2 bytes, int16, little-endian, stored as 0.01 dB units)
-                    if offset + 2 <= len(bext_data):
-                        max_true_peak_raw = int.from_bytes(bext_data[offset : offset + 2], "little", signed=True)
-                        if max_true_peak_raw != 0:  # 0 means not set
-                            bext_fields["MaxTruePeakLevel"] = round(max_true_peak_raw / 100.0, 2)
-                        offset += 2
-
-                    # MaxMomentaryLoudness (2 bytes, int16, little-endian, stored as 0.01 LU units)
-                    if offset + 2 <= len(bext_data):
-                        max_momentary_raw = int.from_bytes(bext_data[offset : offset + 2], "little", signed=True)
-                        if max_momentary_raw != 0:  # 0 means not set
-                            bext_fields["MaxMomentaryLoudness"] = round(max_momentary_raw / 100.0, 2)
-                        offset += 2
-
-                    # MaxShortTermLoudness (2 bytes, int16, little-endian, stored as 0.01 LU units)
-                    if offset + 2 <= len(bext_data):
-                        max_short_term_raw = int.from_bytes(bext_data[offset : offset + 2], "little", signed=True)
-                        if max_short_term_raw != 0:  # 0 means not set
-                            bext_fields["MaxShortTermLoudness"] = round(max_short_term_raw / 100.0, 2)
-                        offset += 2
-
-                    # Skip remaining reserved bytes (190 - 10 = 180 bytes)
-                    offset += 180
-                else:
-                    # Skip all reserved bytes if not v2
-                    offset += 190
-
-                # CodingHistory (variable length, null-terminated)
-                if offset < len(bext_data):
-                    coding_history_bytes = bext_data[offset:]
-                    # Find null terminator or end of chunk
-                    null_pos = coding_history_bytes.find(b"\x00")
-                    if null_pos >= 0:
-                        coding_history_bytes = coding_history_bytes[:null_pos]
-                    coding_history = coding_history_bytes.decode("ascii", errors="ignore").strip()
-                    if coding_history:
-                        bext_fields["CodingHistory"] = coding_history
-
-                return bext_fields if bext_fields else None
-
-            # Move to next chunk, maintaining alignment
-            pos += 8 + ((chunk_size + 1) & ~1)
-
-        return None
+        """Extract and parse the bext chunk from BWF files."""
+        return extract_bext_chunk(file_data, self._skip_id3v2_tags)
 
     @contextlib.contextmanager
     def _suppress_output(self) -> Any:
@@ -514,6 +269,17 @@ class _RiffManager(_RatingSupportingMetadataManager):
             return self._get_genres_from_raw_clean_metadata_uppercase_keys(
                 raw_clean_metadata, self.RiffTagKey.GENRES_NAMES_OR_CODES
             )
+        if unified_metadata_key == UnifiedMetadataKey.DESCRIPTION:
+            # Read from bext chunk
+            try:
+                self.audio_file.seek(0)
+                file_data = self.audio_file.read()
+                bext_data = self._extract_bext_chunk(file_data)
+                if bext_data and "Description" in bext_data:
+                    return cast(str, bext_data["Description"])
+            except Exception:
+                pass
+            return None
         msg = f"Metadata key not handled: {unified_metadata_key}"
         raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
@@ -526,66 +292,100 @@ class _RiffManager(_RatingSupportingMetadataManager):
         Note: While TinyTag is excellent for reading metadata, it doesn't support writing.
         Therefore, we implement our own RIFF chunk writer following the specification.
         """
+        self._validate_metadata_for_riff_update(unified_metadata)
+
+        file_data, should_preserve_id3v2 = self._read_file_data_for_update()
+        riff_data = self._extract_and_validate_riff_data(file_data, should_preserve_id3v2)
+
+        info_chunk_start = self._ensure_info_chunk_exists(riff_data)
+        merged_metadata = self._merge_existing_and_new_metadata(riff_data, unified_metadata)
+
+        new_tags_data = self._build_info_chunk_tags_data(merged_metadata)
+        self._update_info_chunk_in_riff_data(riff_data, info_chunk_start, new_tags_data)
+
+        self._update_bext_fields_in_riff_data(riff_data, merged_metadata)
+        self._update_riff_chunk_size(riff_data)
+
+        final_file_data = self._reconstruct_final_file_data(file_data, riff_data, should_preserve_id3v2)
+        self._write_file_and_clear_cache(final_file_data)
+
+    def _validate_metadata_for_riff_update(self, unified_metadata: UnifiedMetadata) -> None:
+        """Validate that all metadata fields are supported by RIFF format."""
         if not self.metadata_keys_direct_map_write:
             msg = "metadata_keys_direct_map_write must be set"
             raise ConfigurationError(msg)
 
-        # Validate that all metadata fields are supported by RIFF format
         for unified_metadata_key in unified_metadata:
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
                 msg = f"{unified_metadata_key} metadata not supported by RIFF format"
                 raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
-        # Read the entire file into a mutable bytearray
+    def _read_file_data_for_update(self) -> tuple[bytearray, bool]:
+        """Read file data and determine ID3v2 preservation strategy.
+
+        Returns:
+            Tuple of (file_data, should_preserve_id3v2)
+        """
         self.audio_file.seek(0)
         file_data = bytearray(self.audio_file.read())
 
-        # Check if we should preserve ID3v2 tags based on the calling context
-        # In PRESERVE strategy, we should not strip ID3v2 tags as they will be restored later
         should_preserve_id3v2 = self._should_preserve_id3v2_tags()
 
-        if should_preserve_id3v2:
-            # For PRESERVE strategy, work with the full file data including ID3v2 tags
-            # We'll write RIFF metadata without affecting the ID3v2 section
-            pass  # file_data already contains the full file including ID3v2
-        else:
-            # For other strategies (CLEANUP, SYNC), strip ID3v2 tags as before
+        if not should_preserve_id3v2:
+            # For other strategies (CLEANUP, SYNC), strip ID3v2 tags
             skipped_data = self._skip_id3v2_tags(bytes(file_data))
             file_data = bytearray(skipped_data)
 
-        # Find RIFF header and validate
-        # If ID3v2 tags are present, we need to find the RIFF header after them
-        if should_preserve_id3v2 and file_data.startswith(b"ID3"):
-            # Find RIFF header after ID3v2 tags
-            riff_start = self._find_riff_header_after_id3v2(file_data)
-            if riff_start == -1:
-                msg = "Invalid WAV file format - RIFF header not found after ID3v2 tags"
-                raise MetadataFieldNotSupportedByMetadataFormatError(msg)
-            # Work with the RIFF portion only for metadata updates
-            riff_data = file_data[riff_start:]
-        else:
-            riff_data = file_data
+        return file_data, should_preserve_id3v2
 
-        if (
-            len(riff_data) < RIFF_HEADER_SIZE
-            or bytes(riff_data[:RIFF_CHUNK_ID_SIZE]) != b"RIFF"
-            or bytes(riff_data[RIFF_WAVE_FORMAT_POSITION:RIFF_HEADER_SIZE]) != b"WAVE"
-        ):
-            msg = "Invalid WAV file format"
-            raise MetadataFieldNotSupportedByMetadataFormatError(msg)
+    def _extract_and_validate_riff_data(self, file_data: bytearray, should_preserve_id3v2: bool) -> bytearray:
+        """Extract RIFF data from file data and validate format.
 
-        # Find or create LIST INFO chunk in the RIFF data
-        info_chunk_start = self._find_info_chunk_in_file_data(riff_data)
+        Args:
+            file_data: Full file data including potential ID3v2 tags
+            should_preserve_id3v2: Whether to preserve ID3v2 tags
+
+        Returns:
+            RIFF data bytearray
+
+        Raises:
+            MetadataFieldNotSupportedByMetadataFormatError: If RIFF format is invalid
+        """
+        return extract_and_validate_riff_data(file_data, should_preserve_id3v2, self._find_riff_header_after_id3v2)
+
+    def _ensure_info_chunk_exists(self, riff_data: bytearray) -> int:
+        """Find or create LIST INFO chunk in RIFF data.
+
+        Args:
+            riff_data: RIFF data bytearray
+
+        Returns:
+            Start position of INFO chunk
+        """
+        info_chunk_start = find_info_chunk_in_file_data(riff_data)
         if info_chunk_start == -1:
-            info_chunk_start = self._create_info_chunk_after_wave_header(riff_data)
+            info_chunk_start = create_info_chunk_after_wave_header(riff_data)
+        return info_chunk_start
 
-        # Process metadata updates
-        info_chunk_size = int.from_bytes(bytes(riff_data[info_chunk_start + 4 : info_chunk_start + 8]), "little")
+    def _merge_existing_and_new_metadata(
+        self, riff_data: bytearray, unified_metadata: UnifiedMetadata
+    ) -> UnifiedMetadata:
+        """Read existing metadata and merge with new metadata.
 
-        # Read existing metadata to preserve it
+        Args:
+            riff_data: RIFF data bytearray
+            unified_metadata: New metadata to merge
+
+        Returns:
+            Merged metadata (new metadata takes precedence)
+        """
+        if not self.metadata_keys_direct_map_write:
+            msg = "metadata_keys_direct_map_write must be set"
+            raise ConfigurationError(msg)
+
         existing_metadata = self._extract_riff_metadata_directly(bytes(riff_data))
 
-        # Convert existing metadata to unified format for merging
+        # Convert existing metadata to unified format
         existing_unified_metadata: UnifiedMetadata = {}
         for existing_riff_key, values in existing_metadata.items():
             # Find the corresponding unified metadata key
@@ -598,9 +398,17 @@ class _RiffManager(_RatingSupportingMetadataManager):
                     break
 
         # Merge existing metadata with new metadata (new metadata takes precedence)
-        merged_metadata: UnifiedMetadata = {**existing_unified_metadata, **unified_metadata}
+        return {**existing_unified_metadata, **unified_metadata}
 
-        # Build new tags data
+    def _build_info_chunk_tags_data(self, merged_metadata: UnifiedMetadata) -> bytearray:
+        """Build new INFO chunk tags data from merged metadata.
+
+        Args:
+            merged_metadata: Merged metadata to convert to RIFF tags
+
+        Returns:
+            Bytearray containing INFO chunk tags data
+        """
         new_tags_data = bytearray()
         for app_key, value in merged_metadata.items():
             if value is None or value == "":
@@ -620,39 +428,82 @@ class _RiffManager(_RatingSupportingMetadataManager):
                     concatenated_value: str = separator.join(value)
                     value_bytes = self._prepare_tag_value(concatenated_value, app_key)
                     if value_bytes:
-                        new_tags_data.extend(self._create_aligned_metadata_with_proper_padding(riff_key, value_bytes))
+                        new_tags_data.extend(create_aligned_metadata_with_proper_padding(riff_key, value_bytes))
             # Single value - ensure it's not None before processing
             elif isinstance(value, int | float | str):
                 value_bytes = self._prepare_tag_value(value, app_key)
                 if value_bytes:
-                    new_tags_data.extend(self._create_aligned_metadata_with_proper_padding(riff_key, value_bytes))
+                    new_tags_data.extend(create_aligned_metadata_with_proper_padding(riff_key, value_bytes))
 
-        # Create new INFO chunk
-        new_info_chunk = bytearray()
-        new_info_chunk.extend(b"LIST")
-        new_info_chunk.extend((len(new_tags_data) + 4).to_bytes(4, "little"))  # +4 for 'INFO'
-        new_info_chunk.extend(b"INFO")
-        new_info_chunk.extend(new_tags_data)
+        return new_tags_data
 
-        # Replace old INFO chunk in RIFF data
-        riff_data[info_chunk_start : info_chunk_start + info_chunk_size + 8] = new_info_chunk
+    def _update_info_chunk_in_riff_data(
+        self, riff_data: bytearray, info_chunk_start: int, new_tags_data: bytearray
+    ) -> None:
+        """Update INFO chunk in RIFF data with new tags.
 
-        # Update RIFF chunk size
-        total_size = len(riff_data) - 8  # Exclude RIFF and size fields
-        riff_data[4:8] = total_size.to_bytes(4, "little")
+        Args:
+            riff_data: RIFF data bytearray (modified in-place)
+            info_chunk_start: Start position of existing INFO chunk
+            new_tags_data: New tags data to write
+        """
+        update_info_chunk_in_riff_data(riff_data, info_chunk_start, new_tags_data)
 
-        # If we preserved ID3v2 tags, we need to reconstruct the full file
-        if should_preserve_id3v2 and file_data.startswith(b"ID3"):
-            # Reconstruct the full file with ID3v2 tags + updated RIFF data
-            id3v2_size = self._get_id3v2_size(file_data)
-            final_file_data = bytearray(file_data[:id3v2_size])  # Keep ID3v2 tags
-            final_file_data.extend(riff_data)  # Add updated RIFF data
-        else:
-            final_file_data = riff_data
+    def _update_bext_fields_in_riff_data(self, riff_data: bytearray, merged_metadata: UnifiedMetadata) -> None:
+        """Update bext chunk fields (like DESCRIPTION) in RIFF data.
 
-        # Write updated file
+        Args:
+            riff_data: RIFF data bytearray (modified in-place)
+            merged_metadata: Merged metadata containing bext fields
+        """
+        if UnifiedMetadataKey.DESCRIPTION in merged_metadata:
+            description_value = merged_metadata[UnifiedMetadataKey.DESCRIPTION]
+            update_bext_description_in_riff_data(riff_data, cast(str | None, description_value))
+
+    def _update_riff_chunk_size(self, riff_data: bytearray) -> None:
+        """Update RIFF chunk size in RIFF data.
+
+        Args:
+            riff_data: RIFF data bytearray (modified in-place)
+        """
+        update_riff_chunk_size(riff_data)
+
+    def _reconstruct_final_file_data(
+        self, file_data: bytearray, riff_data: bytearray, should_preserve_id3v2: bool
+    ) -> bytearray:
+        """Reconstruct final file data with ID3v2 tags if needed.
+
+        Args:
+            file_data: Original file data
+            riff_data: Updated RIFF data
+            should_preserve_id3v2: Whether ID3v2 tags should be preserved
+
+        Returns:
+            Final file data ready to write
+        """
+        return reconstruct_final_file_data(file_data, riff_data, should_preserve_id3v2, self._get_id3v2_size)
+
+    def _write_file_and_clear_cache(self, final_file_data: bytearray) -> None:
+        """Write final file data and clear cached metadata.
+
+        Args:
+            final_file_data: Final file data to write
+        """
         self.audio_file.seek(0)
         self.audio_file.write(final_file_data)
+
+        # Clear cached metadata to ensure subsequent reads reflect the changes
+        self.raw_clean_metadata = None
+        self.raw_clean_metadata_uppercase_keys = None
+        self.raw_mutagen_metadata = None
+
+    def _find_bext_chunk(self, file_data: bytes) -> int:
+        """Find the position of the bext chunk."""
+        return find_bext_chunk(file_data, self._skip_id3v2_tags)
+
+    def _find_fmt_chunk(self, file_data: bytes) -> int:
+        """Find the position of the fmt chunk."""
+        return find_fmt_chunk(file_data, self._skip_id3v2_tags)
 
     def delete_metadata(self) -> bool:
         """Delete all RIFF metadata from the audio file.
@@ -671,22 +522,16 @@ class _RiffManager(_RatingSupportingMetadataManager):
             # Check if we should preserve ID3v2 tags
             should_preserve_id3v2 = self._should_preserve_id3v2_tags()
 
-            if should_preserve_id3v2:
-                # For files with ID3v2 tags, work with the RIFF portion only
-                if file_data.startswith(b"ID3"):
-                    # Find RIFF header after ID3v2 tags
-                    riff_start = self._find_riff_header_after_id3v2(file_data)
-                    if riff_start == -1:
-                        return False  # No RIFF header found
-                    riff_data = file_data[riff_start:]
-                else:
-                    riff_data = file_data
-            else:
-                # For files without ID3v2 tags, work with the entire file
-                riff_data = file_data
+            # Extract and validate RIFF data
+            try:
+                riff_data = extract_and_validate_riff_data(
+                    file_data, should_preserve_id3v2, self._find_riff_header_after_id3v2
+                )
+            except MetadataFieldNotSupportedByMetadataFormatError:
+                return False  # Invalid RIFF format
 
             # Find and remove LIST INFO chunk
-            info_chunk_start = self._find_info_chunk_in_file_data(riff_data)
+            info_chunk_start = find_info_chunk_in_file_data(riff_data)
             if info_chunk_start == -1:
                 return True  # No INFO chunk found, consider deletion successful
 
@@ -697,16 +542,12 @@ class _RiffManager(_RatingSupportingMetadataManager):
             riff_data[info_chunk_start : info_chunk_start + info_chunk_size + 8] = b""
 
             # Update RIFF chunk size
-            total_size = len(riff_data) - 8  # Exclude RIFF and size fields
-            riff_data[4:8] = total_size.to_bytes(4, "little")
+            update_riff_chunk_size(riff_data)
 
             # If we preserved ID3v2 tags, reconstruct the full file
-            if should_preserve_id3v2 and file_data.startswith(b"ID3"):
-                id3v2_size = self._get_id3v2_size(file_data)
-                final_file_data = bytearray(file_data[:id3v2_size])  # Keep ID3v2 tags
-                final_file_data.extend(riff_data)  # Add updated RIFF data
-            else:
-                final_file_data = riff_data
+            final_file_data = reconstruct_final_file_data(
+                file_data, riff_data, should_preserve_id3v2, self._get_id3v2_size
+            )
 
             # Write updated file
             self.audio_file.seek(0)
@@ -715,25 +556,6 @@ class _RiffManager(_RatingSupportingMetadataManager):
             return False
         else:
             return True
-
-    def _find_info_chunk_in_file_data(self, file_data: bytearray) -> int:
-        pos = 12  # Start after RIFF header
-        while pos < len(file_data) - 8:
-            if (
-                bytes(file_data[pos : pos + 4]) == b"LIST"
-                and pos + 8 < len(file_data)
-                and bytes(file_data[pos + 8 : pos + 12]) == b"INFO"
-            ):
-                return pos
-            chunk_size = int.from_bytes(bytes(file_data[pos + 4 : pos + 8]), "little")
-            pos += 8 + ((chunk_size + 1) & ~1)  # Move to next chunk, maintaining alignment
-        return -1
-
-    def _create_info_chunk_after_wave_header(self, file_data: bytearray) -> int:
-        info_chunk = bytearray(b"LIST\x04\x00\x00\x00INFO")  # Minimal INFO chunk
-        insert_pos = 12  # After RIFF+size+WAVE
-        file_data[insert_pos:insert_pos] = info_chunk
-        return insert_pos
 
     def _get_riff_key_for_metadata(
         self, app_key: UnifiedMetadataKey, _value: UnifiedMetadataValue
@@ -778,13 +600,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
         return str(value).encode("utf-8")
 
     def _create_aligned_metadata_with_proper_padding(self, metadata_id: RawMetadataKey, value_bytes: bytes) -> bytes:
-        # Add null terminator
-        value_bytes = value_bytes + b"\x00"
-        # Pad to even length if needed
-        if len(value_bytes) % 2:
-            value_bytes = value_bytes + b"\x00"
-
-        return metadata_id.encode("ascii") + len(value_bytes).to_bytes(4, "little") + value_bytes
+        return create_aligned_metadata_with_proper_padding(metadata_id, value_bytes)
 
     def _get_genre_code_from_name(self, genre_name: str) -> int | None:
         genre_name_lower = genre_name.lower()
@@ -856,38 +672,14 @@ class _RiffManager(_RatingSupportingMetadataManager):
 
         Returns the position of the RIFF header or -1 if not found.
         """
-        if not file_data.startswith(b"ID3"):
-            return -1
-
-        # Skip ID3v2 tags using existing method
-        skipped_data = self._skip_id3v2_tags(bytes(file_data))
-        if not skipped_data.startswith(b"RIFF"):
-            return -1
-
-        # Calculate the position where RIFF starts
-        return len(file_data) - len(skipped_data)
+        return find_riff_header_after_id3v2(file_data)
 
     def _get_id3v2_size(self, file_data: bytearray) -> int:
         """Get the size of ID3v2 tags at the beginning of the file.
 
         Returns the total size including header and data.
         """
-        if not file_data.startswith(b"ID3"):
-            return 0
-
-        if len(file_data) < RIFF_MIN_DATA_SIZE_FOR_ID3V2:
-            return 0
-
-        # Get size from synchsafe integer (7 bits per byte)
-        size_bytes = file_data[6:ID3V2_HEADER_SIZE]
-        size = (
-            ((size_bytes[0] & 0x7F) << 21)
-            | ((size_bytes[1] & 0x7F) << 14)
-            | ((size_bytes[2] & 0x7F) << 7)
-            | (size_bytes[3] & 0x7F)
-        )
-
-        return 10 + size  # Header (10 bytes) + data size
+        return get_id3v2_size(file_data)
 
     def get_header_info(self) -> dict:
         try:

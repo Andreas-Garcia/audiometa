@@ -64,6 +64,7 @@ class VorbisMetadataSetter:
             "disc_total": "DISCTOTAL",
             "replaygain": "REPLAYGAIN",
             "archival_location": "ARCHIVAL_LOCATION",
+            "description": "DESCRIPTION",
         }
 
         # Handle list values first (they need special handling)

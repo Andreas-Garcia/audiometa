@@ -48,6 +48,27 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Added
+
+- **Description Metadata Field Support**: Added comprehensive support for Description metadata field:
+  - **RIFF (WAV/BWF) Format**: Full read/write support for Description in BWF bext chunk (256-byte UTF-8 limit with truncation)
+  - **Vorbis (FLAC) Format**: Full read/write support for Description as custom "DESCRIPTION" comment (unlimited length)
+  - **CLI Integration**: Added `--description` command-line option for metadata writing operations
+  - **API Support**: Complete integration with `update_metadata()` and `get_unified_metadata_field()` functions
+  - **Comprehensive Testing**: Added 17 integration tests covering reading, writing, deleting, and unsupported format handling
+  - **Documentation**: Updated metadata field guide to reflect Description support matrix
+  - **Error Handling**: Proper error handling for unsupported formats (ID3v1/ID3v2) with appropriate exceptions
+
+### Improved
+
+- **RIFF Manager Code Organization**: Refactored `_RiffManager.py` into focused modules for better maintainability:
+  - Split large 1195-line file into 4 focused modules (33% reduction in main file size)
+  - Created `_riff_bext_chunk.py` for BWF bext chunk operations (Description, Originator, loudness metadata)
+  - Created `_riff_info_chunk.py` for RIFF INFO chunk operations (title, artist, album, etc.)
+  - Created `_riff_file_structure.py` for file structure utilities (ID3v2 handling, chunk finding, file reconstruction)
+  - Improved code organization with clear separation of concerns and better testability
+  - Refactored `_update_not_using_mutagen_metadata()` into 11 focused helper functions for better readability
+
 ### Fixed
 
 - **System Dependencies**: Updated exiftool pinned version from 13.42 to 13.43:

@@ -34,6 +34,7 @@ class RIFFMetadataSetter:
             "rating": "--IRTD",
             "copyright": "--ICOP",
             "isrc": "--ISRC",
+            "description": "--Description",
         }
 
         # Handle list values - include first value in main command to avoid overwriting

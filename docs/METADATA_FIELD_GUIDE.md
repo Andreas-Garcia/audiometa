@@ -47,27 +47,27 @@ The library supports a comprehensive set of metadata fields across different aud
 | Publisher               | ✗                 | TPUB                       | ORGANIZATION      | ✗                             | PUBLISHER             | --publisher              |
 | Copyright               | ✗                 | TCOP                       | COPYRIGHT         | ICOP                          | COPYRIGHT             | --copyright              |
 | Lyrics                  | ✗                 | USLT                       | LYRICS\*          | ✗                             | UNSYNCHRONIZED_LYRICS | --lyrics                 |
-| Synchronized Lyrics     | ✗                 | SYLT                       | ✗                 | ✗                             |                       | ✗                        |
+| Synchronized Lyrics     | ✗                 | SYLT                       | ✗                 | ✗                             | ✗                     | ✗                        |
 | Comment                 | COMMENT (28)      | COMM                       | COMMENT           | ICMT                          | COMMENT               | --comment                |
 | ReplayGain              | ✗                 | ✗                          | REPLAYGAIN        | ✗                             | REPLAYGAIN            | --replaygain             |
 | Archival Location       | ✗                 | TXXX                       | ARCHIVAL_LOCATION | ✗                             | ARCHIVAL_LOCATION     | --archival-location      |
 | ISRC                    | ✗                 | TSRC                       | ISRC              | \*\* (ISRC)                   | ISRC                  | --isrc                   |
-| Description             | ✗                 | ✗                          | ✗                 | \*\* (Description)            |                       | ✗                        |
-| Originator              | ✗                 | ✗                          | ✗                 | \*\* (Originator)             |                       | ✗                        |
-| Originator Reference    | ✗                 | ✗                          | ✗                 | \*\* (OriginatorReference)    |                       | ✗                        |
-| Origination Date        | ✗                 | ✗                          | ✗                 | \*\* (OriginationDate)        |                       | ✗                        |
-| Origination Time        | ✗                 | ✗                          | ✗                 | \*\* (OriginationTime)        |                       | ✗                        |
-| Time Reference          | ✗                 | ✗                          | ✗                 | \*\* (TimeReference)          |                       | ✗                        |
-| Version                 | ✗                 | ✗                          | ✗                 | \*\* (Version)                |                       | ✗                        |
-| UMID                    | ✗                 | ✗                          | ✗                 | \*\* (UMID)                   |                       | ✗                        |
-| Coding History          | ✗                 | ✗                          | ✗                 | \*\* (CodingHistory)          |                       | ✗                        |
-| Loudness Value          | ✗                 | ✗                          | ✗                 | \*\*\* (LoudnessValue)        |                       | ✗                        |
-| Loudness Range          | ✗                 | ✗                          | ✗                 | \*\*\* (LoudnessRange)        |                       | ✗                        |
-| Max True Peak Level     | ✗                 | ✗                          | ✗                 | \*\*\* (MaxTruePeakLevel)     |                       | ✗                        |
-| Max Momentary Loudness  | ✗                 | ✗                          | ✗                 | \*\*\* (MaxMomentaryLoudness) |                       | ✗                        |
-| Max Short Term Loudness | ✗                 | ✗                          | ✗                 | \*\*\* (MaxShortTermLoudness) |                       | ✗                        |
+| Description             | ✗                 | ✗                          | DESCRIPTION\*     | \*\* (Description)            | DESCRIPTION           | --description            |
+| Originator              | ✗                 | ✗                          | ✗                 | \*\* (Originator)             | ✗                     | ✗                        |
+| Originator Reference    | ✗                 | ✗                          | ✗                 | \*\* (OriginatorReference)    | ✗                     | ✗                        |
+| Origination Date        | ✗                 | ✗                          | ✗                 | \*\* (OriginationDate)        | ✗                     | ✗                        |
+| Origination Time        | ✗                 | ✗                          | ✗                 | \*\* (OriginationTime)        | ✗                     | ✗                        |
+| Time Reference          | ✗                 | ✗                          | ✗                 | \*\* (TimeReference)          | ✗                     | ✗                        |
+| Version                 | ✗                 | ✗                          | ✗                 | \*\* (Version)                | ✗                     | ✗                        |
+| UMID                    | ✗                 | ✗                          | ✗                 | \*\* (UMID)                   | ✗                     | ✗                        |
+| Coding History          | ✗                 | ✗                          | ✗                 | \*\* (CodingHistory)          | ✗                     | ✗                        |
+| Loudness Value          | ✗                 | ✗                          | ✗                 | \*\*\* (LoudnessValue)        | ✗                     | ✗                        |
+| Loudness Range          | ✗                 | ✗                          | ✗                 | \*\*\* (LoudnessRange)        | ✗                     | ✗                        |
+| Max True Peak Level     | ✗                 | ✗                          | ✗                 | \*\*\* (MaxTruePeakLevel)     | ✗                     | ✗                        |
+| Max Momentary Loudness  | ✗                 | ✗                          | ✗                 | \*\*\* (MaxMomentaryLoudness) | ✗                     | ✗                        |
+| Max Short Term Loudness | ✗                 | ✗                          | ✗                 | \*\*\* (MaxShortTermLoudness) | ✗                     | ✗                        |
 
-\* Fields marked with asterisk (\*) are supported via RIFF INFO chunks but may have limited or non-standard implementations.
+\* Fields marked with asterisk (\*) are supported in non-standard implementations.
 
 \*\* Fields marked with double asterisk (\*\*) are Broadcast Wave Format (BWF) fields via the `bext` chunk. Currently only ISRC is exposed in unified metadata. Other BWF fields are available via raw metadata access. See the [Metadata Formats Guide](METADATA_FORMATS.md#broadcast-wave-format-bwf-versions) for details.
 

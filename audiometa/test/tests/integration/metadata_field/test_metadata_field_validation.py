@@ -111,10 +111,11 @@ class TestMetadataFieldValidation:
                 result = get_unified_metadata_field(sample_mp3_file, key)
                 # Result can be None if field is not present, which is valid
                 assert result is None or isinstance(result, str | int | float | list)
-            except MetadataFieldNotSupportedByLibError as e:
+            except (MetadataFieldNotSupportedByLibError, MetadataFieldNotSupportedByMetadataFormatError) as e:
                 # Only fail if the error message indicates invalid enum value
-                # It's okay if it raises for "not supported by any format" - that's different
-                if "not supported by any format" not in str(e):
+                # It's okay if it raises for "not supported by any format" or "not supported by format"
+                # - that's different
+                if "not supported by any format" not in str(e) and "not supported by" not in str(e):
                     raise
 
     def test_invalid_metadata_field_type_error_wrong_type_for_list_field(self):
