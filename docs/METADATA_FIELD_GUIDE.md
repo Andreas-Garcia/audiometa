@@ -52,7 +52,7 @@ The library supports a comprehensive set of metadata fields across different aud
 | ReplayGain              | ✗                 | ✗                          | REPLAYGAIN        | ✗                             | REPLAYGAIN            | --replaygain             |
 | Archival Location       | ✗                 | TXXX                       | ARCHIVAL_LOCATION | ✗                             | ARCHIVAL_LOCATION     | --archival-location      |
 | ISRC                    | ✗                 | TSRC                       | ISRC              | \*\* (ISRC)                   | ISRC                  | --isrc                   |
-| Description             | ✗                 | ✗                          | ✗                 | \*\* (Description)            | ✗                     | ✗                        |
+| Description             | ✗                 | ✗                          | DESCRIPTION\*     | \*\* (Description)            | DESCRIPTION           | --description            |
 | Originator              | ✗                 | ✗                          | ✗                 | \*\* (Originator)             | ✗                     | ✗                        |
 | Originator Reference    | ✗                 | ✗                          | ✗                 | \*\* (OriginatorReference)    | ✗                     | ✗                        |
 | Origination Date        | ✗                 | ✗                          | ✗                 | \*\* (OriginationDate)        | ✗                     | ✗                        |
@@ -67,7 +67,7 @@ The library supports a comprehensive set of metadata fields across different aud
 | Max Momentary Loudness  | ✗                 | ✗                          | ✗                 | \*\*\* (MaxMomentaryLoudness) | ✗                     | ✗                        |
 | Max Short Term Loudness | ✗                 | ✗                          | ✗                 | \*\*\* (MaxShortTermLoudness) | ✗                     | ✗                        |
 
-\* Fields marked with asterisk (\*) are supported via RIFF INFO chunks but may have limited or non-standard implementations.
+\* Fields marked with asterisk (\*) are supported in non-standard implementations.
 
 \*\* Fields marked with double asterisk (\*\*) are Broadcast Wave Format (BWF) fields via the `bext` chunk. Currently only ISRC is exposed in unified metadata. Other BWF fields are available via raw metadata access. See the [Metadata Formats Guide](METADATA_FORMATS.md#broadcast-wave-format-bwf-versions) for details.
 

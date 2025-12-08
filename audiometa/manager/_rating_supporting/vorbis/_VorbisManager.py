@@ -92,6 +92,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.REPLAYGAIN: self.VorbisKey.REPLAYGAIN,
             UnifiedMetadataKey.PUBLISHER: self.VorbisKey.PUBLISHER,
             UnifiedMetadataKey.ISRC: self.VorbisKey.ISRC,
+            UnifiedMetadataKey.DESCRIPTION: self.VorbisKey.DESCRIPTION,
         }
         metadata_keys_direct_map_write = {
             UnifiedMetadataKey.TITLE: self.VorbisKey.TITLE,
@@ -113,6 +114,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.REPLAYGAIN: self.VorbisKey.REPLAYGAIN,
             UnifiedMetadataKey.PUBLISHER: self.VorbisKey.PUBLISHER,
             UnifiedMetadataKey.ISRC: self.VorbisKey.ISRC,
+            UnifiedMetadataKey.DESCRIPTION: self.VorbisKey.DESCRIPTION,
         }
         super().__init__(
             audio_file=audio_file,
@@ -270,17 +272,18 @@ class _VorbisManager(_RatingSupportingMetadataManager):
         raw_metadata_key: RawMetadataKey,
         app_metadata_value: UnifiedMetadataValue,
     ) -> None:
+        key = raw_metadata_key.value
         if app_metadata_value is not None:
             if isinstance(app_metadata_value, list):
                 # For multi-value fields, keep as separate entries
-                raw_mutagen_metadata[raw_metadata_key] = [str(v) for v in app_metadata_value]
+                raw_mutagen_metadata[key] = [str(v) for v in app_metadata_value]
             # Convert BPM to string for Vorbis comments
             elif raw_metadata_key == self.VorbisKey.BPM:
-                raw_mutagen_metadata[raw_metadata_key] = [str(app_metadata_value)]
+                raw_mutagen_metadata[key] = [str(app_metadata_value)]
             else:
-                raw_mutagen_metadata[raw_metadata_key] = [str(app_metadata_value)]
-        elif raw_metadata_key in raw_mutagen_metadata:
-            del raw_mutagen_metadata[raw_metadata_key]
+                raw_mutagen_metadata[key] = [str(app_metadata_value)]
+        elif key in raw_mutagen_metadata:
+            del raw_mutagen_metadata[key]
 
     def update_metadata(self, unified_metadata: UnifiedMetadata) -> None:
         """Update Vorbis metadata in FLAC files using external metaflac tool.
@@ -379,6 +382,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
                 "DATE": "DATE",
                 "GENRE": "GENRE",
                 "COMMENT": "COMMENT",
+                "DESCRIPTION": "DESCRIPTION",
                 "TRACKNUMBER": "TRACKNUMBER",
                 "DISCNUMBER": "DISCNUMBER",
                 "DISCTOTAL": "DISCTOTAL",

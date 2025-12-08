@@ -48,6 +48,17 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Added
+
+- **Description Metadata Field Support**: Added comprehensive support for Description metadata field:
+  - **RIFF (WAV/BWF) Format**: Full read/write support for Description in BWF bext chunk (256-byte UTF-8 limit with truncation)
+  - **Vorbis (FLAC) Format**: Full read/write support for Description as custom "DESCRIPTION" comment (unlimited length)
+  - **CLI Integration**: Added `--description` command-line option for metadata writing operations
+  - **API Support**: Complete integration with `update_metadata()` and `get_unified_metadata_field()` functions
+  - **Comprehensive Testing**: Added 17 integration tests covering reading, writing, deleting, and unsupported format handling
+  - **Documentation**: Updated metadata field guide to reflect Description support matrix
+  - **Error Handling**: Proper error handling for unsupported formats (ID3v1/ID3v2) with appropriate exceptions
+
 ### Fixed
 
 - **System Dependencies**: Updated exiftool pinned version from 13.42 to 13.43:

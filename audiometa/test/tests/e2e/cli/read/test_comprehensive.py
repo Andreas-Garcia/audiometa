@@ -80,6 +80,7 @@ class TestCLIReadComprehensive:
                 "copyright": "© FLAC",
                 "lyrics": "FLAC lyrics",
                 "comment": "FLAC comment",
+                "description": "FLAC description",
                 "replaygain": "+2.5 dB",
                 "isrc": "FRXXX1800001",
             },
@@ -108,6 +109,7 @@ class TestCLIReadComprehensive:
             assert unified.get(UnifiedMetadataKey.COPYRIGHT) == "© FLAC"
             assert unified.get(UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS) == "FLAC lyrics"
             assert unified.get(UnifiedMetadataKey.COMMENT) == "FLAC comment"
+            assert unified.get(UnifiedMetadataKey.DESCRIPTION) == "FLAC description"
             assert unified.get(UnifiedMetadataKey.REPLAYGAIN) == "+2.5 dB"
             assert unified.get(UnifiedMetadataKey.ISRC) == "FRXXX1800001"
             # ARCHIVAL_LOCATION is not supported by Vorbis format (FLAC)
@@ -126,6 +128,7 @@ class TestCLIReadComprehensive:
                 "composer": ["WAV Composer"],
                 "copyright": "© WAV",
                 "comment": "WAV comment",
+                "description": "WAV description",
                 "isrc": "GBUM71505078",
             },
             "wav",
@@ -151,6 +154,7 @@ class TestCLIReadComprehensive:
             assert unified.get(UnifiedMetadataKey.COMPOSERS) == ["WAV Composer"]
             assert unified.get(UnifiedMetadataKey.COPYRIGHT) == "© WAV"
             assert unified.get(UnifiedMetadataKey.COMMENT) == "WAV comment"
+            assert unified.get(UnifiedMetadataKey.DESCRIPTION) == "WAV description"
             assert unified.get(UnifiedMetadataKey.ISRC) == "GBUM71505078"
 
     def test_cli_read_comprehensive_roundtrip(self):

@@ -130,6 +130,8 @@ class TestCLIWriteComprehensive:
                     "FLAC lyrics",
                     "--comment",
                     "FLAC comment",
+                    "--description",
+                    "FLAC description",
                     "--isrc",
                     "FRXXX1800001",
                 ],
@@ -153,6 +155,7 @@ class TestCLIWriteComprehensive:
             assert metadata.get(UnifiedMetadataKey.COPYRIGHT) == "© FLAC"
             assert metadata.get(UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS) == "FLAC lyrics"
             assert metadata.get(UnifiedMetadataKey.COMMENT) == "FLAC comment"
+            assert metadata.get(UnifiedMetadataKey.DESCRIPTION) == "FLAC description"
             assert metadata.get(UnifiedMetadataKey.ISRC) == "FRXXX1800001"
 
     def test_cli_write_wav_all_fields(self):
@@ -186,6 +189,8 @@ class TestCLIWriteComprehensive:
                     "© WAV",
                     "--comment",
                     "WAV comment",
+                    "--description",
+                    "WAV description",
                     "--isrc",
                     "GBUM71505078",
                 ],
@@ -207,4 +212,5 @@ class TestCLIWriteComprehensive:
             assert metadata.get(UnifiedMetadataKey.COMPOSERS) == ["WAV Composer"]
             assert metadata.get(UnifiedMetadataKey.COPYRIGHT) == "© WAV"
             assert metadata.get(UnifiedMetadataKey.COMMENT) == "WAV comment"
+            assert metadata.get(UnifiedMetadataKey.DESCRIPTION) == "WAV description"
             assert metadata.get(UnifiedMetadataKey.ISRC) == "GBUM71505078"

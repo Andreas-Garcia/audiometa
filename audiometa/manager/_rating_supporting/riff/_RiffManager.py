@@ -129,6 +129,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: self.RiffTagKey.UNSYNCHRONIZED_LYRICS,
             UnifiedMetadataKey.TRACK_NUMBER: self.RiffTagKey.TRACK_NUMBER,
             UnifiedMetadataKey.ISRC: self.RiffTagKey.ISRC,
+            UnifiedMetadataKey.DESCRIPTION: None,
         }
         metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] = {
             UnifiedMetadataKey.TITLE: self.RiffTagKey.TITLE,
@@ -146,6 +147,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: self.RiffTagKey.UNSYNCHRONIZED_LYRICS,
             UnifiedMetadataKey.TRACK_NUMBER: self.RiffTagKey.TRACK_NUMBER,
             UnifiedMetadataKey.ISRC: self.RiffTagKey.ISRC,
+            UnifiedMetadataKey.DESCRIPTION: None,
         }
         super().__init__(
             audio_file=audio_file,
@@ -514,6 +516,17 @@ class _RiffManager(_RatingSupportingMetadataManager):
             return self._get_genres_from_raw_clean_metadata_uppercase_keys(
                 raw_clean_metadata, self.RiffTagKey.GENRES_NAMES_OR_CODES
             )
+        if unified_metadata_key == UnifiedMetadataKey.DESCRIPTION:
+            # Read from bext chunk
+            try:
+                self.audio_file.seek(0)
+                file_data = self.audio_file.read()
+                bext_data = self._extract_bext_chunk(file_data)
+                if bext_data and "Description" in bext_data:
+                    return cast(str, bext_data["Description"])
+            except Exception:
+                pass
+            return None
         msg = f"Metadata key not handled: {unified_metadata_key}"
         raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
@@ -653,6 +666,72 @@ class _RiffManager(_RatingSupportingMetadataManager):
         # Write updated file
         self.audio_file.seek(0)
         self.audio_file.write(final_file_data)
+
+        # Handle bext fields like DESCRIPTION
+        if UnifiedMetadataKey.DESCRIPTION in unified_metadata:
+            description_value = unified_metadata[UnifiedMetadataKey.DESCRIPTION]
+            self._update_bext_description(bytes(final_file_data), cast(str | None, description_value))
+
+        # Clear cached metadata to ensure subsequent reads reflect the changes
+        self.raw_clean_metadata = None
+        self.raw_clean_metadata_uppercase_keys = None
+        self.raw_mutagen_metadata = None
+
+    def _update_bext_description(self, file_data: bytes, value: str | None) -> None:
+        """Update the Description field in the bext chunk."""
+        encoded = b"\x00" * 256 if value is None or value == "" else value.encode("utf-8")[:255].ljust(256, b"\x00")
+
+        # Find bext chunk
+        pos = self._find_bext_chunk(file_data)
+        if pos != -1:
+            # Update existing bext
+            bext_start = pos + 8
+            file_data = bytearray(file_data)
+            file_data[bext_start : bext_start + 256] = encoded
+        else:
+            # No bext, create one
+            fmt_pos = self._find_fmt_chunk(file_data)
+            if fmt_pos == -1:
+                return  # Can't create bext without fmt
+            fmt_size = int.from_bytes(file_data[fmt_pos + 4 : fmt_pos + 8], "little")
+            insert_pos = fmt_pos + 8 + fmt_size
+            # Create bext data: 602 bytes v1
+            bext_data = b"bext" + (602).to_bytes(4, "little") + encoded + b"\x00" * 346
+            file_data = bytearray(file_data)
+            file_data[insert_pos:insert_pos] = bext_data
+            # Update RIFF size
+            riff_size_pos = 4
+            current_size = int.from_bytes(file_data[riff_size_pos : riff_size_pos + 4], "little")
+            new_size = current_size + len(bext_data)
+            file_data[riff_size_pos : riff_size_pos + 4] = new_size.to_bytes(4, "little")
+
+        # Write back
+        self.audio_file.seek(0)
+        self.audio_file.write(file_data)
+
+    def _find_bext_chunk(self, file_data: bytes) -> int:
+        """Find the position of the bext chunk."""
+        file_data = self._skip_id3v2_tags(file_data)
+        pos = 12
+        while pos < len(file_data) - 8:
+            chunk_id = file_data[pos : pos + 4]
+            if chunk_id == b"bext":
+                return pos
+            chunk_size = int.from_bytes(file_data[pos + 4 : pos + 8], "little")
+            pos += 8 + chunk_size
+        return -1
+
+    def _find_fmt_chunk(self, file_data: bytes) -> int:
+        """Find the position of the fmt chunk."""
+        file_data = self._skip_id3v2_tags(file_data)
+        pos = 12
+        while pos < len(file_data) - 8:
+            chunk_id = file_data[pos : pos + 4]
+            if chunk_id == b"fmt ":
+                return pos
+            chunk_size = int.from_bytes(file_data[pos + 4 : pos + 8], "little")
+            pos += 8 + chunk_size
+        return -1
 
     def delete_metadata(self) -> bool:
         """Delete all RIFF metadata from the audio file.

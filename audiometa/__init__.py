@@ -297,9 +297,7 @@ def get_unified_metadata_field(
 
         # If ALL managers raised MetadataFieldNotSupportedByMetadataFormatError,
         # the field is not supported by the library at all
-        if len(format_errors) == len(managers_prioritized) and len(format_errors) > 0:
-            msg = f"{unified_metadata_key} metadata field is not supported by any format in the library"
-            raise MetadataFieldNotSupportedByLibError(msg)
+        # Note: This check is removed to allow returning None for fields not supported by the file's formats
 
         return None
 
