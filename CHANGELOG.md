@@ -48,6 +48,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+## [0.9.0] - 2025-12-08
+
 ### Added
 
 - **Description Metadata Field Support**: Added comprehensive support for Description metadata field:
