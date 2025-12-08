@@ -36,6 +36,7 @@ Thumbs.db
 
 # PR descriptions (temporary reference documents)
 .pr-descriptions/
+pr_descriptions/
 
 # Node.js (for git-worktree-scripts dev dependency)
 node_modules/
