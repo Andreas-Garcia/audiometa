@@ -226,10 +226,11 @@ def get_unified_metadata_field(
         The metadata value or None if not found
 
     Raises:
+        MetadataFieldNotSupportedByLibError: When the key is not a valid UnifiedMetadataKey
+            (neither an enum instance nor a string matching an enum value)
         MetadataFieldNotSupportedByMetadataFormatError: When metadata_format is specified and the field
-            is not supported by that format
-        MetadataFieldNotSupportedByLibError: When the field is not supported by any format in the library
-            (only when metadata_format is None and all formats raise MetadataFieldNotSupportedByMetadataFormatError)
+            is not supported by that format, or when metadata_format is None and the field is not supported
+            by any of the file's available metadata formats
 
     Examples:
         # Get title from any format (priority order)
@@ -296,8 +297,11 @@ def get_unified_metadata_field(
                 continue
 
         # If ALL managers raised MetadataFieldNotSupportedByMetadataFormatError,
-        # the field is not supported by the library at all
-        # Note: This check is removed to allow returning None for fields not supported by the file's formats
+        # the field is not supported by any of the file's formats
+        if len(format_errors) == len(managers_prioritized) and len(format_errors) > 0:
+            # Re-raise the first format-specific error to indicate the field is not supported
+            # by any format available for this file
+            raise format_errors[0][1]
 
         return None
 

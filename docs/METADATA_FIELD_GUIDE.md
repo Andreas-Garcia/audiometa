@@ -115,10 +115,10 @@ All values are stored in one field, separated by a character or delimiter (e.g.,
 
 AudioMeta follows a two-step process:
 
-1. E✗tract all field instances as found in the file for each format.
+1. Extract all field instances as found in the file for each format.
 2. If null-separator (ID3v2.4) is present, split on null bytes. Otherwise:
-   - If multiple instances e✗ist: return them as-is.
-   - If a single instance e✗ists: apply smart separator parsing using a priority list: `//`, `\\`, `;`, `\`, `/`, `,`.
+   - If multiple instances exist: return them as-is.
+   - If a single instance exists: apply smart separator parsing using a priority list: `//`, `\\`, `;`, `\`, `/`, `,`.
 
 ### Writing Semantically Multiple Values
 
@@ -154,17 +154,17 @@ The `RELEASE_DATE` field accepts two formats:
 
 1. **YYYY format** (4 digits) - for year-only dates
 
-   - E✗amples: `"2024"`, `"1900"`, `"1970"`, `"0000"`, `"9999"`
+   - Examples: `"2024"`, `"1900"`, `"1970"`, `"0000"`, `"9999"`
    - Use when you only know the year
 
 2. **YYYY-MM-DD format** (ISO-like format) - for full dates
 
-   - E✗amples: `"2024-01-01"`, `"2024-12-31"`, `"1900-01-01"`, `"1970-06-15"`
+   - Examples: `"2024-01-01"`, `"2024-12-31"`, `"1900-01-01"`, `"1970-06-15"`
    - Month and day must be zero-padded (2 digits each)
    - Use when you have the complete date
 
 3. **Empty string** - allowed and represents no date
-   - E✗ample: `""`
+   - Example: `""`
 
 **Invalid Formats:**
 
@@ -177,7 +177,7 @@ The following formats will raise `InvalidMetadataFieldFormatError`:
 - Non-numeric: `"not-a-date"`, `"2024-abc-01"`, `"abcd-01-01"`
 - Incomplete format: `"2024-01"`, `"2024-"`, `"-01-01"`, `"2024-01-"`
 
-**E✗amples:**
+**Examples:**
 
 ```python
 from audiometa import update_metadata
@@ -206,7 +206,7 @@ The `ISRC` (International Standard Recording Code) field accepts two formats bas
 1. **12 alphanumeric characters** (without hyphens) - compact format
 
    - Format: `CCXXXYYNNNNN`
-   - E✗amples: `"USRC17607839"`, `"GBAYE0000001"`, `"JPAB01234567"`
+   - Examples: `"USRC17607839"`, `"GBAYE0000001"`, `"JPAB01234567"`
    - CC = Country code (2 letters)
    - XXX = Registrant code (3 alphanumeric)
    - YY = Year of reference (2 digits)
@@ -215,10 +215,10 @@ The `ISRC` (International Standard Recording Code) field accepts two formats bas
 2. **15 characters with hyphens** - human-readable format
 
    - Format: `CC-XXX-YY-NNNNN`
-   - E✗amples: `"US-RC1-76-07839"`, `"GB-AYE-00-00001"`, `"JP-AB0-12-34567"`
+   - Examples: `"US-RC1-76-07839"`, `"GB-AYE-00-00001"`, `"JP-AB0-12-34567"`
 
 3. **Empty string** - allowed and represents no ISRC
-   - E✗ample: `""`
+   - Example: `""`
 
 **Invalid Formats:**
 
@@ -230,7 +230,7 @@ The following formats will raise `InvalidMetadataFieldFormatError`:
 - Special characters: `"USRC1760783!"`, `"USRC@7607839"`, `"USRC 7607839"`
 - Wrong segment lengths in hyphenated format: `"US-R-76-07839"`, `"USA-RC1-76-07839"`
 
-**E✗amples:**
+**Examples:**
 
 ```python
 from audiometa import update_metadata
@@ -294,7 +294,7 @@ The library returns track numbers as strings. Edge cases:
 
 **Notes:**
 
-- **ID3v1**: Only supports track numbers (1-255), e✗tracts the track number from formats like "5/12" and ignores the total
+- **ID3v1**: Only supports track numbers (1-255), extracts the track number from formats like "5/12" and ignores the total
 - **ID3v2**: Supports full track/total format (e.g., "5/12") as per ID3v2 specification
 - **Vorbis**: Supports full track/total format through TRACKNUMBER field
 - **RIFF**: Track number writing is not currently supported
@@ -315,11 +315,11 @@ The library provides two separate unified metadata fields for disc number:
 - **Vorbis**: Native separate `DISCNUMBER` and `DISCTOTAL` fields, unlimited range
 - **RIFF**: ✗ Not supported (format limitation)
 
-For detailed information on disc number formats, limitations, reading/writing behavior, and e✗amples, see the **[Disc Number Handling Guide](DISC_NUMBER.md)**.
+For detailed information on disc number formats, limitations, reading/writing behavior, and examples, see the **[Disc Number Handling Guide](DISC_NUMBER.md)**.
 
 ## Lyrics Support
 
-Two types of lyrics are supported: synchronized lyrics (synchronized with music, for karaoke) and unsynchronized lyrics (plain te✗t).
+Two types of lyrics are supported: synchronized lyrics (synchronized with music, for karaoke) and unsynchronized lyrics (plain text).
 
 ### Synchronized Lyrics
 
@@ -356,7 +356,7 @@ The library handles `None` and empty string values differently across audio form
 | **RIFF (WAV)**    | Removes field completely | Removes field completely         | `None` / `None`                |
 | **ID3v1 (MP3)**   | ✅ **Supported**         | ✅ **Supported**                 | Legacy format with limitations |
 
-### E✗ample
+### Example
 
 ```python
 from audiometa import update_metadata, get_unified_metadata_field
@@ -373,5 +373,5 @@ print(title)  # Output: None (field removed)
 
 update_metadata("song.flac", {"title": ""})
 title = get_unified_metadata_field("song.flac", "title")
-print(title)  # Output: "" (field e✗ists but empty)
+print(title)  # Output: "" (field exists but empty)
 ```
