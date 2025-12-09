@@ -35,6 +35,7 @@ class RIFFMetadataSetter:
             "copyright": "--ICOP",
             "isrc": "--ISRC",
             "description": "--Description",
+            "originator": "--Originator",
         }
 
         # Handle list values - include first value in main command to avoid overwriting

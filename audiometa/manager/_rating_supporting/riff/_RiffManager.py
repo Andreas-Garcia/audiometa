@@ -15,7 +15,13 @@ from ....utils.rating_profiles import RatingWriteProfile
 from ....utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
 from ....utils.unified_metadata_key import UnifiedMetadataKey
 from .._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
-from ._riff_bext_chunk import extract_bext_chunk, find_bext_chunk, find_fmt_chunk, update_bext_description_in_riff_data
+from ._riff_bext_chunk import (
+    extract_bext_chunk,
+    find_bext_chunk,
+    find_fmt_chunk,
+    update_bext_description_in_riff_data,
+    update_bext_originator_in_riff_data,
+)
 from ._riff_constants import (
     RIFF_AUDIO_FORMAT_IEEE_FLOAT,
     RIFF_FORMAT_CHUNK_MIN_SIZE,
@@ -139,6 +145,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.TRACK_NUMBER: self.RiffTagKey.TRACK_NUMBER,
             UnifiedMetadataKey.ISRC: self.RiffTagKey.ISRC,
             UnifiedMetadataKey.DESCRIPTION: None,
+            UnifiedMetadataKey.ORIGINATOR: None,
         }
         metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] = {
             UnifiedMetadataKey.TITLE: self.RiffTagKey.TITLE,
@@ -157,6 +164,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.TRACK_NUMBER: self.RiffTagKey.TRACK_NUMBER,
             UnifiedMetadataKey.ISRC: self.RiffTagKey.ISRC,
             UnifiedMetadataKey.DESCRIPTION: None,
+            UnifiedMetadataKey.ORIGINATOR: None,
         }
         super().__init__(
             audio_file=audio_file,
@@ -277,6 +285,17 @@ class _RiffManager(_RatingSupportingMetadataManager):
                 bext_data = self._extract_bext_chunk(file_data)
                 if bext_data and "Description" in bext_data:
                     return cast(str, bext_data["Description"])
+            except Exception:
+                pass
+            return None
+        if unified_metadata_key == UnifiedMetadataKey.ORIGINATOR:
+            # Read from bext chunk
+            try:
+                self.audio_file.seek(0)
+                file_data = self.audio_file.read()
+                bext_data = self._extract_bext_chunk(file_data)
+                if bext_data and "Originator" in bext_data:
+                    return cast(str, bext_data["Originator"])
             except Exception:
                 pass
             return None
@@ -459,6 +478,9 @@ class _RiffManager(_RatingSupportingMetadataManager):
         if UnifiedMetadataKey.DESCRIPTION in merged_metadata:
             description_value = merged_metadata[UnifiedMetadataKey.DESCRIPTION]
             update_bext_description_in_riff_data(riff_data, cast(str | None, description_value))
+        if UnifiedMetadataKey.ORIGINATOR in merged_metadata:
+            originator_value = merged_metadata[UnifiedMetadataKey.ORIGINATOR]
+            update_bext_originator_in_riff_data(riff_data, cast(str | None, originator_value))
 
     def _update_riff_chunk_size(self, riff_data: bytearray) -> None:
         """Update RIFF chunk size in RIFF data.

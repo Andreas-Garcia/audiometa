@@ -53,7 +53,7 @@ The library supports a comprehensive set of metadata fields across different aud
 | Archival Location       | ✗                 | TXXX                       | ARCHIVAL_LOCATION | ✗                             | ARCHIVAL_LOCATION     | --archival-location      |
 | ISRC                    | ✗                 | TSRC                       | ISRC              | \*\* (ISRC)                   | ISRC                  | --isrc                   |
 | Description             | ✗                 | ✗                          | DESCRIPTION\*     | \*\* (Description)            | DESCRIPTION           | --description            |
-| Originator              | ✗                 | ✗                          | ✗                 | \*\* (Originator)             | ✗                     | ✗                        |
+| Originator              | ✗                 | ✗                          | ✗                 | \*\* (Originator)             | ORIGINATOR            | --originator             |
 | Originator Reference    | ✗                 | ✗                          | ✗                 | \*\* (OriginatorReference)    | ✗                     | ✗                        |
 | Origination Date        | ✗                 | ✗                          | ✗                 | \*\* (OriginationDate)        | ✗                     | ✗                        |
 | Origination Time        | ✗                 | ✗                          | ✗                 | \*\* (OriginationTime)        | ✗                     | ✗                        |
