@@ -32,6 +32,7 @@ class UnifiedMetadataKey(str, Enum):
     ARCHIVAL_LOCATION = "archival_location"
     ISRC = "isrc"
     DESCRIPTION = "description"
+    ORIGINATOR = "originator"
 
     def can_semantically_have_multiple_values(self) -> bool:
         """Check if the metadata key can semantically have multiple values.
@@ -81,6 +82,7 @@ class UnifiedMetadataKey(str, Enum):
             UnifiedMetadataKey.ARCHIVAL_LOCATION: str,
             UnifiedMetadataKey.ISRC: str,
             UnifiedMetadataKey.DESCRIPTION: str,
+            UnifiedMetadataKey.ORIGINATOR: str,
         }
         result_type = app_metadata_keys_optional_types_map.get(self)
         if not result_type:

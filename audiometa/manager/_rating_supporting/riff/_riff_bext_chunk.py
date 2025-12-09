@@ -210,25 +210,33 @@ def extract_bext_chunk(file_data: bytes, skip_id3v2_tags_func: Callable[[bytes],
     return None
 
 
-def update_bext_description_in_riff_data(riff_data: bytearray, value: str | None) -> None:
-    """Update the Description field in the bext chunk within RIFF data.
+def _update_bext_field_in_riff_data(
+    riff_data: bytearray, value: str | None, field_size: int, field_offset: int
+) -> None:
+    """Update a field in the bext chunk within RIFF data.
 
     This function modifies the riff_data bytearray in-place to update or create
-    the bext chunk with the Description field. This is integrated into the main
+    the bext chunk with the specified field. This is integrated into the main
     update flow to avoid multiple file writes.
 
     Args:
         riff_data: RIFF data bytearray (modified in-place)
-        value: Description value to write, or None/empty string to clear
+        value: Field value to write, or None/empty string to clear
+        field_size: Size of the field in bytes
+        field_offset: Offset of the field within the bext chunk
     """
-    encoded = b"\x00" * 256 if value is None or value == "" else value.encode("utf-8")[:255].ljust(256, b"\x00")
+    encoded = (
+        b"\x00" * field_size
+        if value is None or value == ""
+        else value.encode("utf-8")[: field_size - 1].ljust(field_size, b"\x00")
+    )
 
     # Find bext chunk in RIFF data (no ID3v2 tags in riff_data at this point)
     pos = find_bext_chunk_in_riff_data(riff_data)
     if pos != -1:
-        # Update existing bext chunk Description field
+        # Update existing bext chunk field
         bext_start = pos + 8
-        riff_data[bext_start : bext_start + 256] = encoded
+        riff_data[bext_start + field_offset : bext_start + field_offset + field_size] = encoded
     else:
         # No bext chunk, create one
         fmt_pos = find_fmt_chunk_in_riff_data(riff_data)
@@ -237,10 +245,22 @@ def update_bext_description_in_riff_data(riff_data: bytearray, value: str | None
         fmt_size = int.from_bytes(bytes(riff_data[fmt_pos + 4 : fmt_pos + 8]), "little")
         insert_pos = fmt_pos + 8 + fmt_size
         # Create bext chunk data: 602 bytes v1
-        bext_data = b"bext" + (602).to_bytes(4, "little") + encoded + b"\x00" * 346
+        # Fill with zeros, then set the specific field
+        bext_data = bytearray(b"bext" + (602).to_bytes(4, "little") + b"\x00" * 602)
+        bext_data[8 + field_offset : 8 + field_offset + field_size] = encoded
         # Insert bext chunk after fmt chunk
         riff_data[insert_pos:insert_pos] = bext_data
         # Note: RIFF chunk size will be updated by caller after this method
+
+
+def update_bext_description_in_riff_data(riff_data: bytearray, value: str | None) -> None:
+    """Update the Description field in the bext chunk within RIFF data."""
+    _update_bext_field_in_riff_data(riff_data, value, 256, 0)
+
+
+def update_bext_originator_in_riff_data(riff_data: bytearray, value: str | None) -> None:
+    """Update the Originator field in the bext chunk within RIFF data."""
+    _update_bext_field_in_riff_data(riff_data, value, 32, 256)
 
 
 def find_bext_chunk_in_riff_data(riff_data: bytearray) -> int:

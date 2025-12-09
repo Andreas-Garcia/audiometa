@@ -191,6 +191,8 @@ class TestCLIWriteComprehensive:
                     "WAV comment",
                     "--description",
                     "WAV description",
+                    "--originator",
+                    "WAV originator",
                     "--isrc",
                     "GBUM71505078",
                 ],
@@ -213,4 +215,5 @@ class TestCLIWriteComprehensive:
             assert metadata.get(UnifiedMetadataKey.COPYRIGHT) == "© WAV"
             assert metadata.get(UnifiedMetadataKey.COMMENT) == "WAV comment"
             assert metadata.get(UnifiedMetadataKey.DESCRIPTION) == "WAV description"
+            assert metadata.get(UnifiedMetadataKey.ORIGINATOR) == "WAV originator"
             assert metadata.get(UnifiedMetadataKey.ISRC) == "GBUM71505078"

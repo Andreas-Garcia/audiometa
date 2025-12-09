@@ -94,6 +94,8 @@ def format_as_table(data: dict[str, Any]) -> str:
             "replaygain",
             "archival_location",
             "isrc",
+            "description",
+            "originator",
         }
         if unified_keys.intersection(set(data.keys())):
             # This is a unified metadata dict, wrap it
@@ -188,6 +190,8 @@ def _write_metadata(args: argparse.Namespace) -> None:
         metadata[UnifiedMetadataKey.COMMENT] = args.comment
     if args.description and args.description.strip():
         metadata[UnifiedMetadataKey.DESCRIPTION] = args.description
+    if args.originator and args.originator.strip():
+        metadata[UnifiedMetadataKey.ORIGINATOR] = args.originator
     if args.replaygain and args.replaygain.strip():
         metadata[UnifiedMetadataKey.REPLAYGAIN] = args.replaygain
     if args.archival_location and args.archival_location.strip():
@@ -432,6 +436,7 @@ Examples:
     write_parser.add_argument("--lyrics", help="Unsynchronized lyrics text")
     write_parser.add_argument("--comment", help="Comment")
     write_parser.add_argument("--description", help="Description")
+    write_parser.add_argument("--originator", help="Originator")
     write_parser.add_argument("--replaygain", help="ReplayGain information")
     write_parser.add_argument("--archival-location", help="Archival location")
     write_parser.add_argument("--isrc", help="International Standard Recording Code (12 characters)")

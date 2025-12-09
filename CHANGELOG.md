@@ -48,6 +48,16 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Added
+
+- **Originator Metadata Field Support**: Added support for Originator metadata field in RIFF (WAV/BWF) format:
+  - **RIFF (WAV/BWF) Format**: Full read/write support for Originator in BWF bext chunk (32-byte UTF-8 limit with truncation)
+  - **CLI Integration**: Added `--originator` command-line option for metadata writing operations
+  - **API Support**: Complete integration with `update_metadata()` and `get_unified_metadata_field()` functions
+  - **Comprehensive Testing**: Added 11 integration tests covering reading, writing, truncation, and unsupported format handling
+  - **Documentation**: Updated metadata field guide to reflect Originator support matrix
+  - **Error Handling**: Proper error handling for unsupported formats (Vorbis/FLAC, ID3v1/ID3v2) with appropriate exceptions
+
 ## [0.9.0] - 2025-12-08
 
 ### Added

@@ -129,6 +129,7 @@ class TestCLIReadComprehensive:
                 "copyright": "© WAV",
                 "comment": "WAV comment",
                 "description": "WAV description",
+                "originator": "WAV originator",
                 "isrc": "GBUM71505078",
             },
             "wav",
@@ -155,6 +156,7 @@ class TestCLIReadComprehensive:
             assert unified.get(UnifiedMetadataKey.COPYRIGHT) == "© WAV"
             assert unified.get(UnifiedMetadataKey.COMMENT) == "WAV comment"
             assert unified.get(UnifiedMetadataKey.DESCRIPTION) == "WAV description"
+            assert unified.get(UnifiedMetadataKey.ORIGINATOR) == "WAV originator"
             assert unified.get(UnifiedMetadataKey.ISRC) == "GBUM71505078"
 
     def test_cli_read_comprehensive_roundtrip(self):
