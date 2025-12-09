@@ -48,6 +48,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+## [0.10.0] - 2025-12-09
+
 ### Added
 
 - **Originator Metadata Field Support**: Added support for Originator metadata field in RIFF (WAV/BWF) format:
