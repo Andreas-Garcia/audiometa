@@ -30,6 +30,7 @@ class TestOriginatorWriting:
             test_metadata = {UnifiedMetadataKey.ORIGINATOR: long_originator}
             update_metadata(test_file, test_metadata, metadata_format=MetadataFormat.RIFF)
             originator = get_unified_metadata_field(test_file, UnifiedMetadataKey.ORIGINATOR)
+            assert originator is not None
             assert len(originator.encode("utf-8")) <= 32
 
     def test_vorbis_raises(self):
