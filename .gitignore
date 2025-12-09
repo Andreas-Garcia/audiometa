@@ -35,8 +35,8 @@ Thumbs.db
 .python-version
 
 # PR descriptions (temporary reference documents)
-# Keep the directory for PR description templates but ignore all files inside it.
 .github/pr_descriptions/*
+!.github/pr_descriptions/pull_request_template
 
 # Node.js (for git-worktree-scripts dev dependency)
 node_modules/
