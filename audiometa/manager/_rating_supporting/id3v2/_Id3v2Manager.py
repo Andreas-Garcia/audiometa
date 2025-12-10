@@ -434,6 +434,15 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                         musicbrainz_trackid = (
                             txxx_frame.text[0] if isinstance(txxx_frame.text, list) else str(txxx_frame.text)
                         )
+                        # Normalize to hyphenated UUID format if it's 32 hex chars
+                        uuid_hex_length = 32
+                        if len(musicbrainz_trackid) == uuid_hex_length and all(
+                            c in "0123456789abcdefABCDEF" for c in musicbrainz_trackid
+                        ):
+                            musicbrainz_trackid = (
+                                f"{musicbrainz_trackid[:8]}-{musicbrainz_trackid[8:12]}-"
+                                f"{musicbrainz_trackid[12:16]}-{musicbrainz_trackid[16:20]}-{musicbrainz_trackid[20:32]}"
+                            )
                         break
 
         if musicbrainz_trackid:
