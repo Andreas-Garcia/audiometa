@@ -164,7 +164,10 @@ if [[ "$CATEGORY" != "lint" ]]; then
   # Resolve partial version to full version for installation
   resolved_version=$(resolve_version "$package" "$pinned_version")
 
-  if command -v "$package" &>/dev/null; then
+  # Check if package is actually installed via apt (more reliable than command -v)
+  INSTALLED_APT_VERSION=$(dpkg -l | grep "^ii.*${package}" | awk '{print $3}' || echo "")
+
+  if [ -n "$INSTALLED_APT_VERSION" ] || command -v "$package" &>/dev/null; then
     INSTALLED_VERSION=""
     case "$package" in
       ffmpeg)
@@ -182,8 +185,7 @@ if [[ "$CATEGORY" != "lint" ]]; then
         ;;
     esac
 
-    # Get installed apt version for comparison (works even if INSTALLED_VERSION is empty)
-    INSTALLED_APT_VERSION=$(dpkg -l | grep "^ii.*${package}" | awk '{print $3}' || echo "")
+    # INSTALLED_APT_VERSION already set above
 
     if [ "$pinned_version" = "latest" ]; then
       # For "latest", just check if package is installed
@@ -212,14 +214,21 @@ if [[ "$CATEGORY" != "lint" ]]; then
       else
         echo "Removing existing ${package} version ${INSTALLED_APT_VERSION} (installing pinned version ${pinned_version} -> ${resolved_version})..."
         sudo apt-get remove -y "$package" 2>/dev/null || true
+        INSTALLED_APT_VERSION=""  # Clear after removal
       fi
     fi
+  else
+    # Package not installed, will be added to installation list
+    echo "${package} not installed, will install version ${pinned_version}"
   fi
 
-  if [ "$pinned_version" = "latest" ]; then
-    PACKAGES_TO_INSTALL+=("${package}")
-  else
-    PACKAGES_TO_INSTALL+=("${package}=${resolved_version}")
+  # Add to installation list if not already installed with correct version
+  if [ -z "$INSTALLED_APT_VERSION" ]; then
+    if [ "$pinned_version" = "latest" ]; then
+      PACKAGES_TO_INSTALL+=("${package}")
+    else
+      PACKAGES_TO_INSTALL+=("${package}=${resolved_version}")
+    fi
   fi
 done
 
