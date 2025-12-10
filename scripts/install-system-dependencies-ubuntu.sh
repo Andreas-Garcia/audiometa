@@ -227,12 +227,38 @@ if [ ${#PACKAGES_TO_INSTALL[@]} -gt 0 ]; then
   done
   echo ""
 
-  # Use -v for verbose output to show progress during installation
+  # First, verify the exact package versions are available
+  echo "Verifying package versions are available in repositories..."
+  for package in "${PACKAGES_TO_INSTALL[@]}"; do
+    pkg_name="${package%%=*}"
+    pkg_version="${package#*=}"
+    if [ "$pkg_version" = "latest" ]; then
+      echo "  Checking ${pkg_name} (latest)..."
+      if ! apt-cache madison "$pkg_name" 2>/dev/null | head -1; then
+        echo "    ERROR: ${pkg_name} not found in repositories"
+      fi
+    else
+      echo "  Checking ${pkg_name}=${pkg_version}..."
+      if ! apt-cache madison "$pkg_name" 2>/dev/null | grep -q "$pkg_version"; then
+        echo "    ERROR: ${pkg_name} version ${pkg_version} not found in repositories"
+        echo "    Available versions:"
+        apt-cache madison "$pkg_name" 2>/dev/null | head -3 || echo "      (could not list versions)"
+      fi
+    fi
+  done
+  echo ""
+
+  # Check what apt-get would do (dry-run to see if packages are available)
+  echo "Checking what apt-get would install (dry-run)..."
+  sudo apt-get install -y --dry-run --allow-downgrades --allow-change-held-packages "${PACKAGES_TO_INSTALL[@]}" 2>&1 | head -100 || true
+  echo ""
+
+  # Use --show-progress for better output visibility (instead of -v which might cause issues)
   # Add --allow-downgrades and --allow-change-held-packages to ensure installation proceeds
   # Run apt-get install with output both to stdout/stderr and to log file for debugging
   # Use set -o pipefail to ensure we catch the exit status of apt-get, not tee
   set -o pipefail
-  if ! sudo apt-get install -y -v --allow-downgrades --allow-change-held-packages "${PACKAGES_TO_INSTALL[@]}" 2>&1 | tee /tmp/apt-install.log; then
+  if ! sudo apt-get install -y --show-progress --allow-downgrades --allow-change-held-packages "${PACKAGES_TO_INSTALL[@]}" 2>&1 | tee /tmp/apt-install.log; then
     set +o pipefail
     echo ""
     echo "ERROR: Failed to install pinned versions."
@@ -283,7 +309,7 @@ if [ ${#PACKAGES_TO_INSTALL[@]} -gt 0 ]; then
     echo "ERROR: Some packages were not installed successfully."
     echo ""
     echo "apt-get install command that was run:"
-    echo "  sudo apt-get install -y -v --allow-downgrades --allow-change-held-packages ${PACKAGES_TO_INSTALL[*]}"
+    echo "  sudo apt-get install -y --show-progress --allow-downgrades --allow-change-held-packages ${PACKAGES_TO_INSTALL[*]}"
     echo ""
     echo "Full installation output from /tmp/apt-install.log:"
     echo "----------------------------------------"
