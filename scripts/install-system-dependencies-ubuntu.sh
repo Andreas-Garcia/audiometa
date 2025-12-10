@@ -353,55 +353,59 @@ if [[ "$CATEGORY" != "lint" ]]; then
   for tool in "${TOOLS_TO_CHECK[@]}"; do
     if ! command -v "$tool" &>/dev/null; then
       MISSING_TOOLS+=("$tool")
-      # Try to find where the tool is actually installed
-      TOOL_LOCATION=$(dpkg -L "$(dpkg -S "$(which "$tool" 2>/dev/null || echo "")" 2>/dev/null | cut -d: -f1 2>/dev/null || dpkg -l | grep -i "$tool" | head -1 | awk '{print $2}')" 2>/dev/null | grep -E "/bin/${tool}$|/${tool}$" | head -1 || echo "")
-      if [ -n "$TOOL_LOCATION" ] && [ -f "$TOOL_LOCATION" ]; then
-        echo "  WARNING: $tool found at $TOOL_LOCATION but not in PATH"
-        # Add the directory to PATH
-        TOOL_DIR=$(dirname "$TOOL_LOCATION")
+      # First, check standard locations directly
+      FOUND_TOOL=""
+      for std_path in /usr/bin /usr/local/bin /bin; do
+        if [ -f "${std_path}/${tool}" ]; then
+          FOUND_TOOL="${std_path}/${tool}"
+          break
+        fi
+      done
+
+      # If not found in standard paths, try to find via package manager
+      if [ -z "$FOUND_TOOL" ]; then
+        # Try common package names for the tool
+        case "$tool" in
+          ffprobe)
+            FFMPEG_PKG=$(dpkg -l | grep -i "^ii.*ffmpeg" | head -1 | awk '{print $2}' || echo "")
+            if [ -n "$FFMPEG_PKG" ]; then
+              FOUND_TOOL=$(dpkg -L "$FFMPEG_PKG" 2>/dev/null | grep -E "/bin/ffprobe$" | head -1 || echo "")
+            fi
+            ;;
+          exiftool)
+            FOUND_TOOL=$(dpkg -L libimage-exiftool-perl 2>/dev/null | grep -E "/bin/exiftool$" | head -1 || echo "")
+            ;;
+          flac)
+            FLAC_PKG=$(dpkg -l | grep -i "^ii.*flac" | head -1 | awk '{print $2}' || echo "")
+            if [ -n "$FLAC_PKG" ]; then
+              FOUND_TOOL=$(dpkg -L "$FLAC_PKG" 2>/dev/null | grep -E "/bin/flac$" | head -1 || echo "")
+            fi
+            ;;
+          metaflac)
+            FLAC_PKG=$(dpkg -l | grep -i "^ii.*flac" | head -1 | awk '{print $2}' || echo "")
+            if [ -n "$FLAC_PKG" ]; then
+              FOUND_TOOL=$(dpkg -L "$FLAC_PKG" 2>/dev/null | grep -E "/bin/metaflac$" | head -1 || echo "")
+            fi
+            ;;
+        esac
+      fi
+
+      # If we found the tool, add its directory to PATH
+      if [ -n "$FOUND_TOOL" ] && [ -f "$FOUND_TOOL" ]; then
+        TOOL_DIR=$(dirname "$FOUND_TOOL")
         if [[ ":$PATH:" != *":${TOOL_DIR}:"* ]]; then
           export PATH="${TOOL_DIR}:$PATH"
           if [ -n "$GITHUB_PATH" ]; then
             echo "$TOOL_DIR" >> "$GITHUB_PATH"
           fi
-          echo "  Added $TOOL_DIR to PATH"
+          echo "  Found $tool at $FOUND_TOOL, added $TOOL_DIR to PATH"
         fi
-      else
-        # Try common package names for the tool
-        case "$tool" in
-          ffprobe)
-            FFMPEG_PKG=$(dpkg -l | grep -i ffmpeg | head -1 | awk '{print $2}' || echo "")
-            if [ -n "$FFMPEG_PKG" ]; then
-              FFMPEG_BIN=$(dpkg -L "$FFMPEG_PKG" 2>/dev/null | grep -E "/bin/ffprobe$" | head -1 || echo "")
-              if [ -n "$FFMPEG_BIN" ] && [ -f "$FFMPEG_BIN" ]; then
-                FFMPEG_DIR=$(dirname "$FFMPEG_BIN")
-                if [[ ":$PATH:" != *":${FFMPEG_DIR}:"* ]]; then
-                  export PATH="${FFMPEG_DIR}:$PATH"
-                  if [ -n "$GITHUB_PATH" ]; then
-                    echo "$FFMPEG_DIR" >> "$GITHUB_PATH"
-                  fi
-                  echo "  Found ffprobe at $FFMPEG_BIN, added to PATH"
-                fi
-              fi
-            fi
-            ;;
-          exiftool)
-            EXIFTOOL_BIN=$(dpkg -L libimage-exiftool-perl 2>/dev/null | grep -E "/bin/exiftool$" | head -1 || echo "")
-            if [ -n "$EXIFTOOL_BIN" ] && [ -f "$EXIFTOOL_BIN" ]; then
-              EXIFTOOL_DIR=$(dirname "$EXIFTOOL_BIN")
-              if [[ ":$PATH:" != *":${EXIFTOOL_DIR}:"* ]]; then
-                export PATH="${EXIFTOOL_DIR}:$PATH"
-                if [ -n "$GITHUB_PATH" ]; then
-                  echo "$EXIFTOOL_DIR" >> "$GITHUB_PATH"
-                fi
-                echo "  Found exiftool at $EXIFTOOL_BIN, added to PATH"
-              fi
-            fi
-            ;;
-        esac
       fi
     fi
   done
+
+  # Refresh command cache after PATH updates
+  hash -r 2>/dev/null || true
 
   # Re-check after PATH updates
   STILL_MISSING=()
