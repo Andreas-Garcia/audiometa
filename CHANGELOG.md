@@ -48,6 +48,14 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### CI
+
+- **macOS CI ffmpeg Installation**: Fixed hanging issue during ffmpeg installation in macOS CI:
+  - Added `--verbose` flag to show progress during installation
+  - Added `--force-bottle` flag to prefer pre-built bottles over building from source
+  - Prevents CI hangs that occur when Homebrew attempts to build ffmpeg from source (can take 10-30+ minutes during bottling)
+  - Significantly speeds up installation and improves CI reliability
+
 ## [0.10.0] - 2025-12-09
 
 ### Added
