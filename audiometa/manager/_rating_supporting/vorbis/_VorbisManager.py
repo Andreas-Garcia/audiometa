@@ -401,6 +401,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
                 "ENCODER": "ENCODER",
                 "URL": "URL",
                 "ISRC": "ISRC",
+                "MUSICBRAINZ_TRACKID": "MUSICBRAINZ_TRACKID",
                 "PUBLISHER": "PUBLISHER",
             }
 

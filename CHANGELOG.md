@@ -48,6 +48,33 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Added
+
+- **MusicBrainz Track ID Metadata Field Support**: Added comprehensive support for MusicBrainz Track ID metadata field:
+  - **ID3v2 Format**: Full read/write support via UFID frames (owner: `http://musicbrainz.org`) with TXXX frame fallback (description: `MusicBrainz Track Id`)
+  - **Vorbis (FLAC) Format**: Full read/write support as `MUSICBRAINZ_TRACKID` comment
+  - **RIFF (WAV/BWF) Format**: Full read/write support as `MBID` FourCC in INFO chunk
+  - **CLI Integration**: Added `--musicbrainz-trackid` command-line option for metadata writing operations
+  - **API Support**: Complete integration with `update_metadata()`, `get_unified_metadata_field()`, and `get_unified_metadata()` functions
+  - **UUID Format Validation**: Validates both 36-character hyphenated UUID format (e.g., `9d6f6f7c-9d52-4c76-8f9e-01d18d8f8ec6`) and 32-character hex format (e.g., `9d6f6f7c9d524c768f9e01d18d8f8ec6`)
+  - **UUID Normalization**: Automatically normalizes 32-character hex UUIDs to hyphenated format for consistency
+  - **Comprehensive Testing**: Added 23 unit tests covering type and format validation, and 23 integration tests covering reading, writing, deletion, and format-specific behavior
+  - **Documentation**: Added comprehensive `MUSICBRAINZ_TRACKID.md` guide with examples, format support matrix, and implementation details
+  - **Error Handling**: Proper error handling for unsupported formats (ID3v1) with appropriate exceptions
+
+### Fixed
+
+- **ID3v2 TXXX Frame UUID Normalization**: Fixed TXXX frame reading to normalize 32-character hex UUIDs to hyphenated format:
+
+  - Ensures consistent UUID format regardless of source frame type (UFID or TXXX)
+  - Matches normalization behavior already implemented for UFID frames
+  - Fixes test failure where TXXX frames with 32-char hex weren't normalized
+
+- **Vorbis MusicBrainz Track ID Writing**: Fixed Vorbis manager to properly write MusicBrainz Track ID to FLAC files:
+  - Added `MUSICBRAINZ_TRACKID` to `key_mapping` in `_write_metadata_with_metaflac()` method
+  - Fixes issue where MusicBrainz Track ID wasn't being written to FLAC files via metaflac
+  - Ensures `MUSICBRAINZ_TRACKID` is properly included in metaflac write operations
+
 ## [0.10.0] - 2025-12-09
 
 ### Added
