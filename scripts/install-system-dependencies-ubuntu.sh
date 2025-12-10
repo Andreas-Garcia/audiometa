@@ -167,33 +167,13 @@ if [[ "$CATEGORY" != "lint" ]]; then
   # Check if package is actually installed via apt (more reliable than command -v)
   INSTALLED_APT_VERSION=$(dpkg -l | grep "^ii.*${package}" | awk '{print $3}' || echo "")
 
-  if [ -n "$INSTALLED_APT_VERSION" ] || command -v "$package" &>/dev/null; then
-    INSTALLED_VERSION=""
-    case "$package" in
-      ffmpeg)
-        INSTALLED_VERSION=$(ffmpeg -version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
-        ;;
-      flac)
-        INSTALLED_VERSION=$(flac --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
-        ;;
-      mediainfo)
-        INSTALLED_VERSION=$(mediainfo --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
-        ;;
-      libsndfile1)
-        # libsndfile1 doesn't have a version command, skip version check
-        INSTALLED_VERSION=""
-        ;;
-    esac
-
-    # INSTALLED_APT_VERSION already set above
-
+  # Only check versions if package is actually installed via apt
+  if [ -n "$INSTALLED_APT_VERSION" ]; then
     if [ "$pinned_version" = "latest" ]; then
       # For "latest", just check if package is installed
-      if [ -n "$INSTALLED_APT_VERSION" ]; then
-        echo "${package} ${INSTALLED_APT_VERSION} already installed (using latest)"
-        continue
-      fi
-    elif [ -n "$INSTALLED_APT_VERSION" ]; then
+      echo "${package} ${INSTALLED_APT_VERSION} already installed (using latest)"
+      continue
+    else
       # Check if installed version matches pinned version (using flexible matching)
       # Extract upstream version (before first '-') for comparison
       installed_upstream="${INSTALLED_APT_VERSION%%-*}"
@@ -218,8 +198,8 @@ if [[ "$CATEGORY" != "lint" ]]; then
       fi
     fi
   else
-    # Package not installed, will be added to installation list
-    echo "${package} not installed, will install version ${pinned_version}"
+    # Package not installed via apt, will be added to installation list
+    echo "${package} not installed via apt, will install version ${pinned_version}"
   fi
 
   # Add to installation list if not already installed with correct version
@@ -246,6 +226,9 @@ if [ ${#PACKAGES_TO_INSTALL[@]} -gt 0 ]; then
     echo "Check /tmp/apt-install.log for detailed error messages"
     exit 1
   }
+else
+  echo "No packages to install (all required packages are already installed or installation was skipped)"
+  echo "Packages that were checked: ${PACKAGES_TO_PROCESS[*]}"
 fi
 
 # Install libimage-exiftool-perl with pinned version (skip for lint-only)
