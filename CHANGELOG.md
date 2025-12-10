@@ -48,6 +48,21 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### CI
+
+- **macOS CI ffmpeg Installation**: Fixed hanging issue during ffmpeg installation in macOS CI:
+  - Added `--verbose` flag to show progress during installation
+  - Added `--force-bottle` flag to prefer pre-built bottles over building from source
+  - Prevents CI hangs that occur when Homebrew attempts to build ffmpeg from source (can take 10-30+ minutes during bottling)
+  - Significantly speeds up installation and improves CI reliability
+- **Ubuntu CI Installation Improvements**: Fixed PATH handling and added verbose output for Ubuntu CI:
+  - Added `-v` flag to apt-get commands to show progress during package downloads
+  - Ensured standard binary paths (/usr/bin, /usr/local/bin, /bin) are in PATH
+  - Added command cache refresh (`hash -r`) after package installation
+  - Added automatic PATH detection and diagnostics for tools installed via apt-get
+  - Improved error messages with tool location diagnostics when tools are not found
+  - Prevents false negatives where tools are installed but not found in PATH during verification
+
 ## [0.10.0] - 2025-12-09
 
 ### Added
