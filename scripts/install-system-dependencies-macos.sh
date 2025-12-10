@@ -225,8 +225,16 @@ install_ffmpeg() {
   # Install ffmpeg with version pinning if needed
   if [ "$NEED_INSTALL" -eq 1 ]; then
     echo "  Installing ffmpeg@${pinned_version}..."
-    brew install ffmpeg@${pinned_version} || {
-      echo "ERROR: Pinned ffmpeg version ${pinned_version} not available."
+    echo "  Note: This may take several minutes. Using --force-bottle to prefer pre-built packages..."
+    # Use --force-bottle to prefer pre-built bottles over building from source
+    # This significantly speeds up installation and avoids hanging during build
+    # Use --verbose to show progress during installation
+    brew install --verbose --force-bottle ffmpeg@${pinned_version} || {
+      echo "ERROR: Failed to install ffmpeg@${pinned_version}."
+      echo "This may indicate:"
+      echo "  - Network connectivity issues"
+      echo "  - Homebrew service problems"
+      echo "  - Bottle not available for this macOS version"
       echo "Check available versions with: brew search ffmpeg"
       exit 1
     }
