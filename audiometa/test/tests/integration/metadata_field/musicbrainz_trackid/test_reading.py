@@ -63,6 +63,17 @@ class TestMusicBrainzTrackIDReading:
             result = get_unified_metadata_field(test_file, UnifiedMetadataKey.MUSICBRAINZ_TRACKID)
             assert result == ufid_track_id
 
+    def test_id3v2_ufid_different_owner_not_read(self):
+        """Test that UFID frames with a different owner are not read as MusicBrainz Track ID."""
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            # Set UFID frame with a different owner (not http://musicbrainz.org)
+            other_owner = "http://example.com"
+            other_data = "9d6f6f7c-9d52-4c76-8f9e-01d18d8f8ec6"
+            ID3v2MetadataSetter.set_ufid_with_owner(test_file, other_owner, other_data)
+            # Should not be read as MusicBrainz Track ID
+            result = get_unified_metadata_field(test_file, UnifiedMetadataKey.MUSICBRAINZ_TRACKID)
+            assert result is None
+
     def test_vorbis_reading(self):
         """Test reading MusicBrainz Track ID from Vorbis comments."""
         with temp_file_with_metadata(

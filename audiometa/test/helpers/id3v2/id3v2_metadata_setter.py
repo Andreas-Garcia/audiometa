@@ -571,3 +571,20 @@ class ID3v2MetadataSetter:
             str(file_path),
         ]
         run_external_tool(command, "mid3v2")
+
+    @staticmethod
+    def set_ufid_with_owner(file_path: Path, owner: str, data: str) -> None:
+        """Set UFID frame with a specific owner (for testing purposes).
+
+        Args:
+            file_path: Path to the MP3 file
+            owner: UFID owner identifier (e.g., "http://musicbrainz.org", "http://example.com")
+            data: UFID data (typically a UUID or identifier string)
+        """
+        command = [
+            get_tool_path("mid3v2"),
+            "--UFID",
+            f"{owner}:{data}",
+            str(file_path),
+        ]
+        run_external_tool(command, "mid3v2")
