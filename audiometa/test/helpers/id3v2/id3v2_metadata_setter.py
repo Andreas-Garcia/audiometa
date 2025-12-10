@@ -132,24 +132,14 @@ class ID3v2MetadataSetter:
                     f"{musicbrainz_trackid[:8]}-{musicbrainz_trackid[8:12]}-"
                     f"{musicbrainz_trackid[12:16]}-{musicbrainz_trackid[16:20]}-{musicbrainz_trackid[20:32]}"
                 )
-            # Use mid3v2 for UFID frames (works for both 2.3 and 2.4)
-            if version == "2.3":
-                # id3v2 doesn't support UFID easily, use mid3v2
-                command_ufid = [
-                    get_tool_path("mid3v2"),
-                    "--UFID",
-                    f"http://musicbrainz.org:{musicbrainz_trackid}",
-                    str(file_path),
-                ]
-                run_external_tool(command_ufid, "mid3v2")
-            else:
-                command_ufid = [
-                    get_tool_path("mid3v2"),
-                    "--UFID",
-                    f"http://musicbrainz.org:{musicbrainz_trackid}",
-                    str(file_path),
-                ]
-                run_external_tool(command_ufid, "mid3v2")
+            # Use manual frame creator for UFID frames to maintain test isolation
+            # (mid3v2 doesn't handle URLs with colons in UFID owner field correctly)
+            from .id3v2_frame_manual_creator import ManualID3v2FrameCreator
+
+            track_id_bytes = musicbrainz_trackid.encode("utf-8")
+            ManualID3v2FrameCreator.create_ufid_frame(
+                file_path, "http://musicbrainz.org", track_id_bytes, version=version
+            )
 
         # Handle non-list values (excluding already handled fields and list fields)
         # Only exclude list fields if they're actually lists (single strings should be processed)
@@ -544,17 +534,17 @@ class ID3v2MetadataSetter:
     def set_musicbrainz_trackid_ufid(file_path: Path, track_id: str) -> None:
         """Set MusicBrainz Track ID using UFID frame (preferred format).
 
+        Uses manual binary construction to maintain test isolation (avoids using mutagen
+        which is also used in the implementation).
+
         Args:
             file_path: Path to the MP3 file
             track_id: MusicBrainz Track ID (UUID string, hyphenated or 32-char hex)
         """
-        command = [
-            get_tool_path("mid3v2"),
-            "--UFID",
-            f"http://musicbrainz.org:{track_id}",
-            str(file_path),
-        ]
-        run_external_tool(command, "mid3v2")
+        from .id3v2_frame_manual_creator import ManualID3v2FrameCreator
+
+        track_id_bytes = track_id.encode("utf-8")
+        ManualID3v2FrameCreator.create_ufid_frame(file_path, "http://musicbrainz.org", track_id_bytes, version="2.4")
 
     @staticmethod
     def set_musicbrainz_trackid_txxx(file_path: Path, track_id: str) -> None:
@@ -576,15 +566,15 @@ class ID3v2MetadataSetter:
     def set_ufid_with_owner(file_path: Path, owner: str, data: str) -> None:
         """Set UFID frame with a specific owner (for testing purposes).
 
+        Uses manual binary construction to maintain test isolation (avoids using mutagen
+        which is also used in the implementation).
+
         Args:
             file_path: Path to the MP3 file
             owner: UFID owner identifier (e.g., "http://musicbrainz.org", "http://example.com")
             data: UFID data (typically a UUID or identifier string)
         """
-        command = [
-            get_tool_path("mid3v2"),
-            "--UFID",
-            f"{owner}:{data}",
-            str(file_path),
-        ]
-        run_external_tool(command, "mid3v2")
+        from .id3v2_frame_manual_creator import ManualID3v2FrameCreator
+
+        data_bytes = data.encode("utf-8")
+        ManualID3v2FrameCreator.create_ufid_frame(file_path, owner, data_bytes, version="2.4")

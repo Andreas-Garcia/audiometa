@@ -86,6 +86,60 @@ class ManualID3v2FrameCreator:
         ManualID3v2FrameCreator._write_id3v2_tag(file_path, frames, version)
 
     @staticmethod
+    def _create_ufid_frame(owner: str, data: bytes, version: str = "2.4") -> bytes:
+        """Create a UFID (Unique File Identifier) frame.
+
+        Args:
+            owner: UFID owner identifier (null-terminated string)
+            data: UFID data (binary data, no null terminator)
+            version: ID3v2 version ("2.3" or "2.4")
+
+        Returns:
+            Complete UFID frame as bytes (header + frame data)
+        """
+        # UFID frame format:
+        # - Owner: null-terminated string (ISO-8859-1)
+        # - Data: binary data (no null terminator)
+        owner_bytes = owner.encode("latin1", errors="ignore") + b"\x00"
+        frame_data = owner_bytes + data
+
+        # Frame header: ID (4 bytes) + size (4 bytes) + flags (2 bytes)
+        frame_id_bytes = b"UFID"
+        frame_size = len(frame_data)
+        frame_flags = 0x0000  # No flags
+
+        if version == "2.3":
+            frame_header = (
+                frame_id_bytes
+                + struct.pack(">I", frame_size)  # Big-endian 32-bit size
+                + struct.pack(">H", frame_flags)  # Big-endian 16-bit flags
+            )
+        else:  # ID3v2.4
+            frame_header = (
+                frame_id_bytes
+                + ManualID3v2FrameCreator._synchsafe_int(frame_size)  # Synchsafe size
+                + struct.pack(">H", frame_flags)  # Big-endian 16-bit flags
+            )
+
+        return frame_header + frame_data
+
+    @staticmethod
+    def create_ufid_frame(file_path: Path, owner: str, data: bytes, version: str = "2.4") -> None:
+        """Create a UFID frame in an ID3v2 tag.
+
+        Args:
+            file_path: Path to the audio file
+            owner: UFID owner identifier (e.g., "http://musicbrainz.org")
+            data: UFID data (binary data)
+            version: ID3v2 version ("2.3" or "2.4")
+        """
+        if version not in ["2.3", "2.4"]:
+            msg = "Version must be '2.3' or '2.4'"
+            raise ValueError(msg)
+        frame = ManualID3v2FrameCreator._create_ufid_frame(owner, data, version)
+        ManualID3v2FrameCreator._write_id3v2_tag(file_path, [frame], version)
+
+    @staticmethod
     def _create_text_frame(frame_id: str, text: str, version: str, encoding: int | None = None) -> bytes:
         """Create a single ID3v2 text frame with the given ID and text."""
         # Choose encoding based on version or provided encoding
