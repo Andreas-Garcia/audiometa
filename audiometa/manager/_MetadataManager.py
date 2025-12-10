@@ -255,6 +255,48 @@ class _MetadataManager:
             isrc,
         )
 
+    @staticmethod
+    def validate_musicbrainz_trackid(track_id: str) -> None:
+        """Validate MusicBrainz Track ID (UUID) format.
+
+        MusicBrainz Track ID must be a valid UUID string in one of the following formats:
+        - 36-character hyphenated UUID (preferred): "9d6f6f7c-9d52-4c76-8f9e-01d18d8f8ec6"
+        - 32-character hex string without hyphens: "9d6f6f7c9d524c768f9e01d18d8f8ec6"
+        - Empty string is allowed (represents no Track ID)
+
+        Args:
+            track_id: The MusicBrainz Track ID string to validate
+
+        Raises:
+            InvalidMetadataFieldFormatError: If the Track ID format is invalid
+
+        Examples:
+            >>> _MetadataManager.validate_musicbrainz_trackid("9d6f6f7c-9d52-4c76-8f9e-01d18d8f8ec6")
+            # Valid (36 chars)
+            >>> _MetadataManager.validate_musicbrainz_trackid("9d6f6f7c9d524c768f9e01d18d8f8ec6")
+            # Valid (32 chars)
+            >>> _MetadataManager.validate_musicbrainz_trackid("")  # Valid (empty string)
+            >>> _MetadataManager.validate_musicbrainz_trackid("not-a-uuid")
+            # Raises InvalidMetadataFieldFormatError
+        """
+        if not track_id:
+            return
+
+        # 36-character hyphenated UUID format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        if re.match(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", track_id):
+            return
+
+        # 32-character hex string without hyphens
+        if re.match(r"^[0-9a-fA-F]{32}$", track_id):
+            return
+
+        raise InvalidMetadataFieldFormatError(
+            UnifiedMetadataKey.MUSICBRAINZ_TRACKID.value,
+            "36-character hyphenated UUID (e.g., '9d6f6f7c-9d52-4c76-8f9e-01d18d8f8ec6') or "
+            "32-character hex string (e.g., '9d6f6f7c9d524c768f9e01d18d8f8ec6')",
+            track_id,
+        )
+
     @abstractmethod
     def _extract_mutagen_metadata(self) -> MutagenMetadata:
         raise NotImplementedError

@@ -31,6 +31,7 @@ class UnifiedMetadataKey(str, Enum):
     REPLAYGAIN = "replaygain"
     ARCHIVAL_LOCATION = "archival_location"
     ISRC = "isrc"
+    MUSICBRAINZ_TRACKID = "musicbrainz_trackid"
     DESCRIPTION = "description"
     ORIGINATOR = "originator"
 
@@ -81,6 +82,7 @@ class UnifiedMetadataKey(str, Enum):
             UnifiedMetadataKey.REPLAYGAIN: str,
             UnifiedMetadataKey.ARCHIVAL_LOCATION: str,
             UnifiedMetadataKey.ISRC: str,
+            UnifiedMetadataKey.MUSICBRAINZ_TRACKID: str,
             UnifiedMetadataKey.DESCRIPTION: str,
             UnifiedMetadataKey.ORIGINATOR: str,
         }

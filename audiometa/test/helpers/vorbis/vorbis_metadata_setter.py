@@ -59,6 +59,7 @@ class VorbisMetadataSetter:
             "encoder": "ENCODER",
             "url": "URL",
             "isrc": "ISRC",
+            "musicbrainz_trackid": "MUSICBRAINZ_TRACKID",
             "publisher": "PUBLISHER",
             "disc_number": "DISCNUMBER",
             "disc_total": "DISCTOTAL",

@@ -34,6 +34,7 @@ class RIFFMetadataSetter:
             "rating": "--IRTD",
             "copyright": "--ICOP",
             "isrc": "--ISRC",
+            "musicbrainz_trackid": "--MBID",
             "description": "--Description",
             "originator": "--Originator",
         }
@@ -51,8 +52,16 @@ class RIFFMetadataSetter:
                 elif key.lower() == "composer":
                     composer_value = value[0]  # Store first composer for main command
 
+        # Handle musicbrainz_trackid (MBID FourCC) - needs special handling with manual creator
+        musicbrainz_trackid = None
+        for key, value in metadata.items():
+            if key.lower() == "musicbrainz_trackid" and not isinstance(value, list) and value:
+                musicbrainz_trackid = str(value).strip()
+                break
+
         # Handle non-list values and include list values in main command
-        # Note: Rating, BPM, Language, and Composer need to be set AFTER bwfmetaedit to avoid being overwritten
+        # Note: Rating, BPM, Language, Composer, and MusicBrainz Track ID need to be set
+        # AFTER bwfmetaedit to avoid being overwritten
         rating_value = None
         bpm_value = None
         language_value = None
@@ -68,6 +77,9 @@ class RIFFMetadataSetter:
                     language_value = str(value)  # Store for later
                 elif key.lower() == "composer":
                     composer_single_value = str(value)  # Store for later
+                elif key.lower() == "musicbrainz_trackid":
+                    # Handled separately after bwfmetaedit
+                    pass
                 else:
                     cmd.extend([f"{key_mapping[key.lower()]}={value}"])
                     metadata_added = True
@@ -112,6 +124,12 @@ class RIFFMetadataSetter:
             from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
 
             ManualRIFFMetadataCreator.create_composer_field(file_path, composer_single_value)
+
+        # Set MusicBrainz Track ID (MBID FourCC) AFTER bwfmetaedit
+        if musicbrainz_trackid is not None:
+            from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
+
+            ManualRIFFMetadataCreator.create_mbid_field(file_path, musicbrainz_trackid)
 
     @staticmethod
     def set_comment(file_path: Path, comment: str) -> None:

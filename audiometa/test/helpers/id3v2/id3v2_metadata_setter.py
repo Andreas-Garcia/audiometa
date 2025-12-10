@@ -118,6 +118,39 @@ class ID3v2MetadataSetter:
                 cmd.extend(["--TDRC", release_date])
             metadata_added = True
 
+        # Handle musicbrainz_trackid (UFID frame) - needs special handling
+        musicbrainz_trackid = None
+        for key, value in metadata.items():
+            if key.lower() == "musicbrainz_trackid" and not isinstance(value, list) and value:
+                musicbrainz_trackid = str(value).strip()
+                break
+
+        if musicbrainz_trackid:
+            # Normalize UUID: convert 32-char hex to 36-char hyphenated format if needed
+            if len(musicbrainz_trackid) == 32 and all(c in "0123456789abcdefABCDEF" for c in musicbrainz_trackid):
+                musicbrainz_trackid = (
+                    f"{musicbrainz_trackid[:8]}-{musicbrainz_trackid[8:12]}-"
+                    f"{musicbrainz_trackid[12:16]}-{musicbrainz_trackid[16:20]}-{musicbrainz_trackid[20:32]}"
+                )
+            # Use mid3v2 for UFID frames (works for both 2.3 and 2.4)
+            if version == "2.3":
+                # id3v2 doesn't support UFID easily, use mid3v2
+                command_ufid = [
+                    get_tool_path("mid3v2"),
+                    "--UFID",
+                    f"http://musicbrainz.org:{musicbrainz_trackid}",
+                    str(file_path),
+                ]
+                run_external_tool(command_ufid, "mid3v2")
+            else:
+                command_ufid = [
+                    get_tool_path("mid3v2"),
+                    "--UFID",
+                    f"http://musicbrainz.org:{musicbrainz_trackid}",
+                    str(file_path),
+                ]
+                run_external_tool(command_ufid, "mid3v2")
+
         # Handle non-list values (excluding already handled fields and list fields)
         # Only exclude list fields if they're actually lists (single strings should be processed)
         list_field_keys = set()
@@ -129,7 +162,7 @@ class ID3v2MetadataSetter:
             if (
                 key.lower() in key_mapping
                 and not isinstance(value, list)
-                and key.lower() not in ["disc_number", "disc_total", "release_date", "year"]
+                and key.lower() not in ["disc_number", "disc_total", "release_date", "year", "musicbrainz_trackid"]
                 and key.lower() not in list_field_keys  # Only exclude if it's actually a list
             ):
                 # Special handling for rating (POPM frame requires app name prefix)
@@ -506,3 +539,35 @@ class ID3v2MetadataSetter:
         creator = ManualID3v2FrameCreator()
         frame_data = creator._create_text_frame("TPE1", text, "2.4", encoding=encoding)
         creator._write_id3v2_tag(file_path, [frame_data], "2.4")
+
+    @staticmethod
+    def set_musicbrainz_trackid_ufid(file_path: Path, track_id: str) -> None:
+        """Set MusicBrainz Track ID using UFID frame (preferred format).
+
+        Args:
+            file_path: Path to the MP3 file
+            track_id: MusicBrainz Track ID (UUID string, hyphenated or 32-char hex)
+        """
+        command = [
+            get_tool_path("mid3v2"),
+            "--UFID",
+            f"http://musicbrainz.org:{track_id}",
+            str(file_path),
+        ]
+        run_external_tool(command, "mid3v2")
+
+    @staticmethod
+    def set_musicbrainz_trackid_txxx(file_path: Path, track_id: str) -> None:
+        """Set MusicBrainz Track ID using TXXX frame (fallback format).
+
+        Args:
+            file_path: Path to the MP3 file
+            track_id: MusicBrainz Track ID (UUID string, hyphenated or 32-char hex)
+        """
+        command = [
+            get_tool_path("mid3v2"),
+            "--TXXX",
+            f"MusicBrainz Track Id:{track_id}",
+            str(file_path),
+        ]
+        run_external_tool(command, "mid3v2")

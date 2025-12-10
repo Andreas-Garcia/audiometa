@@ -144,6 +144,18 @@ class ManualRIFFMetadataCreator:
         ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, all_fields)
 
     @staticmethod
+    def create_mbid_field(file_path: Path, mbid: str) -> None:
+        """Create MBID field in the RIFF INFO chunk, preserving existing fields."""
+        # Read existing fields and add MBID
+        existing_fields = ManualRIFFMetadataCreator._read_existing_info_fields(file_path)
+        # Remove existing MBID if present (we'll replace it)
+        existing_fields = [f for f in existing_fields if f[:4] != b"MBID"]
+        # Add new MBID field
+        mbid_field = ManualRIFFMetadataCreator._create_info_field("MBID", mbid)
+        all_fields = [*existing_fields, mbid_field]
+        ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, all_fields)
+
+    @staticmethod
     def _create_info_field(field_id: str, text: str) -> bytes:
         """Create a single RIFF INFO field with the given FourCC and text."""
         # Encode text as UTF-8 with null terminator

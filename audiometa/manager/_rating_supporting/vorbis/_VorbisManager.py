@@ -59,6 +59,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
         LOCATION = "LOCATION"  # Recording location
         CONTACT = "CONTACT"  # Contact information
         ISRC = "ISRC"  # International Standard Recording Code
+        MUSICBRAINZ_TRACKID = "MUSICBRAINZ_TRACKID"  # MusicBrainz Track ID (Recording ID)
 
         # Non-standard
         LANGUAGE = "LANGUAGE"
@@ -92,6 +93,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.REPLAYGAIN: self.VorbisKey.REPLAYGAIN,
             UnifiedMetadataKey.PUBLISHER: self.VorbisKey.PUBLISHER,
             UnifiedMetadataKey.ISRC: self.VorbisKey.ISRC,
+            UnifiedMetadataKey.MUSICBRAINZ_TRACKID: self.VorbisKey.MUSICBRAINZ_TRACKID,
             UnifiedMetadataKey.DESCRIPTION: self.VorbisKey.DESCRIPTION,
         }
         metadata_keys_direct_map_write = {
@@ -114,6 +116,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.REPLAYGAIN: self.VorbisKey.REPLAYGAIN,
             UnifiedMetadataKey.PUBLISHER: self.VorbisKey.PUBLISHER,
             UnifiedMetadataKey.ISRC: self.VorbisKey.ISRC,
+            UnifiedMetadataKey.MUSICBRAINZ_TRACKID: self.VorbisKey.MUSICBRAINZ_TRACKID,
             UnifiedMetadataKey.DESCRIPTION: self.VorbisKey.DESCRIPTION,
         }
         super().__init__(
