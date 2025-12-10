@@ -322,6 +322,21 @@ if [[ "$CATEGORY" =~ ^(lint|all)$ ]]; then
   fi
 fi
 
+# Ensure standard binary paths are in PATH
+# In some CI environments, PATH might not include standard locations
+STANDARD_PATHS=("/usr/bin" "/usr/local/bin" "/bin")
+for path in "${STANDARD_PATHS[@]}"; do
+  if [ -d "$path" ] && [[ ":$PATH:" != *":${path}:"* ]]; then
+    export PATH="${path}:$PATH"
+    if [ -n "$GITHUB_PATH" ]; then
+      echo "$path" >> "$GITHUB_PATH"
+    fi
+  fi
+done
+
+# Refresh command cache (helps in some shells after package installation)
+hash -r 2>/dev/null || true
+
 # Verify installed tools are available in PATH (skip for lint-only)
 if [[ "$CATEGORY" != "lint" ]]; then
   echo "Verifying installed tools are available in PATH..."
@@ -338,12 +353,96 @@ if [[ "$CATEGORY" != "lint" ]]; then
   for tool in "${TOOLS_TO_CHECK[@]}"; do
     if ! command -v "$tool" &>/dev/null; then
       MISSING_TOOLS+=("$tool")
+      # Try to find where the tool is actually installed
+      TOOL_LOCATION=$(dpkg -L "$(dpkg -S "$(which "$tool" 2>/dev/null || echo "")" 2>/dev/null | cut -d: -f1 2>/dev/null || dpkg -l | grep -i "$tool" | head -1 | awk '{print $2}')" 2>/dev/null | grep -E "/bin/${tool}$|/${tool}$" | head -1 || echo "")
+      if [ -n "$TOOL_LOCATION" ] && [ -f "$TOOL_LOCATION" ]; then
+        echo "  WARNING: $tool found at $TOOL_LOCATION but not in PATH"
+        # Add the directory to PATH
+        TOOL_DIR=$(dirname "$TOOL_LOCATION")
+        if [[ ":$PATH:" != *":${TOOL_DIR}:"* ]]; then
+          export PATH="${TOOL_DIR}:$PATH"
+          if [ -n "$GITHUB_PATH" ]; then
+            echo "$TOOL_DIR" >> "$GITHUB_PATH"
+          fi
+          echo "  Added $TOOL_DIR to PATH"
+        fi
+      else
+        # Try common package names for the tool
+        case "$tool" in
+          ffprobe)
+            FFMPEG_PKG=$(dpkg -l | grep -i ffmpeg | head -1 | awk '{print $2}' || echo "")
+            if [ -n "$FFMPEG_PKG" ]; then
+              FFMPEG_BIN=$(dpkg -L "$FFMPEG_PKG" 2>/dev/null | grep -E "/bin/ffprobe$" | head -1 || echo "")
+              if [ -n "$FFMPEG_BIN" ] && [ -f "$FFMPEG_BIN" ]; then
+                FFMPEG_DIR=$(dirname "$FFMPEG_BIN")
+                if [[ ":$PATH:" != *":${FFMPEG_DIR}:"* ]]; then
+                  export PATH="${FFMPEG_DIR}:$PATH"
+                  if [ -n "$GITHUB_PATH" ]; then
+                    echo "$FFMPEG_DIR" >> "$GITHUB_PATH"
+                  fi
+                  echo "  Found ffprobe at $FFMPEG_BIN, added to PATH"
+                fi
+              fi
+            fi
+            ;;
+          exiftool)
+            EXIFTOOL_BIN=$(dpkg -L libimage-exiftool-perl 2>/dev/null | grep -E "/bin/exiftool$" | head -1 || echo "")
+            if [ -n "$EXIFTOOL_BIN" ] && [ -f "$EXIFTOOL_BIN" ]; then
+              EXIFTOOL_DIR=$(dirname "$EXIFTOOL_BIN")
+              if [[ ":$PATH:" != *":${EXIFTOOL_DIR}:"* ]]; then
+                export PATH="${EXIFTOOL_DIR}:$PATH"
+                if [ -n "$GITHUB_PATH" ]; then
+                  echo "$EXIFTOOL_DIR" >> "$GITHUB_PATH"
+                fi
+                echo "  Found exiftool at $EXIFTOOL_BIN, added to PATH"
+              fi
+            fi
+            ;;
+        esac
+      fi
     fi
   done
 
-  if [ ${#MISSING_TOOLS[@]} -ne 0 ]; then
+  # Re-check after PATH updates
+  STILL_MISSING=()
+  for tool in "${TOOLS_TO_CHECK[@]}"; do
+    if ! command -v "$tool" &>/dev/null; then
+      STILL_MISSING+=("$tool")
+    fi
+  done
+
+  if [ ${#STILL_MISSING[@]} -ne 0 ]; then
     echo "ERROR: The following tools are not available in PATH after installation:"
-    printf '  - %s\n' "${MISSING_TOOLS[@]}"
+    printf '  - %s\n' "${STILL_MISSING[@]}"
+    echo ""
+    echo "Current PATH: $PATH"
+    echo ""
+    echo "Attempting to locate installed packages..."
+    for tool in "${STILL_MISSING[@]}"; do
+      echo "  Searching for $tool:"
+      # Try to find the package
+      case "$tool" in
+        ffprobe)
+          dpkg -l | grep -i ffmpeg | head -3 || echo "    No ffmpeg package found"
+          dpkg -L $(dpkg -l | grep -i ffmpeg | head -1 | awk '{print $2}') 2>/dev/null | grep -E "/bin/ffprobe$" | head -3 || echo "    ffprobe binary not found in package"
+          ;;
+        flac|metaflac)
+          dpkg -l | grep -i flac | head -3 || echo "    No flac package found"
+          dpkg -L $(dpkg -l | grep -i "^ii.*flac" | head -1 | awk '{print $2}') 2>/dev/null | grep -E "/bin/(flac|metaflac)$" | head -3 || echo "    flac/metaflac binary not found in package"
+          ;;
+        exiftool)
+          dpkg -l | grep -i exiftool | head -3 || echo "    No exiftool package found"
+          dpkg -L libimage-exiftool-perl 2>/dev/null | grep -E "/bin/exiftool$" | head -3 || echo "    exiftool binary not found in package"
+          ;;
+        mediainfo)
+          dpkg -l | grep -i mediainfo | head -3 || echo "    No mediainfo package found"
+          dpkg -L $(dpkg -l | grep -i "^ii.*mediainfo" | head -1 | awk '{print $2}') 2>/dev/null | grep -E "/bin/mediainfo$" | head -3 || echo "    mediainfo binary not found in package"
+          ;;
+        id3v2)
+          which id3v2 2>/dev/null || find /usr -name "id3v2" 2>/dev/null | head -3 || echo "    id3v2 not found"
+          ;;
+      esac
+    done
     echo ""
     echo "Installation may have failed. Check the output above for errors."
     exit 1
