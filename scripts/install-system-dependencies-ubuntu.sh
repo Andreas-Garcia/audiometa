@@ -216,11 +216,23 @@ done
 if [ ${#PACKAGES_TO_INSTALL[@]} -gt 0 ]; then
   echo "Installing packages: ${PACKAGES_TO_INSTALL[*]}"
   echo "Note: This may take several minutes. Large packages like ffmpeg can take time to download..."
+
+  # Check if any packages are held
+  echo "Checking for held packages..."
+  for package in "${PACKAGES_TO_INSTALL[@]}"; do
+    pkg_name="${package%%=*}"
+    if dpkg --get-selections | grep -q "^${pkg_name}[[:space:]]*hold"; then
+      echo "  WARNING: ${pkg_name} is on hold, will attempt to install anyway"
+    fi
+  done
+  echo ""
+
   # Use -v for verbose output to show progress during installation
+  # Add --allow-downgrades and --allow-change-held-packages to ensure installation proceeds
   # Run apt-get install with output both to stdout/stderr and to log file for debugging
   # Use set -o pipefail to ensure we catch the exit status of apt-get, not tee
   set -o pipefail
-  if ! sudo apt-get install -y -v "${PACKAGES_TO_INSTALL[@]}" 2>&1 | tee /tmp/apt-install.log; then
+  if ! sudo apt-get install -y -v --allow-downgrades --allow-change-held-packages "${PACKAGES_TO_INSTALL[@]}" 2>&1 | tee /tmp/apt-install.log; then
     set +o pipefail
     echo ""
     echo "ERROR: Failed to install pinned versions."
@@ -236,6 +248,16 @@ if [ ${#PACKAGES_TO_INSTALL[@]} -gt 0 ]; then
     exit 1
   fi
   set +o pipefail
+
+  # Check if apt-get actually installed anything
+  if grep -q "0 newly installed" /tmp/apt-install.log; then
+    echo ""
+    echo "WARNING: apt-get reported '0 newly installed' - packages may not have been installed"
+    echo "This could indicate:"
+    echo "  - Packages are already installed (but verification will check)"
+    echo "  - Version specifications don't match available packages"
+    echo "  - Dependency conflicts prevented installation"
+  fi
 
   echo ""
   echo "Package installation completed successfully."
@@ -259,7 +281,18 @@ if [ ${#PACKAGES_TO_INSTALL[@]} -gt 0 ]; then
   if [ $VERIFICATION_FAILED -eq 1 ]; then
     echo ""
     echo "ERROR: Some packages were not installed successfully."
-    echo "Installation output was logged to /tmp/apt-install.log"
+    echo ""
+    echo "apt-get install command that was run:"
+    echo "  sudo apt-get install -y -v --allow-downgrades --allow-change-held-packages ${PACKAGES_TO_INSTALL[*]}"
+    echo ""
+    echo "Full installation output from /tmp/apt-install.log:"
+    echo "----------------------------------------"
+    cat /tmp/apt-install.log
+    echo "----------------------------------------"
+    echo ""
+    echo "Checking what apt-get actually did:"
+    echo "  dpkg -l | grep -E '($(IFS='|'; echo "${PACKAGES_TO_INSTALL[*]%%=*}"))':"
+    dpkg -l | grep -E "($(IFS='|'; echo "${PACKAGES_TO_INSTALL[*]%%=*}"))" || echo "  No matching packages found in dpkg -l"
     exit 1
   fi
 else
