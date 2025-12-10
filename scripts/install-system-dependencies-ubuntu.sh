@@ -331,25 +331,39 @@ if [[ "$CATEGORY" != "lint" ]] && [ -n "$PINNED_LIBIMAGE_EXIFTOOL_PERL" ]; then
   echo "Installing libimage-exiftool-perl=${PINNED_LIBIMAGE_EXIFTOOL_PERL}..."
 
   # Check if already installed with correct version
-  if command -v exiftool &>/dev/null; then
-    INSTALLED_APT_VERSION=$(dpkg -l | grep "^ii.*libimage-exiftool-perl" | awk '{print $3}' || echo "")
-    if [ -n "$INSTALLED_APT_VERSION" ] && [ "$INSTALLED_APT_VERSION" = "$PINNED_LIBIMAGE_EXIFTOOL_PERL" ]; then
-      echo "libimage-exiftool-perl ${INSTALLED_APT_VERSION} already installed (matches pinned version)"
-    else
-      echo "Removing existing libimage-exiftool-perl version ${INSTALLED_APT_VERSION:-unknown} (installing pinned version ${PINNED_LIBIMAGE_EXIFTOOL_PERL})..."
-      sudo apt-get remove -y libimage-exiftool-perl 2>/dev/null || true
-      sudo apt-get install -y -v "libimage-exiftool-perl=${PINNED_LIBIMAGE_EXIFTOOL_PERL}" || {
-        echo "ERROR: Failed to install pinned version of libimage-exiftool-perl."
-        echo "This may indicate network issues or the version is no longer available."
-        exit 1
-      }
-    fi
+  INSTALLED_APT_VERSION=$(dpkg -l | grep "^ii.*libimage-exiftool-perl" | awk '{print $3}' || echo "")
+  if [ -n "$INSTALLED_APT_VERSION" ] && [ "$INSTALLED_APT_VERSION" = "$PINNED_LIBIMAGE_EXIFTOOL_PERL" ]; then
+    echo "libimage-exiftool-perl ${INSTALLED_APT_VERSION} already installed (matches pinned version)"
   else
-    sudo apt-get install -y -v "libimage-exiftool-perl=${PINNED_LIBIMAGE_EXIFTOOL_PERL}" || {
+    if [ -n "$INSTALLED_APT_VERSION" ]; then
+      echo "Removing existing libimage-exiftool-perl version ${INSTALLED_APT_VERSION} (installing pinned version ${PINNED_LIBIMAGE_EXIFTOOL_PERL})..."
+      sudo apt-get remove -y libimage-exiftool-perl 2>/dev/null || true
+    fi
+
+    # Verify version is available before installing
+    echo "Verifying libimage-exiftool-perl version ${PINNED_LIBIMAGE_EXIFTOOL_PERL} is available..."
+    if ! apt-cache madison libimage-exiftool-perl 2>/dev/null | grep -q "$PINNED_LIBIMAGE_EXIFTOOL_PERL"; then
+      echo "ERROR: libimage-exiftool-perl version ${PINNED_LIBIMAGE_EXIFTOOL_PERL} is not available."
+      echo "Available versions:"
+      apt-cache madison libimage-exiftool-perl 2>/dev/null | head -5 || echo "  (could not list versions)"
+      exit 1
+    fi
+
+    # Install with --show-progress instead of -v
+    if ! sudo apt-get install -y --show-progress --allow-downgrades --allow-change-held-packages "libimage-exiftool-perl=${PINNED_LIBIMAGE_EXIFTOOL_PERL}"; then
       echo "ERROR: Failed to install pinned version of libimage-exiftool-perl."
       echo "This may indicate network issues or the version is no longer available."
       exit 1
-    }
+    fi
+
+    # Verify it was actually installed
+    INSTALLED_CHECK=$(dpkg -l | grep "^ii.*libimage-exiftool-perl" | awk '{print $2 " " $3}' || echo "")
+    if [ -z "$INSTALLED_CHECK" ]; then
+      echo "ERROR: libimage-exiftool-perl was not installed successfully."
+      exit 1
+    else
+      echo "✓ ${INSTALLED_CHECK} installed"
+    fi
   fi
 fi
 
