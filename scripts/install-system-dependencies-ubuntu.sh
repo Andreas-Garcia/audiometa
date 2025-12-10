@@ -25,7 +25,11 @@ fi
 
 # Update package lists first
 echo "Updating package lists..."
-sudo apt-get update
+sudo apt-get update -v || {
+  echo "ERROR: Failed to update package lists."
+  echo "This may indicate network connectivity issues or repository problems."
+  exit 1
+}
 
 # Load pinned versions from system-dependencies-*.toml files
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -221,9 +225,16 @@ done
 
 # Install packages if any need installation
 if [ ${#PACKAGES_TO_INSTALL[@]} -gt 0 ]; then
-  sudo apt-get install -y "${PACKAGES_TO_INSTALL[@]}" || {
+  echo "Installing packages: ${PACKAGES_TO_INSTALL[*]}"
+  echo "Note: This may take several minutes. Large packages like ffmpeg can take time to download..."
+  # Use -v for verbose output to show progress during installation
+  sudo apt-get install -y -v "${PACKAGES_TO_INSTALL[@]}" 2>&1 | tee /tmp/apt-install.log || {
     echo "ERROR: Failed to install pinned versions."
-    echo "This may indicate the versions are no longer available."
+    echo "This may indicate:"
+    echo "  - Network connectivity issues"
+    echo "  - Package repository problems"
+    echo "  - Versions are no longer available"
+    echo "Check /tmp/apt-install.log for detailed error messages"
     exit 1
   }
 fi
@@ -240,14 +251,16 @@ if [[ "$CATEGORY" != "lint" ]] && [ -n "$PINNED_LIBIMAGE_EXIFTOOL_PERL" ]; then
     else
       echo "Removing existing libimage-exiftool-perl version ${INSTALLED_APT_VERSION:-unknown} (installing pinned version ${PINNED_LIBIMAGE_EXIFTOOL_PERL})..."
       sudo apt-get remove -y libimage-exiftool-perl 2>/dev/null || true
-      sudo apt-get install -y "libimage-exiftool-perl=${PINNED_LIBIMAGE_EXIFTOOL_PERL}" || {
+      sudo apt-get install -y -v "libimage-exiftool-perl=${PINNED_LIBIMAGE_EXIFTOOL_PERL}" || {
         echo "ERROR: Failed to install pinned version of libimage-exiftool-perl."
+        echo "This may indicate network issues or the version is no longer available."
         exit 1
       }
     fi
   else
-    sudo apt-get install -y "libimage-exiftool-perl=${PINNED_LIBIMAGE_EXIFTOOL_PERL}" || {
+    sudo apt-get install -y -v "libimage-exiftool-perl=${PINNED_LIBIMAGE_EXIFTOOL_PERL}" || {
       echo "ERROR: Failed to install pinned version of libimage-exiftool-perl."
+      echo "This may indicate network issues or the version is no longer available."
       exit 1
     }
   fi
