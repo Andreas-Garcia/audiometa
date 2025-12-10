@@ -217,19 +217,13 @@ if [ ${#PACKAGES_TO_INSTALL[@]} -gt 0 ]; then
   echo "Installing packages: ${PACKAGES_TO_INSTALL[*]}"
   echo "Note: This may take several minutes. Large packages like ffmpeg can take time to download..."
   # Use -v for verbose output to show progress during installation
-  # Don't use tee with pipe - it can cause issues with error handling
-  # Instead, capture output and check exit status separately
-  set +e
-  sudo apt-get install -y -v "${PACKAGES_TO_INSTALL[@]}" > /tmp/apt-install.log 2>&1
-  INSTALL_STATUS=$?
-  set -e
-
-  # Show the installation output
-  cat /tmp/apt-install.log
-
-  if [ $INSTALL_STATUS -ne 0 ]; then
+  # Run apt-get install with output both to stdout/stderr and to log file for debugging
+  # Use set -o pipefail to ensure we catch the exit status of apt-get, not tee
+  set -o pipefail
+  if ! sudo apt-get install -y -v "${PACKAGES_TO_INSTALL[@]}" 2>&1 | tee /tmp/apt-install.log; then
+    set +o pipefail
     echo ""
-    echo "ERROR: Failed to install pinned versions (exit code: $INSTALL_STATUS)."
+    echo "ERROR: Failed to install pinned versions."
     echo "This may indicate:"
     echo "  - Network connectivity issues"
     echo "  - Package repository problems"
@@ -241,9 +235,33 @@ if [ ${#PACKAGES_TO_INSTALL[@]} -gt 0 ]; then
     tail -50 /tmp/apt-install.log
     exit 1
   fi
+  set +o pipefail
 
   echo ""
   echo "Package installation completed successfully."
+
+  # Verify packages were actually installed
+  echo "Verifying installed packages..."
+  VERIFICATION_FAILED=0
+  for package in "${PACKAGES_TO_INSTALL[@]}"; do
+    # Extract package name (remove version suffix if present)
+    pkg_name="${package%%=*}"
+    INSTALLED_CHECK=$(dpkg -l | grep "^ii.*${pkg_name}" | awk '{print $2 " " $3}' || echo "")
+    if [ -n "$INSTALLED_CHECK" ]; then
+      echo "  ✓ ${INSTALLED_CHECK} installed"
+    else
+      echo "  ✗ ${pkg_name} NOT found in dpkg -l after installation"
+      echo "    This may indicate installation failed silently"
+      VERIFICATION_FAILED=1
+    fi
+  done
+
+  if [ $VERIFICATION_FAILED -eq 1 ]; then
+    echo ""
+    echo "ERROR: Some packages were not installed successfully."
+    echo "Installation output was logged to /tmp/apt-install.log"
+    exit 1
+  fi
 else
   echo "No packages to install (all required packages are already installed or installation was skipped)"
   echo "Packages that were checked: ${PACKAGES_TO_PROCESS[*]}"
