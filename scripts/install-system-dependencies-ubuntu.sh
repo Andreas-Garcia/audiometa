@@ -217,15 +217,33 @@ if [ ${#PACKAGES_TO_INSTALL[@]} -gt 0 ]; then
   echo "Installing packages: ${PACKAGES_TO_INSTALL[*]}"
   echo "Note: This may take several minutes. Large packages like ffmpeg can take time to download..."
   # Use -v for verbose output to show progress during installation
-  sudo apt-get install -y -v "${PACKAGES_TO_INSTALL[@]}" 2>&1 | tee /tmp/apt-install.log || {
-    echo "ERROR: Failed to install pinned versions."
+  # Don't use tee with pipe - it can cause issues with error handling
+  # Instead, capture output and check exit status separately
+  set +e
+  sudo apt-get install -y -v "${PACKAGES_TO_INSTALL[@]}" > /tmp/apt-install.log 2>&1
+  INSTALL_STATUS=$?
+  set -e
+
+  # Show the installation output
+  cat /tmp/apt-install.log
+
+  if [ $INSTALL_STATUS -ne 0 ]; then
+    echo ""
+    echo "ERROR: Failed to install pinned versions (exit code: $INSTALL_STATUS)."
     echo "This may indicate:"
     echo "  - Network connectivity issues"
     echo "  - Package repository problems"
     echo "  - Versions are no longer available"
-    echo "Check /tmp/apt-install.log for detailed error messages"
+    echo "  - Package conflicts or dependency issues"
+    echo ""
+    echo "Full installation log saved to /tmp/apt-install.log"
+    echo "Last 50 lines of log:"
+    tail -50 /tmp/apt-install.log
     exit 1
-  }
+  fi
+
+  echo ""
+  echo "Package installation completed successfully."
 else
   echo "No packages to install (all required packages are already installed or installation was skipped)"
   echo "Packages that were checked: ${PACKAGES_TO_PROCESS[*]}"
