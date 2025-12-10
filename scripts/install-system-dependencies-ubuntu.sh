@@ -427,25 +427,73 @@ if [[ "$CATEGORY" != "lint" ]]; then
       # Try to find the package
       case "$tool" in
         ffprobe)
-          dpkg -l | grep -i ffmpeg | head -3 || echo "    No ffmpeg package found"
-          dpkg -L $(dpkg -l | grep -i ffmpeg | head -1 | awk '{print $2}') 2>/dev/null | grep -E "/bin/ffprobe$" | head -3 || echo "    ffprobe binary not found in package"
+          echo "    Checking for ffmpeg packages:"
+          dpkg -l | grep -i ffmpeg || echo "      No ffmpeg package found"
+          FFMPEG_PKG=$(dpkg -l | grep -i "^ii.*ffmpeg" | head -1 | awk '{print $2}' || echo "")
+          if [ -n "$FFMPEG_PKG" ]; then
+            echo "    Found package: $FFMPEG_PKG"
+            echo "    Listing binaries in package:"
+            dpkg -L "$FFMPEG_PKG" 2>/dev/null | grep -E "/bin/ffprobe$" || echo "      ffprobe binary not found in package"
+            echo "    Checking if ffprobe exists in filesystem:"
+            find /usr -name "ffprobe" 2>/dev/null | head -3 || echo "      ffprobe not found in /usr"
+          fi
           ;;
-        flac|metaflac)
-          dpkg -l | grep -i flac | head -3 || echo "    No flac package found"
-          dpkg -L $(dpkg -l | grep -i "^ii.*flac" | head -1 | awk '{print $2}') 2>/dev/null | grep -E "/bin/(flac|metaflac)$" | head -3 || echo "    flac/metaflac binary not found in package"
+        flac)
+          echo "    Checking for flac packages:"
+          dpkg -l | grep -i "^ii.*flac" || echo "      No flac package found"
+          FLAC_PKG=$(dpkg -l | grep -i "^ii.*flac" | head -1 | awk '{print $2}' || echo "")
+          if [ -n "$FLAC_PKG" ]; then
+            echo "    Found package: $FLAC_PKG"
+            echo "    Listing binaries in package:"
+            dpkg -L "$FLAC_PKG" 2>/dev/null | grep -E "/bin/flac$" || echo "      flac binary not found in package"
+            echo "    Checking if flac exists in filesystem:"
+            find /usr -name "flac" 2>/dev/null | head -3 || echo "      flac not found in /usr"
+          fi
+          ;;
+        metaflac)
+          echo "    Checking for flac packages (metaflac is part of flac):"
+          dpkg -l | grep -i "^ii.*flac" || echo "      No flac package found"
+          FLAC_PKG=$(dpkg -l | grep -i "^ii.*flac" | head -1 | awk '{print $2}' || echo "")
+          if [ -n "$FLAC_PKG" ]; then
+            echo "    Found package: $FLAC_PKG"
+            echo "    Listing binaries in package:"
+            dpkg -L "$FLAC_PKG" 2>/dev/null | grep -E "/bin/metaflac$" || echo "      metaflac binary not found in package"
+            echo "    Checking if metaflac exists in filesystem:"
+            find /usr -name "metaflac" 2>/dev/null | head -3 || echo "      metaflac not found in /usr"
+          fi
           ;;
         exiftool)
-          dpkg -l | grep -i exiftool | head -3 || echo "    No exiftool package found"
-          dpkg -L libimage-exiftool-perl 2>/dev/null | grep -E "/bin/exiftool$" | head -3 || echo "    exiftool binary not found in package"
+          echo "    Checking for exiftool packages:"
+          dpkg -l | grep -i exiftool || echo "      No exiftool package found"
+          echo "    Checking libimage-exiftool-perl package:"
+          if dpkg -l | grep -q "^ii.*libimage-exiftool-perl"; then
+            echo "    Found package: libimage-exiftool-perl"
+            echo "    Listing binaries in package:"
+            dpkg -L libimage-exiftool-perl 2>/dev/null | grep -E "/bin/exiftool$" || echo "      exiftool binary not found in package"
+            echo "    Checking if exiftool exists in filesystem:"
+            find /usr -name "exiftool" 2>/dev/null | head -3 || echo "      exiftool not found in /usr"
+          else
+            echo "      libimage-exiftool-perl package not installed"
+          fi
           ;;
         mediainfo)
-          dpkg -l | grep -i mediainfo | head -3 || echo "    No mediainfo package found"
-          dpkg -L $(dpkg -l | grep -i "^ii.*mediainfo" | head -1 | awk '{print $2}') 2>/dev/null | grep -E "/bin/mediainfo$" | head -3 || echo "    mediainfo binary not found in package"
+          echo "    Checking for mediainfo packages:"
+          dpkg -l | grep -i "^ii.*mediainfo" || echo "      No mediainfo package found"
+          MEDIAINFO_PKG=$(dpkg -l | grep -i "^ii.*mediainfo" | head -1 | awk '{print $2}' || echo "")
+          if [ -n "$MEDIAINFO_PKG" ]; then
+            echo "    Found package: $MEDIAINFO_PKG"
+            echo "    Listing binaries in package:"
+            dpkg -L "$MEDIAINFO_PKG" 2>/dev/null | grep -E "/bin/mediainfo$" || echo "      mediainfo binary not found in package"
+            echo "    Checking if mediainfo exists in filesystem:"
+            find /usr -name "mediainfo" 2>/dev/null | head -3 || echo "      mediainfo not found in /usr"
+          fi
           ;;
         id3v2)
-          which id3v2 2>/dev/null || find /usr -name "id3v2" 2>/dev/null | head -3 || echo "    id3v2 not found"
+          echo "    Checking for id3v2:"
+          which id3v2 2>/dev/null || find /usr -name "id3v2" 2>/dev/null | head -3 || echo "      id3v2 not found"
           ;;
       esac
+      echo ""
     done
     echo ""
     echo "Installation may have failed. Check the output above for errors."
