@@ -64,15 +64,14 @@ repos:
       - id: debug-statements
       - id: trailing-whitespace
 
-  - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.10.0.1
-    hooks:
-      - id: shellcheck
-        args: ["--severity=error"]
-        files: \.(sh|bash)$
-
   - repo: local
     hooks:
+      - id: shellcheck
+        name: ShellCheck
+        entry: bash -c '.pre-commit-hooks/shellcheck-wrapper.sh "$@"' --
+        language: system
+        files: \.(sh|bash)$
+        pass_filenames: true
       - id: fix-shell-trailing-blank-lines
         name: Fix trailing blank lines in shell scripts
         entry: bash -c '.pre-commit-hooks/fix-shell-trailing-blank-lines.sh "$@"' --
