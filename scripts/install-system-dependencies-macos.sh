@@ -31,6 +31,8 @@ fi
 
 # Source common utilities
 source "${SCRIPT_DIR}/macos-common.sh"
+# Source shared lint dependency utilities
+source "${SCRIPT_DIR}/lint-dependencies-common.sh"
 
 HOMEBREW_PREFIX=$(get_homebrew_prefix)
 
@@ -387,20 +389,16 @@ if ! command -v pwsh &>/dev/null; then
 fi
 
 # Install shellcheck (required for shell script linting in pre-commit hooks)
-# Load lint dependency versions (shellcheck)
-LINT_VERSION_OUTPUT=$(python3 "${SCRIPT_DIR}/load-system-dependency-versions.py" bash lint 2>/dev/null || echo "")
-if [ -n "$LINT_VERSION_OUTPUT" ]; then
-  eval "$LINT_VERSION_OUTPUT"
-fi
+load_lint_dependency_versions "$SCRIPT_DIR"
 
 if [ -n "$PINNED_SHELLCHECK" ]; then
   echo "Installing shellcheck (pinned version: ${PINNED_SHELLCHECK})..."
 
   if command -v shellcheck &>/dev/null; then
-    INSTALLED_VERSION=$(shellcheck --version 2>&1 | grep -oE 'version: [0-9.]+' | sed 's/version: //' || echo "")
+    INSTALLED_VERSION=$(get_shellcheck_version)
     if [ -n "$INSTALLED_VERSION" ]; then
-      # Check if installed version matches pinned version (using prefix matching)
-      if [[ "$INSTALLED_VERSION" == "$PINNED_SHELLCHECK"* ]] || [[ "$PINNED_SHELLCHECK" == "$INSTALLED_VERSION"* ]]; then
+      # Check if installed version matches pinned version
+      if check_shellcheck_version_match "$INSTALLED_VERSION" "$PINNED_SHELLCHECK"; then
         echo "  shellcheck ${INSTALLED_VERSION} already installed (matches pinned version ${PINNED_SHELLCHECK})"
       else
         echo "  WARNING: shellcheck ${INSTALLED_VERSION} installed but pinned version is ${PINNED_SHELLCHECK}"
@@ -426,20 +424,7 @@ if [ -n "$PINNED_SHELLCHECK" ]; then
   fi
 
   # Verify shellcheck installation and version
-  if ! command -v shellcheck &>/dev/null; then
-    echo "WARNING: shellcheck installed but not found in PATH."
-    echo "You may need to restart your terminal or run: export PATH=\"/opt/homebrew/bin:\$PATH\""
-    echo "For Intel Macs: export PATH=\"/usr/local/bin:\$PATH\""
-  else
-    INSTALLED_VERSION=$(shellcheck --version 2>&1 | grep -oE 'version: [0-9.]+' | sed 's/version: //' || echo "")
-    if [ -n "$INSTALLED_VERSION" ]; then
-      echo "  shellcheck ${INSTALLED_VERSION} installed successfully"
-      if [[ "$INSTALLED_VERSION" != "$PINNED_SHELLCHECK"* ]] && [[ "$PINNED_SHELLCHECK" != "$INSTALLED_VERSION"* ]]; then
-        echo "  WARNING: Installed version ${INSTALLED_VERSION} does not match pinned version ${PINNED_SHELLCHECK}"
-        echo "  Consider updating system-dependencies-lint.toml with version ${INSTALLED_VERSION}"
-      fi
-    fi
-  fi
+  verify_shellcheck_installation "$PINNED_SHELLCHECK" "macos" || true
 else
   echo "WARNING: PINNED_SHELLCHECK not set, installing latest shellcheck..."
   if command -v shellcheck &>/dev/null; then

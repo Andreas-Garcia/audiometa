@@ -35,6 +35,9 @@ sudo apt-get update -v || {
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 eval "$(python3 "${SCRIPT_DIR}/load-system-dependency-versions.py" bash "$CATEGORY")"
 
+# Source shared lint dependency utilities
+source "${SCRIPT_DIR}/lint-dependencies-common.sh"
+
 echo "Installing pinned package versions..."
 
 # Function to resolve partial version to full version
@@ -424,16 +427,17 @@ if [[ "$CATEGORY" =~ ^(lint|all)$ ]]; then
   fi
 
   # Install shellcheck (required for shell script linting in pre-commit hooks)
+  load_lint_dependency_versions "$SCRIPT_DIR"
+
   if [ -n "$PINNED_SHELLCHECK" ]; then
     echo "Installing shellcheck=${PINNED_SHELLCHECK}..."
 
     # Check if shellcheck is already installed
     if command -v shellcheck &>/dev/null; then
-      INSTALLED_VERSION=$(shellcheck --version 2>&1 | grep -oP 'version: \K[0-9.]+' || echo "")
+      INSTALLED_VERSION=$(get_shellcheck_version)
       if [ -n "$INSTALLED_VERSION" ]; then
-        # Check if installed version matches pinned version (using version matching logic)
-        # For shellcheck, we'll do a simple prefix match (0.9.0 matches 0.9.0.x)
-        if [[ "$INSTALLED_VERSION" == "$PINNED_SHELLCHECK"* ]] || [[ "$PINNED_SHELLCHECK" == "$INSTALLED_VERSION"* ]]; then
+        # Check if installed version matches pinned version
+        if check_shellcheck_version_match "$INSTALLED_VERSION" "$PINNED_SHELLCHECK"; then
           echo "  shellcheck ${INSTALLED_VERSION} already installed (matches pinned version ${PINNED_SHELLCHECK})"
         else
           echo "  Removing existing shellcheck version ${INSTALLED_VERSION} (installing pinned version ${PINNED_SHELLCHECK})..."
@@ -462,15 +466,7 @@ if [[ "$CATEGORY" =~ ^(lint|all)$ ]]; then
     fi
 
     # Verify shellcheck installation
-    if ! command -v shellcheck &>/dev/null; then
-      echo "WARNING: shellcheck installed but not found in PATH."
-      echo "You may need to restart your terminal or check installation."
-    else
-      INSTALLED_VERSION=$(shellcheck --version 2>&1 | grep -oP 'version: \K[0-9.]+' || echo "")
-      if [ -n "$INSTALLED_VERSION" ]; then
-        echo "  shellcheck ${INSTALLED_VERSION} installed successfully"
-      fi
-    fi
+    verify_shellcheck_installation "$PINNED_SHELLCHECK" "ubuntu" || true
   else
     echo "WARNING: PINNED_SHELLCHECK not set, skipping shellcheck installation"
   fi

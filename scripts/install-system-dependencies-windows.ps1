@@ -5,7 +5,7 @@
 $ErrorActionPreference = "Stop"
 
 # Load pinned versions from system-dependencies-*.toml files
-# Using "all" category to get prod + test dependencies (lint dependencies are handled separately)
+# Using "all" category to get prod + test + lint dependencies
 $SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
 $versionOutput = python3 "$SCRIPT_DIR\load-system-dependency-versions.py" powershell all 2>&1
 if ($LASTEXITCODE -ne 0) {
@@ -55,6 +55,7 @@ if ([string]::IsNullOrEmpty($PINNED_FFMPEG) -or
     Write-Output "  PINNED_ID3V2=$PINNED_ID3V2"
     Write-Output "  PINNED_BWFMETAEDIT=$PINNED_BWFMETAEDIT"
     Write-Output "  PINNED_EXIFTOOL=$PINNED_EXIFTOOL"
+    Write-Output "  PINNED_SHELLCHECK=$PINNED_SHELLCHECK"
     Write-Output ""
     Write-Output "Python script output:"
     Write-Output $versionOutput
@@ -63,6 +64,10 @@ if ([string]::IsNullOrEmpty($PINNED_FFMPEG) -or
 # id3v2 is optional on Windows (requires WSL), but should still be loaded from TOML
 if ([string]::IsNullOrEmpty($PINNED_ID3V2)) {
     Write-Warning "WARNING: PINNED_ID3V2 not loaded (optional on Windows, requires WSL)"
+}
+# shellcheck is a lint dependency, should be loaded from "all" category
+if ([string]::IsNullOrEmpty($PINNED_SHELLCHECK)) {
+    Write-Warning "WARNING: PINNED_SHELLCHECK not loaded from 'all' category, will try loading lint category separately"
 }
 
 Write-Output "Installing pinned package versions..."
@@ -760,26 +765,29 @@ else {
 
     # Install lint dependencies (shellcheck)
     # PowerShell is pre-installed on Windows CI runners, no installation needed
-    Write-Output ""
-    Write-Output "Installing lint dependencies..."
-
-    # Load lint dependency versions (shellcheck)
-    $lintVersionOutput = python3 "$SCRIPT_DIR\load-system-dependency-versions.py" powershell lint 2>&1
-    if ($LASTEXITCODE -eq 0 -and $lintVersionOutput) {
-        # Parse lint dependency versions
-        $lintVersionLines = $lintVersionOutput -split "`n" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
-        foreach ($line in $lintVersionLines) {
-            $trimmedLine = $line.Trim()
-            if (-not [string]::IsNullOrWhiteSpace($trimmedLine) -and -not $trimmedLine.StartsWith('#')) {
-                if ($trimmedLine -match '\$([A-Z_]+)\s*=\s*"([^"]+)"') {
-                    $varName = $matches[1]
-                    $varValue = $matches[2]
-                    Set-Variable -Name $varName -Value $varValue -Scope Script
+    # Note: PINNED_SHELLCHECK should already be loaded from "all" category above
+    # If not set, try loading lint category separately as fallback
+    if ([string]::IsNullOrEmpty($PINNED_SHELLCHECK)) {
+        Write-Output "PINNED_SHELLCHECK not found in 'all' category, loading lint category separately..."
+        $lintVersionOutput = python3 "$SCRIPT_DIR\load-system-dependency-versions.py" powershell lint 2>&1
+        if ($LASTEXITCODE -eq 0 -and $lintVersionOutput) {
+            # Parse lint dependency versions
+            $lintVersionLines = $lintVersionOutput -split "`n" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+            foreach ($line in $lintVersionLines) {
+                $trimmedLine = $line.Trim()
+                if (-not [string]::IsNullOrWhiteSpace($trimmedLine) -and -not $trimmedLine.StartsWith('#')) {
+                    if ($trimmedLine -match '\$([A-Z_]+)\s*=\s*"([^"]+)"') {
+                        $varName = $matches[1]
+                        $varValue = $matches[2]
+                        Set-Variable -Name $varName -Value $varValue -Scope Script
+                    }
                 }
             }
         }
     }
 
+    Write-Output ""
+    Write-Output "Installing lint dependencies..."
     if ($PINNED_SHELLCHECK) {
         Write-Output "Installing shellcheck (pinned version: $PINNED_SHELLCHECK)..."
         $shellcheckCheck = Get-Command shellcheck -ErrorAction SilentlyContinue
