@@ -62,19 +62,6 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - **Documentation**: Added comprehensive `MUSICBRAINZ_TRACKID.md` guide with examples, format support matrix, and implementation details
   - **Error Handling**: Proper error handling for unsupported formats (ID3v1) with appropriate exceptions
 
-### Fixed
-
-- **ID3v2 TXXX Frame UUID Normalization**: Fixed TXXX frame reading to normalize 32-character hex UUIDs to hyphenated format:
-
-  - Ensures consistent UUID format regardless of source frame type (UFID or TXXX)
-  - Matches normalization behavior already implemented for UFID frames
-  - Fixes test failure where TXXX frames with 32-char hex weren't normalized
-
-- **Vorbis MusicBrainz Track ID Writing**: Fixed Vorbis manager to properly write MusicBrainz Track ID to FLAC files:
-  - Added `MUSICBRAINZ_TRACKID` to `key_mapping` in `_write_metadata_with_metaflac()` method
-  - Fixes issue where MusicBrainz Track ID wasn't being written to FLAC files via metaflac
-  - # Ensures `MUSICBRAINZ_TRACKID` is properly included in metaflac write operations
-
 ### CI
 
 - **macOS CI ffmpeg Installation**: Fixed hanging issue during ffmpeg installation in macOS CI:
@@ -89,7 +76,6 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Added automatic PATH detection and diagnostics for tools installed via apt-get
   - Improved error messages with tool location diagnostics when tools are not found
   - Prevents false negatives where tools are installed but not found in PATH during verification
-    > > > > > > > baf3cadceda79e9ae5615b3a5604029459ad6c99
 
 ## [0.10.0] - 2025-12-09
 
