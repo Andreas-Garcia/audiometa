@@ -118,6 +118,29 @@ class ID3v2MetadataSetter:
                 cmd.extend(["--TDRC", release_date])
             metadata_added = True
 
+        # Handle musicbrainz_trackid (UFID frame) - needs special handling
+        musicbrainz_trackid = None
+        for key, value in metadata.items():
+            if key.lower() == "musicbrainz_trackid" and not isinstance(value, list) and value:
+                musicbrainz_trackid = str(value).strip()
+                break
+
+        if musicbrainz_trackid:
+            # Normalize UUID: convert 32-char hex to 36-char hyphenated format if needed
+            if len(musicbrainz_trackid) == 32 and all(c in "0123456789abcdefABCDEF" for c in musicbrainz_trackid):
+                musicbrainz_trackid = (
+                    f"{musicbrainz_trackid[:8]}-{musicbrainz_trackid[8:12]}-"
+                    f"{musicbrainz_trackid[12:16]}-{musicbrainz_trackid[16:20]}-{musicbrainz_trackid[20:32]}"
+                )
+            # Use manual frame creator for UFID frames to maintain test isolation
+            # (mid3v2 doesn't handle URLs with colons in UFID owner field correctly)
+            from .id3v2_frame_manual_creator import ManualID3v2FrameCreator
+
+            track_id_bytes = musicbrainz_trackid.encode("utf-8")
+            ManualID3v2FrameCreator.create_ufid_frame(
+                file_path, "http://musicbrainz.org", track_id_bytes, version=version
+            )
+
         # Handle non-list values (excluding already handled fields and list fields)
         # Only exclude list fields if they're actually lists (single strings should be processed)
         list_field_keys = set()
@@ -129,7 +152,7 @@ class ID3v2MetadataSetter:
             if (
                 key.lower() in key_mapping
                 and not isinstance(value, list)
-                and key.lower() not in ["disc_number", "disc_total", "release_date", "year"]
+                and key.lower() not in ["disc_number", "disc_total", "release_date", "year", "musicbrainz_trackid"]
                 and key.lower() not in list_field_keys  # Only exclude if it's actually a list
             ):
                 # Special handling for rating (POPM frame requires app name prefix)
@@ -506,3 +529,52 @@ class ID3v2MetadataSetter:
         creator = ManualID3v2FrameCreator()
         frame_data = creator._create_text_frame("TPE1", text, "2.4", encoding=encoding)
         creator._write_id3v2_tag(file_path, [frame_data], "2.4")
+
+    @staticmethod
+    def set_musicbrainz_trackid_ufid(file_path: Path, track_id: str) -> None:
+        """Set MusicBrainz Track ID using UFID frame (preferred format).
+
+        Uses manual binary construction to maintain test isolation (avoids using mutagen
+        which is also used in the implementation).
+
+        Args:
+            file_path: Path to the MP3 file
+            track_id: MusicBrainz Track ID (UUID string, hyphenated or 32-char hex)
+        """
+        from .id3v2_frame_manual_creator import ManualID3v2FrameCreator
+
+        track_id_bytes = track_id.encode("utf-8")
+        ManualID3v2FrameCreator.create_ufid_frame(file_path, "http://musicbrainz.org", track_id_bytes, version="2.4")
+
+    @staticmethod
+    def set_musicbrainz_trackid_txxx(file_path: Path, track_id: str) -> None:
+        """Set MusicBrainz Track ID using TXXX frame (fallback format).
+
+        Args:
+            file_path: Path to the MP3 file
+            track_id: MusicBrainz Track ID (UUID string, hyphenated or 32-char hex)
+        """
+        command = [
+            get_tool_path("mid3v2"),
+            "--TXXX",
+            f"MusicBrainz Track Id:{track_id}",
+            str(file_path),
+        ]
+        run_external_tool(command, "mid3v2")
+
+    @staticmethod
+    def set_ufid_with_owner(file_path: Path, owner: str, data: str) -> None:
+        """Set UFID frame with a specific owner (for testing purposes).
+
+        Uses manual binary construction to maintain test isolation (avoids using mutagen
+        which is also used in the implementation).
+
+        Args:
+            file_path: Path to the MP3 file
+            owner: UFID owner identifier (e.g., "http://musicbrainz.org", "http://example.com")
+            data: UFID data (typically a UUID or identifier string)
+        """
+        from .id3v2_frame_manual_creator import ManualID3v2FrameCreator
+
+        data_bytes = data.encode("utf-8")
+        ManualID3v2FrameCreator.create_ufid_frame(file_path, owner, data_bytes, version="2.4")

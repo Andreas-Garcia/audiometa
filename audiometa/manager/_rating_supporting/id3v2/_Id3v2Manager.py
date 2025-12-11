@@ -31,6 +31,7 @@ from mutagen.id3._frames import (
     TSRC,
     TXXX,
     TYER,
+    UFID,
     USLT,
     WOAR,
 )
@@ -284,6 +285,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.COMMENT: self.Id3TextFrame.COMMENT,
             UnifiedMetadataKey.REPLAYGAIN: None,
             UnifiedMetadataKey.ISRC: self.Id3TextFrame.ISRC,
+            UnifiedMetadataKey.MUSICBRAINZ_TRACKID: None,
         }
         metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] = {
             UnifiedMetadataKey.TITLE: self.Id3TextFrame.TITLE,
@@ -305,6 +307,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.COMMENT: self.Id3TextFrame.COMMENT,
             UnifiedMetadataKey.REPLAYGAIN: None,
             UnifiedMetadataKey.ISRC: self.Id3TextFrame.ISRC,
+            UnifiedMetadataKey.MUSICBRAINZ_TRACKID: None,
         }
 
         super().__init__(
@@ -396,6 +399,56 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                     result[self.Id3TextFrame.REPLAYGAIN] = txxx_frame.text
                     break
 
+        # Handle UFID frames for MusicBrainz Track ID (preferred)
+        musicbrainz_trackid = None
+        for raw_mutagen_frame in raw_mutagen_metadata.items():
+            if raw_mutagen_frame[0].startswith("UFID"):
+                ufid_frame = raw_mutagen_frame[1]
+                if (
+                    hasattr(ufid_frame, "owner")
+                    and ufid_frame.owner == "http://musicbrainz.org"
+                    and hasattr(ufid_frame, "data")
+                ):
+                    # UFID data is bytes, decode to string
+                    try:
+                        musicbrainz_trackid = ufid_frame.data.decode("utf-8", errors="replace").strip("\x00")
+                        # Normalize to hyphenated UUID format if it's 32 hex chars
+                        uuid_hex_length = 32
+                        if len(musicbrainz_trackid) == uuid_hex_length and all(
+                            c in "0123456789abcdefABCDEF" for c in musicbrainz_trackid
+                        ):
+                            musicbrainz_trackid = (
+                                f"{musicbrainz_trackid[:8]}-{musicbrainz_trackid[8:12]}-"
+                                f"{musicbrainz_trackid[12:16]}-{musicbrainz_trackid[16:20]}-{musicbrainz_trackid[20:32]}"
+                            )
+                        break
+                    except (UnicodeDecodeError, AttributeError):
+                        pass
+
+        # Handle TXXX frames for MusicBrainz Track ID (fallback)
+        if not musicbrainz_trackid:
+            for raw_mutagen_frame in raw_mutagen_metadata.items():
+                if raw_mutagen_frame[0].startswith("TXXX"):
+                    txxx_frame = raw_mutagen_frame[1]
+                    if hasattr(txxx_frame, "desc") and txxx_frame.desc == "MusicBrainz Track Id" and txxx_frame.text:
+                        musicbrainz_trackid = (
+                            txxx_frame.text[0] if isinstance(txxx_frame.text, list) else str(txxx_frame.text)
+                        )
+                        # Normalize to hyphenated UUID format if it's 32 hex chars
+                        uuid_hex_length = 32
+                        if len(musicbrainz_trackid) == uuid_hex_length and all(
+                            c in "0123456789abcdefABCDEF" for c in musicbrainz_trackid
+                        ):
+                            musicbrainz_trackid = (
+                                f"{musicbrainz_trackid[:8]}-{musicbrainz_trackid[8:12]}-"
+                                f"{musicbrainz_trackid[12:16]}-{musicbrainz_trackid[16:20]}-{musicbrainz_trackid[20:32]}"
+                            )
+                        break
+
+        if musicbrainz_trackid:
+            # Use a special key for MusicBrainz Track ID (not a text frame, so use string key)
+            result[cast(RawMetadataKey, "MUSICBRAINZ_TRACKID")] = [musicbrainz_trackid]
+
         # Special handling for release date: if TDRC is not present, try to construct from TYER + TDAT
         # Only do this for ID3v2 files (not ID3v1) and only when both TYER and TDAT are present
         if self.Id3TextFrame.RECORDING_TIME not in result:
@@ -443,6 +496,23 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             if app_metadata_value is not None:
                 # Add new TXXX frame with desc 'REPLAYGAIN'
                 raw_mutagen_metadata.add(TXXX(encoding=3, desc="REPLAYGAIN", text=str(app_metadata_value)))
+        elif unified_metadata_key == UnifiedMetadataKey.MUSICBRAINZ_TRACKID:
+            # Remove existing UFID frames with MusicBrainz owner
+            raw_mutagen_metadata.delall("UFID:http://musicbrainz.org")
+            # Remove existing TXXX frames with MusicBrainz Track Id description
+            raw_mutagen_metadata.delall("TXXX:MusicBrainz Track Id")
+
+            if app_metadata_value is not None and app_metadata_value != "":
+                # Normalize UUID: convert 32-char hex to 36-char hyphenated format if needed
+                track_id = str(app_metadata_value).strip()
+                uuid_hex_length = 32
+                if len(track_id) == uuid_hex_length and all(c in "0123456789abcdefABCDEF" for c in track_id):
+                    track_id = f"{track_id[:8]}-{track_id[8:12]}-{track_id[12:16]}-{track_id[16:20]}-{track_id[20:32]}"
+
+                # Write as UFID frame with owner "http://musicbrainz.org"
+                # UFID data should be the UUID as bytes (without null terminator)
+                track_id_bytes = track_id.encode("utf-8")
+                raw_mutagen_metadata.add(UFID(owner="http://musicbrainz.org", data=track_id_bytes))
         elif unified_metadata_key in (UnifiedMetadataKey.DISC_NUMBER, UnifiedMetadataKey.DISC_TOTAL):
             tpos_key = self.Id3TextFrame.DISC_NUMBER
             tpos_frame_class = TPOS
@@ -511,6 +581,17 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             if len(replaygain_value) == 0:
                 return None
             first_value = replaygain_value[0]
+            return cast(UnifiedMetadataValue, first_value)
+        if unified_metadata_key == UnifiedMetadataKey.MUSICBRAINZ_TRACKID:
+            musicbrainz_trackid_key = cast(RawMetadataKey, "MUSICBRAINZ_TRACKID")
+            if musicbrainz_trackid_key not in raw_clean_metadata:
+                return None
+            trackid_value = raw_clean_metadata[musicbrainz_trackid_key]
+            if trackid_value is None:
+                return None
+            if len(trackid_value) == 0:
+                return None
+            first_value = trackid_value[0]
             return cast(UnifiedMetadataValue, first_value)
         if unified_metadata_key == UnifiedMetadataKey.DISC_NUMBER:
             tpos_key = self.Id3TextFrame.DISC_NUMBER

@@ -94,6 +94,7 @@ def format_as_table(data: dict[str, Any]) -> str:
             "replaygain",
             "archival_location",
             "isrc",
+            "musicbrainz_trackid",
             "description",
             "originator",
         }
@@ -198,6 +199,8 @@ def _write_metadata(args: argparse.Namespace) -> None:
         metadata[UnifiedMetadataKey.ARCHIVAL_LOCATION] = args.archival_location
     if args.isrc and args.isrc.strip():
         metadata[UnifiedMetadataKey.ISRC] = args.isrc
+    if args.musicbrainz_track_id and args.musicbrainz_track_id.strip():
+        metadata[UnifiedMetadataKey.MUSICBRAINZ_TRACKID] = args.musicbrainz_track_id
 
     # List fields (can be specified multiple times)
     if args.artist:
@@ -440,6 +443,11 @@ Examples:
     write_parser.add_argument("--replaygain", help="ReplayGain information")
     write_parser.add_argument("--archival-location", help="Archival location")
     write_parser.add_argument("--isrc", help="International Standard Recording Code (12 characters)")
+    write_parser.add_argument(
+        "--musicbrainz-track-id",
+        dest="musicbrainz_track_id",
+        help="MusicBrainz Track ID (Recording ID) - UUID format (e.g., '9d6f6f7c-9d52-4c76-8f9e-01d18d8f8ec6')",
+    )
     write_parser.add_argument(
         "--force-format",
         choices=["id3v2", "id3v1", "vorbis", "riff"],

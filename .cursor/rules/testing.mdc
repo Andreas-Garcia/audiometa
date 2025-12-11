@@ -331,6 +331,40 @@ def test_metadata_writing(self):
         ], check=True)
 ```
 
+### ❌ WRONG - Don't use external tool commands directly in tests:
+
+```python
+def test_id3v2_txxx_reading(self):
+    with temp_file_with_metadata({}, "mp3") as test_file:
+        # ❌ NEVER use external tool commands directly in tests
+        from audiometa.utils.tool_path_resolver import get_tool_path
+        from audiometa.test.helpers.common.external_tool_runner import run_external_tool
+
+        command = [
+            get_tool_path("mid3v2"),
+            "--TXXX",
+            f"MusicBrainz Track Id:{track_id}",
+            str(test_file),
+        ]
+        run_external_tool(command, "mid3v2")
+```
+
+### ✅ CORRECT - Use helper classes for external tool commands:
+
+```python
+def test_id3v2_txxx_reading(self):
+    from audiometa.test.helpers.id3v2 import ID3v2MetadataSetter
+
+    with temp_file_with_metadata({}, "mp3") as test_file:
+        # ✅ Use helper class method - external tool commands belong in helpers
+        ID3v2MetadataSetter.set_musicbrainz_trackid_txxx(test_file, track_id)
+
+        result = get_unified_metadata_field(test_file, UnifiedMetadataKey.MUSICBRAINZ_TRACKID)
+        assert result == track_id
+```
+
+**Rule**: All external tool commands (subprocess calls, tool invocations) must be encapsulated in helper classes in `audiometa.test.helpers`, not in test files. Test files should only call helper class methods.
+
 ### ❌ WRONG - Poor test isolation (using library API for setup):
 
 ```python

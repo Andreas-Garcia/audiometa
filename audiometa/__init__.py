@@ -468,6 +468,16 @@ def _validate_metadata_field_formats(unified_metadata: UnifiedMetadata) -> None:
         if isrc_value is not None and isinstance(isrc_value, str) and isrc_value:
             _MetadataManager.validate_isrc(isrc_value)
 
+    # Validate MusicBrainz Track ID format if present and non-empty
+    if UnifiedMetadataKey.MUSICBRAINZ_TRACKID in unified_metadata:
+        musicbrainz_trackid_value = unified_metadata[UnifiedMetadataKey.MUSICBRAINZ_TRACKID]
+        if (
+            musicbrainz_trackid_value is not None
+            and isinstance(musicbrainz_trackid_value, str)
+            and musicbrainz_trackid_value
+        ):
+            _MetadataManager.validate_musicbrainz_trackid(musicbrainz_trackid_value)
+
 
 def validate_metadata_for_update(
     unified_metadata: dict[UnifiedMetadataKey, Any] | UnifiedMetadata,
