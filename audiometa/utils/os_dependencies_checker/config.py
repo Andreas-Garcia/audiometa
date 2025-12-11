@@ -18,7 +18,8 @@ def _load_config_file(project_root: Path, filename: str) -> dict | None:
 
 
 def load_dependencies_pinned_versions() -> dict[str, dict[str, str]] | None:
-    """Load pinned versions from system-dependencies-prod.toml and system-dependencies-test-only.toml.
+    """Load pinned versions from system-dependencies-prod.toml, system-dependencies-test-only.toml,
+    and system-dependencies-lint.toml.
 
     Returns:
         Dictionary mapping tool names to OS-specific versions, or None if config not found
@@ -27,11 +28,12 @@ def load_dependencies_pinned_versions() -> dict[str, dict[str, str]] | None:
     # This file is in audiometa/utils/os_dependencies_checker/, so go up to project root
     project_root = Path(__file__).parent.parent.parent.parent
 
-    # Load prod and test configs
+    # Load prod, test, and lint configs
     prod_config = _load_config_file(project_root, "system-dependencies-prod.toml")
     test_config = _load_config_file(project_root, "system-dependencies-test-only.toml")
+    lint_config = _load_config_file(project_root, "system-dependencies-lint.toml")
 
-    if not prod_config and not test_config:
+    if not prod_config and not test_config and not lint_config:
         return None
 
     try:
@@ -46,6 +48,15 @@ def load_dependencies_pinned_versions() -> dict[str, dict[str, str]] | None:
                     if os_type not in config:
                         config[os_type] = {}
                     config[os_type].update(test_config[os_type])
+        if lint_config:
+            # Merge OS sections for lint dependencies (only shellcheck, not PowerShell which uses "latest")
+            for os_type in ["ubuntu", "macos", "windows"]:
+                if os_type in lint_config:
+                    if os_type not in config:
+                        config[os_type] = {}
+                    # Only include shellcheck (skip PowerShell which uses "latest")
+                    if "shellcheck" in lint_config[os_type]:
+                        config[os_type]["shellcheck"] = lint_config[os_type]["shellcheck"]
 
         pinned_versions: dict[str, dict[str, str]] = {}
 
@@ -55,7 +66,7 @@ def load_dependencies_pinned_versions() -> dict[str, dict[str, str]] | None:
                 continue
 
             os_config = config[os_type]
-            for tool in ["ffmpeg", "flac", "mediainfo", "id3v2", "bwfmetaedit", "exiftool"]:
+            for tool in ["ffmpeg", "flac", "mediainfo", "id3v2", "bwfmetaedit", "exiftool", "shellcheck"]:
                 if tool not in os_config:
                     continue
 
@@ -66,6 +77,10 @@ def load_dependencies_pinned_versions() -> dict[str, dict[str, str]] | None:
                 elif isinstance(version_value, dict) and "pinned_version" in version_value:
                     version = version_value["pinned_version"]
                 else:
+                    continue
+
+                # Skip "latest" versions (e.g., PowerShell)
+                if version == "latest":
                     continue
 
                 if tool not in pinned_versions:

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Verify installed system dependency versions match pinned versions.
 
-This script verifies PROD and TEST-ONLY dependencies (ffmpeg, flac, mediainfo, id3v2,
-bwfmetaedit, exiftool) match pinned versions in system-dependencies-prod.toml and
-system-dependencies-test-only.toml.
+This script verifies PROD, TEST-ONLY, and LINT dependencies (ffmpeg, flac, mediainfo, id3v2,
+bwfmetaedit, exiftool, shellcheck) match pinned versions in system-dependencies-prod.toml,
+system-dependencies-test-only.toml, and system-dependencies-lint.toml.
 
-LINT dependencies (PowerShell) are not verified by this script since they use "latest"
-version and don't affect library functionality.
+LINT dependencies using "latest" (PowerShell) are not verified by this script since they
+don't have pinned versions and don't affect library functionality.
 
 This script can be called from:
 - Installation scripts (bash/PowerShell) - to verify after installation
@@ -151,13 +151,13 @@ get_dependencies_checker = init_module.get_dependencies_checker
 
 
 def verify_dependency_versions() -> int:
-    """Verify PROD and TEST-ONLY system dependency versions match pinned versions.
+    """Verify PROD, TEST-ONLY, and LINT system dependency versions match pinned versions.
 
-    Verifies dependencies from system-dependencies-prod.toml and system-dependencies-test-only.toml:
+    Verifies dependencies from system-dependencies-prod.toml, system-dependencies-test-only.toml,
+    and system-dependencies-lint.toml:
     - PROD: ffmpeg, flac, id3v2
     - TEST-ONLY: mediainfo, exiftool, bwfmetaedit
-
-    LINT dependencies (PowerShell) are not verified since they use "latest" version.
+    - LINT: shellcheck (PowerShell uses "latest" and is not verified)
 
     Automatically skips verification in lint-only environments where test/prod dependencies
     aren't installed.
@@ -213,10 +213,13 @@ def verify_dependency_versions() -> int:
     pinned_versions = load_dependencies_pinned_versions()
 
     if not pinned_versions:
-        sys.stderr.write("ERROR: Failed to load system-dependencies-prod.toml or system-dependencies-test-only.toml\n")
+        sys.stderr.write(
+            "ERROR: Failed to load system-dependencies-prod.toml, "
+            "system-dependencies-test-only.toml, or system-dependencies-lint.toml\n"
+        )
         sys.stderr.write("Files not found or cannot be parsed.\n")
-        sys.stderr.write("\nNote: This script verifies PROD and TEST-ONLY dependencies only.\n")
-        sys.stderr.write("LINT dependencies (PowerShell) are not verified.\n")
+        sys.stderr.write("\nNote: This script verifies PROD, TEST-ONLY, and LINT dependencies (shellcheck).\n")
+        sys.stderr.write("LINT dependencies using 'latest' (PowerShell) are not verified.\n")
         return 1
 
     checker = get_dependencies_checker()
@@ -236,6 +239,20 @@ def verify_dependency_versions() -> int:
         # Skip optional tools on Windows
         if os_type == "windows" and tool in ["id3v2", "mediainfo", "exiftool"]:
             continue
+
+        # Skip shellcheck verification in local development if not installed (lint dependency is optional locally)
+        # In CI, shellcheck should be installed and verified
+        if tool == "shellcheck":
+            is_ci = os.environ.get("CI") == "true" or os.environ.get("GITHUB_ACTIONS") == "true"
+            tool_command = "shellcheck"
+            if not checker.check_tool_available(tool_command):
+                if not is_ci:
+                    # In local development, shellcheck is optional - skip verification if not installed
+                    continue
+                # In CI, shellcheck should be installed - report error
+                errors.append(f"{tool}: NOT INSTALLED")
+                has_errors = True
+                continue
 
         # Get installed version using OS-specific checker
         package = "media-info" if tool == "mediainfo" and os_type == "macos" else tool
@@ -276,8 +293,8 @@ def verify_dependency_versions() -> int:
             "  3. Re-run the installation script\n"
         )
         sys.stderr.write("\nThis ensures tests use the same tool versions as CI.\n")
-        sys.stderr.write("\nNote: This script verifies PROD and TEST-ONLY dependencies only.\n")
-        sys.stderr.write("LINT dependencies (PowerShell) are not verified.\n")
+        sys.stderr.write("\nNote: This script verifies PROD, TEST-ONLY, and LINT dependencies (shellcheck).\n")
+        sys.stderr.write("LINT dependencies using 'latest' (PowerShell) are not verified.\n")
         sys.stderr.write("\n" + "=" * 80 + "\n")
         return 1
 

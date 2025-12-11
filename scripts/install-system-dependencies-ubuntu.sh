@@ -380,9 +380,10 @@ if [[ "$CATEGORY" =~ ^(test-only|all)$ ]]; then
 fi
 fi
 
-# Install PowerShell Core (required for PowerShell script linting in pre-commit hooks)
+# Install lint dependencies (PowerShell and shellcheck)
 # Install for lint category or all category
 if [[ "$CATEGORY" =~ ^(lint|all)$ ]]; then
+  # Install PowerShell Core (required for PowerShell script linting in pre-commit hooks)
   echo "Installing PowerShell Core..."
   if command -v pwsh &>/dev/null; then
     echo "  PowerShell Core already installed"
@@ -420,6 +421,58 @@ if [[ "$CATEGORY" =~ ^(lint|all)$ ]]; then
   if ! command -v pwsh &>/dev/null; then
     echo "WARNING: PowerShell Core installed but not found in PATH."
     echo "You may need to restart your terminal or check installation."
+  fi
+
+  # Install shellcheck (required for shell script linting in pre-commit hooks)
+  if [ -n "$PINNED_SHELLCHECK" ]; then
+    echo "Installing shellcheck=${PINNED_SHELLCHECK}..."
+
+    # Check if shellcheck is already installed
+    if command -v shellcheck &>/dev/null; then
+      INSTALLED_VERSION=$(shellcheck --version 2>&1 | grep -oP 'version: \K[0-9.]+' || echo "")
+      if [ -n "$INSTALLED_VERSION" ]; then
+        # Check if installed version matches pinned version (using version matching logic)
+        # For shellcheck, we'll do a simple prefix match (0.9.0 matches 0.9.0.x)
+        if [[ "$INSTALLED_VERSION" == "$PINNED_SHELLCHECK"* ]] || [[ "$PINNED_SHELLCHECK" == "$INSTALLED_VERSION"* ]]; then
+          echo "  shellcheck ${INSTALLED_VERSION} already installed (matches pinned version ${PINNED_SHELLCHECK})"
+        else
+          echo "  Removing existing shellcheck version ${INSTALLED_VERSION} (installing pinned version ${PINNED_SHELLCHECK})..."
+          sudo apt-get remove -y shellcheck 2>/dev/null || true
+          sudo apt-get install -y "shellcheck=${PINNED_SHELLCHECK}" || {
+            echo "ERROR: Failed to install shellcheck=${PINNED_SHELLCHECK}."
+            echo "Install manually: sudo apt-get install shellcheck=${PINNED_SHELLCHECK}"
+            exit 1
+          }
+        fi
+      else
+        echo "  shellcheck installed but version could not be determined, reinstalling..."
+        sudo apt-get install -y "shellcheck=${PINNED_SHELLCHECK}" || {
+          echo "ERROR: Failed to install shellcheck=${PINNED_SHELLCHECK}."
+          echo "Install manually: sudo apt-get install shellcheck=${PINNED_SHELLCHECK}"
+          exit 1
+        }
+      fi
+    else
+      echo "  Installing shellcheck=${PINNED_SHELLCHECK} via apt..."
+      sudo apt-get install -y "shellcheck=${PINNED_SHELLCHECK}" || {
+        echo "ERROR: Failed to install shellcheck=${PINNED_SHELLCHECK}."
+        echo "Install manually: sudo apt-get install shellcheck=${PINNED_SHELLCHECK}"
+        exit 1
+      }
+    fi
+
+    # Verify shellcheck installation
+    if ! command -v shellcheck &>/dev/null; then
+      echo "WARNING: shellcheck installed but not found in PATH."
+      echo "You may need to restart your terminal or check installation."
+    else
+      INSTALLED_VERSION=$(shellcheck --version 2>&1 | grep -oP 'version: \K[0-9.]+' || echo "")
+      if [ -n "$INSTALLED_VERSION" ]; then
+        echo "  shellcheck ${INSTALLED_VERSION} installed successfully"
+      fi
+    fi
+  else
+    echo "WARNING: PINNED_SHELLCHECK not set, skipping shellcheck installation"
   fi
 fi
 
