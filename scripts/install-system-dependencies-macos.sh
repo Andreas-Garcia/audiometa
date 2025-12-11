@@ -225,11 +225,31 @@ install_ffmpeg() {
   # Install ffmpeg with version pinning if needed
   if [ "$NEED_INSTALL" -eq 1 ]; then
     echo "  Installing ffmpeg@${pinned_version}..."
-    brew install ffmpeg@${pinned_version} || {
-      echo "ERROR: Pinned ffmpeg version ${pinned_version} not available."
-      echo "Check available versions with: brew search ffmpeg"
+    echo "  Note: This may take 5-10 minutes. Using --force-bottle to prefer pre-built packages..."
+    echo "  You should see '✔︎ Bottle' messages indicating progress. If no output for 10+ minutes, check: ps aux | grep brew"
+    # Use --force-bottle to prefer pre-built bottles over building from source
+    # This significantly speeds up installation and avoids hanging during build
+    # Use --verbose to show progress during installation (shows bottle downloads/verification)
+    # Force unbuffered output by using stdbuf if available, otherwise rely on brew's --verbose
+    INSTALL_FAILED=0
+    if command -v stdbuf >/dev/null 2>&1; then
+      stdbuf -oL -eL brew install --verbose --force-bottle ffmpeg@${pinned_version} || INSTALL_FAILED=1
+    else
+      brew install --verbose --force-bottle ffmpeg@${pinned_version} || INSTALL_FAILED=1
+    fi
+
+    if [ $INSTALL_FAILED -eq 1 ]; then
+      echo "ERROR: Failed to install ffmpeg@${pinned_version}."
+      echo "This may indicate:"
+      echo "  - Network connectivity issues"
+      echo "  - Homebrew service problems"
+      echo "  - Bottle not available for this macOS version (may try building from source)"
+      echo "  - Installation was interrupted"
+      echo ""
+      echo "To check if brew is still running: ps aux | grep brew"
+      echo "To check available versions: brew search ffmpeg"
       exit 1
-    }
+    fi
     # ffmpeg@7 is keg-only, so we need to add it to PATH
     FFMPEG_BIN_PATH="${HOMEBREW_PREFIX}/opt/ffmpeg@${pinned_version}/bin"
     if [ -d "$FFMPEG_BIN_PATH" ]; then

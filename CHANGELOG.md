@@ -73,7 +73,23 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 - **Vorbis MusicBrainz Track ID Writing**: Fixed Vorbis manager to properly write MusicBrainz Track ID to FLAC files:
   - Added `MUSICBRAINZ_TRACKID` to `key_mapping` in `_write_metadata_with_metaflac()` method
   - Fixes issue where MusicBrainz Track ID wasn't being written to FLAC files via metaflac
-  - Ensures `MUSICBRAINZ_TRACKID` is properly included in metaflac write operations
+  - # Ensures `MUSICBRAINZ_TRACKID` is properly included in metaflac write operations
+
+### CI
+
+- **macOS CI ffmpeg Installation**: Fixed hanging issue during ffmpeg installation in macOS CI:
+  - Added `--verbose` flag to show progress during installation
+  - Added `--force-bottle` flag to prefer pre-built bottles over building from source
+  - Prevents CI hangs that occur when Homebrew attempts to build ffmpeg from source (can take 10-30+ minutes during bottling)
+  - Significantly speeds up installation and improves CI reliability
+- **Ubuntu CI Installation Improvements**: Fixed PATH handling and added verbose output for Ubuntu CI:
+  - Added `-v` flag to apt-get commands to show progress during package downloads
+  - Ensured standard binary paths (/usr/bin, /usr/local/bin, /bin) are in PATH
+  - Added command cache refresh (`hash -r`) after package installation
+  - Added automatic PATH detection and diagnostics for tools installed via apt-get
+  - Improved error messages with tool location diagnostics when tools are not found
+  - Prevents false negatives where tools are installed but not found in PATH during verification
+    > > > > > > > baf3cadceda79e9ae5615b3a5604029459ad6c99
 
 ## [0.10.0] - 2025-12-09
 
