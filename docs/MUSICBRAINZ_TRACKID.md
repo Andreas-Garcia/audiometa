@@ -37,7 +37,7 @@ AudioMeta reads all relevant metadata locations that may contain a MusicBrainz T
 
 ```python
 from audiometa import get_unified_metadata, get_unified_metadata_field
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa import UnifiedMetadataKey
 from audiometa.utils.metadata_format import MetadataFormat
 
 # Read all metadata (including MusicBrainz Track ID)
@@ -71,7 +71,7 @@ track_id = metadata.get(UnifiedMetadataKey.MUSICBRAINZ_TRACKID)
 
 ```python
 from audiometa import update_metadata
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa import UnifiedMetadataKey
 from audiometa.utils.metadata_format import MetadataFormat
 
 # Write MusicBrainz Track ID (canonical 36-character hyphenated UUID)
@@ -110,7 +110,7 @@ update_metadata(
 
 ```python
 from audiometa import validate_metadata_for_update
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa import UnifiedMetadataKey
 from audiometa.exceptions import InvalidMetadataFieldFormatError, InvalidMetadataFieldTypeError
 
 # Valid: 36-character hyphenated UUID (preferred format)

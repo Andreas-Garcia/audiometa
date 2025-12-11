@@ -420,7 +420,7 @@ See [Pre-Update Validation Function](#pre-update-validation-function) for detail
 from audiometa import update_metadata
 
 # Update metadata (use UnifiedMetadataKey for explicit typing)
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa import UnifiedMetadataKey
 
 new_metadata = {
     UnifiedMetadataKey.TITLE: 'New Song Title',
@@ -929,7 +929,7 @@ Updates metadata in a file. The function automatically calls pre-update validati
 from audiometa import update_metadata
 
 # Basic writing (recommended: use UnifiedMetadataKey constants)
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa import UnifiedMetadataKey
 
 update_metadata("song.mp3", {
     UnifiedMetadataKey.TITLE: 'New Title',

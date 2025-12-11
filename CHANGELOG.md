@@ -79,6 +79,13 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Improved
+
+- **UnifiedMetadataKey Top-Level Import**: Exposed `UnifiedMetadataKey` at the top level of the package for improved API convenience:
+  - Can now be imported directly as `from audiometa import UnifiedMetadataKey` instead of `from audiometa.utils.unified_metadata_key import UnifiedMetadataKey`
+  - Updated all documentation examples (README.md and docs/\*.md) to use the cleaner top-level import
+  - Maintains backward compatibility - the old import path still works for internal code
+
 ## [0.10.0] - 2025-12-09
 
 ### Added
