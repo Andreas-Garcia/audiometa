@@ -732,36 +732,36 @@ if ($wslRequiredPackages.Count -gt 0) {
     Write-Output ""
 }
 
-# Check/install npm/node (required for git-worktree-scripts dev dependency)
-Write-Output ""
-Write-Output "Checking npm/node installation (required for git-worktree-scripts)..."
-$npmCheck = Get-Command npm -ErrorAction SilentlyContinue
-if (-not $npmCheck) {
-    $nodeCheck = Get-Command node -ErrorAction SilentlyContinue
-    if (-not $nodeCheck) {
-        Write-Output "Installing Node.js (includes npm) via Chocolatey..."
-        choco install nodejs -y
-        if ($LASTEXITCODE -ne 0) {
-            Write-Error "ERROR: Failed to install Node.js."
+    # Check/install npm/node (required for git-worktree-scripts dev dependency)
+    Write-Output ""
+    Write-Output "Checking npm/node installation (required for git-worktree-scripts)..."
+    $npmCheck = Get-Command npm -ErrorAction SilentlyContinue
+    if (-not $npmCheck) {
+        $nodeCheck = Get-Command node -ErrorAction SilentlyContinue
+        if (-not $nodeCheck) {
+            Write-Output "Installing Node.js (includes npm) via Chocolatey..."
+            choco install nodejs -y
+            if ($LASTEXITCODE -ne 0) {
+                Write-Error "ERROR: Failed to install Node.js."
+                exit 1
+            }
+        }
+        else {
+            Write-Output "Node.js is installed but npm is not available."
+            Write-Output "Please install npm manually or reinstall Node.js."
             exit 1
         }
     }
-    else {
-        Write-Output "Node.js is installed but npm is not available."
-        Write-Output "Please install npm manually or reinstall Node.js."
+
+    # Verify npm is available in PATH after installation
+    $npmCheck = Get-Command npm -ErrorAction SilentlyContinue
+    if (-not $npmCheck) {
+        Write-Error "ERROR: npm is not available in PATH after installation."
         exit 1
     }
-}
 
-# Verify npm is available in PATH after installation
-$npmCheck = Get-Command npm -ErrorAction SilentlyContinue
-if (-not $npmCheck) {
-    Write-Error "ERROR: npm is not available in PATH after installation."
-    exit 1
-}
-
-$npmVersion = npm --version
-Write-Output "  npm is installed: $npmVersion"
+    $npmVersion = npm --version
+    Write-Output "  npm is installed: $npmVersion"
 
 # Install lint dependencies (shellcheck)
 # PowerShell is pre-installed on Windows CI runners, no installation needed
@@ -796,7 +796,15 @@ if ($PINNED_SHELLCHECK) {
     Write-Output "Installing shellcheck (pinned version: $PINNED_SHELLCHECK)..."
     $shellcheckCheck = Get-Command shellcheck -ErrorAction SilentlyContinue
     if ($shellcheckCheck) {
-        $installedVersion = shellcheck --version 2>&1 | Select-String -Pattern "version (\S+)" | ForEach-Object { $_.Matches[0].Groups[1].Value }
+        # Extract version from shellcheck --version output
+        $versionOutput = shellcheck --version 2>&1 | Out-String
+        $installedVersion = $null
+        if ($versionOutput -match 'version:\s*([0-9]+\.[0-9]+\.[0-9]+)') {
+            $installedVersion = $matches[1]
+        }
+        elseif ($versionOutput -match 'version\s+([0-9]+\.[0-9]+\.[0-9]+)') {
+            $installedVersion = $matches[1]
+        }
         if ($installedVersion) {
             # Check if installed version matches pinned version (using prefix matching)
             if ($installedVersion.StartsWith($PINNED_SHELLCHECK) -or $PINNED_SHELLCHECK.StartsWith($installedVersion)) {
@@ -845,7 +853,15 @@ if ($PINNED_SHELLCHECK) {
         exit 1
     }
     else {
-        $installedVersion = shellcheck --version 2>&1 | Select-String -Pattern "version (\S+)" | ForEach-Object { $_.Matches[0].Groups[1].Value }
+        # Extract version from shellcheck --version output
+        $versionOutput = shellcheck --version 2>&1 | Out-String
+        $installedVersion = $null
+        if ($versionOutput -match 'version:\s*([0-9]+\.[0-9]+\.[0-9]+)') {
+            $installedVersion = $matches[1]
+        }
+        elseif ($versionOutput -match 'version\s+([0-9]+\.[0-9]+\.[0-9]+)') {
+            $installedVersion = $matches[1]
+        }
         if ($installedVersion) {
             Write-Output "  shellcheck $installedVersion installed successfully"
             if (-not $installedVersion.StartsWith($PINNED_SHELLCHECK) -and -not $PINNED_SHELLCHECK.StartsWith($installedVersion)) {
@@ -896,7 +912,15 @@ else {
         Write-Output "You may need to restart your terminal or check installation."
     }
     else {
-        $shellcheckVersion = shellcheck --version 2>&1 | Select-String -Pattern "version (\S+)" | ForEach-Object { $_.Matches[0].Groups[1].Value }
+        # Extract version from shellcheck --version output
+        $versionOutput = shellcheck --version 2>&1 | Out-String
+        $shellcheckVersion = $null
+        if ($versionOutput -match 'version:\s*([0-9]+\.[0-9]+\.[0-9]+)') {
+            $shellcheckVersion = $matches[1]
+        }
+        elseif ($versionOutput -match 'version\s+([0-9]+\.[0-9]+\.[0-9]+)') {
+            $shellcheckVersion = $matches[1]
+        }
         if ($shellcheckVersion) {
             Write-Output "  shellcheck is installed: $shellcheckVersion"
         }
