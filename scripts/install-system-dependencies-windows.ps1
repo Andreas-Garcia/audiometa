@@ -840,17 +840,28 @@ if ($PINNED_SHELLCHECK) {
     # Verify shellcheck installation and version
     $shellcheckCheck = Get-Command shellcheck -ErrorAction SilentlyContinue
     if (-not $shellcheckCheck) {
-        Write-Warning "WARNING: shellcheck installed but not found in PATH."
+        Write-Error "ERROR: shellcheck installed but not found in PATH."
         Write-Output "You may need to restart your terminal or check installation."
+        exit 1
     }
     else {
         $installedVersion = shellcheck --version 2>&1 | Select-String -Pattern "version (\S+)" | ForEach-Object { $_.Matches[0].Groups[1].Value }
         if ($installedVersion) {
             Write-Output "  shellcheck $installedVersion installed successfully"
             if (-not $installedVersion.StartsWith($PINNED_SHELLCHECK) -and -not $PINNED_SHELLCHECK.StartsWith($installedVersion)) {
-                Write-Warning "  WARNING: Installed version $installedVersion does not match pinned version $PINNED_SHELLCHECK"
-                Write-Output "  Consider updating system-dependencies-lint.toml with version $installedVersion"
+                Write-Error "ERROR: Installed shellcheck version $installedVersion does not match pinned version $PINNED_SHELLCHECK"
+                Write-Output "This indicates the package manager installed a different version than expected."
+                Write-Output "To fix:"
+                Write-Output "  1. Update system-dependencies-lint.toml with version $installedVersion, OR"
+                Write-Output "  2. Manually install the correct version:"
+                Write-Output "     Chocolatey: choco install shellcheck --version=$PINNED_SHELLCHECK"
+                Write-Output "     Winget: winget install --id koalaman.shellcheck --version $PINNED_SHELLCHECK"
+                exit 1
             }
+        }
+        else {
+            Write-Error "ERROR: shellcheck installed but version could not be determined"
+            exit 1
         }
     }
 }
