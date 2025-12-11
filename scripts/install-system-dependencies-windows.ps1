@@ -731,165 +731,168 @@ if ($wslRequiredPackages.Count -gt 0) {
     }
     Write-Output ""
 }
-else {
-    # Check/install npm/node (required for git-worktree-scripts dev dependency)
-    Write-Output ""
-    Write-Output "Checking npm/node installation (required for git-worktree-scripts)..."
-    $npmCheck = Get-Command npm -ErrorAction SilentlyContinue
-    if (-not $npmCheck) {
-        $nodeCheck = Get-Command node -ErrorAction SilentlyContinue
-        if (-not $nodeCheck) {
-            Write-Output "Installing Node.js (includes npm) via Chocolatey..."
-            choco install nodejs -y
-            if ($LASTEXITCODE -ne 0) {
-                Write-Error "ERROR: Failed to install Node.js."
-                exit 1
-            }
-        }
-        else {
-            Write-Output "Node.js is installed but npm is not available."
-            Write-Output "Please install npm manually or reinstall Node.js."
+
+# Check/install npm/node (required for git-worktree-scripts dev dependency)
+Write-Output ""
+Write-Output "Checking npm/node installation (required for git-worktree-scripts)..."
+$npmCheck = Get-Command npm -ErrorAction SilentlyContinue
+if (-not $npmCheck) {
+    $nodeCheck = Get-Command node -ErrorAction SilentlyContinue
+    if (-not $nodeCheck) {
+        Write-Output "Installing Node.js (includes npm) via Chocolatey..."
+        choco install nodejs -y
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "ERROR: Failed to install Node.js."
             exit 1
         }
     }
-
-    # Verify npm is available in PATH after installation
-    $npmCheck = Get-Command npm -ErrorAction SilentlyContinue
-    if (-not $npmCheck) {
-        Write-Error "ERROR: npm is not available in PATH after installation."
+    else {
+        Write-Output "Node.js is installed but npm is not available."
+        Write-Output "Please install npm manually or reinstall Node.js."
         exit 1
     }
+}
 
-    $npmVersion = npm --version
-    Write-Output "  npm is installed: $npmVersion"
+# Verify npm is available in PATH after installation
+$npmCheck = Get-Command npm -ErrorAction SilentlyContinue
+if (-not $npmCheck) {
+    Write-Error "ERROR: npm is not available in PATH after installation."
+    exit 1
+}
 
-    # Install lint dependencies (shellcheck)
-    # PowerShell is pre-installed on Windows CI runners, no installation needed
-    # Note: PINNED_SHELLCHECK should already be loaded from "all" category above
-    # If not set, try loading lint category separately as fallback
-    if ([string]::IsNullOrEmpty($PINNED_SHELLCHECK)) {
-        Write-Output "PINNED_SHELLCHECK not found in 'all' category, loading lint category separately..."
-        $lintVersionOutput = python3 "$SCRIPT_DIR\load-system-dependency-versions.py" powershell lint 2>&1
-        if ($LASTEXITCODE -eq 0 -and $lintVersionOutput) {
-            # Parse lint dependency versions
-            $lintVersionLines = $lintVersionOutput -split "`n" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
-            foreach ($line in $lintVersionLines) {
-                $trimmedLine = $line.Trim()
-                if (-not [string]::IsNullOrWhiteSpace($trimmedLine) -and -not $trimmedLine.StartsWith('#')) {
-                    if ($trimmedLine -match '\$([A-Z_]+)\s*=\s*"([^"]+)"') {
-                        $varName = $matches[1]
-                        $varValue = $matches[2]
-                        Set-Variable -Name $varName -Value $varValue -Scope Script
-                    }
-                }
-            }
-        }
-    }
+$npmVersion = npm --version
+Write-Output "  npm is installed: $npmVersion"
 
-    Write-Output ""
-    Write-Output "Installing lint dependencies..."
-    if ($PINNED_SHELLCHECK) {
-        Write-Output "Installing shellcheck (pinned version: $PINNED_SHELLCHECK)..."
-        $shellcheckCheck = Get-Command shellcheck -ErrorAction SilentlyContinue
-        if ($shellcheckCheck) {
-            $installedVersion = shellcheck --version 2>&1 | Select-String -Pattern "version (\S+)" | ForEach-Object { $_.Matches[0].Groups[1].Value }
-            if ($installedVersion) {
-                # Check if installed version matches pinned version (using prefix matching)
-                if ($installedVersion.StartsWith($PINNED_SHELLCHECK) -or $PINNED_SHELLCHECK.StartsWith($installedVersion)) {
-                    Write-Output "  shellcheck $installedVersion already installed (matches pinned version $PINNED_SHELLCHECK)"
-                }
-                else {
-                    Write-Output "  Removing existing shellcheck version $installedVersion (installing pinned version $PINNED_SHELLCHECK)..."
-                    choco uninstall shellcheck -y 2>&1 | Out-Null
-                    $shellcheckCheck = $null
-                }
-            }
-        }
-
-        if (-not $shellcheckCheck) {
-            # Try Chocolatey first (most common on Windows) with version pinning
-            Write-Output "  Installing shellcheck=$PINNED_SHELLCHECK via Chocolatey..."
-            choco install shellcheck --version=$PINNED_SHELLCHECK -y
-            if ($LASTEXITCODE -ne 0) {
-                Write-Warning "  Chocolatey version pinning failed, trying without version..."
-                choco install shellcheck -y
-                if ($LASTEXITCODE -ne 0) {
-                    Write-Warning "  Chocolatey installation failed, trying winget..."
-                    # Fallback to winget (with version if supported)
-                    winget install --id koalaman.shellcheck --version $PINNED_SHELLCHECK --accept-package-agreements --accept-source-agreements
-                    if ($LASTEXITCODE -ne 0) {
-                        # Try without version
-                        winget install --id koalaman.shellcheck --accept-package-agreements --accept-source-agreements
-                        if ($LASTEXITCODE -ne 0) {
-                            Write-Warning "  winget installation failed."
-                            Write-Output "  Install shellcheck manually:"
-                            Write-Output "    Chocolatey: choco install shellcheck --version=$PINNED_SHELLCHECK"
-                            Write-Output "    Winget: winget install --id koalaman.shellcheck --version $PINNED_SHELLCHECK"
-                            Write-Output "    Scoop: scoop install shellcheck"
-                            Write-Output "    Or download from: https://github.com/koalaman/shellcheck#installing"
-                        }
-                    }
-                }
-            }
-        }
-
-        # Verify shellcheck installation and version
-        $shellcheckCheck = Get-Command shellcheck -ErrorAction SilentlyContinue
-        if (-not $shellcheckCheck) {
-            Write-Warning "WARNING: shellcheck installed but not found in PATH."
-            Write-Output "You may need to restart your terminal or check installation."
-        }
-        else {
-            $installedVersion = shellcheck --version 2>&1 | Select-String -Pattern "version (\S+)" | ForEach-Object { $_.Matches[0].Groups[1].Value }
-            if ($installedVersion) {
-                Write-Output "  shellcheck $installedVersion installed successfully"
-                if (-not $installedVersion.StartsWith($PINNED_SHELLCHECK) -and -not $PINNED_SHELLCHECK.StartsWith($installedVersion)) {
-                    Write-Warning "  WARNING: Installed version $installedVersion does not match pinned version $PINNED_SHELLCHECK"
-                    Write-Output "  Consider updating system-dependencies-lint.toml with version $installedVersion"
+# Install lint dependencies (shellcheck)
+# PowerShell is pre-installed on Windows CI runners, no installation needed
+# Note: PINNED_SHELLCHECK should already be loaded from "all" category above
+# If not set, try loading lint category separately as fallback
+if ([string]::IsNullOrEmpty($PINNED_SHELLCHECK)) {
+    Write-Output "PINNED_SHELLCHECK not found in 'all' category, loading lint category separately..."
+    $lintVersionOutput = python3 "$SCRIPT_DIR\load-system-dependency-versions.py" powershell lint 2>&1
+    if ($LASTEXITCODE -eq 0 -and $lintVersionOutput) {
+        # Parse lint dependency versions
+        $lintVersionLines = $lintVersionOutput -split "`n" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+        foreach ($line in $lintVersionLines) {
+            $trimmedLine = $line.Trim()
+            if (-not [string]::IsNullOrWhiteSpace($trimmedLine) -and -not $trimmedLine.StartsWith('#')) {
+                if ($trimmedLine -match '\$([A-Z_]+)\s*=\s*"([^"]+)"') {
+                    $varName = $matches[1]
+                    $varValue = $matches[2]
+                    Set-Variable -Name $varName -Value $varValue -Scope Script
                 }
             }
         }
     }
     else {
-        Write-Output "Installing shellcheck (latest version)..."
-        $shellcheckCheck = Get-Command shellcheck -ErrorAction SilentlyContinue
-        if (-not $shellcheckCheck) {
-            # Try Chocolatey first (most common on Windows)
-            Write-Output "  Installing shellcheck via Chocolatey..."
-            choco install shellcheck -y
-            if ($LASTEXITCODE -ne 0) {
-                Write-Warning "  Chocolatey installation failed, trying winget..."
-                winget install --id koalaman.shellcheck --accept-package-agreements --accept-source-agreements
-                if ($LASTEXITCODE -ne 0) {
-                    Write-Warning "  winget installation failed."
-                    Write-Output "  Install shellcheck manually:"
-                    Write-Output "    Chocolatey: choco install shellcheck"
-                    Write-Output "    Winget: winget install --id koalaman.shellcheck"
-                    Write-Output "    Scoop: scoop install shellcheck"
-                    Write-Output "    Or download from: https://github.com/koalaman/shellcheck#installing"
-                }
-            }
-        }
-        else {
-            Write-Output "  shellcheck already installed"
-        }
+        Write-Warning "Failed to load lint dependency versions. Exit code: $LASTEXITCODE"
+        Write-Warning "Output: $lintVersionOutput"
+    }
+}
 
-        # Verify shellcheck installation
-        $shellcheckCheck = Get-Command shellcheck -ErrorAction SilentlyContinue
-        if (-not $shellcheckCheck) {
-            Write-Warning "WARNING: shellcheck installed but not found in PATH."
-            Write-Output "You may need to restart your terminal or check installation."
-        }
-        else {
-            $shellcheckVersion = shellcheck --version 2>&1 | Select-String -Pattern "version (\S+)" | ForEach-Object { $_.Matches[0].Groups[1].Value }
-            if ($shellcheckVersion) {
-                Write-Output "  shellcheck is installed: $shellcheckVersion"
+Write-Output ""
+Write-Output "Installing lint dependencies..."
+if ($PINNED_SHELLCHECK) {
+    Write-Output "Installing shellcheck (pinned version: $PINNED_SHELLCHECK)..."
+    $shellcheckCheck = Get-Command shellcheck -ErrorAction SilentlyContinue
+    if ($shellcheckCheck) {
+        $installedVersion = shellcheck --version 2>&1 | Select-String -Pattern "version (\S+)" | ForEach-Object { $_.Matches[0].Groups[1].Value }
+        if ($installedVersion) {
+            # Check if installed version matches pinned version (using prefix matching)
+            if ($installedVersion.StartsWith($PINNED_SHELLCHECK) -or $PINNED_SHELLCHECK.StartsWith($installedVersion)) {
+                Write-Output "  shellcheck $installedVersion already installed (matches pinned version $PINNED_SHELLCHECK)"
+            }
+            else {
+                Write-Output "  Removing existing shellcheck version $installedVersion (installing pinned version $PINNED_SHELLCHECK)..."
+                choco uninstall shellcheck -y 2>&1 | Out-Null
+                $shellcheckCheck = $null
             }
         }
     }
 
-    Write-Output "All system dependencies installed successfully!"
+    if (-not $shellcheckCheck) {
+        # Try Chocolatey first (most common on Windows) with version pinning
+        Write-Output "  Installing shellcheck=$PINNED_SHELLCHECK via Chocolatey..."
+        choco install shellcheck --version=$PINNED_SHELLCHECK -y
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "  Chocolatey version pinning failed, trying without version..."
+            choco install shellcheck -y
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "  Chocolatey installation failed, trying winget..."
+                # Fallback to winget (with version if supported)
+                winget install --id koalaman.shellcheck --version $PINNED_SHELLCHECK --accept-package-agreements --accept-source-agreements
+                if ($LASTEXITCODE -ne 0) {
+                    # Try without version
+                    winget install --id koalaman.shellcheck --accept-package-agreements --accept-source-agreements
+                    if ($LASTEXITCODE -ne 0) {
+                        Write-Warning "  winget installation failed."
+                        Write-Output "  Install shellcheck manually:"
+                        Write-Output "    Chocolatey: choco install shellcheck --version=$PINNED_SHELLCHECK"
+                        Write-Output "    Winget: winget install --id koalaman.shellcheck --version $PINNED_SHELLCHECK"
+                        Write-Output "    Scoop: scoop install shellcheck"
+                        Write-Output "    Or download from: https://github.com/koalaman/shellcheck#installing"
+                    }
+                }
+            }
+        }
+    }
+
+    # Verify shellcheck installation and version
+    $shellcheckCheck = Get-Command shellcheck -ErrorAction SilentlyContinue
+    if (-not $shellcheckCheck) {
+        Write-Warning "WARNING: shellcheck installed but not found in PATH."
+        Write-Output "You may need to restart your terminal or check installation."
+    }
+    else {
+        $installedVersion = shellcheck --version 2>&1 | Select-String -Pattern "version (\S+)" | ForEach-Object { $_.Matches[0].Groups[1].Value }
+        if ($installedVersion) {
+            Write-Output "  shellcheck $installedVersion installed successfully"
+            if (-not $installedVersion.StartsWith($PINNED_SHELLCHECK) -and -not $PINNED_SHELLCHECK.StartsWith($installedVersion)) {
+                Write-Warning "  WARNING: Installed version $installedVersion does not match pinned version $PINNED_SHELLCHECK"
+                Write-Output "  Consider updating system-dependencies-lint.toml with version $installedVersion"
+            }
+        }
+    }
 }
+else {
+    Write-Output "Installing shellcheck (latest version)..."
+    $shellcheckCheck = Get-Command shellcheck -ErrorAction SilentlyContinue
+    if (-not $shellcheckCheck) {
+        # Try Chocolatey first (most common on Windows)
+        Write-Output "  Installing shellcheck via Chocolatey..."
+        choco install shellcheck -y
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "  Chocolatey installation failed, trying winget..."
+            winget install --id koalaman.shellcheck --accept-package-agreements --accept-source-agreements
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "  winget installation failed."
+                Write-Output "  Install shellcheck manually:"
+                Write-Output "    Chocolatey: choco install shellcheck"
+                Write-Output "    Winget: winget install --id koalaman.shellcheck"
+                Write-Output "    Scoop: scoop install shellcheck"
+                Write-Output "    Or download from: https://github.com/koalaman/shellcheck#installing"
+            }
+        }
+    }
+    else {
+        Write-Output "  shellcheck already installed"
+    }
+
+    # Verify shellcheck installation
+    $shellcheckCheck = Get-Command shellcheck -ErrorAction SilentlyContinue
+    if (-not $shellcheckCheck) {
+        Write-Warning "WARNING: shellcheck installed but not found in PATH."
+        Write-Output "You may need to restart your terminal or check installation."
+    }
+    else {
+        $shellcheckVersion = shellcheck --version 2>&1 | Select-String -Pattern "version (\S+)" | ForEach-Object { $_.Matches[0].Groups[1].Value }
+        if ($shellcheckVersion) {
+            Write-Output "  shellcheck is installed: $shellcheckVersion"
+        }
+    }
+}
+
+Write-Output "All system dependencies installed successfully!"
 
 
 
