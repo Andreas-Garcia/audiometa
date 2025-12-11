@@ -29,9 +29,10 @@ shellcheck = "0.11.0"  # ShellCheck - pinned version for reproducibility
 [windows]
 # PowerShell is pre-installed on Windows CI runners, no installation needed
 # Version depends on GitHub Actions runner image (not pinned)
-shellcheck = "0.11.0"  # ShellCheck - pinned version for reproducibility
-                       # Install via Chocolatey: choco install shellcheck --version=0.11.0
-                       # Or via Winget: winget install --id koalaman.shellcheck --version 0.11.0
-                       # Update this version when package managers update shellcheck
+shellcheck = "0.9.0"  # ShellCheck - pinned version for reproducibility
+                      # Chocolatey only has version 0.9.0 available (as of 2024)
+                      # Install via Chocolatey: choco install shellcheck --version=0.9.0
+                      # Or via Winget: winget install --id koalaman.shellcheck --version 0.9.0
+                      # Update this version when Chocolatey updates shellcheck
 
 
