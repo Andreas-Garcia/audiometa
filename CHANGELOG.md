@@ -77,7 +77,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Improved error messages with tool location diagnostics when tools are not found
   - Prevents false negatives where tools are installed but not found in PATH during verification
 
-## [Unreleased]
+## [0.11.1] - 2025-12-11
 
 ### Improved
 
@@ -94,6 +94,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Updated installation scripts to install pinned shellcheck versions on all platforms
   - Updated version verification to include shellcheck (PowerShell remains "latest" due to complex version management)
   - Ensures shellcheck version consistency across environments and aligns with dependency pinning best practices
+
+## [Unreleased]
 
 ## [0.10.0] - 2025-12-09
 
