@@ -46,7 +46,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 **Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-XX`).
 
-## [Unreleased]
+## [0.11.0] - 2025-12-11
 
 ### Added
 
@@ -76,6 +76,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Added automatic PATH detection and diagnostics for tools installed via apt-get
   - Improved error messages with tool location diagnostics when tools are not found
   - Prevents false negatives where tools are installed but not found in PATH during verification
+
+## [Unreleased]
 
 ## [0.10.0] - 2025-12-09
 
