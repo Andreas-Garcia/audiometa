@@ -2,22 +2,37 @@
 # This file documents LINT system dependencies required for linting/formatting.
 # These are needed in lint jobs and pre-commit hooks:
 # - PowerShell: Required for PowerShell script linting (PSScriptAnalyzer)
+# - shellcheck: Required for shell script linting
 #
 # Version pinning strategy:
-# - Exception: LINT dependencies may use "latest" since they don't affect library functionality
-# - Rationale: Lint tools don't affect library functionality, and we want the latest linting rules.
-# - These can be updated more freely than PROD/TEST dependencies.
+# - ALWAYS pin specific versions (e.g., "1.2.3") - NEVER use "latest"
+# - For Ubuntu: versions are Ubuntu release-specific (check with: apt-cache policy <package>)
+# - For macOS: Homebrew versions can be pinned using @version syntax
+# - For Windows: Chocolatey supports --version flag
+# - PowerShell uses "latest" as an exception since it's managed by Microsoft/Homebrew repositories
+#   and version verification is complex across platforms
 
 [ubuntu]
 powershell = "latest"  # PowerShell Core - version managed by Microsoft repository
-                      # Exception: Uses "latest" for lint dependencies (see note above)
+                      # Exception: Uses "latest" due to complex version management across platforms
+shellcheck = "0.9.0"  # ShellCheck - pinned version for reproducibility
+                      # To check available versions: apt-cache policy shellcheck or apt-cache madison shellcheck
+                      # Version format: "0.9.0" (matches any 0.9.0.x version via version matching logic)
 
 [macos]
 powershell = "latest"  # PowerShell Core - version managed by Homebrew
-                      # Exception: Uses "latest" for lint dependencies (see note above)
+                      # Exception: Uses "latest" due to complex version management across platforms
+shellcheck = "0.11.0"  # ShellCheck - pinned version for reproducibility
+                       # Homebrew typically installs latest stable version
+                       # Update this version when Homebrew updates shellcheck
 
 [windows]
 # PowerShell is pre-installed on Windows CI runners, no installation needed
 # Version depends on GitHub Actions runner image (not pinned)
+shellcheck = "0.9.0"  # ShellCheck - pinned version for reproducibility
+                      # Chocolatey only has version 0.9.0 available (as of 2024)
+                      # Install via Chocolatey: choco install shellcheck --version=0.9.0
+                      # Or via Winget: winget install --id koalaman.shellcheck --version 0.9.0
+                      # Update this version when Chocolatey updates shellcheck
 
 

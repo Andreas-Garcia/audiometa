@@ -139,7 +139,7 @@ def get_lint_versions(config, os_type):
 
     os_config = config[os_type]
     versions = {}
-    for tool in ["powershell"]:
+    for tool in ["powershell", "shellcheck"]:
         version = get_version_value(os_config, tool)
         if version:
             versions[tool] = version

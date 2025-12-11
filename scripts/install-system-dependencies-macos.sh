@@ -31,6 +31,8 @@ fi
 
 # Source common utilities
 source "${SCRIPT_DIR}/macos-common.sh"
+# Source shared lint dependency utilities
+source "${SCRIPT_DIR}/lint-dependencies-common.sh"
 
 HOMEBREW_PREFIX=$(get_homebrew_prefix)
 
@@ -360,6 +362,7 @@ install_exiftool "${PINNED_EXIFTOOL}"
 # Install libsndfile (required by soundfile Python package)
 install_homebrew_package "libsndfile" "libsndfile" "${PINNED_LIBSNDFILE}" ""
 
+# Install lint dependencies (PowerShell and shellcheck)
 # Install PowerShell Core (required for PowerShell script linting in pre-commit hooks)
 echo "Installing PowerShell Core..."
 if command -v pwsh &>/dev/null; then
@@ -383,6 +386,56 @@ if ! command -v pwsh &>/dev/null; then
   echo "WARNING: PowerShell Core installed but not found in PATH."
   echo "You may need to restart your terminal or run: export PATH=\"/opt/homebrew/bin:\$PATH\""
   echo "For Intel Macs: export PATH=\"/usr/local/bin:\$PATH\""
+fi
+
+# Install shellcheck (required for shell script linting in pre-commit hooks)
+load_lint_dependency_versions "$SCRIPT_DIR"
+
+if [ -n "$PINNED_SHELLCHECK" ]; then
+  echo "Installing shellcheck (pinned version: ${PINNED_SHELLCHECK})..."
+
+  if command -v shellcheck &>/dev/null; then
+    INSTALLED_VERSION=$(get_shellcheck_version)
+    if [ -n "$INSTALLED_VERSION" ]; then
+      # Check if installed version matches pinned version
+      if check_shellcheck_version_match "$INSTALLED_VERSION" "$PINNED_SHELLCHECK"; then
+        echo "  shellcheck ${INSTALLED_VERSION} already installed (matches pinned version ${PINNED_SHELLCHECK})"
+      else
+        echo "  WARNING: shellcheck ${INSTALLED_VERSION} installed but pinned version is ${PINNED_SHELLCHECK}"
+        echo "  Homebrew installs latest version - this is expected if Homebrew has updated shellcheck"
+        echo "  Consider updating system-dependencies-lint.toml with version ${INSTALLED_VERSION}"
+      fi
+    else
+      echo "  shellcheck installed but version could not be determined"
+      echo "  Installing/upgrading shellcheck via Homebrew..."
+      brew install shellcheck || brew upgrade shellcheck || {
+        echo "ERROR: Failed to install/upgrade shellcheck."
+        echo "Install manually: brew install shellcheck"
+        exit 1
+      }
+    fi
+  else
+    echo "  Installing shellcheck via Homebrew..."
+    brew install shellcheck || {
+      echo "ERROR: Failed to install shellcheck."
+      echo "Install manually: brew install shellcheck"
+      exit 1
+    }
+  fi
+
+  # Verify shellcheck installation and version
+  verify_shellcheck_installation "$PINNED_SHELLCHECK" "macos" || true
+else
+  echo "WARNING: PINNED_SHELLCHECK not set, installing latest shellcheck..."
+  if command -v shellcheck &>/dev/null; then
+    echo "  shellcheck already installed"
+  else
+    brew install shellcheck || {
+      echo "ERROR: Failed to install shellcheck."
+      echo "Install manually: brew install shellcheck"
+      exit 1
+    }
+  fi
 fi
 
 # Ensure Homebrew bin directory is in PATH (tools are installed there)
