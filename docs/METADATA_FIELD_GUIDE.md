@@ -187,7 +187,7 @@ The following formats will raise `InvalidMetadataFieldFormatError`:
 
 ```python
 from audiometa import update_metadata
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa import UnifiedMetadataKey
 
 # Valid: YYYY format
 update_metadata("song.mp3", {UnifiedMetadataKey.RELEASE_DATE: "2024"})
@@ -240,7 +240,7 @@ The following formats will raise `InvalidMetadataFieldFormatError`:
 
 ```python
 from audiometa import update_metadata
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa import UnifiedMetadataKey
 
 # Valid: 12-character format
 update_metadata("song.mp3", {UnifiedMetadataKey.ISRC: "USRC17607839"})

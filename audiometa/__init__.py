@@ -36,6 +36,36 @@ from .utils.metadata_writing_strategy import MetadataWritingStrategy
 from .utils.types import UnifiedMetadata, UnifiedMetadataValue
 from .utils.unified_metadata_key import UnifiedMetadataKey
 
+__all__ = [
+    "UnifiedMetadataKey",
+    "FlacMd5State",
+    "MetadataFormat",
+    "MetadataWritingStrategy",
+    "UnifiedMetadata",
+    "UnifiedMetadataValue",
+    "FileCorruptedError",
+    "FileTypeNotSupportedError",
+    "InvalidMetadataFieldTypeError",
+    "MetadataFieldNotSupportedByLibError",
+    "MetadataFieldNotSupportedByMetadataFormatError",
+    "MetadataFormatNotSupportedByAudioFormatError",
+    "MetadataWritingConflictParametersError",
+    "get_unified_metadata",
+    "get_unified_metadata_field",
+    "validate_metadata_for_update",
+    "update_metadata",
+    "delete_all_metadata",
+    "get_bitrate",
+    "get_channels",
+    "get_file_size",
+    "get_sample_rate",
+    "is_audio_file",
+    "get_duration_in_sec",
+    "is_flac_md5_valid",
+    "fix_md5_checking",
+    "get_full_metadata",
+]
+
 FILE_EXTENSION_NOT_HANDLED_MESSAGE = "The file's format is not handled by the service."
 
 METADATA_FORMAT_MANAGER_CLASS_MAP: dict[MetadataFormat, type] = {

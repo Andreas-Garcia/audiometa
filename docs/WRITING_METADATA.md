@@ -21,8 +21,7 @@ The `update_metadata()` function provides a flexible way to write metadata to au
 ## Basic Writing
 
 ```python
-from audiometa import update_metadata
-from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
+from audiometa import update_metadata, UnifiedMetadataKey
 
 # Basic metadata update (recommended: use UnifiedMetadataKey constants)
 update_metadata("song.mp3", {
@@ -37,7 +36,7 @@ update_metadata("song.mp3", {
 When writing, metadata should be provided as a dictionary with keys corresponding to unified metadata fields defined in `UnifiedMetadataKey`.
 
 ```python
-from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
+from audiometa import UnifiedMetadataKey
 
 metadata = {
     UnifiedMetadataKey.TITLE: 'Song Title',
@@ -133,7 +132,7 @@ update_metadata("song.wav", {"title": "New Title"},
 **Example with unsupported fields**:
 
 ```python
-from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
+from audiometa import UnifiedMetadataKey
 
 # WAV file with existing ID3v1 tags (30-char limit and no album artist support)
 update_metadata("song.wav", {
@@ -247,9 +246,9 @@ When `fail_on_unsupported_field=True` is used, the library ensures **atomic writ
 ```python
 from audiometa import update_metadata, get_unified_metadata
 from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
+from audiometa import UnifiedMetadataKey
 from audiometa.utils.metadata_format import MetadataFormat
 from audiometa.utils.metadata_writing_strategy import MetadataWritingStrategy
-from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 # All strategies - handle unsupported fields gracefully with warnings
 update_metadata("song.wav", {
@@ -300,9 +299,8 @@ except MetadataFieldNotSupportedByMetadataFormatError as e:
 ### Example: Demonstrating Atomic Behavior
 
 ```python
-from audiometa import get_unified_metadata, update_metadata
+from audiometa import get_unified_metadata, update_metadata, UnifiedMetadataKey
 from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
-from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 # File with existing metadata
 original_metadata = get_unified_metadata("song.wav")
@@ -326,9 +324,8 @@ print(f"Final title: {final_metadata.get(UnifiedMetadataKey.TITLE)}")  # Still "
 ### Example: Strategy-Based Writing with ID3v2 Version
 
 ```python
-from audiometa import update_metadata
+from audiometa import update_metadata, UnifiedMetadataKey
 from audiometa.utils.metadata_writing_strategy import MetadataWritingStrategy
-from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 # Use SYNC strategy and specify ID3v2 version
 update_metadata(

@@ -65,7 +65,7 @@ AudioMeta supports two modes for handling ratings:
 
 ```python
 from audiometa import get_unified_metadata, update_metadata
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 
 # Reading without normalization (raw values)
@@ -197,7 +197,7 @@ The rating value is written as-is. Any non-negative integer is allowed. Whole-nu
 
 ```python
 from audiometa import update_metadata
-from audiometa.utils.UnifiedMetadataKey import UnifiedMetadataKey
+from audiometa import UnifiedMetadataKey
 from audiometa.utils.MetadataFormat import MetadataFormat
 
 # Any non-negative integer rating value is allowed when normalized_rating_max_value is not provided

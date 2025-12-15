@@ -140,7 +140,7 @@ The library writes disc numbers based on the unified metadata fields:
 
 ```python
 from audiometa import update_metadata, get_unified_metadata
-from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
+from audiometa import UnifiedMetadataKey
 
 # Set disc number with total
 update_metadata("album.mp3", {
