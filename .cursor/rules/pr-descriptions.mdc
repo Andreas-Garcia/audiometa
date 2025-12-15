@@ -10,13 +10,13 @@ When generating PR descriptions, create them as **standalone markdown documents*
 
 ### Document Structure
 
-1. **Create or update PR description document** in the `.pr-descriptions/` directory (gitignored):
-   - Create `.pr-descriptions/PR_DESCRIPTION_<TOPIC>.md` (e.g., `.pr-descriptions/PR_DESCRIPTION_WORKTREE.md`)
+1. **Create or update PR description document** in the `.github/pr_descriptions/` directory (gitignored):
+   - Create `.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md` (e.g., `.github/pr_descriptions/PR_DESCRIPTION_WORKTREE.md`)
 2. **Follow the standard PR template structure** (see sections below)
 3. **Be thorough and specific** - reviewers need complete context
 4. **Include all checklist items** - track what's been completed
 
-**Note:** The `.pr-descriptions/` directory is gitignored, so these files are local reference documents only and won't be committed to the repository. They serve as working documents for creating PR descriptions on GitHub.
+**Note:** The `.github/pr_descriptions/` directory is gitignored (except for `pull_request_template.md`), so PR description files are local reference documents only and won't be committed to the repository. They serve as working documents for creating PR descriptions on GitHub. The `pull_request_template.md` file in this directory is the actual GitHub PR template and is tracked in git.
 
 ### Standard PR Template Structure
 
@@ -262,10 +262,10 @@ new_code()
 
 ## Examples
 
-PR description files should be created in `.pr-descriptions/` directory:
-- `.pr-descriptions/PR_DESCRIPTION_WORKTREE.md` - For worktree-related changes
-- `.pr-descriptions/PR_DESCRIPTION_LABELER.md` - For labeler CI changes
-- `.pr-descriptions/PR_DESCRIPTION_<TOPIC>.md` - Use descriptive topic names
+PR description files should be created in `.github/pr_descriptions/` directory:
+- `.github/pr_descriptions/PR_DESCRIPTION_WORKTREE.md` - For worktree-related changes
+- `.github/pr_descriptions/PR_DESCRIPTION_LABELER.md` - For labeler CI changes
+- `.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md` - Use descriptive topic names
 
 ## Benefits
 
