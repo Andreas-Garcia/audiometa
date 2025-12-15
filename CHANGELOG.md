@@ -98,11 +98,6 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
     - Added `set_musicbrainz_artistids()` to `VorbisMetadataSetter` for FLAC files
     - Added `create_multiple_mbar_fields()` to `ManualRIFFMetadataCreator` for WAV files
 
-### Fixed
-
-- **CLI Artists Handling**: Fixed bug where `--artist` argument wasn't processed when `--musicbrainz-artist-ids` was not provided
-  - Artists are now processed independently of MusicBrainz Artist IDs
-
 ## [0.10.0] - 2025-12-09
 
 ### Added
