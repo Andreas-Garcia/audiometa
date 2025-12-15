@@ -36,7 +36,7 @@ Thumbs.db
 
 # PR descriptions (temporary reference documents)
 .github/pr_descriptions/*
-!.github/pr_descriptions/pull_request_template
+!.github/pr_descriptions/pull_request_template.md
 
 # Node.js (for git-worktree-scripts dev dependency)
 node_modules/
