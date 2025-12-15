@@ -156,6 +156,40 @@ class ManualRIFFMetadataCreator:
         ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, all_fields)
 
     @staticmethod
+    def create_multiple_mbar_fields(file_path: Path, artist_ids: list[str]) -> None:
+        """Create multiple separate MBAR fields in the RIFF INFO chunk, preserving existing fields."""
+        if not artist_ids:
+            return
+
+        # Normalize UUIDs: convert 32-char hex to 36-char hyphenated format if needed
+        normalized_ids = []
+        for artist_id in artist_ids:
+            if artist_id and artist_id.strip():
+                normalized_id = str(artist_id).strip()
+                uuid_hex_length = 32
+                if len(normalized_id) == uuid_hex_length and all(c in "0123456789abcdefABCDEF" for c in normalized_id):
+                    normalized_id = (
+                        f"{normalized_id[:8]}-{normalized_id[8:12]}-"
+                        f"{normalized_id[12:16]}-{normalized_id[16:20]}-{normalized_id[20:32]}"
+                    )
+                normalized_ids.append(normalized_id)
+
+        if not normalized_ids:
+            return
+
+        # Read existing fields
+        existing_fields = ManualRIFFMetadataCreator._read_existing_info_fields(file_path)
+        # Remove existing MBAR fields if present (we'll replace them)
+        existing_fields = [f for f in existing_fields if f[:4] != b"MBAR"]
+        # Add new MBAR fields
+        mbar_fields = []
+        for artist_id in normalized_ids:
+            mbar_field = ManualRIFFMetadataCreator._create_info_field("MBAR", artist_id)
+            mbar_fields.append(mbar_field)
+        all_fields = [*existing_fields, *mbar_fields]
+        ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, all_fields)
+
+    @staticmethod
     def _create_info_field(field_id: str, text: str) -> bytes:
         """Create a single RIFF INFO field with the given FourCC and text."""
         # Encode text as UTF-8 with null terminator

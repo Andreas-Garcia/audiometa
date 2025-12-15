@@ -1,5 +1,6 @@
 """ID3v2 and ID3v1 metadata setting operations."""
 
+import struct
 from pathlib import Path
 from typing import Any
 
@@ -170,9 +171,21 @@ class ID3v2MetadataSetter:
             cmd.append(str(file_path))
             run_external_tool(cmd, tool)
 
+        # Handle musicbrainz_artistids (list field) - needs special handling
+        musicbrainz_artistids = None
+        for key, value in metadata.items():
+            if key.lower() == "musicbrainz_artistids" and isinstance(value, list) and value:
+                musicbrainz_artistids = value
+                break
+
+        if musicbrainz_artistids:
+            ID3v2MetadataSetter.set_musicbrainz_artistids(file_path, musicbrainz_artistids, version=version)
+
         # Handle list values AFTER other metadata (to avoid being overwritten)
         # Process in reverse order so the last one (composer) doesn't overwrite others
-        list_items = [(k, v) for k, v in metadata.items() if isinstance(v, list) and v]
+        list_items = [
+            (k, v) for k, v in metadata.items() if isinstance(v, list) and v and k.lower() != "musicbrainz_artistids"
+        ]
         # Reverse the list so we process composer last (it seems to work)
         for key, value in reversed(list_items):
             if key.lower() == "artist":
@@ -561,6 +574,82 @@ class ID3v2MetadataSetter:
             str(file_path),
         ]
         run_external_tool(command, "mid3v2")
+
+    @staticmethod
+    def set_musicbrainz_artistids(file_path: Path, artist_ids: list[str], version: str = "2.4") -> None:
+        """Set MusicBrainz Artist IDs using TXXX frame.
+
+        Args:
+            file_path: Path to the MP3 file
+            artist_ids: List of MusicBrainz Artist IDs (UUID strings, hyphenated or 32-char hex)
+            version: ID3v2 version to use ("2.3" or "2.4")
+        """
+        if not artist_ids:
+            return
+
+        # Normalize UUIDs: convert 32-char hex to 36-char hyphenated format if needed
+        normalized_ids = []
+        for artist_id in artist_ids:
+            if artist_id and artist_id.strip():
+                normalized_id = str(artist_id).strip()
+                uuid_hex_length = 32
+                if len(normalized_id) == uuid_hex_length and all(c in "0123456789abcdefABCDEF" for c in normalized_id):
+                    normalized_id = (
+                        f"{normalized_id[:8]}-{normalized_id[8:12]}-"
+                        f"{normalized_id[12:16]}-{normalized_id[16:20]}-{normalized_id[20:32]}"
+                    )
+                normalized_ids.append(normalized_id)
+
+        if not normalized_ids:
+            return
+
+        # For ID3v2.4, use null-separated values (per ID3v2.4 spec)
+        # For ID3v2.3, use semicolon separator (safe separator for UUIDs)
+        if version == "2.4":
+            # Use manual frame creator for null-separated values (mid3v2 doesn't handle null bytes well)
+            from .id3v2_frame_manual_creator import ManualID3v2FrameCreator
+
+            # For multiple values in ID3v2.4, join with null bytes (no trailing null)
+            # For single value, it's just the value (null-terminated at frame end)
+            if len(normalized_ids) == 1:
+                text_value = normalized_ids[0]
+                text_bytes = text_value.encode("utf-8") + b"\x00"
+            else:
+                text_value = "\x00".join(normalized_ids)
+                text_bytes = text_value.encode("utf-8")
+
+            # Create TXXX frame manually: encoding + description + null + text
+            encoding = 3  # UTF-8 for ID3v2.4
+            desc = "MusicBrainz Artist Id"
+            desc_bytes = desc.encode("utf-8")
+
+            # TXXX frame: encoding (1 byte) + description (null-terminated) + text
+            # For multiple values: null-separated (no trailing null)
+            # For single value: null-terminated
+            frame_data = struct.pack("B", encoding) + desc_bytes + b"\x00" + text_bytes
+
+            # Frame header
+            frame_id = b"TXXX"
+            frame_size = len(frame_data)
+            frame_flags = 0x0000
+
+            frame_header = (
+                frame_id + ManualID3v2FrameCreator._synchsafe_int(frame_size) + struct.pack(">H", frame_flags)
+            )
+
+            frame = frame_header + frame_data
+            ManualID3v2FrameCreator._write_id3v2_tag(file_path, [frame], version)
+        else:
+            # ID3v2.3: Use semicolon separator (safe for UUIDs)
+            separator = ";"
+            text_value = separator.join(normalized_ids)
+            command = [
+                get_tool_path("mid3v2"),
+                "--TXXX",
+                f"MusicBrainz Artist Id:{text_value}",
+                str(file_path),
+            ]
+            run_external_tool(command, "mid3v2")
 
     @staticmethod
     def set_ufid_with_owner(file_path: Path, owner: str, data: str) -> None:

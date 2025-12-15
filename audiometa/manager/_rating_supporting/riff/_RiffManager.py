@@ -122,6 +122,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
         # BWF
         ISRC = "ISRC"  # International Standard Recording Code
         MBID = "MBID"  # MusicBrainz Track ID (Recording ID)
+        MBAR = "MBAR"  # MusicBrainz Artist ID
 
     def __init__(self, audio_file: "_AudioFile", normalized_rating_max_value: None | int = None):
         # Validate that the file is a WAV file
@@ -146,6 +147,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.TRACK_NUMBER: self.RiffTagKey.TRACK_NUMBER,
             UnifiedMetadataKey.ISRC: self.RiffTagKey.ISRC,
             UnifiedMetadataKey.MUSICBRAINZ_TRACKID: self.RiffTagKey.MBID,
+            UnifiedMetadataKey.MUSICBRAINZ_ARTISTIDS: self.RiffTagKey.MBAR,
             UnifiedMetadataKey.DESCRIPTION: None,
             UnifiedMetadataKey.ORIGINATOR: None,
         }
@@ -166,6 +168,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.TRACK_NUMBER: self.RiffTagKey.TRACK_NUMBER,
             UnifiedMetadataKey.ISRC: self.RiffTagKey.ISRC,
             UnifiedMetadataKey.MUSICBRAINZ_TRACKID: self.RiffTagKey.MBID,
+            UnifiedMetadataKey.MUSICBRAINZ_ARTISTIDS: self.RiffTagKey.MBAR,
             UnifiedMetadataKey.DESCRIPTION: None,
             UnifiedMetadataKey.ORIGINATOR: None,
         }

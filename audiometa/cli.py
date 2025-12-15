@@ -95,6 +95,7 @@ def format_as_table(data: dict[str, Any]) -> str:
             "archival_location",
             "isrc",
             "musicbrainz_trackid",
+            "musicbrainz_artistids",
             "description",
             "originator",
         }
@@ -203,6 +204,10 @@ def _write_metadata(args: argparse.Namespace) -> None:
         metadata[UnifiedMetadataKey.MUSICBRAINZ_TRACKID] = args.musicbrainz_track_id
 
     # List fields (can be specified multiple times)
+    if args.musicbrainz_artist_ids:
+        artist_ids = [aid.strip() for aid in args.musicbrainz_artist_ids if aid and aid.strip()]
+        if artist_ids:
+            metadata[UnifiedMetadataKey.MUSICBRAINZ_ARTISTIDS] = artist_ids
     if args.artist:
         artists = [a.strip() for a in args.artist if a and a.strip()]
         if artists:
@@ -447,6 +452,12 @@ Examples:
         "--musicbrainz-track-id",
         dest="musicbrainz_track_id",
         help="MusicBrainz Track ID (Recording ID) - UUID format (e.g., '9d6f6f7c-9d52-4c76-8f9e-01d18d8f8ec6')",
+    )
+    write_parser.add_argument(
+        "--musicbrainz-artist-ids",
+        action="append",
+        dest="musicbrainz_artist_ids",
+        help="MusicBrainz Artist IDs - UUID format (can be specified multiple times for multiple artists)",
     )
     write_parser.add_argument(
         "--force-format",

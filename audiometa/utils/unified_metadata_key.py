@@ -32,6 +32,7 @@ class UnifiedMetadataKey(str, Enum):
     ARCHIVAL_LOCATION = "archival_location"
     ISRC = "isrc"
     MUSICBRAINZ_TRACKID = "musicbrainz_trackid"
+    MUSICBRAINZ_ARTISTIDS = "musicbrainz_artistids"
     DESCRIPTION = "description"
     ORIGINATOR = "originator"
 
@@ -47,6 +48,7 @@ class UnifiedMetadataKey(str, Enum):
             UnifiedMetadataKey.ALBUM_ARTISTS,
             UnifiedMetadataKey.GENRES_NAMES,
             UnifiedMetadataKey.COMPOSERS,
+            UnifiedMetadataKey.MUSICBRAINZ_ARTISTIDS,
         }
 
         result = self in multi_value_fields
@@ -83,6 +85,7 @@ class UnifiedMetadataKey(str, Enum):
             UnifiedMetadataKey.ARCHIVAL_LOCATION: str,
             UnifiedMetadataKey.ISRC: str,
             UnifiedMetadataKey.MUSICBRAINZ_TRACKID: str,
+            UnifiedMetadataKey.MUSICBRAINZ_ARTISTIDS: list[str],
             UnifiedMetadataKey.DESCRIPTION: str,
             UnifiedMetadataKey.ORIGINATOR: str,
         }

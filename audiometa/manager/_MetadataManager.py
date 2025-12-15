@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, TypeVar, Union, cast
 
 from mutagen._file import FileType as MutagenMetadata
 
-from audiometa.exceptions import InvalidMetadataFieldFormatError
+from audiometa.exceptions import InvalidMetadataFieldFormatError, InvalidMetadataFieldTypeError
 from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 if TYPE_CHECKING:
@@ -256,6 +256,33 @@ class _MetadataManager:
         )
 
     @staticmethod
+    def _validate_musicbrainz_uuid_format(uuid_str: str, field_key: UnifiedMetadataKey) -> None:
+        """Validate a single MusicBrainz UUID string format.
+
+        Accepts 36-character hyphenated UUID or 32-character hex string. Empty strings are allowed.
+
+        Raises:
+            InvalidMetadataFieldFormatError: If the UUID format is invalid
+        """
+        if not uuid_str:
+            return
+
+        # 36-character hyphenated UUID format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        if re.match(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", uuid_str):
+            return
+
+        # 32-character hex string without hyphens
+        if re.match(r"^[0-9a-fA-F]{32}$", uuid_str):
+            return
+
+        raise InvalidMetadataFieldFormatError(
+            field_key.value,
+            "36-character hyphenated UUID (e.g., '9d6f6f7c-9d52-4c76-8f9e-01d18d8f8ec6') or "
+            "32-character hex string (e.g., '9d6f6f7c9d524c768f9e01d18d8f8ec6')",
+            uuid_str,
+        )
+
+    @staticmethod
     def validate_musicbrainz_trackid(track_id: str) -> None:
         """Validate MusicBrainz Track ID (UUID) format.
 
@@ -279,23 +306,28 @@ class _MetadataManager:
             >>> _MetadataManager.validate_musicbrainz_trackid("not-a-uuid")
             # Raises InvalidMetadataFieldFormatError
         """
-        if not track_id:
-            return
+        _MetadataManager._validate_musicbrainz_uuid_format(track_id, UnifiedMetadataKey.MUSICBRAINZ_TRACKID)
 
-        # 36-character hyphenated UUID format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-        if re.match(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", track_id):
-            return
+    @staticmethod
+    def validate_musicbrainz_artistids(artist_ids: list[str]) -> None:
+        """Validate MusicBrainz Artist ID(s) (UUID) format.
 
-        # 32-character hex string without hyphens
-        if re.match(r"^[0-9a-fA-F]{32}$", track_id):
-            return
+        Each Artist ID must be a valid UUID (36-char hyphenated or 32-char hex).
+        Empty list or list with empty strings is allowed.
 
-        raise InvalidMetadataFieldFormatError(
-            UnifiedMetadataKey.MUSICBRAINZ_TRACKID.value,
-            "36-character hyphenated UUID (e.g., '9d6f6f7c-9d52-4c76-8f9e-01d18d8f8ec6') or "
-            "32-character hex string (e.g., '9d6f6f7c9d524c768f9e01d18d8f8ec6')",
-            track_id,
-        )
+        Raises:
+            InvalidMetadataFieldFormatError: If any Artist ID format is invalid
+            InvalidMetadataFieldTypeError: If artist_ids is not a list
+        """
+        if not isinstance(artist_ids, list):
+            raise InvalidMetadataFieldTypeError(
+                UnifiedMetadataKey.MUSICBRAINZ_ARTISTIDS.value,
+                "list of strings",
+                type(artist_ids).__name__,
+            )
+
+        for artist_id in artist_ids:
+            _MetadataManager._validate_musicbrainz_uuid_format(artist_id, UnifiedMetadataKey.MUSICBRAINZ_ARTISTIDS)
 
     @abstractmethod
     def _extract_mutagen_metadata(self) -> MutagenMetadata:
@@ -714,6 +746,32 @@ class _MetadataManager:
             return self._get_genres_from_raw_clean_metadata_uppercase_keys(
                 self.raw_clean_metadata_uppercase_keys, raw_metadata_key
             )
+        if unified_metadata_key == UnifiedMetadataKey.MUSICBRAINZ_ARTISTIDS:
+            # First apply smart parsing to handle separator-based values
+            if unified_metadata_key.can_semantically_have_multiple_values():
+                if self._should_apply_smart_parsing(values_list_str):
+                    # Apply parsing for single entry (legacy data detection)
+                    parsed_values = self._apply_smart_parsing(values_list_str)
+                    values_list_str = parsed_values if parsed_values else []
+                else:
+                    # No parsing - filter empty/whitespace values
+                    values_list_str = [val.strip() for val in values_list_str if val.strip()]
+
+            # Then normalize UUIDs: convert 32-char hex to 36-char hyphenated format if needed
+            normalized_ids = []
+            uuid_hex_length = 32
+            for artist_id in values_list_str:
+                if artist_id and artist_id.strip():
+                    normalized_id = artist_id.strip()
+                    if len(normalized_id) == uuid_hex_length and all(
+                        c in "0123456789abcdefABCDEF" for c in normalized_id
+                    ):
+                        normalized_id = (
+                            f"{normalized_id[:8]}-{normalized_id[8:12]}-"
+                            f"{normalized_id[12:16]}-{normalized_id[16:20]}-{normalized_id[20:32]}"
+                        )
+                    normalized_ids.append(normalized_id)
+            return normalized_ids if normalized_ids else None
         if unified_metadata_key.can_semantically_have_multiple_values():
             # Apply smart parsing logic for semantically multi-value fields
             if self._should_apply_smart_parsing(values_list_str):

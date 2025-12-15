@@ -43,6 +43,7 @@ class RIFFMetadataSetter:
         artist_value = None
         genre_value = None
         composer_value = None
+        musicbrainz_artistids = None
         for key, value in metadata.items():
             if isinstance(value, list) and value:
                 if key.lower() == "artist":
@@ -51,6 +52,8 @@ class RIFFMetadataSetter:
                     genre_value = value[0]  # Store first genre for main command
                 elif key.lower() == "composer":
                     composer_value = value[0]  # Store first composer for main command
+                elif key.lower() == "musicbrainz_artistids":
+                    musicbrainz_artistids = value
 
         # Handle musicbrainz_trackid (MBID FourCC) - needs special handling with manual creator
         musicbrainz_trackid = None
@@ -130,6 +133,12 @@ class RIFFMetadataSetter:
             from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
 
             ManualRIFFMetadataCreator.create_mbid_field(file_path, musicbrainz_trackid)
+
+        # Set MusicBrainz Artist IDs (MBAR FourCC) AFTER bwfmetaedit
+        if musicbrainz_artistids is not None:
+            from .riff_manual_metadata_creator import ManualRIFFMetadataCreator
+
+            ManualRIFFMetadataCreator.create_multiple_mbar_fields(file_path, musicbrainz_artistids)
 
     @staticmethod
     def set_comment(file_path: Path, comment: str) -> None:

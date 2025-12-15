@@ -67,6 +67,10 @@ class TestCLIWriteComprehensive:
                     "USRC17607839",
                     "--musicbrainz-track-id",
                     "9d6f6f7c-9d52-4c76-8f9e-01d18d8f8ec6",
+                    "--musicbrainz-artist-ids",
+                    "9d6f6f7c-9d52-4c76-8f9e-01d18d8f8ec6",
+                    "--musicbrainz-artist-ids",
+                    "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
                 ],
                 capture_output=True,
                 text=True,
@@ -95,6 +99,10 @@ class TestCLIWriteComprehensive:
             assert metadata.get(UnifiedMetadataKey.REPLAYGAIN) == "+2.5 dB"
             assert metadata.get(UnifiedMetadataKey.ISRC) == "USRC17607839"
             assert metadata.get(UnifiedMetadataKey.MUSICBRAINZ_TRACKID) == "9d6f6f7c-9d52-4c76-8f9e-01d18d8f8ec6"
+            assert metadata.get(UnifiedMetadataKey.MUSICBRAINZ_ARTISTIDS) == [
+                "9d6f6f7c-9d52-4c76-8f9e-01d18d8f8ec6",
+                "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+            ]
             # ARCHIVAL_LOCATION is not supported by ID3v2 format (MP3)
             # It's only supported by Vorbis (FLAC)
 
@@ -139,6 +147,8 @@ class TestCLIWriteComprehensive:
                     "FRXXX1800001",
                     "--musicbrainz-track-id",
                     "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                    "--musicbrainz-artist-ids",
+                    "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                 ],
                 capture_output=True,
                 text=True,
@@ -163,6 +173,7 @@ class TestCLIWriteComprehensive:
             assert metadata.get(UnifiedMetadataKey.DESCRIPTION) == "FLAC description"
             assert metadata.get(UnifiedMetadataKey.ISRC) == "FRXXX1800001"
             assert metadata.get(UnifiedMetadataKey.MUSICBRAINZ_TRACKID) == "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+            assert metadata.get(UnifiedMetadataKey.MUSICBRAINZ_ARTISTIDS) == ["a1b2c3d4-e5f6-7890-abcd-ef1234567890"]
 
     def test_cli_write_wav_all_fields(self):
         with temp_file_with_metadata({}, "wav") as test_file:
@@ -203,6 +214,8 @@ class TestCLIWriteComprehensive:
                     "GBUM71505078",
                     "--musicbrainz-track-id",
                     "12345678-1234-5678-9abc-def123456789",
+                    "--musicbrainz-artist-ids",
+                    "12345678-1234-5678-9abc-def123456789",
                 ],
                 capture_output=True,
                 text=True,
@@ -226,3 +239,4 @@ class TestCLIWriteComprehensive:
             assert metadata.get(UnifiedMetadataKey.ORIGINATOR) == "WAV originator"
             assert metadata.get(UnifiedMetadataKey.ISRC) == "GBUM71505078"
             assert metadata.get(UnifiedMetadataKey.MUSICBRAINZ_TRACKID) == "12345678-1234-5678-9abc-def123456789"
+            assert metadata.get(UnifiedMetadataKey.MUSICBRAINZ_ARTISTIDS) == ["12345678-1234-5678-9abc-def123456789"]
