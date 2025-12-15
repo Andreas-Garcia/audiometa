@@ -93,6 +93,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - **Comprehensive Testing**: Added 27 integration tests covering reading, writing, deletion, and format-specific behavior, and unit tests covering type and format validation
   - **Documentation**: Added comprehensive `MUSICBRAINZ_ARTISTID.md` guide with examples, format support matrix, and implementation details
   - **Error Handling**: Proper error handling for unsupported formats (ID3v1) with appropriate exceptions
+  - **Test Helpers**: Added MusicBrainz Artist ID support to test helper classes for proper test isolation:
+    - Added `set_musicbrainz_artistids()` to `ID3v2MetadataSetter` for MP3 files
+    - Added `set_musicbrainz_artistids()` to `VorbisMetadataSetter` for FLAC files
+    - Added `create_multiple_mbar_fields()` to `ManualRIFFMetadataCreator` for WAV files
 
 ### Fixed
 
@@ -100,10 +104,6 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Artists are now processed independently of MusicBrainz Artist IDs
 - **ID3v2 Reader**: Fixed reading of null-separated MusicBrainz Artist IDs in TXXX frames for ID3v2.4 format
   - Properly splits null-separated values when reading from TXXX frames
-- **Test Helpers**: Added MusicBrainz Artist ID support to test helper classes for proper test isolation:
-  - Added `set_musicbrainz_artistids()` to `ID3v2MetadataSetter` for MP3 files
-  - Added `set_musicbrainz_artistids()` to `VorbisMetadataSetter` for FLAC files
-  - Added `create_multiple_mbar_fields()` to `ManualRIFFMetadataCreator` for WAV files
 
 ## [0.10.0] - 2025-12-09
 
