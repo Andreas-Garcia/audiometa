@@ -79,6 +79,32 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Added
+
+- **MusicBrainz Artist ID Metadata Field Support**: Added comprehensive support for MusicBrainz Artist ID metadata field:
+  - **ID3v2 Format**: Full read/write support via TXXX frames (description: `MusicBrainz Artist Id`) with support for multiple values using separators (ID3v2.3) or null-separated values (ID3v2.4)
+  - **Vorbis (FLAC) Format**: Full read/write support as `MUSICBRAINZ_ARTISTID` comment with support for multiple values
+  - **RIFF (WAV/BWF) Format**: Full read/write support as `MBAR` FourCC in INFO chunk with support for multiple values
+  - **CLI Integration**: Added `--musicbrainz-artist-ids` command-line option (can be specified multiple times) for metadata writing operations
+  - **API Support**: Complete integration with `update_metadata()`, `get_unified_metadata_field()`, and `get_unified_metadata()` functions
+  - **UUID Format Validation**: Validates both 36-character hyphenated UUID format (e.g., `9d6f6f7c-9d52-4c76-8f9e-01d18d8f8ec6`) and 32-character hex format (e.g., `9d6f6f7c9d524c768f9e01d18d8f8ec6`)
+  - **UUID Normalization**: Automatically normalizes 32-character hex UUIDs to hyphenated format for consistency
+  - **Multiple Values Support**: Supports multiple artist IDs per track, stored appropriately for each format
+  - **Comprehensive Testing**: Added 27 integration tests covering reading, writing, deletion, and format-specific behavior, and unit tests covering type and format validation
+  - **Documentation**: Added comprehensive `MUSICBRAINZ_ARTISTID.md` guide with examples, format support matrix, and implementation details
+  - **Error Handling**: Proper error handling for unsupported formats (ID3v1) with appropriate exceptions
+
+### Fixed
+
+- **CLI Artists Handling**: Fixed bug where `--artist` argument wasn't processed when `--musicbrainz-artist-ids` was not provided
+  - Artists are now processed independently of MusicBrainz Artist IDs
+- **ID3v2 Reader**: Fixed reading of null-separated MusicBrainz Artist IDs in TXXX frames for ID3v2.4 format
+  - Properly splits null-separated values when reading from TXXX frames
+- **Test Helpers**: Added MusicBrainz Artist ID support to test helper classes for proper test isolation:
+  - Added `set_musicbrainz_artistids()` to `ID3v2MetadataSetter` for MP3 files
+  - Added `set_musicbrainz_artistids()` to `VorbisMetadataSetter` for FLAC files
+  - Added `create_multiple_mbar_fields()` to `ManualRIFFMetadataCreator` for WAV files
+
 ## [0.10.0] - 2025-12-09
 
 ### Added

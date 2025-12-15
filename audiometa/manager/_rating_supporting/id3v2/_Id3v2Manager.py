@@ -1,9 +1,4 @@
-import contextlib
-import shutil
-import subprocess
-import tempfile
-from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from mutagen._file import FileType as MutagenMetadata
 from mutagen.id3 import ID3
@@ -29,9 +24,7 @@ from mutagen.id3._frames import (
     TPUB,
     TRCK,
     TSRC,
-    TXXX,
     TYER,
-    UFID,
     USLT,
     WOAR,
 )
@@ -39,16 +32,12 @@ from mutagen.id3._util import ID3NoHeaderError
 
 from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
-from ....utils.tool_path_resolver import get_tool_path
-
 if TYPE_CHECKING:
     from ...._audio_file import _AudioFile
-from ....exceptions import FileCorruptedError, MetadataFieldNotSupportedByMetadataFormatError
+from ....exceptions import MetadataFieldNotSupportedByMetadataFormatError
 from ....utils.rating_profiles import RatingWriteProfile
 from ....utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
-from ..._MetadataManager import _MetadataManager as MetadataManager
 from .._RatingSupportingMetadataManager import _RatingSupportingMetadataManager
-from ._id3v2_constants import ID3V2_DATE_FORMAT_LENGTH, ID3V2_VERSION_3, ID3V2_VERSION_4
 
 
 class _Id3v2Manager(_RatingSupportingMetadataManager):
@@ -286,6 +275,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.REPLAYGAIN: None,
             UnifiedMetadataKey.ISRC: self.Id3TextFrame.ISRC,
             UnifiedMetadataKey.MUSICBRAINZ_TRACKID: None,
+            UnifiedMetadataKey.MUSICBRAINZ_ARTISTIDS: None,
         }
         metadata_keys_direct_map_write: dict[UnifiedMetadataKey, RawMetadataKey | None] = {
             UnifiedMetadataKey.TITLE: self.Id3TextFrame.TITLE,
@@ -308,6 +298,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             UnifiedMetadataKey.REPLAYGAIN: None,
             UnifiedMetadataKey.ISRC: self.Id3TextFrame.ISRC,
             UnifiedMetadataKey.MUSICBRAINZ_TRACKID: None,
+            UnifiedMetadataKey.MUSICBRAINZ_ARTISTIDS: None,
         }
 
         super().__init__(
@@ -319,6 +310,16 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             rating_write_profile=RatingWriteProfile.BASE_255_NON_PROPORTIONAL,
             normalized_rating_max_value=normalized_rating_max_value,
         )
+
+        from ._id3v1_preserver import _Id3v1Preserver
+        from ._id3v2_flac_handler import _Id3v2FlacHandler
+        from ._id3v2_reader import _Id3v2Reader
+        from ._id3v2_writer import _Id3v2Writer
+
+        self._reader = _Id3v2Reader(self)
+        self._writer = _Id3v2Writer(self)
+        self._flac_handler = _Id3v2FlacHandler(self)
+        self._id3v1_preserver = _Id3v1Preserver(self)
 
     def _extract_mutagen_metadata(self) -> RawMetadataDict:
         try:
@@ -345,132 +346,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
     def _convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(
         self, raw_mutagen_metadata: MutagenMetadata
     ) -> RawMetadataDict:
-        raw_metadata_id3: ID3 = cast(ID3, raw_mutagen_metadata)
-        result: RawMetadataDict = {}
-
-        for frame_key in self.Id3TextFrame.__members__.values():
-            if frame_key == self.Id3TextFrame.RATING:
-                for raw_mutagen_frame in raw_mutagen_metadata.items():
-                    popm_key = raw_mutagen_frame[0]
-                    if popm_key.startswith(self.Id3TextFrame.RATING):
-                        popm: POPM = raw_mutagen_frame[1]
-                        popm_key_without_prefixes = popm_key.replace(f"{self.Id3TextFrame.RATING}:", "")
-                        result[self.Id3TextFrame.RATING] = [
-                            popm_key_without_prefixes,
-                            getattr(popm, "rating", 0),
-                        ]
-                        break
-            elif frame_key == self.Id3TextFrame.COMMENT:
-                # Handle COMM frames (comment frames)
-                for raw_mutagen_frame in raw_mutagen_metadata.items():
-                    if raw_mutagen_frame[0].startswith("COMM"):
-                        comm_frame = raw_mutagen_frame[1]
-                        result[frame_key] = comm_frame.text
-                        break
-            elif frame_key == self.Id3TextFrame.UNSYNCHRONIZED_LYRICS:
-                # Handle USLT frames (unsynchronized lyrics frames)
-                for raw_mutagen_frame in raw_mutagen_metadata.items():
-                    if raw_mutagen_frame[0].startswith("USLT"):
-                        uslt_frame = raw_mutagen_frame[1]
-                        result[frame_key] = [uslt_frame.text]
-                        break
-            elif frame_key == self.Id3TextFrame.URL:
-                # Handle WOAR frames (official artist/performer webpage)
-                for raw_mutagen_frame in raw_mutagen_metadata.items():
-                    if raw_mutagen_frame[0].startswith("WOAR"):
-                        woar_frame = raw_mutagen_frame[1]
-                        result[frame_key] = [woar_frame.url]
-                        break
-            else:
-                frame_value = frame_key in raw_metadata_id3 and raw_metadata_id3[frame_key]
-                if not frame_value:
-                    continue
-
-                if not frame_value.text:
-                    continue
-
-                result[frame_key] = frame_value.text
-
-        # Handle TXXX frames for REPLAYGAIN
-        for raw_mutagen_frame in raw_mutagen_metadata.items():
-            if raw_mutagen_frame[0].startswith("TXXX"):
-                txxx_frame = raw_mutagen_frame[1]
-                if hasattr(txxx_frame, "desc") and txxx_frame.desc == "REPLAYGAIN":
-                    result[self.Id3TextFrame.REPLAYGAIN] = txxx_frame.text
-                    break
-
-        # Handle UFID frames for MusicBrainz Track ID (preferred)
-        musicbrainz_trackid = None
-        for raw_mutagen_frame in raw_mutagen_metadata.items():
-            if raw_mutagen_frame[0].startswith("UFID"):
-                ufid_frame = raw_mutagen_frame[1]
-                if (
-                    hasattr(ufid_frame, "owner")
-                    and ufid_frame.owner == "http://musicbrainz.org"
-                    and hasattr(ufid_frame, "data")
-                ):
-                    # UFID data is bytes, decode to string
-                    try:
-                        musicbrainz_trackid = ufid_frame.data.decode("utf-8", errors="replace").strip("\x00")
-                        # Normalize to hyphenated UUID format if it's 32 hex chars
-                        uuid_hex_length = 32
-                        if len(musicbrainz_trackid) == uuid_hex_length and all(
-                            c in "0123456789abcdefABCDEF" for c in musicbrainz_trackid
-                        ):
-                            musicbrainz_trackid = (
-                                f"{musicbrainz_trackid[:8]}-{musicbrainz_trackid[8:12]}-"
-                                f"{musicbrainz_trackid[12:16]}-{musicbrainz_trackid[16:20]}-{musicbrainz_trackid[20:32]}"
-                            )
-                        break
-                    except (UnicodeDecodeError, AttributeError):
-                        pass
-
-        # Handle TXXX frames for MusicBrainz Track ID (fallback)
-        if not musicbrainz_trackid:
-            for raw_mutagen_frame in raw_mutagen_metadata.items():
-                if raw_mutagen_frame[0].startswith("TXXX"):
-                    txxx_frame = raw_mutagen_frame[1]
-                    if hasattr(txxx_frame, "desc") and txxx_frame.desc == "MusicBrainz Track Id" and txxx_frame.text:
-                        musicbrainz_trackid = (
-                            txxx_frame.text[0] if isinstance(txxx_frame.text, list) else str(txxx_frame.text)
-                        )
-                        # Normalize to hyphenated UUID format if it's 32 hex chars
-                        uuid_hex_length = 32
-                        if len(musicbrainz_trackid) == uuid_hex_length and all(
-                            c in "0123456789abcdefABCDEF" for c in musicbrainz_trackid
-                        ):
-                            musicbrainz_trackid = (
-                                f"{musicbrainz_trackid[:8]}-{musicbrainz_trackid[8:12]}-"
-                                f"{musicbrainz_trackid[12:16]}-{musicbrainz_trackid[16:20]}-{musicbrainz_trackid[20:32]}"
-                            )
-                        break
-
-        if musicbrainz_trackid:
-            # Use a special key for MusicBrainz Track ID (not a text frame, so use string key)
-            result[cast(RawMetadataKey, "MUSICBRAINZ_TRACKID")] = [musicbrainz_trackid]
-
-        # Special handling for release date: if TDRC is not present, try to construct from TYER + TDAT
-        # Only do this for ID3v2 files (not ID3v1) and only when both TYER and TDAT are present
-        if self.Id3TextFrame.RECORDING_TIME not in result:
-            year_key: RawMetadataKey = self.Id3TextFrame.YEAR
-            date_key: RawMetadataKey = self.Id3TextFrame.DATE
-            tyer_value = result.get(year_key, None)
-            tdat_value = result.get(date_key, None)
-            if tyer_value and tdat_value:
-                # Parse TDAT (DDMM) and TYER to construct YYYY-MM-DD
-                try:
-                    year = str(tyer_value[0]) if isinstance(tyer_value, list) else str(tyer_value)
-                    date_str = str(tdat_value[0]) if isinstance(tdat_value, list) else str(tdat_value)
-                    if len(date_str) == ID3V2_DATE_FORMAT_LENGTH:  # DDMM format
-                        day = date_str[:2]
-                        month = date_str[2:]
-                        # Construct YYYY-MM-DD
-                        release_date = f"{year}-{month}-{day}"
-                        result[self.Id3TextFrame.RECORDING_TIME] = [release_date]
-                except (IndexError, ValueError):
-                    pass  # If parsing fails, don't add release date
-
-        return result
+        return self._reader.convert_raw_mutagen_metadata_to_dict_with_potential_duplicate_keys(raw_mutagen_metadata)
 
     def _get_raw_rating_by_traktor_or_not(self, raw_clean_metadata: RawMetadataDict) -> tuple[int | None, bool]:
         for raw_metadata_key, raw_metadata_values in raw_clean_metadata.items():
@@ -490,83 +366,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         app_metadata_value: UnifiedMetadataValue,
         unified_metadata_key: UnifiedMetadataKey,
     ) -> None:
-        if unified_metadata_key == UnifiedMetadataKey.REPLAYGAIN:
-            # Remove existing TXXX:REPLAYGAIN frames
-            raw_mutagen_metadata.delall("TXXX:REPLAYGAIN")
-            if app_metadata_value is not None:
-                # Add new TXXX frame with desc 'REPLAYGAIN'
-                raw_mutagen_metadata.add(TXXX(encoding=3, desc="REPLAYGAIN", text=str(app_metadata_value)))
-        elif unified_metadata_key == UnifiedMetadataKey.MUSICBRAINZ_TRACKID:
-            # Remove existing UFID frames with MusicBrainz owner
-            raw_mutagen_metadata.delall("UFID:http://musicbrainz.org")
-            # Remove existing TXXX frames with MusicBrainz Track Id description
-            raw_mutagen_metadata.delall("TXXX:MusicBrainz Track Id")
-
-            if app_metadata_value is not None and app_metadata_value != "":
-                # Normalize UUID: convert 32-char hex to 36-char hyphenated format if needed
-                track_id = str(app_metadata_value).strip()
-                uuid_hex_length = 32
-                if len(track_id) == uuid_hex_length and all(c in "0123456789abcdefABCDEF" for c in track_id):
-                    track_id = f"{track_id[:8]}-{track_id[8:12]}-{track_id[12:16]}-{track_id[16:20]}-{track_id[20:32]}"
-
-                # Write as UFID frame with owner "http://musicbrainz.org"
-                # UFID data should be the UUID as bytes (without null terminator)
-                track_id_bytes = track_id.encode("utf-8")
-                raw_mutagen_metadata.add(UFID(owner="http://musicbrainz.org", data=track_id_bytes))
-        elif unified_metadata_key in (UnifiedMetadataKey.DISC_NUMBER, UnifiedMetadataKey.DISC_TOTAL):
-            tpos_key = self.Id3TextFrame.DISC_NUMBER
-            tpos_frame_class = TPOS
-            encoding = 0 if self.id3v2_version[1] == ID3V2_VERSION_3 else 3
-
-            if unified_metadata_key == UnifiedMetadataKey.DISC_NUMBER:
-                current_tpos = raw_mutagen_metadata.get(tpos_key)
-                current_total = None
-                if current_tpos and len(current_tpos.text) > 0:
-                    tpos_str = str(current_tpos.text[0])
-                    import re
-
-                    match = re.match(r"^(\d+)/(\d+)$", tpos_str)
-                    if match:
-                        current_total = int(match.group(2))
-
-                raw_mutagen_metadata.delall(tpos_key)
-                if app_metadata_value is not None:
-                    if not isinstance(app_metadata_value, int):
-                        msg = f"DISC_NUMBER must be an integer, got {type(app_metadata_value).__name__}"
-                        raise TypeError(msg)
-                    disc_number = min(255, max(0, app_metadata_value))
-                    tpos_value = f"{disc_number}/{current_total}" if current_total is not None else str(disc_number)
-                    raw_mutagen_metadata.add(tpos_frame_class(encoding=encoding, text=tpos_value))
-            elif unified_metadata_key == UnifiedMetadataKey.DISC_TOTAL:
-                current_tpos = raw_mutagen_metadata.get(tpos_key)
-                current_disc_number = None
-                if current_tpos and len(current_tpos.text) > 0:
-                    tpos_str = str(current_tpos.text[0])
-                    import re
-
-                    match = re.match(r"^(\d+)(?:/(\d+))?$", tpos_str)
-                    if match:
-                        current_disc_number = int(match.group(1))
-
-                raw_mutagen_metadata.delall(tpos_key)
-                if app_metadata_value is not None:
-                    if not isinstance(app_metadata_value, int):
-                        msg = f"DISC_TOTAL must be an integer, got {type(app_metadata_value).__name__}"
-                        raise TypeError(msg)
-                    disc_total = min(255, max(0, app_metadata_value))
-                    if current_disc_number is not None:
-                        tpos_value = f"{current_disc_number}/{disc_total}"
-                        raw_mutagen_metadata.add(tpos_frame_class(encoding=encoding, text=tpos_value))
-                    else:
-                        msg = "Cannot set DISC_TOTAL without DISC_NUMBER"
-                        raise ValueError(msg)
-                elif current_disc_number is not None:
-                    tpos_value = str(current_disc_number)
-                    raw_mutagen_metadata.add(tpos_frame_class(encoding=encoding, text=tpos_value))
-        else:
-            super()._update_undirectly_mapped_metadata(  # type: ignore[safe-super]
-                cast(Any, raw_mutagen_metadata), app_metadata_value, unified_metadata_key
-            )
+        self._writer.update_undirectly_mapped_metadata(raw_mutagen_metadata, app_metadata_value, unified_metadata_key)
 
     def _get_undirectly_mapped_metadata_value_other_than_rating_from_raw_clean_metadata(
         self, raw_clean_metadata: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey
@@ -593,6 +393,19 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                 return None
             first_value = trackid_value[0]
             return cast(UnifiedMetadataValue, first_value)
+        if unified_metadata_key == UnifiedMetadataKey.MUSICBRAINZ_ARTISTIDS:
+            musicbrainz_artistids_key = cast(RawMetadataKey, "MUSICBRAINZ_ARTISTIDS")
+            if musicbrainz_artistids_key not in raw_clean_metadata:
+                return None
+            artistids_value = raw_clean_metadata[musicbrainz_artistids_key]
+            if artistids_value is None:
+                return None
+            if len(artistids_value) == 0:
+                return None
+            # Use base class's smart parsing to handle separator-based values
+            return self._get_value_from_multi_values_data(
+                unified_metadata_key, cast(list[str], artistids_value), musicbrainz_artistids_key
+            )
         if unified_metadata_key == UnifiedMetadataKey.DISC_NUMBER:
             tpos_key = self.Id3TextFrame.DISC_NUMBER
             if tpos_key not in raw_clean_metadata:
@@ -630,171 +443,18 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         raw_metadata_key: RawMetadataKey,
         app_metadata_value: UnifiedMetadataValue,
     ) -> None:
-        raw_mutagen_metadata_id3: ID3 = raw_mutagen_metadata
-        raw_mutagen_metadata_id3.delall(raw_metadata_key)
-
-        # If value is None, don't add any frames (field is removed)
-        if app_metadata_value is None:
-            return
-
-        # Defensive check: if list contains None values, filter them out (should not happen after base class filtering)
-        if isinstance(app_metadata_value, list):
-            app_metadata_value = [v for v in app_metadata_value if v is not None and v != ""]
-            if not app_metadata_value:
-                return
-
-        # Handle multiple values by creating separate frames for multi-value fields
-        if isinstance(app_metadata_value, list) and all(isinstance(item, str) for item in app_metadata_value):
-            # Get the corresponding UnifiedMetadataKey
-            unified_metadata_key = None
-            if self.metadata_keys_direct_map_write is None:
-                return
-            for key, raw_key in self.metadata_keys_direct_map_write.items():
-                if raw_key == raw_metadata_key:
-                    unified_metadata_key = key
-                    break
-
-            if unified_metadata_key and unified_metadata_key.can_semantically_have_multiple_values():
-                # Check ID3v2 version to determine handling
-                # Use self.id3v2_version instead of trying to get it from the mutagen object
-                # as the object might not have the version set yet during writing
-                id3v2_version = self.id3v2_version
-
-                # ID3v2.4 supports multi-value text frames (single frame with null-separated values per spec)
-                if id3v2_version[1] >= ID3V2_VERSION_4:
-                    # Create single frame with multiple text values (ID3v2.4 spec: null-separated values in one frame)
-                    # Officially supported fields: TPE1 (artists), TPE2 (album artists), TCOM (composers), TCON (genres)
-                    text_frame_class = self.ID3_TEXT_FRAME_CLASS_MAP[raw_metadata_key]
-                    # Values are already filtered at the base level
-                    if app_metadata_value:
-                        self._add_id3_frame_v24_multi(raw_mutagen_metadata_id3, text_frame_class, app_metadata_value)
-                    return
-
-                # For ID3v2.3, use concatenation with separators (ID3v2.3 doesn't support null-separated values)
-                # Find a separator that doesn't appear in any of the values and concatenate
-                separator = MetadataManager.find_safe_separator(app_metadata_value)
-                app_metadata_value = separator.join(app_metadata_value)
-                # Continue to handle as single value
-            else:
-                # For non-multi-value fields, concatenate with separators as fallback
-                # Find a separator that doesn't appear in any of the values and concatenate
-                separator = MetadataManager.find_safe_separator(app_metadata_value)
-                app_metadata_value = separator.join(app_metadata_value)
-
-        # Handle single values
-        text_frame_class = self.ID3_TEXT_FRAME_CLASS_MAP[raw_metadata_key]
-        self._add_id3_frame(raw_mutagen_metadata_id3, text_frame_class, raw_metadata_key, app_metadata_value)
-
-    def _add_id3_frame(
-        self,
-        raw_mutagen_metadata_id3: ID3,
-        text_frame_class: type[Any],
-        raw_metadata_key: RawMetadataKey,
-        app_metadata_value: UnifiedMetadataValue,
-    ) -> None:
-        """Add a single ID3 frame with proper encoding and format handling."""
-        # Determine encoding based on ID3v2 version
-        encoding = 0 if self.id3v2_version[1] == ID3V2_VERSION_3 else 3
-
-        if raw_metadata_key == self.Id3TextFrame.RATING:
-            raw_mutagen_metadata_id3.add(text_frame_class(email=self.ID3_RATING_APP_EMAIL, rating=app_metadata_value))
-        elif raw_metadata_key == self.Id3TextFrame.COMMENT:
-            # Handle COMM frames (comment frames)
-            raw_mutagen_metadata_id3.add(
-                text_frame_class(encoding=encoding, lang="eng", desc="", text=app_metadata_value)
-            )
-        elif raw_metadata_key == self.Id3TextFrame.UNSYNCHRONIZED_LYRICS:
-            # Handle USLT frames (unsynchronized lyrics frames)
-            raw_mutagen_metadata_id3.add(
-                text_frame_class(encoding=encoding, lang="eng", desc="", text=app_metadata_value)
-            )
-        elif raw_metadata_key == self.Id3TextFrame.URL:
-            # Handle WOAR frames (official artist/performer webpage)
-            raw_mutagen_metadata_id3.add(text_frame_class(url=app_metadata_value))
-        elif raw_metadata_key == self.Id3TextFrame.BPM:
-            # Handle TBPM frames (BPM must be a string)
-            raw_mutagen_metadata_id3.add(text_frame_class(encoding=encoding, text=str(app_metadata_value)))
-        elif raw_metadata_key == self.Id3TextFrame.TRACK_NUMBER:
-            # Handle TRCK frames (track number must be a string)
-            raw_mutagen_metadata_id3.add(text_frame_class(encoding=encoding, text=str(app_metadata_value)))
-        else:
-            raw_mutagen_metadata_id3.add(text_frame_class(encoding=encoding, text=app_metadata_value))
-
-    def _add_id3_frame_v24_multi(
-        self, raw_mutagen_metadata_id3: ID3, text_frame_class: type[Any], values: list[str]
-    ) -> None:
-        """ID3v2.4: add a single text frame containing multiple null-separated values.
-
-        Mutagen accepts a list for the `text` parameter and will write it as
-        null-separated strings in a single frame which matches the ID3v2.4 spec.
-        """
-        # Add one frame with multiple text values (mutagen handles null separation)
-        raw_mutagen_metadata_id3.add(text_frame_class(encoding=3, text=values))
+        self._writer.update_formatted_value_in_raw_mutagen_metadata(
+            raw_mutagen_metadata, raw_metadata_key, app_metadata_value
+        )
 
     def _preserve_id3v1_metadata(self, file_path: str) -> bytes | None:
-        """Read and preserve existing ID3v1 metadata from the end of the file.
-
-        Returns:
-            The 128-byte ID3v1 tag data if present, None otherwise
-        """
-        with Path(file_path).open("rb") as f:
-            f.seek(-128, 2)  # Seek to last 128 bytes
-            data = f.read(128)
-            if data.startswith(b"TAG"):
-                return data
-        return None
+        return self._id3v1_preserver.preserve_id3v1_metadata(file_path)
 
     def _save_with_id3v1_preservation(self, file_path: str, id3v1_data: bytes | None) -> None:
-        """Save ID3v2 metadata while preserving ID3v1 data.
-
-        Args:
-            file_path: Path to the audio file
-            id3v1_data: The 128-byte ID3v1 tag data to preserve, or None
-        """
-        if self.raw_mutagen_metadata is not None:
-            # Extract the major version number from the tuple (2, 3, 0) -> 3
-            version_major = self.id3v2_version[1]
-            id3_metadata: ID3 = cast(ID3, self.raw_mutagen_metadata)
-
-            if id3v1_data:
-                # Save to a temporary file first
-                with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as temp_file:
-                    temp_path = temp_file.name
-
-                try:
-                    # Copy the original file to temp file first
-                    shutil.copy2(file_path, temp_path)
-
-                    # Save ID3v2 to temp file (this will overwrite ID3v2 tags in the copy)
-                    id3_metadata.save(temp_path, v2_version=version_major)
-
-                    # Read the temp file and append ID3v1 data
-                    with Path(temp_path).open("rb") as f:
-                        temp_data = f.read()
-
-                    # Append ID3v1 data to the temp file
-                    final_data = temp_data + id3v1_data
-
-                    # Write the final file
-                    with Path(file_path).open("wb") as f:
-                        f.write(final_data)
-
-                finally:
-                    # Clean up temp file
-                    with contextlib.suppress(OSError):
-                        Path(temp_path).unlink()
-            else:
-                # No ID3v1 data to preserve, save normally
-                id3_metadata.save(file_path, v2_version=version_major)
+        self._id3v1_preserver.save_with_id3v1_preservation(file_path, id3v1_data)
 
     def _save_with_version(self, file_path: str) -> None:
-        """Save ID3 tags with the specified version, preserving existing ID3v1 metadata."""
-        if self.raw_mutagen_metadata is not None:
-            # Preserve existing ID3v1 metadata before saving ID3v2
-            id3v1_data = self._preserve_id3v1_metadata(file_path)
-
-            # Save ID3v2 while preserving ID3v1
-            self._save_with_id3v1_preservation(file_path, id3v1_data)
+        self._id3v1_preserver.save_with_version(file_path)
 
     def update_metadata(self, unified_metadata: UnifiedMetadata) -> None:
         """Update ID3v2 metadata using hybrid approach: mutagen for most formats, external tools for FLAC.
@@ -878,105 +538,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
         self._save_with_id3v1_preservation(self.audio_file.file_path, id3v1_data)
 
     def _update_metadata_for_flac(self, unified_metadata: UnifiedMetadata) -> None:
-        """Update ID3v2 metadata for FLAC files using external tools to avoid file corruption."""
-        if not self.metadata_keys_direct_map_write:
-            msg = "This format does not support metadata modification"
-            raise MetadataFieldNotSupportedByMetadataFormatError(msg)
-
-        self._validate_and_process_rating(unified_metadata)
-
-        # Use external tools to write ID3v2 metadata to FLAC files
-        # This avoids the file corruption that occurs with mutagen's ID3 class
-        # Determine the tool and version based on the configured ID3v2 version
-        if self.id3v2_version[1] == ID3V2_VERSION_3:
-            tool = "id3v2"
-            cmd = [get_tool_path("id3v2"), "--id3v2-only"]
-        else:  # ID3v2.4
-            tool = "mid3v2"
-            cmd = [get_tool_path("mid3v2")]
-
-        # Map unified metadata keys to external tool arguments
-        key_mapping = {
-            UnifiedMetadataKey.TITLE: "--song",
-            UnifiedMetadataKey.ARTISTS: "--artist",
-            UnifiedMetadataKey.ALBUM: "--album",
-            UnifiedMetadataKey.ALBUM_ARTISTS: "--TPE2",
-            UnifiedMetadataKey.GENRES_NAMES: "--genre",
-            UnifiedMetadataKey.COMMENT: "--comment",
-            UnifiedMetadataKey.TRACK_NUMBER: "--track",
-            UnifiedMetadataKey.BPM: "--TBPM",
-            UnifiedMetadataKey.COMPOSERS: "--TCOM",
-            UnifiedMetadataKey.COPYRIGHT: "--TCOP",
-            UnifiedMetadataKey.UNSYNCHRONIZED_LYRICS: "--USLT",
-            UnifiedMetadataKey.LANGUAGE: "--TLAN",
-            UnifiedMetadataKey.PUBLISHER: "--TPUB",
-        }
-
-        # Build command with metadata
-        # First, remove frames for keys explicitly set to None
-        frames_to_remove = []
-        for unified_key, value in unified_metadata.items():
-            if unified_key in self.metadata_keys_direct_map_write:
-                raw_key = self.metadata_keys_direct_map_write[unified_key]
-                if raw_key and value is None:
-                    frames_to_remove.append(raw_key)
-
-        try:
-            if frames_to_remove:
-                if self.id3v2_version[1] == ID3V2_VERSION_3:
-                    # id3v2 supports removing a single frame at a time via -r
-                    for frame in frames_to_remove:
-                        with contextlib.suppress(subprocess.CalledProcessError):
-                            subprocess.run(
-                                [get_tool_path("id3v2"), "-r", frame, self.audio_file.file_path],
-                                check=True,
-                                capture_output=True,
-                            )
-                else:
-                    # mid3v2 supports deleting multiple frames with --delete-frames
-                    frames_arg = ",".join(frames_to_remove)
-                    with contextlib.suppress(subprocess.CalledProcessError):
-                        subprocess.run(
-                            [get_tool_path("mid3v2"), f"--delete-frames={frames_arg}", self.audio_file.file_path],
-                            check=True,
-                            capture_output=True,
-                        )
-        except FileNotFoundError:
-            # If removal tool not found, proceed and hope save will remove frames
-            pass
-
-        # Build command with metadata (only non-None values)
-        for unified_key, value in unified_metadata.items():
-            if unified_key in key_mapping and value is not None:
-                tool_arg = key_mapping[unified_key]
-
-                processed_value = value
-                if unified_key == UnifiedMetadataKey.ARTISTS and isinstance(value, list):
-                    # Handle multiple artists by joining with semicolon
-                    processed_value = ";".join(value)
-                elif unified_key == UnifiedMetadataKey.GENRES_NAMES and isinstance(value, list):
-                    # Handle multiple genres by joining with semicolon
-                    processed_value = ";".join(value)
-                elif unified_key == UnifiedMetadataKey.COMPOSERS and isinstance(value, list):
-                    # Handle multiple composers by joining with semicolon
-                    processed_value = ";".join(value)
-                elif unified_key == UnifiedMetadataKey.ALBUM_ARTISTS and isinstance(value, list):
-                    # Handle multiple album artists by joining with semicolon
-                    processed_value = ";".join(value)
-
-                cmd.extend([tool_arg, str(processed_value)])
-
-        # Add file path and execute
-        cmd.append(self.audio_file.file_path)
-
-        try:
-            subprocess.run(cmd, check=True, capture_output=True)
-        except subprocess.CalledProcessError as e:
-            msg = f"Failed to write ID3v2 metadata with {tool}: {e}"
-            raise FileCorruptedError(msg) from e
-        except FileNotFoundError as e:
-            msg = f"External tool {tool} not found. Please install it to write ID3v2 metadata to FLAC files."
-            raise FileCorruptedError(msg) from e
+        self._flac_handler.update_metadata_for_flac(unified_metadata)
 
     def delete_metadata(self) -> bool:
         """Delete all ID3v2 metadata from the audio file.

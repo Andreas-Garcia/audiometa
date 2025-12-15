@@ -79,6 +79,8 @@ class VorbisMetadataSetter:
                     VorbisMetadataSetter.set_composers(file_path, value)
                 elif key.lower() == "album_artist":
                     VorbisMetadataSetter.set_album_artists(file_path, value)
+                elif key.lower() == "musicbrainz_artistids":
+                    VorbisMetadataSetter.set_musicbrainz_artistids(file_path, value)
 
         # Handle non-list values
         metadata_added = False
@@ -199,6 +201,34 @@ class VorbisMetadataSetter:
     def set_multiple_comments(file_path: Path, comments: list[str]):
         """Set multiple Vorbis comments using external metaflac tool."""
         VorbisMetadataSetter.set_multiple_tags(file_path, "COMMENT", comments)
+
+    @staticmethod
+    def set_musicbrainz_artistids(file_path: Path, artist_ids: list[str]) -> None:
+        """Set MusicBrainz Artist IDs using Vorbis comments.
+
+        Args:
+            file_path: Path to the FLAC file
+            artist_ids: List of MusicBrainz Artist IDs (UUID strings, hyphenated or 32-char hex)
+        """
+        if not artist_ids:
+            return
+
+        # Normalize UUIDs: convert 32-char hex to 36-char hyphenated format if needed
+        normalized_ids = []
+        for artist_id in artist_ids:
+            if artist_id and artist_id.strip():
+                normalized_id = str(artist_id).strip()
+                uuid_hex_length = 32
+                if len(normalized_id) == uuid_hex_length and all(c in "0123456789abcdefABCDEF" for c in normalized_id):
+                    normalized_id = (
+                        f"{normalized_id[:8]}-{normalized_id[8:12]}-"
+                        f"{normalized_id[12:16]}-{normalized_id[16:20]}-{normalized_id[20:32]}"
+                    )
+                normalized_ids.append(normalized_id)
+
+        if normalized_ids:
+            # Use MUSICBRAINZ_ARTISTID (singular) as the Vorbis key
+            VorbisMetadataSetter.set_multiple_tags(file_path, "MUSICBRAINZ_ARTISTID", normalized_ids)
 
     @staticmethod
     def set_null_bytes_test_metadata(file_path: Path) -> None:
