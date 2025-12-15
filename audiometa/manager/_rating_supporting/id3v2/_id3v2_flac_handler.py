@@ -6,11 +6,10 @@ from typing import TYPE_CHECKING
 
 from audiometa.exceptions import FileCorruptedError, MetadataFieldNotSupportedByMetadataFormatError
 from audiometa.utils.tool_path_resolver import get_tool_path
+from audiometa.utils.types import UnifiedMetadata
 from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 if TYPE_CHECKING:
-    from audiometa.utils.types import UnifiedMetadata
-
     from ._Id3v2Manager import _Id3v2Manager
 
 from ._id3v2_constants import ID3V2_VERSION_3
