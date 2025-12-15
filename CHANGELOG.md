@@ -102,8 +102,6 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - **CLI Artists Handling**: Fixed bug where `--artist` argument wasn't processed when `--musicbrainz-artist-ids` was not provided
   - Artists are now processed independently of MusicBrainz Artist IDs
-- **ID3v2 Reader**: Fixed reading of null-separated MusicBrainz Artist IDs in TXXX frames for ID3v2.4 format
-  - Properly splits null-separated values when reading from TXXX frames
 
 ## [0.10.0] - 2025-12-09
 
