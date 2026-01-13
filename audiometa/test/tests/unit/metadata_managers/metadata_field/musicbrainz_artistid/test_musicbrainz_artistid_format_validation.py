@@ -47,3 +47,4 @@ class TestMusicBrainzArtistIDFormatValidation:
         error = exc_info.value
         assert error.field == UnifiedMetadataKey.MUSICBRAINZ_ARTISTIDS.value
         assert error.value == "invalid"
+

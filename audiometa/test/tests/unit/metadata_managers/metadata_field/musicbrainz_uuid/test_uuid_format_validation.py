@@ -110,3 +110,4 @@ class TestMusicBrainzUUIDFormatValidation:
         with pytest.raises(InvalidMetadataFieldFormatError) as exc_info:
             _MetadataManager._validate_musicbrainz_uuid_format("invalid", UnifiedMetadataKey.MUSICBRAINZ_ARTISTIDS)
         assert exc_info.value.field == UnifiedMetadataKey.MUSICBRAINZ_ARTISTIDS.value
+

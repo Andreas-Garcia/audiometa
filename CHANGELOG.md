@@ -46,6 +46,34 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 **Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-XX`).
 
+## [Unreleased]
+
+### Added
+
+- **MusicBrainz Artist ID Metadata Field Support**: Added support for MusicBrainz Artist ID metadata field with read/write support across ID3v2 (TXXX frames), Vorbis (FLAC), and RIFF (WAV/BWF) formats. Includes CLI integration (`--musicbrainz-artist-ids`), UUID format validation and normalization, multiple values support, comprehensive testing, and documentation.
+
+### CI
+
+- **macOS CI exiftool Installation**: Updated exiftool version from 13.43 to 13.45 (version 13.43 no longer available on exiftool.org)
+
+## [0.11.1] - 2025-12-11
+
+### Improved
+
+- **UnifiedMetadataKey Top-Level Import**: Exposed `UnifiedMetadataKey` at the top level of the package for improved API convenience:
+  - Can now be imported directly as `from audiometa import UnifiedMetadataKey` instead of `from audiometa.utils.unified_metadata_key import UnifiedMetadataKey`
+  - Updated all documentation examples (README.md and docs/\*.md) to use the cleaner top-level import
+  - Maintains backward compatibility - the old import path still works for internal code
+
+### CI
+
+- **Pre-commit Hooks**: Replaced external shellcheck hook with local hook using system dependency:
+  - Added shellcheck as a pinned system dependency in `system-dependencies-lint.toml` (0.9.0 for Ubuntu, 0.11.0 for macOS/Windows)
+  - Created `shellcheck-wrapper.sh` local hook matching PowerShell pattern for consistency
+  - Updated installation scripts to install pinned shellcheck versions on all platforms
+  - Updated version verification to include shellcheck (PowerShell remains "latest" due to complex version management)
+  - Ensures shellcheck version consistency across environments and aligns with dependency pinning best practices
+
 ## [0.11.0] - 2025-12-11
 
 ### Added
@@ -76,45 +104,6 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Added automatic PATH detection and diagnostics for tools installed via apt-get
   - Improved error messages with tool location diagnostics when tools are not found
   - Prevents false negatives where tools are installed but not found in PATH during verification
-
-## [0.11.1] - 2025-12-11
-
-### Improved
-
-- **UnifiedMetadataKey Top-Level Import**: Exposed `UnifiedMetadataKey` at the top level of the package for improved API convenience:
-  - Can now be imported directly as `from audiometa import UnifiedMetadataKey` instead of `from audiometa.utils.unified_metadata_key import UnifiedMetadataKey`
-  - Updated all documentation examples (README.md and docs/\*.md) to use the cleaner top-level import
-  - Maintains backward compatibility - the old import path still works for internal code
-
-### CI
-
-- **Pre-commit Hooks**: Replaced external shellcheck hook with local hook using system dependency:
-  - Added shellcheck as a pinned system dependency in `system-dependencies-lint.toml` (0.9.0 for Ubuntu, 0.11.0 for macOS/Windows)
-  - Created `shellcheck-wrapper.sh` local hook matching PowerShell pattern for consistency
-  - Updated installation scripts to install pinned shellcheck versions on all platforms
-  - Updated version verification to include shellcheck (PowerShell remains "latest" due to complex version management)
-  - Ensures shellcheck version consistency across environments and aligns with dependency pinning best practices
-
-## [Unreleased]
-
-### Added
-
-- **MusicBrainz Artist ID Metadata Field Support**: Added comprehensive support for MusicBrainz Artist ID metadata field:
-  - **ID3v2 Format**: Full read/write support via TXXX frames (description: `MusicBrainz Artist Id`) with support for multiple values using separators (ID3v2.3) or null-separated values (ID3v2.4)
-  - **Vorbis (FLAC) Format**: Full read/write support as `MUSICBRAINZ_ARTISTID` comment with support for multiple values
-  - **RIFF (WAV/BWF) Format**: Full read/write support as `MBAR` FourCC in INFO chunk with support for multiple values
-  - **CLI Integration**: Added `--musicbrainz-artist-ids` command-line option (can be specified multiple times) for metadata writing operations
-  - **API Support**: Complete integration with `update_metadata()`, `get_unified_metadata_field()`, and `get_unified_metadata()` functions
-  - **UUID Format Validation**: Validates both 36-character hyphenated UUID format (e.g., `9d6f6f7c-9d52-4c76-8f9e-01d18d8f8ec6`) and 32-character hex format (e.g., `9d6f6f7c9d524c768f9e01d18d8f8ec6`)
-  - **UUID Normalization**: Automatically normalizes 32-character hex UUIDs to hyphenated format for consistency
-  - **Multiple Values Support**: Supports multiple artist IDs per track, stored appropriately for each format
-  - **Comprehensive Testing**: Added 27 integration tests covering reading, writing, deletion, and format-specific behavior, and unit tests covering type and format validation
-  - **Documentation**: Added comprehensive `MUSICBRAINZ_ARTISTID.md` guide with examples, format support matrix, and implementation details
-  - **Error Handling**: Proper error handling for unsupported formats (ID3v1) with appropriate exceptions
-  - **Test Helpers**: Added MusicBrainz Artist ID support to test helper classes for proper test isolation:
-    - Added `set_musicbrainz_artistids()` to `ID3v2MetadataSetter` for MP3 files
-    - Added `set_musicbrainz_artistids()` to `VorbisMetadataSetter` for FLAC files
-    - Added `create_multiple_mbar_fields()` to `ManualRIFFMetadataCreator` for WAV files
 
 ## [0.10.0] - 2025-12-09
 
