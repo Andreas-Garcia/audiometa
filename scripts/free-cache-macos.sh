@@ -107,7 +107,7 @@ fi
 # Homebrew cache (if exists)
 if command -v brew &> /dev/null; then
     echo -e "${YELLOW}Clearing: Homebrew cache${NC}"
-    brew cleanup --prune=all 2>/dev/null || true
+    brew cleanup --prune=all || true
     echo -e "${GREEN}  ✓ Homebrew cache cleared${NC}"
     echo ""
 fi
@@ -115,7 +115,7 @@ fi
 # Docker cache (if Docker is running)
 if command -v docker &> /dev/null && docker info &>/dev/null; then
     echo -e "${YELLOW}Clearing: Docker system cache${NC}"
-    docker system prune -af --volumes 2>/dev/null || true
+    docker system prune -af --volumes || true
     echo -e "${GREEN}  ✓ Docker cache cleared${NC}"
     echo ""
 fi
@@ -149,6 +149,9 @@ if [ -d "$CURSOR_DIR" ]; then
     echo -e "${GREEN}  ✓ Cursor caches cleared${NC}"
     echo ""
 fi
+
+# Stremio server cache (if exists)
+clear_cache "$HOME/Library/Application Support/stremio-server" "Stremio Server"
 
 # Empty Trash
 echo -e "${YELLOW}Emptying Trash...${NC}"
