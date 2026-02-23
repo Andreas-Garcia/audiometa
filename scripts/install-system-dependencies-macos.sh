@@ -356,8 +356,8 @@ install_homebrew_package "mediainfo" "media-info" "${PINNED_MEDIAINFO}" "/usr/lo
 install_homebrew_package "id3v2" "id3v2" "${PINNED_ID3V2}" "/usr/local/bin/id3v2"
 install_homebrew_package "bwfmetaedit" "bwfmetaedit" "${PINNED_BWFMETAEDIT}" "/usr/local/bin/bwfmetaedit"
 
-# Install exiftool from exiftool.org (to match Windows version)
-install_exiftool "${PINNED_EXIFTOOL}"
+# Install exiftool via Homebrew on macOS (13.50; exiftool.org may not offer older tarballs)
+install_homebrew_package "exiftool" "exiftool" "${PINNED_EXIFTOOL}" "/usr/local/bin/exiftool"
 
 # Install libsndfile (required by soundfile Python package)
 install_homebrew_package "libsndfile" "libsndfile" "${PINNED_LIBSNDFILE}" ""
