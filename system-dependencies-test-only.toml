@@ -18,7 +18,7 @@
 [ubuntu]
 # TEST dependencies (only needed for test verification/setup)
 # Ubuntu package versions (install via apt-get)
-mediainfo = "24.01"
+mediainfo = "26.01"
 libimage-exiftool-perl = "12.76+dfsg-1"  # Provides exiftool command
 bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "25.04.1" }  # Used in test helpers for RIFF metadata setup
 # libsndfile1: Library dependency (not executable tool) required by soundfile Python package.
@@ -34,7 +34,7 @@ libsndfile1 = "latest"  # TEST dependency - required by soundfile (used only in 
 # Note: mediainfo (media-info in Homebrew) cannot be pinned - Homebrew installs whatever version
 # is currently in the formula. If CI fails with version mismatch, update this pinned version to
 # match what Homebrew currently provides (check with: brew info media-info).
-mediainfo = "25.10"
+mediainfo = "26.01"
 exiftool = { source = "exiftool_org", pinned_version = "13.45" }
 bwfmetaedit = "25.04.1"  # Used in test helpers for RIFF metadata setup
 libsndfile = "1.2.2"  # TEST dependency - required by soundfile (used only in tests)
@@ -45,7 +45,7 @@ libsndfile = "1.2.2"  # TEST dependency - required by soundfile (used only in te
 # mediainfo: Only needed for integration tests (verification), not e2e tests
 # Skipped in Windows CI since we only run e2e tests on Windows
 # Still installed locally for full test coverage
-mediainfo = "24.12"
+mediainfo = "26.12"
 bwfmetaedit = { source = "mediaarea", pinned_version = "24.10" }  # Used in test helpers for RIFF metadata setup
 # exiftool: Download from official website (not available in Chocolatey)
 # Note: Windows version may differ from macOS/Linux due to release availability

@@ -50,7 +50,13 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [0.12.0] - 2025-02-23
 
+### Added
+
 - **Get Full Metadata**: Add option to include cover image or not
+
+### Fixed
+
+- **Dependencies**: mediainfo 25.10 -> 26.01
 
 ## [0.11.1] - 2025-12-11
 
