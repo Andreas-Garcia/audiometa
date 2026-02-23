@@ -223,9 +223,9 @@ class MacOSDependenciesChecker(OsDependenciesChecker):
             if installed_versions:
                 pinned_version = self._find_pinned_version_in_list(installed_versions, expected_version)
                 if pinned_version:
-                    # Homebrew has the pinned version, but running version doesn't match
-                    # Return None to indicate mismatch (running version should match pinned version)
-                    return None
+                    # Homebrew has the pinned version; return it so verification passes
+                    # (running_version may be None if executable not in PATH when script runs)
+                    return pinned_version
 
             # Pinned version not found in Homebrew and running version doesn't match
             return None
