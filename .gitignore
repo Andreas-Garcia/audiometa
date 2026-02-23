@@ -43,3 +43,6 @@ node_modules/
 package-lock.json
 
 .DS_Store
+
+DESIGN_PATTERNS.md
+INTERVIEW_PATTERNS.md
