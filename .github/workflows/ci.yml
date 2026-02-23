@@ -29,22 +29,19 @@ jobs:
           python-version: "3.13"
           cache: "pip"
 
+      - name: Use primary Ubuntu APT mirrors (CI)
+        run: |
+          # Avoid Azure mirror 404s by using primary Ubuntu archives (known issue on GitHub runners)
+          echo 'deb http://archive.ubuntu.com/ubuntu noble main universe' | sudo tee /etc/apt/sources.list
+          echo 'deb http://archive.ubuntu.com/ubuntu noble-updates main universe' | sudo tee -a /etc/apt/sources.list
+          echo 'deb http://security.ubuntu.com/ubuntu noble-security main universe' | sudo tee -a /etc/apt/sources.list
+          sudo apt-get update -qq
+
       - name: Install lint system dependencies
         # Install lint dependencies (PowerShell) using the shared installation script
         # This ensures consistency with local development and uses the same installation logic
         # The script installs PowerShell Core from system-dependencies-lint.toml
-        # Retries on failure to handle transient apt mirror 404s (e.g. Azure mirror)
-        run: |
-          for attempt in 1 2 3; do
-            if bash scripts/install-system-dependencies-ubuntu.sh lint; then
-              exit 0
-            fi
-            if [ "$attempt" -lt 3 ]; then
-              echo "Attempt $attempt failed (mirror 404s are common). Retrying in 15s..."
-              sleep 15
-            fi
-          done
-          exit 1
+        run: bash scripts/install-system-dependencies-ubuntu.sh lint
 
       - name: Install Python dependencies
         # Installs exact tool versions from pyproject.toml
@@ -94,19 +91,18 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
 
-      - name: Install system dependencies (Ubuntu)
+      - name: Use primary Ubuntu APT mirrors (CI)
         if: matrix.os == 'ubuntu-24.04'
         run: |
-          for attempt in 1 2 3; do
-            if bash scripts/install-system-dependencies-ubuntu.sh; then
-              exit 0
-            fi
-            if [ "$attempt" -lt 3 ]; then
-              echo "Attempt $attempt failed (mirror 404s are common). Retrying in 15s..."
-              sleep 15
-            fi
-          done
-          exit 1
+          # Avoid Azure mirror 404s by using primary Ubuntu archives (known issue on GitHub runners)
+          echo 'deb http://archive.ubuntu.com/ubuntu noble main universe' | sudo tee /etc/apt/sources.list
+          echo 'deb http://archive.ubuntu.com/ubuntu noble-updates main universe' | sudo tee -a /etc/apt/sources.list
+          echo 'deb http://security.ubuntu.com/ubuntu noble-security main universe' | sudo tee -a /etc/apt/sources.list
+          sudo apt-get update -qq
+
+      - name: Install system dependencies (Ubuntu)
+        if: matrix.os == 'ubuntu-24.04'
+        run: bash scripts/install-system-dependencies-ubuntu.sh
 
       - name: Install system dependencies (macOS)
         if: matrix.os == 'macos-14'
