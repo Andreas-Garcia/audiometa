@@ -9,11 +9,12 @@ on:
       - "v*" # Triggers on tags like v0.3.0, v1.0.0, etc.
 
 jobs:
-  publish:
-    name: Build and Publish to PyPI
+  validate:
+    name: Validate tag and version
     runs-on: ubuntu-latest
-    # Only allow publishing from main branch tags (prevents accidental publishes from feature branches)
     if: github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/v')
+    outputs:
+      is_release_version: ${{ steps.check_release_version.outputs.is_release_version }}
 
     steps:
       - name: Checkout code
@@ -39,41 +40,39 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Extracted version: $VERSION"
 
-      - name: Verify tag matches version
+      - name: Verify tag and branch (version match + tag on main)
         run: |
-          TAG_VERSION="${GITHUB_REF#refs/tags/v}"  # Remove 'v' prefix from tag
+          set -e
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
           PROJECT_VERSION="${{ steps.extract_version.outputs.version }}"
 
-          echo "Tag version: $TAG_VERSION"
-          echo "Project version: $PROJECT_VERSION"
-
           if [ "$TAG_VERSION" != "$PROJECT_VERSION" ]; then
-            echo "Error: Tag version ($TAG_VERSION) does not match pyproject.toml version ($PROJECT_VERSION)"
-            echo "Tag format should be: v$PROJECT_VERSION (e.g., v0.3.0)"
+            echo "Error: Tag version ($TAG_VERSION) does not match pyproject.toml ($PROJECT_VERSION). Use tag v$PROJECT_VERSION"
             exit 1
           fi
 
-          echo "Version verification passed ✓"
-
-      - name: Verify tag is on main branch
-        run: |
           TAG_COMMIT=$(git rev-parse ${{ github.ref }})
-          echo "Tag points to commit: $TAG_COMMIT"
-
-          # Check if tag commit exists on main branch
           git fetch origin main:main 2>/dev/null || true
           if ! git branch --contains "$TAG_COMMIT" | grep -q "main"; then
-            echo "Error: Tag ${{ github.ref }} points to commit $TAG_COMMIT which is not on main branch"
-            echo "This prevents publishing code that hasn't been merged to main."
-            echo ""
-            echo "To fix this:"
-            echo "1. Ensure all commits are pushed to main: git push origin main"
-            echo "2. Verify the tag points to a commit on main"
-            echo "3. Re-push the tag if needed: git tag -d v${{ steps.extract_version.outputs.version }} && git tag v${{ steps.extract_version.outputs.version }} && git push origin v${{ steps.extract_version.outputs.version }}"
+            echo "Error: Tag is not on main. Publishing only allowed from main."
+            echo "Push to main first, then tag: git tag v$PROJECT_VERSION && git push origin v$PROJECT_VERSION"
             exit 1
           fi
 
-          echo "✓ Tag is on main branch"
+          echo "✓ Tag matches version and is on main"
+
+      - name: Check if release version (x.x.x)
+        id: check_release_version
+        run: |
+          VERSION="${{ steps.extract_version.outputs.version }}"
+          # Only publish when version is exactly x.x.x (e.g. 1.0.0). Skip for pre-release, dev, or other.
+          if echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "is_release_version=true" >> $GITHUB_OUTPUT
+            echo "Version $VERSION is x.x.x. Proceeding with publish."
+          else
+            echo "is_release_version=false" >> $GITHUB_OUTPUT
+            echo "Version $VERSION is not x.x.x (pre-release, dev, or other). Skipping PyPI publish."
+          fi
 
       - name: Verify CI has passed for tag commit
         uses: actions/github-script@v7
@@ -150,6 +149,34 @@ jobs:
             }
 
             console.log('✓ CI has passed for this commit');
+
+  publish:
+    name: Build and Publish to PyPI
+    runs-on: ubuntu-latest
+    needs: validate
+    if: needs.validate.outputs.is_release_version == 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip"
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Extract version from pyproject.toml
+        id: extract_version
+        run: |
+          VERSION=$(grep -E '^version\s*=' pyproject.toml | sed -E 's/version\s*=\s*"([^"]+)"/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
 
       - name: Build package
         run: |
@@ -284,7 +311,6 @@ jobs:
 
           # Verify version matches
           API_VERSION=$(echo "$API_RESPONSE" | python3 -c "import sys, json; print(json.load(sys.stdin)['info']['version'])" 2>/dev/null || echo "")
-
           if [ "$API_VERSION" != "$VERSION" ]; then
             echo "Error: Version mismatch. Expected ${VERSION}, got ${API_VERSION}"
             exit 1
@@ -292,7 +318,6 @@ jobs:
 
           # Verify package name matches
           API_NAME=$(echo "$API_RESPONSE" | python3 -c "import sys, json; print(json.load(sys.stdin)['info']['name'])" 2>/dev/null || echo "")
-
           if [ "$API_NAME" != "$PACKAGE_NAME" ]; then
             echo "Error: Package name mismatch. Expected ${PACKAGE_NAME}, got ${API_NAME}"
             exit 1

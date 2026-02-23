@@ -48,6 +48,14 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### CI
+
+- **Publish workflow**: Stricter publishing rules and clearer structure
+  - Fail the workflow if the tag is not on `main` (publishing only from main)
+  - Skip PyPI/TestPyPI publish when version is not x.x.x (e.g. pre-release, dev); validate and CI checks still run
+  - Single "Verify tag and branch" step (version match + tag on main) instead of two separate steps
+  - Two jobs: `validate` (tag, branch, release-version check, CI) and `publish` (build and upload); release-version condition applied once at job level
+
 ## [1.0.0] - 2025-02-23
 
 ### Added
