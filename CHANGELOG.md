@@ -48,7 +48,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
-## [0.11.2] - 2025-02-23
+## [0.12.0] - 2025-02-23
 
 - **Get Full Metadata**: Add option to include cover image or not
 
