@@ -18,7 +18,7 @@
 [ubuntu]
 # TEST dependencies (only needed for test verification/setup)
 # Ubuntu package versions (install via apt-get)
-mediainfo = "26.01"
+mediainfo = "24.01.1-1build2"
 libimage-exiftool-perl = "12.76+dfsg-1"  # Provides exiftool command
 bwfmetaedit = { source = "repos_or_mediaarea", pinned_version = "25.04.1" }  # Used in test helpers for RIFF metadata setup
 # libsndfile1: Library dependency (not executable tool) required by soundfile Python package.
