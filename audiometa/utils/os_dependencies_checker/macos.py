@@ -35,9 +35,9 @@ class MacOSDependenciesChecker(OsDependenciesChecker):
             match = re.search(r"(\d+\.\d+\.\d+)", output)
         elif tool_name == "mediainfo":
             match = re.search(r"(\d+\.\d+(?:\.\d+)?)", output)
-        elif tool_name in ["id3v2", "bwfmetaedit"]:
+        elif tool_name == "id3v2":
             match = re.search(r"(\d+\.\d+\.\d+)", output)
-        elif tool_name == "exiftool":
+        elif tool_name in ("bwfmetaedit", "exiftool"):
             match = re.search(r"(\d+\.\d+(?:\.\d+)?)", output)
         else:
             match = re.search(r"(\d+\.\d+\.\d+)", output)

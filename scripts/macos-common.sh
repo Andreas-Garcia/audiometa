@@ -155,7 +155,8 @@ get_tool_version() {
       version_output=$("$tool_path" --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
       ;;
     bwfmetaedit)
-      version_output=$("$tool_path" --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
+      # bwfmetaedit can output X.Y or X.Y.Z (e.g. 26.01 or 25.04.1)
+      version_output=$("$tool_path" --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -n1 || echo "")
       ;;
     ffmpeg|ffprobe)
       version_output=$("$tool_path" -version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
