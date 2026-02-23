@@ -20,8 +20,7 @@ class TestGetDurationInSec:
 
     def test_get_duration_in_sec_matches_external_tool(self, sample_mp3_file: Path):
         external_tool_duration = TechnicalInfoInspector.get_duration(sample_mp3_file)
-        if external_tool_duration is None:
-            pytest.skip("External tool (mediainfo) could not get duration")
+        assert external_tool_duration is not None, "External tool (mediainfo) could not get duration"
 
         duration = get_duration_in_sec(sample_mp3_file)
         assert duration == pytest.approx(external_tool_duration, rel=0.03)

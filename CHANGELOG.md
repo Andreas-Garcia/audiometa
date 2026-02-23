@@ -54,6 +54,21 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - **Get Full Metadata**: Add option to include cover image or not
 
+### CI
+
+- **Ubuntu APT mirrors**: Use primary Ubuntu archives (archive.ubuntu.com, security.ubuntu.com) in CI instead of Azure mirror to avoid transient 404s for packages (e.g. libvpx9, libssh-4)
+- **macOS exiftool**: Install exiftool via Homebrew on macOS CI instead of downloading from exiftool.org (avoids download failures when pinned version is not available)
+
+### Fixed
+
+- **Pre-commit from IDE**: Pre-commit hook now uses project venv's pre-commit binary when available so commits work from IDE without activating the venv
+- **bwfmetaedit version parsing**: Support two-segment versions (e.g. 26.01) in addition to X.Y.Z in macOS script and checker
+- **Duration integration test**: Compare library duration to external tool (mediainfo) with 3% tolerance instead of hardcoded values so the test passes across environments
+
+### Improved
+
+- **System dependency pins**: mediainfo macOS 26.01; bwfmetaedit macOS 26.01; exiftool 13.50 (macOS/Windows). macOS exiftool installed via Homebrew (13.50)
+
 ### Fixed
 
 - **Dependencies**: mediainfo 25.10 -> 26.01
