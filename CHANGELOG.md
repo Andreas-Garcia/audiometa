@@ -46,7 +46,9 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 **Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-XX`).
 
-## [0.11.0] - 2025-12-11
+## [Unreleased]
+
+## [0.11.1] - 2025-12-11
 
 ### Added
 
@@ -94,8 +96,6 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Updated installation scripts to install pinned shellcheck versions on all platforms
   - Updated version verification to include shellcheck (PowerShell remains "latest" due to complex version management)
   - Ensures shellcheck version consistency across environments and aligns with dependency pinning best practices
-
-## [Unreleased]
 
 ### Added
 
