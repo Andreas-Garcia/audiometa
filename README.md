@@ -371,7 +371,7 @@ except MetadataFieldNotSupportedByMetadataFormatError as e:
 
 #### Reading Full Metadata From All Formats Including Headers and Technical Info
 
-**`get_full_metadata(file_path, include_headers=True, include_technical=True)`**
+**`get_full_metadata(file_path, include_headers=True, include_technical=True, include_cover=True)`**
 
 Gets comprehensive metadata including all available information from a file, including headers and technical details even when no metadata is present.
 
@@ -646,7 +646,7 @@ id3v2_rating = get_unified_metadata_field("song.mp3", UnifiedMetadataKey.RATING,
 
 #### Reading Full Metadata From All Formats Including Headers and Technical Info
 
-**`get_full_metadata(file_path, include_headers=True, include_technical=True)`**
+**`get_full_metadata(file_path, include_headers=True, include_technical=True, include_cover=True)`**
 
 Gets comprehensive metadata including all available information from a file, including headers and technical details even when no metadata is present.
 
@@ -696,6 +696,7 @@ print(f"Raw Vorbis Comments: {full_metadata['raw_metadata']['vorbis']['comments'
 - `file_path`: Path to the audio file (str or Path)
 - `include_headers`: Whether to include format-specific header information (default: True)
 - `include_technical`: Whether to include technical audio information (default: True)
+- `include_cover`: Whether to include cover/art image info in raw_metadata (default: True)
 
 **Returns:**
 A comprehensive dictionary containing:
@@ -822,6 +823,9 @@ metadata_only = get_full_metadata("song.mp3", include_technical=False)
 
 # Get only technical info without headers
 tech_only = get_full_metadata("song.mp3", include_headers=False)
+
+# Exclude cover/art from raw metadata
+no_cover = get_full_metadata("song.mp3", include_cover=False)
 
 # Check if file has specific format headers
 if full_info['headers']['id3v2']['present']:
