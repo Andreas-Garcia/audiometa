@@ -56,6 +56,40 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - **macOS CI exiftool Installation**: Updated exiftool version from 13.43 to 13.45 (version 13.43 no longer available on exiftool.org)
 
+### Removed
+
+- **macOS cache**: Removed macOS cache cleanup script
+
+### Documentation
+
+- **Content drafts**: Added content drafts section and templates for LinkedIn posts
+
+## [1.0.0] - 2025-02-23
+
+### Added
+
+- **Get Full Metadata**: Add option to include cover image or not
+
+### CI
+
+- **Ubuntu APT mirrors**: Use primary Ubuntu archives (archive.ubuntu.com, security.ubuntu.com) in CI instead of Azure mirror to avoid transient 404s for packages (e.g. libvpx9, libssh-4)
+- **macOS exiftool**: Install exiftool via Homebrew on macOS CI instead of downloading from exiftool.org (avoids download failures when pinned version is not available)
+- **Publish workflow**: Stricter publishing rules and clearer structure
+  - Fail the workflow if the tag is not on `main` (publishing only from main)
+  - Skip PyPI/TestPyPI publish when version is not x.x.x (e.g. pre-release, dev); validate and CI checks still run
+  - Single "Verify tag and branch" step (version match + tag on main) instead of two separate steps
+  - Two jobs: `validate` (tag, branch, release-version check, CI) and `publish` (build and upload); release-version condition applied once at job level
+
+### Fixed
+
+- **Pre-commit from IDE**: Pre-commit hook now uses project venv's pre-commit binary when available so commits work from IDE without activating the venv
+- **bwfmetaedit version parsing**: Support two-segment versions (e.g. 26.01) in addition to X.Y.Z in macOS script and checker
+- **Duration integration test**: Compare library duration to external tool (mediainfo) with 3% tolerance instead of hardcoded values so the test passes across environments
+
+### Improved
+
+- **System dependency pins**: mediainfo 25.10 → 26.01; bwfmetaedit macOS 26.01; exiftool 13.50 (macOS/Windows). macOS exiftool installed via Homebrew (13.50)
+
 ## [0.11.1] - 2025-12-11
 
 ### Improved
@@ -89,6 +123,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - **Comprehensive Testing**: Added 23 unit tests covering type and format validation, and 23 integration tests covering reading, writing, deletion, and format-specific behavior
   - **Documentation**: Added comprehensive `MUSICBRAINZ_TRACKID.md` guide with examples, format support matrix, and implementation details
   - **Error Handling**: Proper error handling for unsupported formats (ID3v1) with appropriate exceptions
+  - **Test Helpers**: Added MusicBrainz Artist ID support to test helper classes for proper test isolation:
+    - Added `set_musicbrainz_artistids()` to `ID3v2MetadataSetter` for MP3 files
+    - Added `set_musicbrainz_artistids()` to `VorbisMetadataSetter` for FLAC files
+    - Added `create_multiple_mbar_fields()` to `ManualRIFFMetadataCreator` for WAV files
 
 ### CI
 

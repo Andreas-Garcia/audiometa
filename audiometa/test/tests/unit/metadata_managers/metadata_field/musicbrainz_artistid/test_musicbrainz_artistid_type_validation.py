@@ -32,4 +32,3 @@ class TestMusicBrainzArtistIDTypeValidation:
 
     def test_musicbrainz_artistid_none_is_allowed(self):
         validate_metadata_for_update({UnifiedMetadataKey.MUSICBRAINZ_ARTISTIDS: None})
-

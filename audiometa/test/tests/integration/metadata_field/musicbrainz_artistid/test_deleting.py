@@ -41,4 +41,3 @@ class TestMusicBrainzArtistIDDeleting:
             delete_all_metadata(test_file)
             result = get_unified_metadata_field(test_file, UnifiedMetadataKey.MUSICBRAINZ_ARTISTIDS)
             assert result is None or result == []
-
