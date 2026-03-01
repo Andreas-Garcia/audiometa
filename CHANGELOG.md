@@ -48,6 +48,14 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Added
+
+- **MusicBrainz Artist ID Metadata Field Support**: Added support for MusicBrainz Artist ID metadata field with read/write support across ID3v2 (TXXX frames), Vorbis (FLAC), and RIFF (WAV/BWF) formats. Includes CLI integration (`--musicbrainz-artist-ids`), UUID format validation and normalization, multiple values support, comprehensive testing, and documentation.
+
+### CI
+
+- **macOS CI exiftool Installation**: Updated exiftool version from 13.43 to 13.45 (version 13.43 no longer available on exiftool.org)
+
 ### Removed
 
 - **macOS cache**: Removed macOS cache cleanup script
@@ -84,6 +92,24 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [0.11.1] - 2025-12-11
 
+### Improved
+
+- **UnifiedMetadataKey Top-Level Import**: Exposed `UnifiedMetadataKey` at the top level of the package for improved API convenience:
+  - Can now be imported directly as `from audiometa import UnifiedMetadataKey` instead of `from audiometa.utils.unified_metadata_key import UnifiedMetadataKey`
+  - Updated all documentation examples (README.md and docs/\*.md) to use the cleaner top-level import
+  - Maintains backward compatibility - the old import path still works for internal code
+
+### CI
+
+- **Pre-commit Hooks**: Replaced external shellcheck hook with local hook using system dependency:
+  - Added shellcheck as a pinned system dependency in `system-dependencies-lint.toml` (0.9.0 for Ubuntu, 0.11.0 for macOS/Windows)
+  - Created `shellcheck-wrapper.sh` local hook matching PowerShell pattern for consistency
+  - Updated installation scripts to install pinned shellcheck versions on all platforms
+  - Updated version verification to include shellcheck (PowerShell remains "latest" due to complex version management)
+  - Ensures shellcheck version consistency across environments and aligns with dependency pinning best practices
+
+## [0.11.0] - 2025-12-11
+
 ### Added
 
 - **MusicBrainz Track ID Metadata Field Support**: Added comprehensive support for MusicBrainz Track ID metadata field:
@@ -116,19 +142,6 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Added automatic PATH detection and diagnostics for tools installed via apt-get
   - Improved error messages with tool location diagnostics when tools are not found
   - Prevents false negatives where tools are installed but not found in PATH during verification
-- **Pre-commit Hooks**: Replaced external shellcheck hook with local hook using system dependency:
-  - Added shellcheck as a pinned system dependency in `system-dependencies-lint.toml` (0.9.0 for Ubuntu, 0.11.0 for macOS/Windows)
-  - Created `shellcheck-wrapper.sh` local hook matching PowerShell pattern for consistency
-  - Updated installation scripts to install pinned shellcheck versions on all platforms
-  - Updated version verification to include shellcheck (PowerShell remains "latest" due to complex version management)
-  - Ensures shellcheck version consistency across environments and aligns with dependency pinning best practices
-
-### Improved
-
-- **UnifiedMetadataKey Top-Level Import**: Exposed `UnifiedMetadataKey` at the top level of the package for improved API convenience:
-  - Can now be imported directly as `from audiometa import UnifiedMetadataKey` instead of `from audiometa.utils.unified_metadata_key import UnifiedMetadataKey`
-  - Updated all documentation examples (README.md and docs/\*.md) to use the cleaner top-level import
-  - Maintains backward compatibility - the old import path still works for internal code
 
 ## [0.10.0] - 2025-12-09
 
