@@ -48,6 +48,14 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Removed
+
+- **macOS cache**: Removed macOS cache cleanup script
+
+### Documentation
+
+- **Content drafts**: Added content drafts section and templates for LinkedIn posts
+
 ## [1.0.0] - 2025-02-23
 
 ### Added
@@ -72,11 +80,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### Improved
 
-- **System dependency pins**: mediainfo macOS 26.01; bwfmetaedit macOS 26.01; exiftool 13.50 (macOS/Windows). macOS exiftool installed via Homebrew (13.50)
-
-### Fixed
-
-- **Dependencies**: mediainfo 25.10 -> 26.01
+- **System dependency pins**: mediainfo 25.10 → 26.01; bwfmetaedit macOS 26.01; exiftool 13.50 (macOS/Windows). macOS exiftool installed via Homebrew (13.50)
 
 ## [0.11.1] - 2025-12-11
 
