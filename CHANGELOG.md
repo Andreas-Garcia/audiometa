@@ -50,6 +50,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### Added
 
+- **get_full_metadata `include_raw_binary_data`**: New parameter to opt in to raw binary/opaque content in raw_metadata (e.g. APIC, PRIV, TRAKTOR4). When False (default), such content is replaced by size placeholders. CLI: `audiometa read --include-raw-binary-data`. Includes sanitization for ID3v2 frames and Vorbis comments (e.g. TRAKTOR4), with unit and integration tests.
+
 - **MusicBrainz Artist ID Metadata Field Support**: Added support for MusicBrainz Artist ID metadata field with read/write support across ID3v2 (TXXX frames), Vorbis (FLAC), and RIFF (WAV/BWF) formats. Includes CLI integration (`--musicbrainz-artist-ids`), UUID format validation and normalization, multiple values support, comprehensive testing, and documentation.
 
 ### CI
@@ -57,6 +59,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 - **macOS CI exiftool Installation**: Updated exiftool version from 13.43 to 13.45 (version 13.43 no longer available on exiftool.org)
 
 ### Removed
+
+- **get_full_metadata `include_cover` and CLI `--no-cover`**: The `include_cover` parameter and `--no-cover` CLI option have been removed. Raw metadata is now sanitized by default (binary/opaque content summarized as size placeholders). **Migration:** If you used `include_cover=False` to avoid heavy output, the default behavior now does that; remove the parameter. If you needed raw binary/cover data, use `get_full_metadata(..., include_raw_binary_data=True)` or `audiometa read --include-raw-binary-data`.
 
 - **macOS cache**: Removed macOS cache cleanup script
 

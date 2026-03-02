@@ -34,6 +34,12 @@ class VorbisMetadataSetter:
             run_external_tool(command, "metaflac")
 
     @staticmethod
+    def set_tag(file_path: Path, tag_name: str, value: str) -> None:
+        """Set a single Vorbis comment tag (e.g. TRAKTOR4) using metaflac."""
+        command = ["metaflac", "--set-tag", f"{tag_name}={value}", str(file_path)]
+        run_external_tool(command, "metaflac")
+
+    @staticmethod
     def set_metadata(file_path: Path, metadata: dict[str, Any]) -> None:
         """Set FLAC metadata using metaflac tool."""
         cmd = ["metaflac"]

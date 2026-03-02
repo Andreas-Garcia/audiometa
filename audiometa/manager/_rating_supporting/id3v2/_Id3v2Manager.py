@@ -30,6 +30,7 @@ from mutagen.id3._frames import (
 )
 from mutagen.id3._util import ID3NoHeaderError
 
+from audiometa.utils.raw_metadata_sanitizer import sanitize_id3v2_raw_info
 from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 if TYPE_CHECKING:
@@ -620,49 +621,13 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
 
             id3_metadata: ID3 = cast(ID3, self.raw_mutagen_metadata)
 
-            # Get raw frames (exclude binary frames like APIC)
             frames = {}
-            binary_frame_types = {
-                "APIC:",
-                "GEOB:",
-                "AENC:",
-                "RVA2:",
-                "RVRB:",
-                "EQU2:",
-                "PCNT:",
-                "POPM:",
-                "RBUF:",
-                "LINK:",
-                "POSS:",
-                "SYLT:",
-                "USLT:",
-                "SYTC:",
-                "ETCO:",
-                "MLLT:",
-                "OWNE:",
-                "COMR:",
-                "ENCR:",
-                "GRID:",
-                "PRIV:",
-                "SIGN:",
-                "SEEK:",
-                "ASPI:",
-            }
-
             for frame_id, frame in id3_metadata.items():
-                # Skip binary frames to avoid including large image/audio data
-                if frame_id in binary_frame_types:
-                    frames[frame_id] = {
-                        "text": f"<Binary data: {getattr(frame, 'size', 0)} bytes>",
-                        "size": getattr(frame, "size", 0),
-                        "flags": getattr(frame, "flags", 0),
-                    }
-                else:
-                    frames[frame_id] = {
-                        "text": str(frame) if hasattr(frame, "__str__") else repr(frame),
-                        "size": getattr(frame, "size", 0),
-                        "flags": getattr(frame, "flags", 0),
-                    }
+                frames[frame_id] = {
+                    "text": str(frame) if hasattr(frame, "__str__") else repr(frame),
+                    "size": getattr(frame, "size", 0),
+                    "flags": getattr(frame, "flags", 0),
+                }
         except Exception:
             return {"raw_data": None, "parsed_fields": {}, "frames": {}, "comments": {}, "chunk_structure": {}}
         else:
@@ -673,3 +638,6 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                 "comments": {},
                 "chunk_structure": {},
             }
+
+    def sanitize_raw_metadata_for_display(self, raw_info: dict) -> dict:
+        return sanitize_id3v2_raw_info(raw_info)

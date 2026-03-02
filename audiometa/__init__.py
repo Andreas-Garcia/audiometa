@@ -1264,7 +1264,7 @@ def get_full_metadata(
     file: PublicFileType,
     include_headers: bool = True,
     include_technical: bool = True,
-    include_cover: bool = True,
+    include_raw_binary_data: bool = False,
 ) -> dict[str, Any]:
     """Get comprehensive metadata including all available information from a file.
 
@@ -1274,13 +1274,15 @@ def get_full_metadata(
     - All metadata from all supported formats (ID3v1, ID3v2, Vorbis, RIFF)
     - Technical information (duration, bitrate, sample rate, channels, file size)
     - Format-specific headers and structure information
-    - Raw metadata details from each format
+    - Raw metadata details from each format. When include_raw_binary_data is False (default),
+      binary/opaque frames (e.g. APIC, PRIV, TRAKTOR4) are summarized as size placeholders.
 
     Args:
         file: Audio file path (str or Path)
         include_headers: Whether to include format-specific header information (default: True)
         include_technical: Whether to include technical audio information (default: True)
-        include_cover: Whether to include cover/art image info in raw_metadata (default: True)
+        include_raw_binary_data: If True, include raw binary/opaque content in raw_metadata (e.g. PRIV, APIC,
+            TRAKTOR4). If False (default), such content is replaced by size placeholders.
 
     Returns:
         Comprehensive dictionary containing all available metadata and technical information
@@ -1395,10 +1397,12 @@ def get_full_metadata(
                         "extended_header": {},
                     }
 
-                # Get raw metadata information
+                # Get raw metadata information (optionally sanitize binary/opaque to placeholders)
                 try:
                     raw_info = manager.get_raw_metadata_info()
-                    raw_metadata_dict[format_key] = raw_info
+                    raw_metadata_dict[format_key] = (
+                        raw_info if include_raw_binary_data else manager.sanitize_raw_metadata_for_display(raw_info)
+                    )
                 except Exception:
                     raw_metadata_dict[format_key] = {
                         "raw_data": None,
@@ -1426,26 +1430,5 @@ def get_full_metadata(
                     "comments": {},
                     "chunk_structure": {},
                 }
-
-    if not include_cover:
-        id3v2_raw = raw_metadata_dict.get("id3v2", {})
-        frames = id3v2_raw.get("frames", {})
-        if "APIC:" in frames:
-            raw_metadata_dict["id3v2"] = {
-                **id3v2_raw,
-                "frames": {k: v for k, v in frames.items() if k != "APIC:"},
-            }
-
-        riff_raw = raw_metadata_dict.get("riff", {})
-        riff_cover_parsed_keys = frozenset({"ICON"})
-        riff_cover_chunk_keys = frozenset({"cover", "image"})
-        parsed = riff_raw.get("parsed_fields", {})
-        chunk = riff_raw.get("chunk_structure", {})
-        if riff_cover_parsed_keys & frozenset(parsed) or riff_cover_chunk_keys & frozenset(chunk):
-            raw_metadata_dict["riff"] = {
-                **riff_raw,
-                "parsed_fields": {k: v for k, v in parsed.items() if k not in riff_cover_parsed_keys},
-                "chunk_structure": {k: v for k, v in chunk.items() if k not in riff_cover_chunk_keys},
-            }
 
     return result

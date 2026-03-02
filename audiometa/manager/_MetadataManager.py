@@ -816,6 +816,14 @@ class _MetadataManager:
         msg = "Not implemented for this format"
         raise NotImplementedError(msg)
 
+    def sanitize_raw_metadata_for_display(self, raw_info: dict) -> dict:
+        """Return raw_info with binary/opaque content replaced by size placeholders for safe display.
+
+        Override in managers whose raw metadata can contain binary or opaque data (e.g. ID3v2, Vorbis).
+        Default returns raw_info unchanged.
+        """
+        return raw_info
+
     def update_metadata(self, unified_metadata: UnifiedMetadata) -> None:
         if not self.metadata_keys_direct_map_write:
             msg = "This format does not support metadata modification"

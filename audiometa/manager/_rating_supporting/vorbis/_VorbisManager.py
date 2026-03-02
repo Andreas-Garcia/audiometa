@@ -7,6 +7,7 @@ if TYPE_CHECKING:
     from ...._audio_file import _AudioFile
 from ....exceptions import FileCorruptedError, InvalidRatingValueError, MetadataFieldNotSupportedByMetadataFormatError
 from ....utils.rating_profiles import RatingWriteProfile
+from ....utils.raw_metadata_sanitizer import sanitize_vorbis_raw_info
 from ....utils.tool_path_resolver import get_tool_path
 from ....utils.types import RawMetadataDict, RawMetadataKey, UnifiedMetadata, UnifiedMetadataValue
 from ....utils.unified_metadata_key import UnifiedMetadataKey
@@ -480,18 +481,19 @@ class _VorbisManager(_RatingSupportingMetadataManager):
 
     def get_raw_metadata_info(self) -> dict:
         try:
-            # Use custom parsing to get metadata
             metadata = self._extract_mutagen_metadata()
-
             return {
-                "raw_data": None,  # Custom parsing handles this internally
+                "raw_data": None,
                 "parsed_fields": {},
                 "frames": {},
-                "comments": dict(metadata),  # Convert to regular dict
+                "comments": dict(metadata),
                 "chunk_structure": {},
             }
         except Exception:
             return {"raw_data": None, "parsed_fields": {}, "frames": {}, "comments": {}, "chunk_structure": {}}
+
+    def sanitize_raw_metadata_for_display(self, raw_info: dict) -> dict:
+        return sanitize_vorbis_raw_info(raw_info)
 
     def delete_metadata(self) -> bool:
         """Delete all metadata from the FLAC file by removing the VORBIS_COMMENT block."""

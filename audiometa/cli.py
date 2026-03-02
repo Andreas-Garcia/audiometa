@@ -147,7 +147,7 @@ def _read_metadata(args: argparse.Namespace) -> None:
                     file_path,
                     include_headers=not getattr(args, "no_headers", False),
                     include_technical=not getattr(args, "no_technical", False),
-                    include_cover=not getattr(args, "no_cover", False),
+                    include_raw_binary_data=getattr(args, "include_raw_binary_data", False),
                 )
 
             output = format_output(metadata, args.output_format)
@@ -391,7 +391,12 @@ Examples:
     read_parser.add_argument("--output", "-o", help="Output file (default: stdout)")
     read_parser.add_argument("--no-headers", action="store_true", help="Exclude header information")
     read_parser.add_argument("--no-technical", action="store_true", help="Exclude technical information")
-    read_parser.add_argument("--no-cover", action="store_true", help="Exclude cover/art image from raw metadata")
+    read_parser.add_argument(
+        "--include-raw-binary-data",
+        action="store_true",
+        dest="include_raw_binary_data",
+        help="Include raw binary/opaque in raw_metadata (e.g. APIC, PRIV); default: size placeholders",
+    )
     read_parser.add_argument("--recursive", "-r", action="store_true", help="Process directories recursively")
     read_parser.add_argument(
         "--continue-on-error", action="store_true", help="Continue processing other files on error"

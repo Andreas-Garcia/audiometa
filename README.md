@@ -371,7 +371,7 @@ except MetadataFieldNotSupportedByMetadataFormatError as e:
 
 #### Reading Full Metadata From All Formats Including Headers and Technical Info
 
-**`get_full_metadata(file_path, include_headers=True, include_technical=True, include_cover=True)`**
+**`get_full_metadata(file_path, include_headers=True, include_technical=True, include_raw_binary_data=False)`**
 
 Gets comprehensive metadata including all available information from a file, including headers and technical details even when no metadata is present.
 
@@ -646,7 +646,7 @@ id3v2_rating = get_unified_metadata_field("song.mp3", UnifiedMetadataKey.RATING,
 
 #### Reading Full Metadata From All Formats Including Headers and Technical Info
 
-**`get_full_metadata(file_path, include_headers=True, include_technical=True, include_cover=True)`**
+**`get_full_metadata(file_path, include_headers=True, include_technical=True, include_raw_binary_data=False)`**
 
 Gets comprehensive metadata including all available information from a file, including headers and technical details even when no metadata is present.
 
@@ -657,7 +657,7 @@ This function provides the most complete view of an audio file by combining:
 - All metadata from all supported formats (ID3v1, ID3v2, Vorbis, RIFF)
 - Technical information (duration, bitrate, sample rate, channels, file size)
 - Format-specific headers and structure information
-- Raw metadata details from each format
+- Raw metadata details from each format (when include_raw_binary_data is False, binary/opaque content such as APIC, PRIV, TRAKTOR4 is summarized as size placeholders)
 
 ```python
 from audiometa import get_full_metadata, UnifiedMetadataKey
@@ -696,7 +696,7 @@ print(f"Raw Vorbis Comments: {full_metadata['raw_metadata']['vorbis']['comments'
 - `file_path`: Path to the audio file (str or Path)
 - `include_headers`: Whether to include format-specific header information (default: True)
 - `include_technical`: Whether to include technical audio information (default: True)
-- `include_cover`: Whether to include cover/art image info in raw_metadata (default: True)
+- `include_raw_binary_data`: If True, include raw binary/opaque content in raw_metadata (e.g. PRIV, APIC, TRAKTOR4). If False (default), such content is replaced by size placeholders.
 
 **Returns:**
 A comprehensive dictionary containing:
@@ -823,9 +823,6 @@ metadata_only = get_full_metadata("song.mp3", include_technical=False)
 
 # Get only technical info without headers
 tech_only = get_full_metadata("song.mp3", include_headers=False)
-
-# Exclude cover/art from raw metadata
-no_cover = get_full_metadata("song.mp3", include_cover=False)
 
 # Check if file has specific format headers
 if full_info['headers']['id3v2']['present']:
@@ -1471,6 +1468,9 @@ audiometa read song.mp3 --no-technical
 
 # Exclude header information
 audiometa read song.mp3 --no-headers
+
+# Include raw binary/opaque content in raw_metadata (default: size placeholders)
+audiometa read song.mp3 --include-raw-binary-data
 
 # Save to file
 audiometa read song.mp3 --output metadata.json

@@ -3,7 +3,39 @@
 import pytest
 
 from audiometa import get_full_metadata
-from audiometa.manager._rating_supporting.id3v2._Id3v2Manager import _Id3v2Manager as Id3v2Manager
+
+_ID3V2_BINARY_FRAME_PREFIXES = frozenset(
+    {
+        "APIC:",
+        "GEOB:",
+        "AENC:",
+        "RVA2:",
+        "RVRB:",
+        "EQU2:",
+        "PCNT:",
+        "POPM:",
+        "RBUF:",
+        "LINK:",
+        "POSS:",
+        "SYLT:",
+        "USLT:",
+        "SYTC:",
+        "ETCO:",
+        "MLLT:",
+        "OWNE:",
+        "COMR:",
+        "ENCR:",
+        "GRID:",
+        "PRIV:",
+        "SIGN:",
+        "SEEK:",
+        "ASPI:",
+    }
+)
+
+
+def _is_binary_frame(frame_id: str) -> bool:
+    return any(frame_id.startswith(prefix) for prefix in _ID3V2_BINARY_FRAME_PREFIXES)
 
 
 @pytest.mark.integration
@@ -16,94 +48,30 @@ class TestGetFullMetadataBinaryDataFiltering:
         raw_metadata = result.get("raw_metadata", {})
         id3v2_frames = raw_metadata.get("id3v2", {}).get("frames", {})
 
-        # Check that all frames have reasonable text content
         for frame_id, frame_data in id3v2_frames.items():
             text = frame_data.get("text", "")
 
-            # Text should not contain binary data patterns
             assert not any(
                 ord(c) < 32 and c not in "\t\n\r" for c in text
             ), f"Frame {frame_id} contains binary data in text: {text[:50]!r}"
 
-            # If it's a binary frame type, should have placeholder text
-            binary_frame_types = {
-                "APIC:",
-                "GEOB:",
-                "AENC:",
-                "RVA2:",
-                "RVRB:",
-                "EQU2:",
-                "PCNT:",
-                "POPM:",
-                "RBUF:",
-                "LINK:",
-                "POSS:",
-                "SYLT:",
-                "USLT:",
-                "SYTC:",
-                "ETCO:",
-                "MLLT:",
-                "OWNE:",
-                "COMR:",
-                "ENCR:",
-                "GRID:",
-                "PRIV:",
-                "SIGN:",
-                "SEEK:",
-                "ASPI:",
-            }
-
-            if frame_id in binary_frame_types:
+            if _is_binary_frame(frame_id):
                 assert text.startswith(
                     "<Binary data:"
                 ), f"Binary frame {frame_id} should have placeholder text, got: {text}"
                 assert text.endswith(" bytes>"), f"Binary frame {frame_id} should end with ' bytes>', got: {text}"
 
-    def test_id3v2_manager_binary_filtering(self, sample_mp3_file):
-        """Test Id3v2Manager directly filters binary frames."""
-        from audiometa._audio_file import _AudioFile
-
-        audio_file = _AudioFile(sample_mp3_file)
-        manager = Id3v2Manager(audio_file)
-        raw_info = manager.get_raw_metadata_info()
-
-        frames = raw_info.get("frames", {})
-        binary_frame_types = {
-            "APIC:",
-            "GEOB:",
-            "AENC:",
-            "RVA2:",
-            "RVRB:",
-            "EQU2:",
-            "PCNT:",
-            "POPM:",
-            "RBUF:",
-            "LINK:",
-            "POSS:",
-            "SYLT:",
-            "USLT:",
-            "SYTC:",
-            "ETCO:",
-            "MLLT:",
-            "OWNE:",
-            "COMR:",
-            "ENCR:",
-            "GRID:",
-            "PRIV:",
-            "SIGN:",
-            "SEEK:",
-            "ASPI:",
-        }
+    def test_get_full_metadata_id3v2_binary_frames_sanitized(self, sample_mp3_file):
+        """Get_full_metadata sanitizes ID3v2 binary frames (including extended keys like PRIV:owner:desc)."""
+        result = get_full_metadata(sample_mp3_file)
+        frames = result.get("raw_metadata", {}).get("id3v2", {}).get("frames", {})
 
         for frame_id, frame_data in frames.items():
             text = frame_data.get("text", "")
-
-            if frame_id in binary_frame_types:
-                # Binary frames should have placeholder text
+            if _is_binary_frame(frame_id):
                 assert text.startswith("<Binary data:"), f"Binary frame {frame_id} should have placeholder text"
                 assert text.endswith(" bytes>"), f"Binary frame {frame_id} should end with ' bytes>'"
             else:
-                # Text frames should not contain binary data
                 assert not any(
                     ord(c) < 32 and c not in "\t\n\r" for c in text
                 ), f"Text frame {frame_id} contains binary data: {text[:50]!r}"
@@ -114,15 +82,46 @@ class TestGetFullMetadataBinaryDataFiltering:
         raw_metadata = result.get("raw_metadata", {})
         vorbis_comments = raw_metadata.get("vorbis", {}).get("comments", {})
 
-        # Vorbis comments should only contain text
         for key, values in vorbis_comments.items():
             assert isinstance(values, list), f"Vorbis comment {key} should be a list"
             for value in values:
                 assert isinstance(value, str), f"Vorbis comment {key} value should be string"
-                # Check for binary data patterns
                 assert not any(
                     ord(c) < 32 and c not in "\t\n\r" for c in value
                 ), f"Vorbis comment {key} contains binary data: {value[:50]!r}"
+
+    def test_get_full_metadata_vorbis_opaque_comment_sanitized(self):
+        """TRAKTOR4 and other opaque Vorbis comment keys are replaced with size placeholder."""
+        from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
+        from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataSetter
+
+        opaque_value = 'dlVHB8hIC"AAAA4wlZhtBAC"BAAA::<y~XAAAAAAAA' + "x" * 200
+        with temp_file_with_metadata({"title": "Money"}, "flac") as test_file:
+            VorbisMetadataSetter.set_tag(test_file, "TRAKTOR4", opaque_value)
+            result = get_full_metadata(test_file)
+
+        vorbis_comments = result.get("raw_metadata", {}).get("vorbis", {}).get("comments", {})
+        assert "TITLE" in vorbis_comments
+        assert "TRAKTOR4" in vorbis_comments
+        assert len(vorbis_comments["TRAKTOR4"]) == 1
+        placeholder = vorbis_comments["TRAKTOR4"][0]
+        assert placeholder.startswith("<Binary or opaque data: ")
+        assert placeholder.endswith(" bytes>")
+        expected_size = len(opaque_value.encode("utf-8"))
+        assert placeholder == f"<Binary or opaque data: {expected_size} bytes>"
+
+    def test_get_full_metadata_include_raw_binary_data_true_returns_unsanitized(self):
+        """With include_raw_binary_data=True, opaque comment values are included as-is."""
+        from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
+        from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataSetter
+
+        opaque_value = "opaque_traktor_data" + "x" * 100
+        with temp_file_with_metadata({"title": "Money"}, "flac") as test_file:
+            VorbisMetadataSetter.set_tag(test_file, "TRAKTOR4", opaque_value)
+            result = get_full_metadata(test_file, include_raw_binary_data=True)
+
+        vorbis_comments = result.get("raw_metadata", {}).get("vorbis", {}).get("comments", {})
+        assert vorbis_comments["TRAKTOR4"] == [opaque_value]
 
     def test_get_full_metadata_riff_no_binary_data(self, sample_wav_file):
         """Test that get_full_metadata RIFF metadata doesn't contain binary data."""
@@ -181,43 +180,11 @@ class TestGetFullMetadataBinaryDataFiltering:
         assert isinstance(data, dict)
 
     def test_binary_frame_size_preserved(self, sample_mp3_file):
-        """Test that binary frame sizes are still reported correctly."""
-        from audiometa._audio_file import _AudioFile
-
-        audio_file = _AudioFile(sample_mp3_file)
-        manager = Id3v2Manager(audio_file)
-        raw_info = manager.get_raw_metadata_info()
-
-        frames = raw_info.get("frames", {})
-        binary_frame_types = {
-            "APIC:",
-            "GEOB:",
-            "AENC:",
-            "RVA2:",
-            "RVRB:",
-            "EQU2:",
-            "PCNT:",
-            "POPM:",
-            "RBUF:",
-            "LINK:",
-            "POSS:",
-            "SYLT:",
-            "USLT:",
-            "SYTC:",
-            "ETCO:",
-            "MLLT:",
-            "OWNE:",
-            "COMR:",
-            "ENCR:",
-            "GRID:",
-            "PRIV:",
-            "SIGN:",
-            "SEEK:",
-            "ASPI:",
-        }
-
+        """Sanitized binary frames in get_full_metadata still report size and flags."""
+        result = get_full_metadata(sample_mp3_file)
+        frames = result.get("raw_metadata", {}).get("id3v2", {}).get("frames", {})
         for frame_id, frame_data in frames.items():
-            if frame_id in binary_frame_types:
+            if _is_binary_frame(frame_id):
                 size = frame_data.get("size")
                 flags = frame_data.get("flags")
 
@@ -229,14 +196,9 @@ class TestGetFullMetadataBinaryDataFiltering:
                 assert size >= 0, f"Binary frame {frame_id} size should be non-negative"
 
     def test_text_frames_unchanged(self, sample_mp3_file):
-        """Test that text frames are not affected by binary filtering."""
-        from audiometa._audio_file import _AudioFile
-
-        audio_file = _AudioFile(sample_mp3_file)
-        manager = Id3v2Manager(audio_file)
-        raw_info = manager.get_raw_metadata_info()
-
-        frames = raw_info.get("frames", {})
+        """Text frames in get_full_metadata are not replaced by placeholders."""
+        result = get_full_metadata(sample_mp3_file)
+        frames = result.get("raw_metadata", {}).get("id3v2", {}).get("frames", {})
         text_frame_types = {"TIT2", "TALB", "TPE1", "TDRC", "COMM", "TENC", "TSSE"}
 
         for frame_id, frame_data in frames.items():
