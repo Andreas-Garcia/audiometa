@@ -48,6 +48,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-02-23
+
 ### Added
 
 - **get_full_metadata `include_raw_binary_data`**: New parameter to opt in to raw binary/opaque content in raw_metadata (e.g. APIC, PRIV, TRAKTOR4). When False (default), such content is replaced by size placeholders. CLI: `audiometa read --include-raw-binary-data`. Includes sanitization for ID3v2 frames and Vorbis comments (e.g. TRAKTOR4), with unit and integration tests.
