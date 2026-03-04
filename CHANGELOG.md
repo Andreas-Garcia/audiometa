@@ -48,11 +48,13 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
-## [1.1.1] - 2025-03-04
+## [1.1.2] - 2025-03-04
 
 ### CI
 
 - **Lint and Test workflow**: Single `lint-and-test.yml` on PRs only (parallel lint + test jobs, concurrency). Publish no longer verifies CI for the tag; rely on branch protection requiring "Lint and Test" so only CI-passed code reaches main.
+
+## [1.1.1] - 2025-03-04
 
 ### Added
 
