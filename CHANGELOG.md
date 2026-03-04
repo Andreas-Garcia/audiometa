@@ -48,6 +48,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Added
+
+- **get_full_metadata raw_metadata returns all tags**: `raw_metadata` now consistently includes every tag present in the file per format. RIFF INFO extractor and \_RiffManager no longer filter by `RiffTagKey`—every INFO chunk FourCC (known or custom) is returned in `raw_metadata["riff"]["parsed_fields"]`, with a parsing guard that only accepts valid 4-byte printable-ASCII FourCCs. Integration coverage for custom ID3v2 TXXX, custom Vorbis comments, ID3v1 parsed fields, custom RIFF FourCCs, and BWF bext; test helpers for custom TXXX and custom RIFF INFO fields. Documentation updated for raw-metadata guarantees; `.cursor/rules/mastodon-posts.mdc` documents Mastodon post length (494 char max).
+
 ## [1.1.0] - 2025-02-23
 
 ### Added

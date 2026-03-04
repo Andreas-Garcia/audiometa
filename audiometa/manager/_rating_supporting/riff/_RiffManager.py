@@ -97,7 +97,8 @@ class _RiffManager(_RatingSupportingMetadataManager):
     chunk structures, maintaining word alignment and size fields according to the specification.
 
     Raw metadata: get_raw_metadata_info() (and thus get_full_metadata()["raw_metadata"]["riff"]) includes every
-    INFO chunk FourCC present in the file in parsed_fields, including custom FourCCs not in RiffTagKey.
+    INFO chunk FourCC present in the file in parsed_fields (no filtering by RiffTagKey). Only subchunks with
+    a valid 4-byte printable-ASCII FourCC are included; custom and known FourCCs are both returned.
     """
 
     class RiffTagKey(RawMetadataKey):
@@ -196,7 +197,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
 
         This method directly parses the RIFF structure to extract metadata from the INFO chunk.
         """
-        return extract_riff_metadata_directly(file_data, self._skip_id3v2_tags, self.RiffTagKey)
+        return extract_riff_metadata_directly(file_data, self._skip_id3v2_tags)
 
     def _extract_bext_chunk(self, file_data: bytes) -> dict[str, Any] | None:
         """Extract and parse the bext chunk from BWF files."""

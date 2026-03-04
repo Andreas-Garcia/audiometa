@@ -5,38 +5,34 @@ standard metadata fields like title, artist, album, etc.
 """
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING
 
 from ....utils.types import RawMetadataKey
-
-if TYPE_CHECKING:
-    pass
-
 from ._riff_constants import RIFF_CHUNK_ID_SIZE, RIFF_HEADER_SIZE, RIFF_WAVE_FORMAT_POSITION
+
+_FOURCC_MIN = 0x20
+_FOURCC_MAX = 0x7E
+
+
+def _is_valid_fourcc(fourcc_bytes: bytes) -> bool:
+    """Return True if the 4 bytes form a valid INFO chunk FourCC (printable ASCII)."""
+    if len(fourcc_bytes) != RIFF_CHUNK_ID_SIZE:
+        return False
+    return all(_FOURCC_MIN <= b <= _FOURCC_MAX for b in fourcc_bytes)
 
 
 def extract_riff_metadata_directly(
-    file_data: bytes, skip_id3v2_tags_func: Callable[[bytes], bytes], _riff_tag_key_class: type[object]
+    file_data: bytes, skip_id3v2_tags_func: Callable[[bytes], bytes]
 ) -> dict[str, list[str]]:
     """Manually extract metadata from RIFF chunks without relying on external libraries.
 
-    This function directly parses the RIFF structure to extract metadata from the INFO chunk.
-    It returns all INFO chunk fields (known RiffTagKey FourCCs and custom FourCCs).
-
-    Args:
-        file_data: Full file data (may include ID3v2 tags)
-        skip_id3v2_tags_func: Function to skip ID3v2 tags from file data
-        riff_tag_key_class: RiffTagKey class (used for structure; all FourCCs are included)
-
-    Returns:
-        Dictionary mapping every RIFF INFO FourCC to lists of string values
+    Parses the RIFF structure and returns every INFO chunk field. No filtering by
+    RiffTagKey—known and custom FourCCs are included. Only subchunks with a valid
+    4-byte printable-ASCII FourCC are accepted.
     """
     info_tags: dict[str, list[str]] = {}
 
-    # Skip ID3v2 if present
     file_data = skip_id3v2_tags_func(file_data)
 
-    # Validate RIFF header
     if (
         len(file_data) < RIFF_HEADER_SIZE
         or file_data[:RIFF_CHUNK_ID_SIZE] != b"RIFF"
@@ -44,29 +40,24 @@ def extract_riff_metadata_directly(
     ):
         return info_tags
 
-    pos = 12  # Start after RIFF header
+    pos = 12
     while pos < len(file_data) - 8:
         chunk_id = file_data[pos : pos + 4]
         chunk_size = int.from_bytes(file_data[pos + 4 : pos + 8], "little")
 
         if chunk_id == b"LIST" and pos + 12 <= len(file_data) and file_data[pos + 8 : pos + 12] == b"INFO":
-            # Process INFO chunk
             info_pos = pos + 12
             info_end = pos + 8 + chunk_size
 
             while info_pos < info_end - 8:
-                # Extract each metadata field
-                field_id = file_data[info_pos : info_pos + 4].decode("ascii", errors="ignore")
+                field_id_bytes = file_data[info_pos : info_pos + 4]
                 field_size = int.from_bytes(file_data[info_pos + 4 : info_pos + 8], "little")
 
-                if field_size > 0 and info_pos + 8 + field_size <= info_end and len(field_id) == RIFF_CHUNK_ID_SIZE:
-                    # -1 to exclude null terminator
+                if field_size > 0 and info_pos + 8 + field_size <= info_end and _is_valid_fourcc(field_id_bytes):
+                    field_id = field_id_bytes.decode("ascii")
                     field_data = file_data[info_pos + 8 : info_pos + 8 + field_size - 1]
                     try:
-                        # Decode and handle null-terminated strings
-                        field_value = field_data.decode("utf-8", errors="ignore")
-                        # Split on null byte and take first part if exists
-                        field_value = field_value.split("\x00")[0].strip()
+                        field_value = field_data.decode("utf-8", errors="ignore").split("\x00")[0].strip()
                         if field_value:
                             if field_id not in info_tags:
                                 info_tags[field_id] = []
@@ -74,7 +65,6 @@ def extract_riff_metadata_directly(
                     except UnicodeDecodeError:
                         pass
 
-                # Move to next field, maintaining alignment
                 info_pos += 8 + ((field_size + 1) & ~1)
             break
 

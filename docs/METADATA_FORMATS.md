@@ -462,7 +462,7 @@ BWF fields are designed for professional broadcasting workflows and include spec
 - **Read/Write**: Full support
 - **File Types**: WAV (native)
 - **Implementation**: Custom implementation (mutagen doesn't support writing RIFF)
-- **Raw metadata**: All INFO chunk FourCCs (known and custom) are included in `get_full_metadata()["raw_metadata"]["riff"]["parsed_fields"]`.
+- **Raw metadata**: All INFO chunk FourCCs (known and custom) are included in `get_full_metadata()["raw_metadata"]["riff"]["parsed_fields"]`. No filtering by RiffTagKey; only valid 4-byte printable-ASCII FourCCs are accepted.
 - **BWF Support**: Raw extraction of Broadcast Wave Format (BWF) fields via `bext` chunk
   - **BWF Versions**: Supports reading v0, v1, and v2 bext chunks
   - **Fields Extracted**: Description, Originator, OriginatorReference, OriginationDate, OriginationTime, TimeReference, Version, UMID, CodingHistory
@@ -571,7 +571,7 @@ For detailed information on field support and handling, see the **[Metadata Fiel
 - **ID3v2**: Every frame in `raw_metadata["id3v2"]["frames"]` (standard and custom, e.g. TXXX, PRIV).
 - **Vorbis**: Every comment in `raw_metadata["vorbis"]["comments"]` (standard and custom keys).
 - **ID3v1**: The fixed tag set in `raw_metadata["id3v1"]["parsed_fields"]` (no extensible tags).
-- **RIFF**: Every INFO chunk FourCC in `raw_metadata["riff"]["parsed_fields"]`, including custom FourCCs.
+- **RIFF**: Every INFO chunk FourCC in `raw_metadata["riff"]["parsed_fields"]`, including custom FourCCs. Only subchunks with a valid 4-byte printable-ASCII FourCC are included (malformed or non-ASCII IDs are skipped).
 - **BWF**: The bext chunk in `raw_metadata["riff"]["chunk_structure"]["bext"]`.
 
 Unified metadata and format-specific read/write continue to use only known fields; unknown or custom tags are visible only in `raw_metadata`.
