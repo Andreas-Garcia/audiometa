@@ -1277,6 +1277,11 @@ def get_full_metadata(
     - Raw metadata details from each format. When include_raw_binary_data is False (default),
       binary/opaque frames (e.g. APIC, PRIV, TRAKTOR4) are summarized as size placeholders.
 
+    The result's raw_metadata contains every tag present in the file for each format:
+    ID3v2 (all frames including custom TXXX/PRIV), Vorbis (all comments), ID3v1 (fixed set),
+    RIFF (all INFO chunk FourCCs including custom), and BWF bext in chunk_structure.
+    Per-format keys: id3v2.frames, vorbis.comments, id3v1/riff.parsed_fields, riff.chunk_structure.bext.
+
     Args:
         file: Audio file path (str or Path)
         include_headers: Whether to include format-specific header information (default: True)

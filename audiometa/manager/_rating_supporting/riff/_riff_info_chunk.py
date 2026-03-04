@@ -5,7 +5,7 @@ standard metadata fields like title, artist, album, etc.
 """
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from ....utils.types import RawMetadataKey
 
@@ -16,19 +16,20 @@ from ._riff_constants import RIFF_CHUNK_ID_SIZE, RIFF_HEADER_SIZE, RIFF_WAVE_FOR
 
 
 def extract_riff_metadata_directly(
-    file_data: bytes, skip_id3v2_tags_func: Callable[[bytes], bytes], riff_tag_key_class: type[object]
+    file_data: bytes, skip_id3v2_tags_func: Callable[[bytes], bytes], _riff_tag_key_class: type[object]
 ) -> dict[str, list[str]]:
     """Manually extract metadata from RIFF chunks without relying on external libraries.
 
     This function directly parses the RIFF structure to extract metadata from the INFO chunk.
+    It returns all INFO chunk fields (known RiffTagKey FourCCs and custom FourCCs).
 
     Args:
         file_data: Full file data (may include ID3v2 tags)
         skip_id3v2_tags_func: Function to skip ID3v2 tags from file data
-        riff_tag_key_class: RiffTagKey class for validation
+        riff_tag_key_class: RiffTagKey class (used for structure; all FourCCs are included)
 
     Returns:
-        Dictionary mapping RIFF tag IDs to lists of values
+        Dictionary mapping every RIFF INFO FourCC to lists of string values
     """
     info_tags: dict[str, list[str]] = {}
 
@@ -58,7 +59,7 @@ def extract_riff_metadata_directly(
                 field_id = file_data[info_pos : info_pos + 4].decode("ascii", errors="ignore")
                 field_size = int.from_bytes(file_data[info_pos + 4 : info_pos + 8], "little")
 
-                if field_size > 0 and info_pos + 8 + field_size <= info_end:
+                if field_size > 0 and info_pos + 8 + field_size <= info_end and len(field_id) == RIFF_CHUNK_ID_SIZE:
                     # -1 to exclude null terminator
                     field_data = file_data[info_pos + 8 : info_pos + 8 + field_size - 1]
                     try:
@@ -66,10 +67,7 @@ def extract_riff_metadata_directly(
                         field_value = field_data.decode("utf-8", errors="ignore")
                         # Split on null byte and take first part if exists
                         field_value = field_value.split("\x00")[0].strip()
-                        # Compare field_id with enum member values (FourCC strings)
-                        # Use getattr to safely access __members__ for type checking
-                        members = getattr(riff_tag_key_class, "__members__", {})
-                        if any(field_id == member.value for member in cast(dict, members).values()) and field_value:
+                        if field_value:
                             if field_id not in info_tags:
                                 info_tags[field_id] = []
                             info_tags[field_id].append(field_value)

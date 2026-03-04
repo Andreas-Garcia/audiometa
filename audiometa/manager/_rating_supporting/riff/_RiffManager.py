@@ -95,6 +95,9 @@ class _RiffManager(_RatingSupportingMetadataManager):
     Note: This manager is the preferred way to handle WAV metadata, as it uses the format's native metadata system
     rather than non-standard alternatives like ID3v2 tags. The custom implementation ensures proper handling of RIFF
     chunk structures, maintaining word alignment and size fields according to the specification.
+
+    Raw metadata: get_raw_metadata_info() (and thus get_full_metadata()["raw_metadata"]["riff"]) includes every
+    INFO chunk FourCC present in the file in parsed_fields, including custom FourCCs not in RiffTagKey.
     """
 
     class RiffTagKey(RawMetadataKey):
@@ -253,10 +256,8 @@ class _RiffManager(_RatingSupportingMetadataManager):
         if hasattr(raw_mutagen_metadata_wav, "info") and raw_mutagen_metadata_wav.info is not None:
             info_tags = raw_mutagen_metadata_wav.info
             for key, value in info_tags.items():
-                # key is a FourCC string; check against enum member values
-                if any(key == member.value for member in self.RiffTagKey.__members__.values()):
-                    # info_tags now contains lists of values, so we can pass them directly
-                    raw_metadata_dict[key] = value
+                # info_tags contains lists of values; include every FourCC (known and custom)
+                raw_metadata_dict[key] = value
 
         return raw_metadata_dict
 
