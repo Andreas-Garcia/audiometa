@@ -109,3 +109,10 @@ jobs:
       - name: Check combined coverage threshold
         if: matrix.os != 'windows-2022'
         run: coverage report --fail-under=85
+
+  lint-and-tests-success:
+    name: Lint and tests success
+    runs-on: ubuntu-24.04
+    needs: [lint, test]
+    steps:
+      - run: echo "All checks passed"
