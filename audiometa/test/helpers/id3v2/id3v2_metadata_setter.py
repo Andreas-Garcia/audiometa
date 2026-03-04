@@ -667,3 +667,14 @@ class ID3v2MetadataSetter:
 
         data_bytes = data.encode("utf-8")
         ManualID3v2FrameCreator.create_ufid_frame(file_path, owner, data_bytes, version="2.4")
+
+    @staticmethod
+    def set_custom_txxx(file_path: Path, description: str, value: str) -> None:
+        """Set a custom TXXX frame (for testing raw_metadata includes unsupported frames)."""
+        command = [
+            get_tool_path("mid3v2"),
+            "--TXXX",
+            f"{description}:{value}",
+            str(file_path),
+        ]
+        run_external_tool(command, "mid3v2")

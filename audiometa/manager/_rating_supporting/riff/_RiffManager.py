@@ -95,6 +95,10 @@ class _RiffManager(_RatingSupportingMetadataManager):
     Note: This manager is the preferred way to handle WAV metadata, as it uses the format's native metadata system
     rather than non-standard alternatives like ID3v2 tags. The custom implementation ensures proper handling of RIFF
     chunk structures, maintaining word alignment and size fields according to the specification.
+
+    Raw metadata: get_raw_metadata_info() (and thus get_full_metadata()["raw_metadata"]["riff"]) includes every
+    INFO chunk FourCC present in the file in parsed_fields (no filtering by RiffTagKey). Only subchunks with
+    a valid 4-byte printable-ASCII FourCC are included; custom and known FourCCs are both returned.
     """
 
     class RiffTagKey(RawMetadataKey):
@@ -193,7 +197,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
 
         This method directly parses the RIFF structure to extract metadata from the INFO chunk.
         """
-        return extract_riff_metadata_directly(file_data, self._skip_id3v2_tags, self.RiffTagKey)
+        return extract_riff_metadata_directly(file_data, self._skip_id3v2_tags)
 
     def _extract_bext_chunk(self, file_data: bytes) -> dict[str, Any] | None:
         """Extract and parse the bext chunk from BWF files."""
@@ -253,10 +257,8 @@ class _RiffManager(_RatingSupportingMetadataManager):
         if hasattr(raw_mutagen_metadata_wav, "info") and raw_mutagen_metadata_wav.info is not None:
             info_tags = raw_mutagen_metadata_wav.info
             for key, value in info_tags.items():
-                # key is a FourCC string; check against enum member values
-                if any(key == member.value for member in self.RiffTagKey.__members__.values()):
-                    # info_tags now contains lists of values, so we can pass them directly
-                    raw_metadata_dict[key] = value
+                # info_tags contains lists of values; include every FourCC (known and custom)
+                raw_metadata_dict[key] = value
 
         return raw_metadata_dict
 

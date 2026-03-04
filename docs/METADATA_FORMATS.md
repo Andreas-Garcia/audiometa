@@ -5,25 +5,47 @@ This document provides comprehensive information about the metadata formats supp
 ## Table of Contents
 
 - [ID3v1](#id3v1-metadata-format)
+  - [Overview & structure](#overview-structure)
+  - [Pros, cons & use cases](#pros-cons-use-cases)
+  - [Specifications](#specifications)
+  - [AudioMeta Support](#audiometa-support)
 - [ID3v2](#id3v2-metadata-format)
+  - [Overview & versions](#overview-versions)
+  - [Pros, cons & use cases](#pros-cons-use-cases-1)
+  - [Specifications](#specifications-1)
+  - [AudioMeta Support](#audiometa-support-1)
 - [Vorbis Comments](#vorbis-comments-metadata-format)
+  - [Overview & standard fields](#overview-standard-fields)
+  - [Pros, cons & use cases](#pros-cons-use-cases-2)
+  - [Specifications](#specifications-2)
+  - [AudioMeta Support](#audiometa-support-2)
 - [RIFF INFO](#riff-info-metadata-format)
+  - [Overview & standard fields](#overview-standard-fields-1)
+  - [Pros, cons & use cases](#pros-cons-use-cases-3)
+  - [BWF versions](#bwf-versions)
+  - [Specifications](#specifications-3)
+  - [AudioMeta Support](#audiometa-support-3)
 - [Format Comparison](#format-comparison)
+  - [When to Use Each Format](#when-to-use-each-format)
 - [AudioMeta Implementation](#audiometa-implementation)
+  - [Detection & priority](#detection-priority)
+  - [Writing & handling](#writing-handling)
+  - [Unified API](#unified-api)
+  - [Full & raw metadata](#full-raw-metadata)
 
 ## ID3v1 Metadata Format
 
-### Overview
+### Overview & structure
 
 ID3v1 is the original metadata format for MP3 files, introduced in 1996 by Eric Kemp. It was created to solve the problem of identifying MP3 files when they were transferred between systems, as filenames alone were insufficient.
 
-### History
+**History**
 
 - **1996**: ID3v1 introduced - 128-byte fixed structure
 - **1997**: ID3v1.1 introduced - Added track number support in comment field
 - **Status**: Legacy format, still widely supported for backward compatibility
 
-### Structure
+**Structure**
 
 ID3v1 uses a simple **128-byte fixed structure** appended to the end of MP3 files:
 
@@ -46,7 +68,9 @@ Offset  Length  Field
 - Last byte of comment (byte 125) = track number (0-255)
 - Last byte of comment (byte 126) = null terminator
 
-### Advantages
+### Pros, cons & use cases
+
+**Advantages**
 
 - ✅ **Simple**: Easy to implement and parse
 - ✅ **Universal**: Supported by virtually all MP3 players and software
@@ -54,7 +78,7 @@ Offset  Length  Field
 - ✅ **Small Overhead**: Only 128 bytes per file
 - ✅ **No Corruption Risk**: Fixed size prevents file corruption
 
-### Disadvantages
+**Disadvantages**
 
 - ❌ **Limited Fields**: Only title, artist, album, year, comment, genre, track number
 - ❌ **Fixed Lengths**: 30-character limit for text fields (very restrictive)
@@ -65,7 +89,7 @@ Offset  Length  Field
 - ❌ **No Extended Metadata**: No support for BPM, rating, composer, etc.
 - ❌ **No Cover Art**: Cannot embed images
 
-### Use Cases
+**Use Cases**
 
 - **Legacy Systems**: Old MP3 players and car stereos
 - **Maximum Compatibility**: When you need metadata readable by any device
@@ -88,18 +112,18 @@ Offset  Length  Field
 
 ## ID3v2 Metadata Format
 
-### Overview
+### Overview & versions
 
 ID3v2 is the modern, extensible metadata format for MP3 files, designed to overcome ID3v1's limitations. It uses a flexible frame-based structure that can store extensive metadata including Unicode text, images, and custom fields.
 
-### History
+**History**
 
 - **1998**: ID3v2.2 introduced - Three-character frame IDs (TT2, TP1, etc.)
 - **1999**: ID3v2.3 introduced - Four-character frame IDs, improved structure
 - **2000**: ID3v2.4 introduced - UTF-8 support, improved encoding, null-separated values
 - **Status**: Current standard, ID3v2.3 most widely supported, ID3v2.4 preferred for new tags
 
-### Structure
+**Structure**
 
 ID3v2 uses a **flexible frame-based structure** at the beginning of files:
 
@@ -121,7 +145,7 @@ ID3v2 Header (10 bytes)
 - **Frame Types**: Text frames, URL frames, binary frames (images, audio)
 - **Encoding**: ISO-8859-1 (v2.3), UTF-16 (v2.3), UTF-8 (v2.4)
 
-### Versions
+**Versions**
 
 #### ID3v2.2
 
@@ -144,7 +168,9 @@ ID3v2 Header (10 bytes)
 - Null-separated values for multiple entries
 - Preferred for new tags
 
-### Advantages
+### Pros, cons & use cases
+
+**Advantages**
 
 - ✅ **Extensive Fields**: Supports all common metadata fields plus custom fields
 - ✅ **Unicode Support**: Full international character support (UTF-8 in v2.4)
@@ -155,7 +181,7 @@ ID3v2 Header (10 bytes)
 - ✅ **Versatile**: Works with MP3, WAV, FLAC files
 - ✅ **Rich Metadata**: Supports BPM, rating, composer, lyrics, etc.
 
-### Disadvantages
+**Disadvantages**
 
 - ❌ **Complex**: More complex to implement than ID3v1
 - ❌ **Larger Overhead**: Variable size, can be several KB
@@ -163,7 +189,7 @@ ID3v2 Header (10 bytes)
 - ❌ **Compatibility**: Older players may not support v2.4
 - ❌ **Frame Limits**: Some players limit frame sizes or counts
 
-### Use Cases
+**Use Cases**
 
 - **Modern MP3 Files**: Standard for new MP3 files
 - **Rich Metadata**: When you need extensive metadata (BPM, rating, lyrics, etc.)
@@ -190,17 +216,17 @@ ID3v2 Header (10 bytes)
 
 ## Vorbis Comments Metadata Format
 
-### Overview
+### Overview & standard fields
 
 Vorbis Comments are a simple, flexible metadata system used in Ogg Vorbis, FLAC, and other Xiph.org formats. They use a key-value pair structure that's easy to read, write, and extend.
 
-### History
+**History**
 
 - **2000**: Vorbis Comments introduced with Ogg Vorbis format
 - **2001**: Adopted by FLAC (Free Lossless Audio Codec)
 - **Status**: Standard metadata format for FLAC files
 
-### Structure
+**Structure**
 
 Vorbis Comments use a **simple key-value pair structure**:
 
@@ -219,7 +245,7 @@ Comment Count (32-bit integer)
 - **UTF-8 Encoding**: Full Unicode support
 - **Flexible**: Any key-value pairs allowed (standardized keys recommended)
 
-### Standard Fields
+**Standard Fields**
 
 Common standardized field names:
 
@@ -236,7 +262,9 @@ Common standardized field names:
 - `COMMENT` - Comments
 - `DESCRIPTION` - Description
 
-### Advantages
+### Pros, cons & use cases
+
+**Advantages**
 
 - ✅ **Simple**: Easy to read and write, human-readable
 - ✅ **Flexible**: Any key-value pairs, extensible
@@ -246,7 +274,7 @@ Common standardized field names:
 - ✅ **Standardized**: Well-documented standard field names
 - ✅ **Open Standard**: Xiph.org open specification
 
-### Disadvantages
+**Disadvantages**
 
 - ❌ **FLAC Only**: Primarily used in FLAC files (not MP3 or WAV)
 - ❌ **No Binary Data**: Cannot embed images directly (FLAC uses separate picture blocks)
@@ -254,7 +282,7 @@ Common standardized field names:
 - ❌ **No Structured Data**: Simple key-value only, no nested structures
 - ❌ **Limited Standardization**: Some fields have multiple conventions
 
-### Use Cases
+**Use Cases**
 
 - **FLAC Files**: Standard metadata format for FLAC
 - **Lossless Audio**: Preferred format for lossless audio libraries
@@ -278,17 +306,17 @@ Common standardized field names:
 
 ## RIFF INFO Metadata Format
 
-### Overview
+### Overview & standard fields
 
 RIFF (Resource Interchange File Format) INFO chunks are the standard metadata format for WAV files. They use FourCC (Four Character Code) identifiers to store metadata in a structured chunk format.
 
-### History
+**History**
 
 - **1991**: RIFF format introduced by Microsoft and IBM
 - **1991**: WAV format introduced as RIFF subtype
 - **Status**: Standard metadata format for WAV files
 
-### Structure
+**Structure**
 
 RIFF uses a **chunk-based structure**:
 
@@ -315,7 +343,7 @@ RIFF Header
 
 **Note on `bext` chunk**: The `bext` chunk is a RIFF chunk (follows RIFF chunk structure), but it's separate from the RIFF INFO chunk system. It's a BWF-specific chunk that exists at the same level as `fmt`, `LIST`, and `data` chunks, not nested within the INFO chunk.
 
-### Standard Fields (FourCC Codes)
+**Standard Fields (FourCC Codes)**
 
 Common RIFF INFO chunk fields:
 
@@ -333,7 +361,9 @@ Common RIFF INFO chunk fields:
 - `IBPM` - BPM (non-standard, but used)
 - `IRTD` - Rating (non-standard, but used)
 
-### Advantages
+### Pros, cons & use cases
+
+**Advantages**
 
 - ✅ **Native WAV Format**: Standard metadata format for WAV files
 - ✅ **Structured**: Well-defined chunk structure
@@ -343,7 +373,24 @@ Common RIFF INFO chunk fields:
 
 **Note on BWF**: Broadcast Wave Format (BWF) files are WAV files that include a `bext` chunk. Adding a `bext` chunk to a WAV file makes it a BWF file. The `bext` chunk is a RIFF chunk (follows RIFF chunk structure) but is separate from the RIFF INFO chunk system - it exists at the same level as other top-level chunks like `fmt` and `data`. BWF files can contain both standard RIFF INFO chunks and the additional `bext` chunk for broadcast-specific metadata.
 
-### Broadcast Wave Format (BWF) Versions
+**Disadvantages**
+
+- ❌ **WAV Only**: Only used in WAV files (not MP3 or FLAC)
+- ❌ **Limited Fields**: Fewer standardized fields than ID3v2
+- ❌ **No Multiple Values**: Single value per field (though some use separators)
+- ❌ **No Binary Data**: Cannot embed images directly
+- ❌ **Less Common**: Not as widely used as ID3v2
+- ❌ **Implementation Varies**: Different tools handle fields differently
+
+**Use Cases**
+
+- **WAV Files**: Standard metadata format for WAV files
+- **Professional Audio**: Used in professional audio production
+- **Broadcasting**: Compatible with Broadcast Wave Format (BWF)
+- **Simple Metadata**: When basic metadata is sufficient
+- **Native Format**: When you want to use WAV's native metadata system
+
+### BWF versions
 
 BWF has evolved through multiple versions, each adding new capabilities:
 
@@ -404,23 +451,6 @@ Most BWF fields are BWF-specific and not natively supported by other metadata fo
 
 BWF fields are designed for professional broadcasting workflows and include specialized metadata (time references, UMID identifiers, loudness measurements) that are unique to the BWF specification and not found in consumer-oriented formats like ID3v2 or Vorbis.
 
-### Disadvantages
-
-- ❌ **WAV Only**: Only used in WAV files (not MP3 or FLAC)
-- ❌ **Limited Fields**: Fewer standardized fields than ID3v2
-- ❌ **No Multiple Values**: Single value per field (though some use separators)
-- ❌ **No Binary Data**: Cannot embed images directly
-- ❌ **Less Common**: Not as widely used as ID3v2
-- ❌ **Implementation Varies**: Different tools handle fields differently
-
-### Use Cases
-
-- **WAV Files**: Standard metadata format for WAV files
-- **Professional Audio**: Used in professional audio production
-- **Broadcasting**: Compatible with Broadcast Wave Format (BWF)
-- **Simple Metadata**: When basic metadata is sufficient
-- **Native Format**: When you want to use WAV's native metadata system
-
 ### Specifications
 
 - **RIFF Specification**: [RIFF File Format](https://www.loc.gov/preservation/digital/formats/fdd/fdd000025.shtml)
@@ -432,6 +462,7 @@ BWF fields are designed for professional broadcasting workflows and include spec
 - **Read/Write**: Full support
 - **File Types**: WAV (native)
 - **Implementation**: Custom implementation (mutagen doesn't support writing RIFF)
+- **Raw metadata**: All INFO chunk FourCCs (known and custom) are included in `get_full_metadata()["raw_metadata"]["riff"]["parsed_fields"]`. No filtering by RiffTagKey; only valid 4-byte printable-ASCII FourCCs are accepted.
 - **BWF Support**: Raw extraction of Broadcast Wave Format (BWF) fields via `bext` chunk
   - **BWF Versions**: Supports reading v0, v1, and v2 bext chunks
   - **Fields Extracted**: Description, Originator, OriginatorReference, OriginationDate, OriginationTime, TimeReference, Version, UMID, CodingHistory
@@ -493,7 +524,7 @@ BWF fields are designed for professional broadcasting workflows and include spec
 
 ## AudioMeta Implementation
 
-### Format Detection
+### Detection & priority
 
 AudioMeta automatically detects available metadata formats in files:
 
@@ -501,15 +532,13 @@ AudioMeta automatically detects available metadata formats in files:
 - **FLAC**: Checks for Vorbis comments, ID3v2, and ID3v1
 - **WAV**: Checks for RIFF INFO, ID3v2, and ID3v1
 
-### Reading Priority
-
 When multiple formats are present, AudioMeta uses priority order:
 
 - **MP3**: ID3v2 → ID3v1
 - **FLAC**: Vorbis → ID3v2 → ID3v1
 - **WAV**: RIFF → ID3v2 → ID3v1
 
-### Writing Strategy
+### Writing & handling
 
 AudioMeta supports three writing strategies:
 
@@ -517,7 +546,7 @@ AudioMeta supports three writing strategies:
 2. **PRESERVE**: Write to native format, preserve other formats unchanged
 3. **CLEANUP**: Write to native format, remove other formats
 
-### Format-Specific Handling
+Format-specific handling:
 
 - **ID3v1**: Direct file manipulation, 30-char truncation, genre code mapping
 - **ID3v2**: Mutagen library, version selection (v2.3 default), frame handling
@@ -534,3 +563,15 @@ AudioMeta provides a unified API that abstracts format differences:
 - **Multiple Values**: Intelligent handling of multiple values per format
 
 For detailed information on field support and handling, see the **[Metadata Field Guide](METADATA_FIELD_GUIDE.md)**.
+
+### Full & raw metadata
+
+`get_full_metadata()["raw_metadata"]` returns **all** tags present in the file for each format:
+
+- **ID3v2**: Every frame in `raw_metadata["id3v2"]["frames"]` (standard and custom, e.g. TXXX, PRIV).
+- **Vorbis**: Every comment in `raw_metadata["vorbis"]["comments"]` (standard and custom keys).
+- **ID3v1**: The fixed tag set in `raw_metadata["id3v1"]["parsed_fields"]` (no extensible tags).
+- **RIFF**: Every INFO chunk FourCC in `raw_metadata["riff"]["parsed_fields"]`, including custom FourCCs. Only subchunks with a valid 4-byte printable-ASCII FourCC are included (malformed or non-ASCII IDs are skipped).
+- **BWF**: The bext chunk in `raw_metadata["riff"]["chunk_structure"]["bext"]`.
+
+Unified metadata and format-specific read/write continue to use only known fields; unknown or custom tags are visible only in `raw_metadata`.

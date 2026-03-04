@@ -342,3 +342,10 @@ class ManualRIFFMetadataCreator:
                 pos = chunk_end
 
         return bytes(result)
+
+    @staticmethod
+    def add_custom_info_field(file_path: Path, fourcc: str, value: str) -> None:
+        """Append a custom INFO chunk field (FourCC + value) for testing raw_metadata includes all tags."""
+        existing_fields = ManualRIFFMetadataCreator._read_existing_info_fields(file_path)
+        new_field = ManualRIFFMetadataCreator._create_info_field(fourcc, value)
+        ManualRIFFMetadataCreator._write_riff_info_chunk(file_path, [*existing_fields, new_field])
