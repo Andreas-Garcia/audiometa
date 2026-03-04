@@ -335,7 +335,7 @@ Before submitting a Pull Request, ensure the following checks are completed:
 
 **2. Testing Verification**
 
-- ✅ CI tests pass on all platforms and Python versions (CI automatically blocks merge if tests fail)
+- ✅ CI tests pass on all platforms and Python versions (Lint and Test workflow runs on pull requests only via `.github/workflows/lint-and-test.yml`; branch protection should require the "Lint and Test" check before merging)
 - ✅ Test coverage meets threshold (CI automatically blocks merge if coverage is below 85%)
 - ✅ Edge cases are handled
 - ✅ Integration with existing features works correctly
@@ -545,17 +545,15 @@ Quick release process:
 
 7. CI/CD will automatically:
 
-   - **Wait for CI to complete**: The publish workflow automatically waits for CI to finish (polls every 30 seconds, max 30 minutes)
    - Verify tag version matches `pyproject.toml` version
    - Verify tag is on main branch
-   - Verify CI has passed for the tagged commit
    - Build the package (source distribution and wheel)
    - Publish to TestPyPI (for testing)
    - Verify TestPyPI installation works correctly
    - Publish to PyPI using the `PYPI_API_TOKEN` secret
    - Verify PyPI publication success
 
-   **Note:** The publish workflow will automatically wait for CI to complete, so you don't need to manually re-run it if CI is still running when you push the tag.
+   **Note:** Publish does not wait for CI. Ensure branch protection requires the "Lint and Test" check before merging so that only CI-passed code reaches main; then any tagged release from main is already validated.
 
 **Note:** Ensure `PYPI_API_TOKEN` is configured in GitHub repository secrets before tagging. See [PyPI Publishing Guide](docs/PYPI_PUBLISHING.md) for setup instructions.
 

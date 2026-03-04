@@ -189,7 +189,7 @@ Coverage is automatically enforced in CI workflows, ensuring the 85% threshold i
 
 **CI test execution:** CI runs tests separately by marker (`unit`, `integration`, `e2e`) with coverage. The coverage threshold of 85% applies to the combined total.
 
-**CI environment:** CI tests run on pinned OS versions (e.g., Ubuntu 22.04, macOS 14) for consistency. OS versions are pinned in `.github/workflows/ci.yml` to ensure system package version availability and consistency with pinned versions in `system-dependencies-prod.toml`, `system-dependencies-test-only.toml`, and `system-dependencies-lint.toml`. Python package versions are pinned in `pyproject.toml`. This prevents breakages when GitHub Actions updates `-latest` runners. See `.github/workflows/ci.yml` for the specific pinned OS versions.
+**CI environment:** CI runs on pull requests only (`.github/workflows/lint-and-test.yml`) and includes lint and test jobs. Tests run on pinned OS versions (e.g., Ubuntu 24.04, macOS 14) for consistency. OS versions are pinned in the workflow to ensure system package version availability and consistency with pinned versions in `system-dependencies-prod.toml`, `system-dependencies-test-only.toml`, and `system-dependencies-lint.toml`. Python package versions are pinned in `pyproject.toml`. This prevents breakages when GitHub Actions updates `-latest` runners. See the workflow file for the specific pinned OS versions.
 
 ## Test Logic Principles
 

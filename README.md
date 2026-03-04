@@ -4,7 +4,7 @@
 
 # AudioMeta Python
 
-[![CI](https://github.com/BehindTheMusicTree/audiometa/actions/workflows/ci.yml/badge.svg)](https://github.com/BehindTheMusicTree/audiometa/actions/workflows/ci.yml)
+[![Lint and Test](https://github.com/BehindTheMusicTree/audiometa/actions/workflows/lint-and-test.yml/badge.svg)](https://github.com/BehindTheMusicTree/audiometa/actions/workflows/lint-and-test.yml)
 [![Python](https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
 [![PyPI version](https://img.shields.io/pypi/v/audiometa-python)](https://pypi.org/project/audiometa-python/)
