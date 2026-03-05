@@ -1,0 +1,32 @@
+---
+description: How to produce and update demo videos with VHS
+globs: "**/*.tape,**/demo*.py,**/VHS*.md,**/DEMO*.md,docs/demos/**"
+alwaysApply: false
+---
+
+# Demo Videos (VHS)
+
+Demo videos are produced with [VHS](https://github.com/charmbracelet/vhs) from declarative `.tape` files. Follow the documented workflow so demos stay reproducible.
+
+## Canonical docs
+
+- **Usage and install**: `VHS_DEMO_README.md` (root)
+- **Install/troubleshooting**: `DEMO_INSTALLATION.md` (root)
+- **Demo asset and tweet copy**: `DEMO_VIDEOS_README.md`, `TWITTER_POST.md` (root)
+
+## Workflow
+
+1. **Dependencies (macOS)**: `bash scripts/install-demo-dependencies-macos.sh` (VHS, ttyd, ffmpeg; fixes libvpx issues).
+2. **Activate venv** before running VHS so the tape uses the project Python: `source .venv/bin/activate`.
+3. **Record from a tape**: `vhs <path/to/file>.tape` (e.g. `vhs audiometa_demo.tape` or `vhs docs/demos/get_full_metadata.tape`).
+4. **Preview**: `vhs <file>.tape --preview`.
+
+## When editing demos
+
+- **New or changed tapes**: Prefer `.tape` in repo root for main demos; use `docs/demos/` for doc-specific demos. Update `Output` lines in the tape for desired filenames (e.g. `.mp4`, `.gif`).
+- **Demo scripts** (e.g. `demo_repl.py`): Keep them minimal and stable; tapes depend on their output.
+- **Docs**: If you change how demos are installed or run, update `VHS_DEMO_README.md` and/or `DEMO_INSTALLATION.md` so Cursor and contributors stay aligned.
+
+## Generated outputs
+
+Generated files (e.g. `.mp4`, `.gif` from tapes) are gitignored where appropriate; only source tapes and the chosen final demo asset are tracked. See `.gitignore` for patterns.
