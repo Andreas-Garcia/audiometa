@@ -99,16 +99,19 @@ class MacOSDependenciesChecker(OsDependenciesChecker):
 
     def _get_ffmpeg_version(self) -> str | None:
         """Get ffmpeg version (special handling for keg-only package)."""
-        ffprobe_paths = ["ffprobe"]
+        candidates = ["ffprobe", "ffmpeg"]
         brew_prefix = self._get_brew_prefix()
-        if brew_prefix:
-            for version in ["7", "6", "5"]:
-                ffprobe_paths.append(f"{brew_prefix}/opt/ffmpeg@{version}/bin/ffprobe")
+        paths_to_try: list[str] = []
+        for cmd in candidates:
+            paths_to_try.append(cmd)
+            if brew_prefix:
+                for version in ["7", "6", "5"]:
+                    paths_to_try.append(f"{brew_prefix}/opt/ffmpeg@{version}/bin/{cmd}")
 
-        for ffprobe_path in ffprobe_paths:
+        for tool_path in paths_to_try:
             try:
                 result = subprocess.run(
-                    [ffprobe_path, "-version"],
+                    [tool_path, "-version"],
                     capture_output=True,
                     text=True,
                     check=False,
@@ -116,6 +119,9 @@ class MacOSDependenciesChecker(OsDependenciesChecker):
                 if result.stdout or result.stderr:
                     output = result.stdout + result.stderr
                     match = re.search(r"version\s+(\d+(?:\.\d+)*)", output)
+                    if match:
+                        return match.group(1)
+                    match = re.search(r"(\d+\.\d+(?:\.\d+)*)", output)
                     if match:
                         return match.group(1)
             except FileNotFoundError:
