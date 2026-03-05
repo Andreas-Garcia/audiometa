@@ -28,6 +28,10 @@ See `CONTRIBUTING.md` for full details. Quick reference:
 - **Test**: `pytest` (all 1553 tests) / `pytest -m unit` / `pytest -m integration` / `pytest -m e2e`
 - **CLI**: `audiometa read <file>` / `audiometa write <file> --title "..." --artist "..."` / `audiometa delete <file>`
 
+### Demo videos
+
+Demos are generated with [VHS](https://github.com/charmbracelet/vhs) from `.tape` files. See `VHS_DEMO_README.md` and `DEMO_INSTALLATION.md` for full instructions. Quick path: install deps (macOS) with `bash scripts/install-demo-dependencies-macos.sh`, activate venv, then run `vhs <path/to/tape>.tape` (e.g. `vhs audiometa_demo.tape` or `vhs docs/demos/get_full_metadata.tape`). When editing tapes or demo workflow, follow `.cursor/rules/demo-videos.mdc`.
+
 ### Gotchas
 
 - `python3.12-venv` must be installed (`sudo apt-get install -y python3.12-venv`) before creating `.venv`.

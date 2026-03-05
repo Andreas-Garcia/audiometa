@@ -378,6 +378,14 @@ Examples:
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
+    help_parser = subparsers.add_parser("help", help="Show help and exit")
+    help_parser.add_argument(
+        "subcommand",
+        nargs="?",
+        choices=["read", "unified", "write", "delete"],
+        help="Subcommand to show help for",
+    )
+
     # Read command
     read_parser = subparsers.add_parser("read", help="Read metadata from audio file(s)")
     read_parser.add_argument("files", nargs="+", help="Audio file(s) or pattern(s)")
@@ -489,6 +497,18 @@ Examples:
     return parser
 
 
+def _print_cli_help(parser: argparse.ArgumentParser, subcommand: str | None) -> None:
+    subparsers_action = next(
+        (a for a in parser._actions if getattr(a, "dest", None) == "command"),
+        None,
+    )
+    subparsers_choices = getattr(subparsers_action, "choices", None) if subparsers_action else None
+    if subcommand and subparsers_choices and subcommand in subparsers_choices:
+        subparsers_choices[subcommand].print_help()
+    else:
+        parser.print_help()
+
+
 def main() -> None:
     """Main CLI entry point."""
     parser = _create_parser()
@@ -497,6 +517,10 @@ def main() -> None:
     if not args.command:
         parser.print_help()
         sys.exit(1)
+
+    if args.command == "help":
+        _print_cli_help(parser, getattr(args, "subcommand", None))
+        sys.exit(0)
 
     try:
         args.func(args)

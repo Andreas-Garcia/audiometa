@@ -1387,11 +1387,13 @@ AudioMeta provides a powerful command-line interface for quick metadata operatio
 
 ### Installation {#cli-installation}
 
-After installing the package, the `audiometa` command will be available:
+After installing the package, the `audiometa` command will be available. Commands: `read`, `unified`, `write`, `delete`, `help`. Use `audiometa --help` or `audiometa help` for main help; `audiometa help read` (or another command) for subcommand help.
 
 ```bash
 pip install audiometa-python
 audiometa --help
+# or: audiometa help
+# or: audiometa help read
 ```
 
 ### Basic Usage
