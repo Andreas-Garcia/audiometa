@@ -11,6 +11,23 @@ class TestCLIHelp:
         assert result.returncode == 1  # Should exit with error
         assert "usage:" in result.stdout.lower() or "help" in result.stdout.lower()
 
+    def test_cli_help_subcommand_shows_main_help(self):
+        result = subprocess.run(
+            [sys.executable, "-m", "audiometa", "help"], capture_output=True, text=True, check=False
+        )
+        assert result.returncode == 0
+        assert "usage:" in result.stdout.lower()
+        assert "read" in result.stdout.lower()
+        assert "write" in result.stdout.lower()
+
+    def test_cli_help_subcommand_shows_subcommand_help(self):
+        result = subprocess.run(
+            [sys.executable, "-m", "audiometa", "help", "read"], capture_output=True, text=True, check=False
+        )
+        assert result.returncode == 0
+        assert "read" in result.stdout.lower()
+        assert "--format" in result.stdout or "format" in result.stdout.lower()
+
     def test_cli_read_help(self):
         result = subprocess.run(
             [sys.executable, "-m", "audiometa", "read", "--help"], capture_output=True, text=True, check=False
