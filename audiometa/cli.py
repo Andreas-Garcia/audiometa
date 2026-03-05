@@ -24,19 +24,31 @@ from audiometa.utils.metadata_format import MetadataFormat
 from audiometa.utils.types import UnifiedMetadata
 
 
+def _data_for_serialization(data: Any) -> Any:
+    """Convert data to a form suitable for YAML/JSON (UnifiedMetadataKey keys as strings)."""
+    if isinstance(data, dict):
+        return {
+            (k.value if isinstance(k, UnifiedMetadataKey) else k): _data_for_serialization(v) for k, v in data.items()
+        }
+    if isinstance(data, list):
+        return [_data_for_serialization(item) for item in data]
+    return data
+
+
 def format_output(data: Any, output_format: str) -> str:
     """Format output data according to specified format."""
+    serializable = _data_for_serialization(data)
     if output_format == "json":
-        return json.dumps(data, indent=2)
+        return json.dumps(serializable, indent=2)
     if output_format == "yaml":
         try:
             import yaml  # type: ignore[import-untyped]
 
-            result = yaml.dump(data, default_flow_style=False)
+            result = yaml.dump(serializable, default_flow_style=False)
             return str(result) if result is not None else ""
         except ImportError:
             sys.stderr.write("Warning: PyYAML not installed, falling back to JSON\n")
-            return json.dumps(data, indent=2)
+            return json.dumps(serializable, indent=2)
     elif output_format == "table":
         return format_as_table(data)
     else:
