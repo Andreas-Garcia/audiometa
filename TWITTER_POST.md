@@ -2,16 +2,27 @@
 
 ## Video File
 
-`audiometa_twitter_demo.mp4`
+`audiometa_repl_demo_comprehensive.mp4` (333 KB, ~20 seconds)
 
-## Suggested Tweet Text (Option 1 - 378 chars)
+## What the Video Shows
 
-🎵 Get complete audio metadata with one function!
+Interactive Python REPL demo showing:
 
-AudioMeta's `get_full_metadata()` retrieves:
+- How to import and use `get_full_metadata()`
+- Accessing unified metadata (standardized across formats)
+- Retrieving technical info (duration, bitrate, sample rate, etc.)
+- Discovering available raw metadata formats
+- Understanding format priorities
+
+## Suggested Tweet Text (Option 1 - 399 chars)
+
+🎵 Get complete audio metadata with one Python function!
+
+AudioMeta's `get_full_metadata()` returns:
 ✅ Unified metadata (standardized)
 ✅ Technical info (bitrate, duration, etc.)
-✅ Raw format-specific data (ID3v2, ID3v1, Vorbis, RIFF)
+✅ Raw format data (ID3v2, ID3v1, Vorbis, RIFF)
+✅ Format priorities
 
 📦 pip install audiometa-python
 
@@ -20,26 +31,49 @@ AudioMeta's `get_full_metadata()` retrieves:
 
 #Python #AudioMetadata
 
-## Suggested Tweet Text (Option 2 - Shorter, 290 chars)
+## Suggested Tweet Text (Option 2 - Shorter, 318 chars)
 
-🎵 AudioMeta: Complete audio metadata in one function call!
+🎵 Complete audio metadata in one function call!
 
+AudioMeta's `get_full_metadata()`:
 📊 Unified metadata
-🔧 Technical info (bitrate, duration, etc.)
-📝 Raw format data (ID3v2, ID3v1, Vorbis, RIFF)
+🔧 Technical info
+📝 Raw format data
+⚙️ Format priorities
 
 pip install audiometa-python
 
 🔗 https://pypi.org/project/audiometa-python/
 🔗 https://github.com/BehindTheMusicTree/audiometa
 
-#Python
+#Python #AudioMetadata
 
-## Suggested Tweet Text (Option 3 - Ultra-Short, 197 chars)
+## Suggested Tweet Text (Option 3 - Code-focused, 361 chars)
 
-🎵 Get complete audio metadata with one function!
+🎵 AudioMeta makes audio metadata simple:
 
-AudioMeta supports MP3, FLAC, WAV with unified & raw metadata access.
+```python
+from audiometa import get_full_metadata
+metadata = get_full_metadata("song.mp3")
+```
+
+Get unified metadata, technical info, raw format data, and more - all in one call!
+
+pip install audiometa-python
+
+🔗 https://pypi.org/project/audiometa-python/
+🔗 https://github.com/BehindTheMusicTree/audiometa
+
+#Python #AudioMetadata
+
+## Suggested Tweet Text (Option 4 - Ultra-Short, 233 chars)
+
+🎵 AudioMeta: Complete audio metadata in Python
+
+One function gets you:
+✅ Unified metadata
+✅ Technical info
+✅ Raw format data
 
 pip install audiometa-python
 
@@ -47,13 +81,8 @@ https://pypi.org/project/audiometa-python/
 
 #Python #AudioMetadata
 
-## Video Description
+## Recommended
 
-A quick 10-second demonstration showing AudioMeta's `get_full_metadata()` function analyzing a sample MP3 file and displaying:
+**Option 3** - Shows the actual code which matches the REPL demo video perfectly!
 
-- Unified metadata (title, artists, album, genres)
-- Technical information (duration, bitrate, format)
-- Raw metadata availability (ID3v2, ID3v1)
-- Clear call-to-action with installation command
-
-Perfect for Twitter's short-form video format!
+All options are under the 494 character limit specified in the rules.

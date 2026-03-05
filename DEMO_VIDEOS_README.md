@@ -1,54 +1,56 @@
-# AudioMeta Demo Videos
+# AudioMeta Demo Video
 
-## Created Videos
+## Interactive REPL Demo (Recommended for Social Media)
 
-### 1. Twitter Demo (Recommended for Social Media)
-
-**File:** `/opt/cursor/artifacts/audiometa_twitter_demo.mp4`
-**Size:** 229 KB
-**Duration:** ~10 seconds
-**Purpose:** Short, engaging demo perfect for Twitter/social media
+**File:** `audiometa_repl_demo_comprehensive.mp4`
+**Size:** 333 KB
+**Duration:** ~20 seconds
+**Purpose:** Comprehensive interactive Python REPL demo showing actual code usage
 
 **Content:**
 
-- Quick demonstration of `get_full_metadata()` function
-- Shows unified metadata (title, artists, album, genres)
-- Displays technical info (duration, bitrate, format)
-- Lists raw metadata availability (ID3v2, ID3v1)
-- Ends with clear call-to-action: "One function - Complete metadata access!"
-- Includes installation command: `pip install audiometa-python`
+The demo simulates an interactive Python session showing:
 
-### 2. Full Metadata Demo (Comprehensive)
+1. **Import**: `from audiometa import get_full_metadata`
+2. **Function call**: `metadata = get_full_metadata("sample.mp3")`
+3. **Unified metadata**: `metadata['unified_metadata']`
+   - Shows title, artists, album, genres in standardized format
+4. **Technical info**: `metadata['technical_info']`
+   - Duration, bitrate, sample rate, channels, format
+5. **Raw metadata formats**: `list(metadata['raw_metadata'].keys())`
+   - Available formats: ID3v2, ID3v1
+6. **Format priorities**: `metadata['format_priorities']`
+   - File extension, reading order, writing format
+7. **Call to action**: "# One function - Complete metadata access!"
 
-**File:** `/opt/cursor/artifacts/audiometa_full_metadata_demo.mp4`
-**Size:** 1.1 MB
-**Duration:** ~15 seconds
-**Purpose:** Detailed demonstration showing all features
+## Why This Demo Works for Twitter
 
-**Content:**
-
-- Complete analysis of sample MP3 file
-- Detailed unified metadata display
-- Full technical information breakdown
-- Raw metadata details for each format
-- Format priorities and reading order
+- ✅ Shows **actual Python code** (not just output)
+- ✅ Interactive REPL style (familiar to developers)
+- ✅ Demonstrates **comprehensive** feature set
+- ✅ Clear typing animation shows code being entered
+- ✅ Immediate results after each command
+- ✅ Professional and engaging presentation
 
 ## Demo Script
 
-The demo uses the script at `demo_twitter.py` which demonstrates the `get_full_metadata()` function analyzing `audiometa/test/assets/sample.mp3`.
+The demo uses `demo_repl.py` which simulates an interactive Python session with typing animations to make it feel like a real REPL demonstration.
 
 ## Suggested Tweet Text
 
-See `TWITTER_POST.md` for three options (197-378 characters, all under the 494 character limit).
-
-**Recommended:** Option 2 (290 characters) - good balance of detail and brevity.
+See `TWITTER_POST.md` for tweet suggestions.
 
 ## Usage
 
-1. Download the video: `audiometa_twitter_demo.mp4`
+1. Download the video: `audiometa_repl_demo_comprehensive.mp4`
 2. Choose a tweet text from `TWITTER_POST.md`
 3. Post to Twitter/social media with the video attached
 4. Include relevant hashtags: #Python #AudioMetadata
+
+## Video Location
+
+- In artifacts: `/opt/cursor/artifacts/audiometa_repl_demo_comprehensive.mp4`
+- In workspace: `/workspace/audiometa_repl_demo_comprehensive.mp4`
 
 ## Links to Include
 
