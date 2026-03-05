@@ -48,6 +48,21 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+## [1.2.0] - 2025-03-05
+
+### Added
+
+- **CLI global help command**: `audiometa help` and `audiometa help <subcommand>` (read, unified, write, delete) show main or subcommand help. E2E tests cover help and subcommand help output.
+- **VHS demo videos and tooling**: Reproducible demo video generation with VHS tape files, demo scripts, and macOS install script for VHS, ttyd, and ffmpeg. Documentation added (VHS_DEMO_README.md, DEMO_INSTALLATION.md, DEMO_VIDEOS_README.md). AGENTS.md includes a demo videos section.
+
+### Fixed
+
+- **ffmpeg version detection**: Enhanced for macOS and Ubuntu.
+
+### Documentation
+
+- **Demo outputs in .gitignore**: Generated demo outputs (GIFs, MP4s, tape sources under docs/demos) excluded from version control; source tapes and final demo asset remain tracked.
+
 ## [1.1.2] - 2025-03-04
 
 ### CI
