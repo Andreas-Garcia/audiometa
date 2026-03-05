@@ -1,0 +1,38 @@
+# Demo Dependencies Configuration
+# This file documents DEMO system dependencies required for creating demo videos.
+# These are OPTIONAL development tools used for marketing/documentation:
+# - VHS: Terminal recording tool for creating reproducible demo videos
+# - ttyd: Terminal sharing tool (required by VHS)
+# - ffmpeg: Video processing (may already be installed, VHS dependency)
+#
+# Version pinning strategy:
+# - ALWAYS pin specific versions (e.g., "1.2.3") - NEVER use "latest"
+# - For Ubuntu: versions are Ubuntu release-specific
+# - For macOS: Homebrew versions
+# - These tools are OPTIONAL and not required for normal development/testing
+#
+# Installation:
+#   macOS:  bash scripts/install-demo-dependencies-macos.sh
+#   Ubuntu: bash scripts/install-demo-dependencies-ubuntu.sh
+
+[ubuntu]
+vhs = "0.9.0"        # VHS - Terminal recording tool
+                     # To check available versions: apt list -a vhs (if via PPA)
+                     # Or check GitHub releases: https://github.com/charmbracelet/vhs/releases
+ttyd = "1.7.3"       # ttyd - Terminal sharing tool (required by VHS)
+                     # To check available versions: apt-cache madison ttyd
+
+[macos]
+vhs = "0.9.0"        # VHS - Terminal recording tool
+                     # Homebrew formula: charmbracelet/tap/vhs
+                     # To check available versions: brew info charmbracelet/tap/vhs
+ttyd = "1.7.7"       # ttyd - Terminal sharing tool (required by VHS)
+                     # Homebrew formula: ttyd
+                     # To check available versions: brew info ttyd
+
+[windows]
+vhs = "0.9.0"        # VHS - Terminal recording tool
+                     # Chocolatey package: vhs
+                     # Or via Scoop: scoop bucket add charm https://github.com/charmbracelet/scoop-bucket.git && scoop install charm/vhs
+ttyd = "latest"      # ttyd - Not easily available on Windows
+                     # VHS may work without ttyd on Windows (uses PowerShell)

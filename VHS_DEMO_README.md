@@ -8,29 +8,42 @@ This directory contains a VHS tape file for generating the AudioMeta demo video.
 
 ## Installation
 
-### macOS
+### Quick Installation (Recommended)
+
+Use our installation script which handles all dependencies:
 
 ```bash
-brew install vhs
+# macOS
+bash scripts/install-demo-dependencies-macos.sh
+
+# The script will install:
+#   - VHS (terminal recorder)
+#   - ttyd (required by VHS)
+#   - ffmpeg (if not already installed)
+#   - Fixes common libvpx/ffmpeg dependency issues
 ```
 
-### Linux
+### Manual Installation
+
+#### macOS
+
+```bash
+# Install VHS
+brew tap charmbracelet/tap
+brew install charmbracelet/tap/vhs
+
+# Install dependencies
+brew install ttyd ffmpeg
+```
+
+#### Linux
 
 ```bash
 # Download from releases
 # https://github.com/charmbracelet/vhs/releases
-```
 
-### Dependencies
-
-VHS requires `ffmpeg` and `ttyd`:
-
-```bash
-# macOS
-brew install ffmpeg ttyd
-
-# Ubuntu/Debian
-sudo apt-get install ffmpeg
+# Install dependencies
+sudo apt-get install ttyd ffmpeg
 ```
 
 ## Usage
