@@ -38,16 +38,13 @@ Thumbs.db
 .github/pr_descriptions/*
 !.github/pr_descriptions/pull_request_template.md
 
-# Generated demo outputs (VHS/recordings); .tape sources are tracked
-docs/demos/*.gif
-docs/demos/*.mp4
-docs/demos/*.tape
+# Demo tapes and generated outputs (VHS); README is tracked
+docs/demos/*
+!docs/demos/README.md
 
 # Node.js (for git-worktree-scripts dev dependency)
 node_modules/
 package-lock.json
-
-.DS_Store
 
 DESIGN_PATTERNS.md
 INTERVIEW_PATTERNS.md

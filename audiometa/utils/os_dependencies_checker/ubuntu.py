@@ -1,5 +1,6 @@
 """Ubuntu-specific dependency checker using dpkg."""
 
+import re
 import subprocess
 
 from audiometa.utils.os_dependencies_checker.base import OsDependenciesChecker
@@ -15,8 +16,9 @@ class UbuntuDependenciesChecker(OsDependenciesChecker):
     def check_tool_available(self, tool_name: str) -> bool:
         """Check if tool is available in PATH."""
         try:
+            version_flag = "-version" if tool_name == "ffprobe" else "--version"
             result = subprocess.run(
-                [tool_name, "--version"],
+                [tool_name, version_flag],
                 capture_output=True,
                 text=True,
                 check=False,
@@ -36,6 +38,30 @@ class UbuntuDependenciesChecker(OsDependenciesChecker):
                         return parts[2]
         except (subprocess.CalledProcessError, FileNotFoundError):
             pass
+        if package == "ffmpeg":
+            return self._get_ffmpeg_version_from_executable()
+        return None
+
+    def _get_ffmpeg_version_from_executable(self) -> str | None:
+        """Get ffmpeg version from ffprobe/ffmpeg when not installed via dpkg (e.g. snap, source)."""
+        for cmd in ["ffprobe", "ffmpeg"]:
+            try:
+                result = subprocess.run(
+                    [cmd, "-version"],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                if result.stdout or result.stderr:
+                    output = result.stdout + result.stderr
+                    match = re.search(r"version\s+(\d+(?:\.\d+)*)", output)
+                    if match:
+                        return match.group(1)
+                    match = re.search(r"(\d+\.\d+(?:\.\d+)*)", output)
+                    if match:
+                        return match.group(1)
+            except FileNotFoundError:
+                continue
         return None
 
     @staticmethod
