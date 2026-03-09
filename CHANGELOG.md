@@ -51,6 +51,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### Fixed
 
 - **CLI read YAML/JSON key display**: `audiometa read --format yaml` and `--format json` now show unified metadata keys as plain strings (e.g. `album`, `title`, `artists`) instead of the Python enum representation (`!!python/object/apply:...UnifiedMetadataKey`). E2E tests updated to assert on string keys in parsed output.
+- **CLI read table key display**: `audiometa read --format table` and `audiometa unified --format table` now show unified and format metadata keys as labels (e.g. `title`, `album_artists`) instead of the enum repr (`UnifiedMetadataKey.TITLE`, `UnifiedMetadataKey.ALBUM_ARTISTS`). E2E test added to assert key labels are displayed.
 
 ## [1.2.0] - 2025-03-05
 

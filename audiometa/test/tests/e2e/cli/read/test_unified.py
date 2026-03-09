@@ -37,6 +37,26 @@ class TestCLIReadUnified:
             assert data.get("title") == "Unified Test"
             assert data.get("artists") == ["Unified Artist"]
 
+    def test_cli_unified_yaml_uses_plain_string_keys(self):
+        with temp_file_with_metadata({"title": "YAML Key Test", "artist": "YAML Artist"}, "mp3") as test_file:
+            result = subprocess.run(
+                [sys.executable, "-m", "audiometa", "unified", str(test_file), "--format", "yaml"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            assert result.returncode == 0
+            assert "!!python" not in result.stdout
+            try:
+                import yaml
+
+                data = yaml.safe_load(result.stdout)
+                assert isinstance(data, dict)
+                assert data.get("title") == "YAML Key Test"
+                assert data.get("artists") == ["YAML Artist"]
+            except ImportError:
+                pass
+
     def test_cli_unified_table_format(self):
         with temp_file_with_metadata({"title": "Table Test", "artist": "Table Artist"}, "mp3") as test_file:
             result = subprocess.run(
