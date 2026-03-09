@@ -23,6 +23,7 @@ Demo videos are produced with [VHS](https://github.com/charmbracelet/vhs) from d
 
 ## When editing demos
 
+- **Authoring .tape files**: For best practices (length, readability, timing, one feature per tape), see `.cursor/rules/demo-tape-authoring.mdc`.
 - **New or changed tapes**: Prefer `.tape` in repo root for main demos; use `docs/demos/` for doc-specific demos. Update `Output` lines in the tape for desired filenames (e.g. `.mp4`, `.gif`).
 - **Demo scripts** (e.g. `demo_repl.py`): Keep them minimal and stable; tapes depend on their output.
 - **Docs**: If you change how demos are installed or run, update `VHS_DEMO_README.md` and/or `DEMO_INSTALLATION.md` so Cursor and contributors stay aligned.

@@ -30,7 +30,7 @@ See `CONTRIBUTING.md` for full details. Quick reference:
 
 ### Demo videos
 
-Demos are generated with [VHS](https://github.com/charmbracelet/vhs) from `.tape` files. See `VHS_DEMO_README.md` and `DEMO_INSTALLATION.md` for full instructions. Quick path: install deps (macOS) with `bash scripts/install-demo-dependencies-macos.sh`, activate venv, then run `vhs <path/to/tape>.tape` (e.g. `vhs audiometa_demo.tape` or `vhs docs/demos/get_full_metadata.tape`). When editing tapes or demo workflow, follow `.cursor/rules/demo-videos.mdc`.
+Demos are generated with [VHS](https://github.com/charmbracelet/vhs) from `.tape` files. See `VHS_DEMO_README.md` and `DEMO_INSTALLATION.md` for full instructions. Quick path: install deps (macOS) with `bash scripts/install-demo-dependencies-macos.sh`, activate venv, then run `vhs <path/to/tape>.tape` (e.g. `vhs audiometa_demo.tape` or `vhs docs/demos/get_full_metadata.tape`). When editing tapes or demo workflow, follow `.cursor/rules/demo-videos.mdc`; for authoring .tape content for social media demos, follow `.cursor/rules/demo-tape-authoring.mdc`.
 
 ### Gotchas
 

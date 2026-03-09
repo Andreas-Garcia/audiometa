@@ -1,0 +1,51 @@
+---
+description: Best practices for authoring .tape files (VHS) for quick social media demos
+globs: "**/*.tape,docs/demos/**"
+alwaysApply: false
+---
+
+# VHS Tape Authoring for Social Media Demos
+
+When writing or editing `.tape` files to produce demo videos for social posts (Mastodon, Twitter, etc.), follow these practices so demos are short, readable, and shareable.
+
+## Length and Scope
+
+- **Target duration**: 15–45 seconds for social. Longer demos get skipped.
+- **One feature per tape**: One clear use case per tape (e.g. “read metadata as JSON”, “update title”). Split into multiple tapes if showing several features.
+- **Minimal steps**: Type only the commands needed to show the feature; avoid long intros or redundant output.
+
+## Tape Structure
+
+- **Header**: Put `Output`, `Require`, and `Set` at the top. Use `Require audiometa` (or the relevant CLI) so the tape fails fast if the env is wrong.
+- **Run from project root**: Tapes assume execution from repo root; use paths like `audiometa/test/assets/sample.mp3` or `docs/demos/...`.
+- **Output paths**: Prefer one primary output (e.g. `.gif` for embeds or `.mp4` for video). Set `Output <path>` explicitly.
+
+## Readability on Small Screens
+
+- **FontSize**: 14–18. Use 16–18 for key demos so text is legible in feeds.
+- **Width/Height**: e.g. 1200×600 or 1200×800 so content fits without tiny text.
+- **Theme**: Use a consistent theme (e.g. `Set Theme "Dracula"`) for a polished look.
+
+## Timing
+
+- **TypingSpeed**: 40–80ms. Too fast is hard to follow; too slow feels slow in a short clip.
+- **Sleep after commands**: 1–4s for simple output, 4–8s for longer output (e.g. full JSON). Avoid long idle periods.
+- **Hide/Show**: Use `Hide` before setup (e.g. starting Python) and `Show` when the actual demo starts so the clip focuses on the feature.
+
+## Content and Copy
+
+- **Echo a short title** (optional): e.g. `Type "echo '=== AudioMeta – Get full metadata'"` then `Enter` and `Sleep 1s` to introduce the clip.
+- **Real commands only**: Use real `audiometa` CLI or Python API calls; avoid placeholder or fake commands.
+- **Stable assets**: Point at committed test assets (e.g. `audiometa/test/assets/sample.mp3`) so the tape is reproducible.
+
+## Checklist for New Social Demos
+
+- [ ] Single, clear feature; duration ~15–45s
+- [ ] `Require` the needed CLI/binary
+- [ ] `Output` set to desired filename (e.g. `feature_demo.gif`)
+- [ ] FontSize 14–18; Width/Height set
+- [ ] TypingSpeed and Sleep tuned so output is readable
+- [ ] Commands and paths valid from project root
+- [ ] Run with `vhs <file>.tape` (and `--preview` when editing); activate venv first
+
+For workflow (install, run, preview) and where to put tapes, see `.cursor/rules/demo-videos.mdc`. For the text of the social post (e.g. 494 char max), see `.cursor/rules/mastodon-posts.mdc`.
