@@ -18,13 +18,13 @@ Demo videos are produced with [VHS](https://github.com/charmbracelet/vhs) from d
 
 1. **Dependencies (macOS)**: `bash scripts/install-demo-dependencies-macos.sh` (VHS, ttyd, ffmpeg; fixes libvpx issues).
 2. **Activate venv** before running VHS so the tape uses the project Python: `source .venv/bin/activate`.
-3. **Record from a tape**: `vhs <path/to/file>.tape` (e.g. `vhs audiometa_demo.tape` or `vhs docs/demos/get_full_metadata.tape`).
+3. **Record from a tape**: `vhs <path/to/file>.tape` (e.g. `vhs audiometa_demo.tape` or `vhs docs/demos/tapes/get_full_metadata.tape`). Tapes in `docs/demos/tapes/` use the tracked asset `docs/demos/sample.mp3`.
 4. **Preview**: `vhs <file>.tape --preview`.
 
 ## When editing demos
 
 - **Authoring .tape files**: For best practices (length, readability, timing, one feature per tape), see `.cursor/rules/demo-tape-authoring.mdc`.
-- **New or changed tapes**: Prefer `.tape` in repo root for main demos; use `docs/demos/` for doc-specific demos. Update `Output` lines in the tape for desired filenames (e.g. `.mp4`, `.gif`).
+- **New or changed tapes**: Prefer `.tape` in repo root for main demos; use `docs/demos/tapes/` for doc-specific demos. Update `Output` lines in the tape for desired filenames (e.g. `.mp4`, `.gif`).
 - **Demo scripts** (e.g. `demo_repl.py`): Keep them minimal and stable; tapes depend on their output.
 - **Docs**: If you change how demos are installed or run, update `VHS_DEMO_README.md` and/or `DEMO_INSTALLATION.md` so Cursor and contributors stay aligned.
 
