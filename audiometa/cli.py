@@ -119,7 +119,8 @@ def format_as_table(data: dict[str, Any]) -> str:
         lines.append("=== UNIFIED METADATA ===")
         for key, value in data["unified_metadata"].items():
             if value is not None:
-                lines.append(f"{key:20}: {value}")
+                label = key.value if isinstance(key, UnifiedMetadataKey) else str(key)
+                lines.append(f"{label:20}: {value}")
         lines.append("")
 
     if "technical_info" in data:
@@ -136,7 +137,8 @@ def format_as_table(data: dict[str, Any]) -> str:
                 lines.append(f"\n{metadata_format_name.upper()}:")
                 for key, value in format_data.items():
                     if value is not None:
-                        lines.append(f"  {key:18}: {value}")
+                        label = key.value if isinstance(key, UnifiedMetadataKey) else str(key)
+                        lines.append(f"  {label:18}: {value}")
 
     return "\n".join(lines)
 

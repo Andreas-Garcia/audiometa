@@ -2,6 +2,7 @@ import json
 
 import pytest
 
+from audiometa import UnifiedMetadataKey
 from audiometa.cli import format_as_table, format_output
 
 
@@ -29,3 +30,23 @@ class TestCLIFormatting:
         assert "Test Artist" in result
         assert "180" in result
         assert "320" in result
+
+    def test_format_output_table_displays_key_labels_not_enum_repr(self):
+        data = {
+            "unified_metadata": {
+                UnifiedMetadataKey.TITLE: "Song Title",
+                UnifiedMetadataKey.ALBUM_ARTISTS: ["Album Artist"],
+            },
+            "metadata_format": {
+                "id3v2": {
+                    UnifiedMetadataKey.TITLE: "Song Title",
+                    UnifiedMetadataKey.ALBUM_ARTISTS: ["Album Artist"],
+                },
+            },
+        }
+        result = format_as_table(data)
+        assert "UnifiedMetadataKey." not in result
+        assert "title" in result
+        assert "album_artists" in result
+        assert "Song Title" in result
+        assert "Album Artist" in result or "['Album Artist']" in result
