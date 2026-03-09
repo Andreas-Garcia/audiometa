@@ -8,19 +8,26 @@ alwaysApply: true
 
 When generating PR descriptions, create them as **standalone markdown documents** that provide comprehensive context for code reviewers and maintainers.
 
+**When providing a PR description, always generate a PR title as well.** Use the format defined in the [PR Naming Convention](pr-naming.mdc): `<type>(<optional-scope>): <short imperative description>`.
+
 ### Document Structure
 
-1. **Create or update PR description document** in the `.github/pr_descriptions/` directory (gitignored):
+1. **Include a PR title** at the top of the document (or clearly stated) so the author can copy it into the GitHub PR title field.
+2. **Create or update PR description document** in the `.github/pr_descriptions/` directory (gitignored):
    - Create `.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md` (e.g., `.github/pr_descriptions/PR_DESCRIPTION_WORKTREE.md`)
-2. **Follow the standard PR template structure** (see sections below)
-3. **Be thorough and specific** - reviewers need complete context
-4. **Include all checklist items** - track what's been completed
+3. **Follow the standard PR template structure** (see sections below)
+4. **Be thorough and specific** - reviewers need complete context
+5. **Include all checklist items** - track what's been completed
 
 **Note:** The `.github/pr_descriptions/` directory is gitignored (except for `pull_request_template.md`), so PR description files are local reference documents only and won't be committed to the repository. They serve as working documents for creating PR descriptions on GitHub. The `pull_request_template.md` file in this directory is the actual GitHub PR template and is tracked in git.
 
 ### Standard PR Template Structure
 
 ```markdown
+## PR Title
+
+<type>(<optional-scope>): <short imperative description>
+
 ## Description
 
 <Clear summary of what changed and why>
