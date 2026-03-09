@@ -16,13 +16,13 @@ Set TypingSpeed 40ms
 Set PlaybackSpeed 1.0
 
 # Show demo script being run
-Type "cat demo_repl_fixed.py" Enter
+Type "cat scripts/demo_repl.py" Enter
 Sleep 3s
 
 # Clear and run the demo
 Type "clear" Enter
 Sleep 500ms
-Type "python demo_repl_fixed.py" Enter
+Type "python scripts/demo_repl.py" Enter
 
 # Wait for demo to complete (script runs ~8 seconds + we want to show final output)
 Sleep 12s

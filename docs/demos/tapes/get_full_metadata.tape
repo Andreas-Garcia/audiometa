@@ -1,7 +1,7 @@
 # Get full metadata demo – AudioMeta CLI (social / docs)
 # Run from repo root with venv: vhs docs/demos/tapes/get_full_metadata.tape
-# Audio: docs/demos/sample.mp3 (tracked). Output: docs/demos/get_full_metadata_demo.gif
-Output docs/demos/get_full_metadata_demo.gif
+# Audio: docs/demos/sample.mp3 (tracked). Output: docs/demos/output/<name>.gif
+Output docs/demos/output/get_full_metadata.gif
 
 Require audiometa
 

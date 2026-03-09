@@ -18,7 +18,7 @@ When writing or editing `.tape` files to produce demo videos for social posts (M
 
 - **Header**: Put `Output`, `Require`, and `Set` at the top. Use `Require audiometa` (or the relevant CLI) so the tape fails fast if the env is wrong.
 - **Run from project root**: Always run `vhs` from repo root so paths resolve. Tapes assume the shell CWD is repo root.
-- **Output location**: Tapes live in `docs/demos/tapes/`. Set `Output docs/demos/<name>.gif` (or `.mp4`) so the generated file lives in the demo dir.
+- **Output location**: Tapes live in `docs/demos/tapes/`. Set `Output docs/demos/output/<name>.gif` (or `.mp4`) so generated files go in the dedicated output dir.
 - **Audio files – social / marketing demos**: Use `docs/demos/sample.mp3` (tracked in repo; Queen track) so the video shows a clean, professional path. No setup script—the file is already there.
 - **Audio files – dev-only demos**: Using `audiometa/test/assets/...` in the tape is fine when the audience is contributors; run from repo root so those paths resolve. Ensure test assets exist (e.g. `create_test_files.py`) before recording.
 
@@ -44,7 +44,7 @@ When writing or editing `.tape` files to produce demo videos for social posts (M
 
 - [ ] Single, clear feature; duration ~15–45s
 - [ ] `Require` the needed CLI/binary
-- [ ] `Output` set to `docs/demos/<name>.gif` (or `.mp4`); tape file in `docs/demos/tapes/`
+- [ ] `Output` set to `docs/demos/output/<name>.gif` (or `.mp4`); tape file in `docs/demos/tapes/`
 - [ ] FontSize 14–18; Width/Height set
 - [ ] TypingSpeed and Sleep tuned so output is readable
 - [ ] Commands and paths valid from project root

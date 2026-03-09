@@ -33,7 +33,7 @@ The demo shows an interactive Python session from start to finish:
 
 ## Demo Script
 
-The demo uses `demo_repl_fixed.py` which creates an interactive Python session simulation with optimized timing and clear output formatting.
+The demo uses `scripts/demo_repl.py` which creates an interactive Python session simulation with optimized timing and clear output formatting.
 
 ## Suggested Tweet Text
 
