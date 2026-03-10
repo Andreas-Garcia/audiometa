@@ -24,11 +24,13 @@ This directory contains [VHS](https://github.com/charmbracelet/vhs) (charmbracel
 
 From the project root (with venv activated):
 
-**Wrapper (recommended)** – tape name and optional sample; writes GIF to `docs/demos/output/<name>.gif`:
+**Wrapper (recommended)** – tape name and optional sample; writes GIF to `docs/demos/output/<name>.gif`. Run with **Python** (not `bash`):
 
 ```bash
 python scripts/run_demo_tape.py get_full_metadata
 python scripts/run_demo_tape.py get_full_metadata --sample other.mp3
+# Or run with no args to select a tape interactively:
+python scripts/run_demo_tape.py
 ```
 
 **Direct VHS:**

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Run a VHS tape and write the GIF to docs/demos/output/. Usage: run_demo_tape.py NAME [--sample SAMPLE]."""
+"""Run a VHS tape and write the GIF to docs/demos/output/.
+Usage: run_demo_tape.py [NAME] [--sample SAMPLE]. If NAME is omitted, select from tapes interactively."""
 
 import argparse
 import re
@@ -9,13 +10,40 @@ import tempfile
 from pathlib import Path
 
 
+def _choose_tape(tapes_dir: Path) -> str | None:
+    tapes = sorted(tapes_dir.glob("*.tape"))
+    if not tapes:
+        return None
+    print("Available tapes:")
+    for i, p in enumerate(tapes, 1):
+        print(f"  {i}. {p.stem}")
+    while True:
+        try:
+            raw = input("Select (number or name): ").strip()
+            if not raw:
+                return None
+            if raw.isdigit():
+                idx = int(raw)
+                if 1 <= idx <= len(tapes):
+                    return tapes[idx - 1].stem
+            else:
+                candidate = tapes_dir / f"{raw}.tape" if not raw.endswith(".tape") else tapes_dir / raw
+                if candidate.is_file():
+                    return candidate.stem
+        except (EOFError, KeyboardInterrupt):
+            return None
+        print("Invalid choice. Try again.")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Run a VHS tape from docs/demos/tapes/ and write the GIF to docs/demos/output/."
     )
     parser.add_argument(
         "name",
-        help="Tape name (no .tape). Same name used for the generated GIF (e.g. get_full_metadata).",
+        nargs="?",
+        default=None,
+        help="Tape name (no .tape). Omit to select from available tapes interactively.",
     )
     parser.add_argument(
         "--sample",
@@ -26,9 +54,15 @@ def main() -> None:
 
     repo_root = Path(__file__).resolve().parent.parent
     tapes_dir = repo_root / "docs" / "demos" / "tapes"
-    tape_path = tapes_dir / f"{args.name}.tape"
+    name = args.name
+    if name is None:
+        name = _choose_tape(tapes_dir)
+        if name is None:
+            print("No tape selected.", file=sys.stderr)
+            sys.exit(1)
+    tape_path = tapes_dir / f"{name}.tape"
     output_dir = repo_root / "docs" / "demos" / "output"
-    output_gif = output_dir / f"{args.name}.gif"
+    output_gif = output_dir / f"{name}.gif"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     if not tape_path.is_file():
@@ -38,7 +72,7 @@ def main() -> None:
     tape_content = tape_path.read_text()
     tape_content = re.sub(
         r"^Output\s+.*$",
-        f"Output docs/demos/output/{args.name}.gif",
+        f"Output docs/demos/output/{name}.gif",
         tape_content,
         count=1,
         flags=re.MULTILINE,

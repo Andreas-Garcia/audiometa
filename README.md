@@ -1476,6 +1476,9 @@ audiometa read song.mp3 --include-raw-binary-data
 
 # Save to file
 audiometa read song.mp3 --output metadata.json
+
+# Colorize output (headers, keys, values) for terminal or demos
+audiometa read song.mp3 --format table --color
 ```
 
 #### Error Handling {#cli-error-handling}
@@ -1500,6 +1503,8 @@ audiometa read "**/*.mp3" --recursive
 - **JSON** (default): Structured data for programmatic use
 - **YAML**: Human-readable structured format (requires PyYAML)
 - **Table**: Simple text table format
+
+Use `--color` to colorize headers, keys, and values for terminal or demo videos (plain output by default; disabled when writing to a file). Respects the `NO_COLOR` environment variable.
 
 ### Examples
 

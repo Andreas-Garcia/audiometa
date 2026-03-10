@@ -16,19 +16,19 @@ Set TypingSpeed 50ms
 # Intro
 Type "echo '=== AudioMeta – Get full metadata (JSON, YAML, table)'"
 Enter
-Sleep 1s
+Sleep 2s
 
-# Table view
-Type "audiometa read docs/demos/sample.mp3 --format table"
+# Table view (truncated; "..." indicates more output)
+Type "(audiometa read docs/demos/sample.mp3 --format table --color | head -26; echo '...')"
 Enter
-Sleep 7s
+Sleep 8s
 
-# Full metadata – JSON
-Type "audiometa read docs/demos/sample.mp3 --format json"
+# Full metadata – JSON (truncated so output fits viewport)
+Type "(audiometa read docs/demos/sample.mp3 --format json --color | head -26; echo '...')"
 Enter
-Sleep 6s
+Sleep 8s
 
-# Same track – YAML
-Type "audiometa read docs/demos/sample.mp3 --format yaml"
+# Same track – YAML (truncated)
+Type "(audiometa read docs/demos/sample.mp3 --format yaml --color | head -26; echo '...')"
 Enter
-Sleep 4s
+Sleep 8s
