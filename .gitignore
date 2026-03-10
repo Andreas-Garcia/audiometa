@@ -38,9 +38,11 @@ Thumbs.db
 .github/pr_descriptions/*
 !.github/pr_descriptions/pull_request_template.md
 
-# Demo tapes and generated outputs (VHS); README is tracked
+# Demo tapes and generated outputs (VHS); README, tapes, demo asset tracked; output/ for GIFs/MP4s
 docs/demos/*
 !docs/demos/README.md
+!docs/demos/tapes/
+!docs/demos/sample.mp3
 
 # Node.js (for git-worktree-scripts dev dependency)
 node_modules/

@@ -18,15 +18,16 @@ Demo videos are produced with [VHS](https://github.com/charmbracelet/vhs) from d
 
 1. **Dependencies (macOS)**: `bash scripts/install-demo-dependencies-macos.sh` (VHS, ttyd, ffmpeg; fixes libvpx issues).
 2. **Activate venv** before running VHS so the tape uses the project Python: `source .venv/bin/activate`.
-3. **Record from a tape**: `vhs <path/to/file>.tape` (e.g. `vhs audiometa_demo.tape` or `vhs docs/demos/get_full_metadata.tape`).
+3. **Record from a tape**: `vhs <path/to/file>.tape` (e.g. `vhs audiometa_demo.tape` or `vhs docs/demos/tapes/get_full_metadata.tape`). Tapes in `docs/demos/tapes/` use the tracked asset `docs/demos/sample.mp3`.
 4. **Preview**: `vhs <file>.tape --preview`.
 
 ## When editing demos
 
-- **New or changed tapes**: Prefer `.tape` in repo root for main demos; use `docs/demos/` for doc-specific demos. Update `Output` lines in the tape for desired filenames (e.g. `.mp4`, `.gif`).
-- **Demo scripts** (e.g. `demo_repl.py`): Keep them minimal and stable; tapes depend on their output.
+- **Authoring .tape files**: For best practices (length, readability, timing, one feature per tape), see `.cursor/rules/demo-tape-authoring.mdc`.
+- **New or changed tapes**: Prefer `.tape` in repo root for main demos; use `docs/demos/tapes/` for doc-specific demos. Set `Output docs/demos/output/<name>.gif` (or `.mp4`) so generated files go in the dedicated output dir. For read/unified demos, include `--color` in CLI commands so output is colorized in the video.
+- **Demo scripts** (e.g. `scripts/demo_repl.py`): Keep them minimal and stable; tapes depend on their output.
 - **Docs**: If you change how demos are installed or run, update `VHS_DEMO_README.md` and/or `DEMO_INSTALLATION.md` so Cursor and contributors stay aligned.
 
 ## Generated outputs
 
-Generated files (e.g. `.mp4`, `.gif` from tapes) are gitignored where appropriate; only source tapes and the chosen final demo asset are tracked. See `.gitignore` for patterns.
+GIFs/MP4s go in `docs/demos/output/` (gitignored). Source tapes and `docs/demos/sample.mp3` are tracked. See `.gitignore` for patterns.

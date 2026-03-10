@@ -28,7 +28,7 @@ This script will:
 source .venv/bin/activate
 
 # Run VHS with a tape file
-vhs docs/demos/get_full_metadata.tape
+vhs docs/demos/tapes/get_full_metadata.tape
 ```
 
 This will generate:

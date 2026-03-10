@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 import sys
 
@@ -86,3 +87,27 @@ class TestCLIReadOptions:
             )
             assert result.returncode == 0
             assert "UNIFIED METADATA" in result.stdout
+
+    def test_cli_read_with_color_produces_ansi(self):
+        env = {k: v for k, v in os.environ.items() if k != "NO_COLOR"}
+        with temp_file_with_metadata({"title": "Test"}, "mp3") as test_file:
+            result = subprocess.run(
+                [sys.executable, "-m", "audiometa", "read", str(test_file), "--color", "--format", "json"],
+                capture_output=True,
+                text=True,
+                check=False,
+                env=env,
+            )
+            assert result.returncode == 0
+            assert "\033[" in result.stdout
+
+    def test_cli_read_without_color_no_ansi(self):
+        with temp_file_with_metadata({"title": "Test"}, "mp3") as test_file:
+            result = subprocess.run(
+                [sys.executable, "-m", "audiometa", "read", str(test_file), "--format", "json"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            assert result.returncode == 0
+            assert "\033[" not in result.stdout

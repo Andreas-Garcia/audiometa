@@ -3,6 +3,8 @@
 
 import argparse
 import json
+import os
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -23,6 +25,13 @@ from audiometa.exceptions import (
 from audiometa.utils.metadata_format import MetadataFormat
 from audiometa.utils.types import UnifiedMetadata
 
+_ANSI_RESET = "\033[0m"
+_ANSI_KEY = "\033[32m"  # green
+_ANSI_STR = "\033[33m"  # yellow
+_ANSI_NUM = "\033[36m"  # cyan
+_ANSI_LITERAL = "\033[2m"  # dim
+_ANSI_SECTION = "\033[1;36m"  # bold cyan
+
 
 def _data_for_serialization(data: Any) -> Any:
     """Convert data to a form suitable for YAML/JSON (UnifiedMetadataKey keys as strings)."""
@@ -33,6 +42,62 @@ def _data_for_serialization(data: Any) -> Any:
     if isinstance(data, list):
         return [_data_for_serialization(item) for item in data]
     return data
+
+
+def _colorize_json(raw: str) -> str:
+    """Add ANSI colors to JSON: keys green, string values yellow, numbers cyan, literals dim."""
+    raw = re.sub(r'("[^"]*")\s*:', rf"{_ANSI_KEY}\1{_ANSI_RESET}:", raw)
+    raw = re.sub(r':\s*("(?:[^"\\]|\\.)*")', rf": {_ANSI_STR}\1{_ANSI_RESET}", raw)
+    raw = re.sub(r":\s*(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)", rf": {_ANSI_NUM}\1{_ANSI_RESET}", raw)
+    return re.sub(r"\b(true|false|null)\b", rf"{_ANSI_LITERAL}\1{_ANSI_RESET}", raw)
+
+
+def _colorize_table(raw: str) -> str:
+    """Colorize table: section headers bold cyan, keys green, values yellow (incl. multiline)."""
+    lines = raw.split("\n")
+    out = []
+    key_val_re = re.compile(r"^(\s*)(.*?)\s*:\s*(.*)$")
+    for line in lines:
+        if line.strip().startswith("===") and line.strip().endswith("==="):
+            out.append(f"{_ANSI_SECTION}{line}{_ANSI_RESET}")
+        elif ":" in line and not line.strip().startswith("=="):
+            match = key_val_re.match(line)
+            if match:
+                pre, key_part, val_part = match.groups()
+                out.append(f"{pre}{_ANSI_KEY}{key_part}{_ANSI_RESET}: {_ANSI_STR}{val_part}{_ANSI_RESET}")
+            else:
+                out.append(line)
+        elif line.strip():
+            # Continuation line (e.g. multiline lyrics in table), color as value
+            indent = line[: len(line) - len(line.lstrip())]
+            rest = line.lstrip()
+            out.append(f"{indent}{_ANSI_STR}{rest}{_ANSI_RESET}")
+        else:
+            out.append(line)
+    return "\n".join(out)
+
+
+def _colorize_yaml(raw: str) -> str:
+    """Colorize YAML: keys green, values yellow (including multiline continuation lines)."""
+    lines = raw.split("\n")
+    out = []
+    key_line_re = re.compile(r"^(\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*(.*)$")
+    for line in lines:
+        match = key_line_re.match(line)
+        if match:
+            pre, key, val = match.groups()
+            if val.strip():
+                out.append(f"{pre}{_ANSI_KEY}{key}{_ANSI_RESET}: {_ANSI_STR}{val}{_ANSI_RESET}")
+            else:
+                out.append(f"{pre}{_ANSI_KEY}{key}{_ANSI_RESET}:{val}")
+        elif line.strip():
+            # Continuation line (e.g. multiline lyrics); not a key line, color as value
+            indent = line[: len(line) - len(line.lstrip())]
+            rest = line.lstrip()
+            out.append(f"{indent}{_ANSI_STR}{rest}{_ANSI_RESET}")
+        else:
+            out.append(line)
+    return "\n".join(out)
 
 
 def format_output(data: Any, output_format: str) -> str:
@@ -164,17 +229,27 @@ def _read_metadata(args: argparse.Namespace) -> None:
                     include_raw_binary_data=getattr(args, "include_raw_binary_data", False),
                 )
 
-            output = format_output(metadata, args.output_format)
+            plain = format_output(metadata, args.output_format)
+            use_color = getattr(args, "color", False) and not args.output
+            if os.environ.get("NO_COLOR"):
+                use_color = False
+            out = plain
+            if use_color and args.output_format == "json":
+                out = _colorize_json(plain)
+            elif use_color and args.output_format == "table":
+                out = _colorize_table(plain)
+            elif use_color and args.output_format == "yaml":
+                out = _colorize_yaml(plain)
 
             if args.output:
                 try:
                     with Path(args.output).open("w") as f:
-                        f.write(output)
+                        f.write(plain)
                 except (PermissionError, OSError) as e:
                     _handle_file_operation_error(e, args.output, args.continue_on_error)
             else:
-                sys.stdout.write(output)
-                if not output.endswith("\n"):
+                sys.stdout.write(out)
+                if not out.endswith("\n"):
                     sys.stdout.write("\n")
 
         except (FileTypeNotSupportedError, FileNotFoundError, PermissionError, OSError, Exception) as e:
@@ -423,6 +498,12 @@ Examples:
     read_parser.add_argument(
         "--continue-on-error", action="store_true", help="Continue processing other files on error"
     )
+    read_parser.add_argument(
+        "--color",
+        action="store_true",
+        dest="color",
+        help="Colorize output (headers, keys, values) for JSON, YAML, and table.",
+    )
     read_parser.set_defaults(func=_read_metadata)
 
     # Unified command
@@ -439,6 +520,12 @@ Examples:
     unified_parser.add_argument("--recursive", "-r", action="store_true", help="Process directories recursively")
     unified_parser.add_argument(
         "--continue-on-error", action="store_true", help="Continue processing other files on error"
+    )
+    unified_parser.add_argument(
+        "--color",
+        action="store_true",
+        dest="color",
+        help="Colorize output (headers, keys, values) for JSON, YAML, and table.",
     )
     unified_parser.set_defaults(func=_read_metadata, format_type="unified")
 
