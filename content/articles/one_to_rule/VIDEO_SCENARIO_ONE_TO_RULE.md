@@ -6,7 +6,7 @@ Narrative only. Implementation later.
 
 ## Structure
 
-Five parts: **intro** (title + staggered subtitles), then **Before / Now** for **reading** (2×2 GIFs each), then **Before / Now** for **writing** (2×2 GIFs each).
+Five parts: **intro** (title + staggered subtitles), then **Before / Now** for **reading** (2 panels: ID3v2, RIFF), then **Before / Now** for **writing** (2 panels: ID3v1, Vorbis).
 
 ---
 
@@ -23,68 +23,42 @@ Five parts: **intro** (title + staggered subtitles), then **Before / Now** for *
 
 ---
 
-## Part 2: Before — Reading with (list tools)
+## Part 2: Before — Reading (ID3v2, RIFF)
 
 - **Page title:**
-  **Before: Reading with [list tools]**
-  (List the four format-specific tools: one for ID3v1, one for ID3v2, one for RIFF, one for Vorbis.)
+  **Before: Reading (mid3v2, ffprobe)**
 
-- **Content:** 4 GIFs in a **2×2 table**:
-
-  | ID3v1 reading | ID3v2 reading  |
-  | ------------- | -------------- |
-  | RIFF reading  | Vorbis reading |
-
-  Each cell is a short GIF showing metadata being read with the corresponding format-specific tool (different tool per format).
+- **Content:** 2 panels side by side: **ID3v2** (mid3v2) | **RIFF** (ffprobe). Each cell is a short GIF showing metadata being read with the format-specific tool.
 
 ---
 
-## Part 3: Now — Reading with AudioMeta
+## Part 3: Now — Reading with AudioMeta (ID3v2, RIFF)
 
 - **Page title:**
-  **Now: Reading with AudioMeta**
+  **Now: Reading with AudioMeta (ID3v2, RIFF)**
 
-- **Content:** 4 GIFs in a **2×2 table** (same layout as Before):
-
-  | ID3v1 (audiometa) | ID3v2 (audiometa)  |
-  | ----------------- | ------------------ |
-  | RIFF (audiometa)  | Vorbis (audiometa) |
-
-  Same four metadata formats, same 2×2 layout, but every cell shows `audiometa read` (one tool for all).
+- **Content:** 2 panels side by side: **ID3v2** | **RIFF**. Each cell shows `audiometa read` (one tool for all).
 
 ---
 
-## Part 4: Before — Writing with (list tools)
+## Part 4: Before — Writing (ID3v1, Vorbis)
 
 - **Page title:**
-  **Before: Writing with [list tools]**
-  (List the four format-specific tools used to write metadata: one for ID3v1, one for ID3v2, one for RIFF, one for Vorbis.)
+  **Before: Writing (ID3v1, Vorbis)**
 
-- **Content:** 4 GIFs in a **2×2 table**:
-
-  | ID3v1 writing | ID3v2 writing  |
-  | ------------- | -------------- |
-  | RIFF writing  | Vorbis writing |
-
-  Each cell is a short GIF showing metadata being written with the corresponding format-specific tool (different tool per format).
+- **Content:** 2 panels side by side: **ID3v1** | **Vorbis**. Each cell is a short GIF showing metadata being written with the format-specific tool (e.g. mid3v2, metaflac).
 
 ---
 
-## Part 5: Now — Writing with AudioMeta
+## Part 5: Now — Writing with AudioMeta (ID3v1, Vorbis)
 
 - **Page title:**
-  **Now: Writing with AudioMeta**
+  **Now: Writing with AudioMeta (ID3v1, Vorbis)**
 
-- **Content:** 4 GIFs in a **2×2 table** (same layout as Part 4):
-
-  | ID3v1 (audiometa) | ID3v2 (audiometa)  |
-  | ----------------- | ------------------ |
-  | RIFF (audiometa)  | Vorbis (audiometa) |
-
-  Same four metadata formats, same 2×2 layout, but every cell shows `audiometa write` (one tool for all).
+- **Content:** 2 panels side by side: **ID3v1** | **Vorbis**. Each cell shows `audiometa write` (one tool for all).
 
 ---
 
 ## Constraint
 
-All four metadata formats (**ID3v1**, **ID3v2**, **Vorbis**, **RIFF**) and the three main audio formats (MP3, WAV, FLAC) are named in the intro. Before and Now pages show the same four formats in a consistent 2×2 grid for direct comparison.
+All four metadata formats (**ID3v1**, **ID3v2**, **Vorbis**, **RIFF**) and the three main audio formats (MP3, WAV, FLAC) are named in the intro. Reading pages use 2 panels (ID3v2, RIFF); writing pages use 2 panels (ID3v1, Vorbis) for direct before/now comparison.
