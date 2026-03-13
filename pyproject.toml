@@ -105,7 +105,7 @@ ignore = ["N999", "PLR0911", "PLR0912", "PLR0913", "PLR0914", "PLR0915", "TRY301
 # PLR2004 is acceptable in pre-commit hooks - simple scripts where magic numbers are clear
 ".pre-commit-hooks/**" = ["PLR2004"]
 # T201 (print) is acceptable in demo scripts - they are CLI/demo tools, not library code
-"scripts/run_demo_tape.py" = ["T201"]
+"content/scripts/run_demo_tape.py" = ["T201"]
 "scripts/demo_repl.py" = ["T201"]
 
 [tool.mypy]

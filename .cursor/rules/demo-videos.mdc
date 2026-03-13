@@ -1,33 +1,40 @@
 ---
 description: How to produce and update demo videos with VHS
-globs: "**/*.tape,**/demo*.py,**/VHS*.md,**/DEMO*.md,docs/demos/**"
+globs: "**/*.tape,**/demo*.py,**/VHS*.md,**/DEMO*.md,content/articles/**"
 alwaysApply: false
 ---
 
 # Demo Videos (VHS)
 
-Demo videos are produced with [VHS](https://github.com/charmbracelet/vhs) from declarative `.tape` files. Follow the documented workflow so demos stay reproducible.
+Demo videos are produced with [VHS](https://github.com/charmbracelet/vhs) from declarative `.tape` files. **Articles** live under **`content/articles/`** — one dir per article (explicit names, e.g. `one_to_rule/`). No generic "demos" dir: each article has its own `tapes/`, samples, and `output/`.
 
 ## Canonical docs
 
 - **Usage and install**: `VHS_DEMO_README.md` (root)
 - **Install/troubleshooting**: `DEMO_INSTALLATION.md` (root)
-- **Demo asset and tweet copy**: `DEMO_VIDEOS_README.md`, `TWITTER_POST.md` (root)
+- **Layout**: `content/articles/README.md`; per-article: `content/articles/one_to_rule/README.md` (see `content/README.md`)
 
 ## Workflow
 
 1. **Dependencies (macOS)**: `bash scripts/install-demo-dependencies-macos.sh` (VHS, ttyd, ffmpeg; fixes libvpx issues).
-2. **Activate venv** before running VHS so the tape uses the project Python: `source .venv/bin/activate`.
-3. **Record from a tape**: `vhs <path/to/file>.tape` (e.g. `vhs audiometa_demo.tape` or `vhs docs/demos/tapes/get_full_metadata.tape`). Tapes in `docs/demos/tapes/` use the tracked asset `docs/demos/sample.mp3`.
+2. **Activate venv** before running VHS: `source .venv/bin/activate`.
+3. **Record from a tape**: `vhs content/articles/one_to_rule/tapes/<name>.tape` (writes to that article’s `output/`).
 4. **Preview**: `vhs <file>.tape --preview`.
 
-## When editing demos
+## Article layout (e.g. one_to_rule)
 
-- **Authoring .tape files**: For best practices (length, readability, timing, one feature per tape), see `.cursor/rules/demo-tape-authoring.mdc`.
-- **New or changed tapes**: Prefer `.tape` in repo root for main demos; use `docs/demos/tapes/` for doc-specific demos. Set `Output docs/demos/output/<name>.gif` (or `.mp4`) so generated files go in the dedicated output dir. For read/unified demos, include `--color` in CLI commands so output is colorized in the video.
-- **Demo scripts** (e.g. `scripts/demo_repl.py`): Keep them minimal and stable; tapes depend on their output.
-- **Docs**: If you change how demos are installed or run, update `VHS_DEMO_README.md` and/or `DEMO_INSTALLATION.md` so Cursor and contributors stay aligned.
+- **`content/articles/one_to_rule/tapes/`** – Tape sources. **`output/`** – Tape GIFs, hero video, intermediates (gitignored).
+- **Hero video**: `./content/scripts/generate_one_to_rule_video.sh` → `one_to_rule/output/`. **Linked-post GIFs**: side-by-side scripts in `one_to_rule/` (`run_demo_side_by_side.sh`, `run_demo_side_by_side_vorbis.sh`) copy to `one_to_rule/{mastodon,linkedin,twitter}/output/`.
 
-## Generated outputs
+## When editing
 
-GIFs/MP4s go in `docs/demos/output/` (gitignored). Source tapes and `docs/demos/sample.mp3` are tracked. See `.gitignore` for patterns.
+- **Authoring .tape files**: See `.cursor/rules/demo-tape-authoring.mdc`. Tapes live in the article’s `tapes/` and set `Output` to that article’s `output/<name>.gif`. For read/unified demos, include `--color` in CLI commands.
+- **Scripts**: `content/scripts/` has `run_demo_tape.py` and video launcher. Side-by-side scripts live in the article dir `one_to_rule/` (`run_demo_side_by_side.sh`, `run_demo_side_by_side_vorbis.sh`). All write to article `output/`; copy linked-post GIFs to `one_to_rule/{mastodon,linkedin,twitter}/output/`.
+- **Docs**: Update the article’s README and `content/README.md` when changing paths.
+
+## Generated outputs (gitignored)
+
+- `content/articles/one_to_rule/output/` — tape GIFs, hero video
+- `content/articles/one_to_rule/{mastodon,linkedin,twitter}/output/` — linked post GIFs
+
+Tracked: article `tapes/`, `sample.mp3`, `sample.flac`, READMEs, scenario. See `.gitignore`.

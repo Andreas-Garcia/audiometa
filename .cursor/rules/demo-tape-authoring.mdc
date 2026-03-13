@@ -1,6 +1,6 @@
 ---
 description: Best practices for authoring .tape files (VHS) for quick social media demos
-globs: "**/*.tape,docs/demos/**"
+globs: "**/*.tape,content/articles/**"
 alwaysApply: false
 ---
 
@@ -18,8 +18,8 @@ When writing or editing `.tape` files to produce demo videos for social posts (M
 
 - **Header**: Put `Output`, `Require`, and `Set` at the top. Use `Require audiometa` (or the relevant CLI) so the tape fails fast if the env is wrong.
 - **Run from project root**: Always run `vhs` from repo root so paths resolve. Tapes assume the shell CWD is repo root.
-- **Output location**: Tapes live in `docs/demos/tapes/`. Set `Output docs/demos/output/<name>.gif` (or `.mp4`) so generated files go in the dedicated output dir.
-- **Audio files – social / marketing demos**: Use `docs/demos/sample.mp3` (tracked in repo; Queen track) so the video shows a clean, professional path. No setup script—the file is already there.
+- **Output location**: Tapes live in `content/articles/<article>/tapes/`. Set `Output` to that article’s `output/<name>.gif` (e.g. `content/articles/one_to_rule/output/<name>.gif`). All GIFs and video are generated in the article’s single `output/` dir.
+- **Audio files – social / marketing demos**: Use the article’s `sample.mp3` (e.g. `content/articles/one_to_rule/sample.mp3`; tracked) so the video shows a clean, professional path.
 - **Audio files – dev-only demos**: Using `audiometa/test/assets/...` in the tape is fine when the audience is contributors; run from repo root so those paths resolve. Ensure test assets exist (e.g. `create_test_files.py`) before recording.
 
 ## Readability on Small Screens
@@ -42,18 +42,18 @@ If a command’s output is taller than the terminal height, it will scroll off-s
 
 - **Echo a short title** (optional): e.g. `Type "echo '=== AudioMeta – Get full metadata'"` then `Enter` and `Sleep 1s` to introduce the clip.
 - **Real commands only**: Use real `audiometa` CLI or Python API calls; avoid placeholder or fake commands.
-- **Stable assets**: For social demos use `docs/demos/sample.mp3` (tracked). For dev demos, test assets under `audiometa/test/assets/` are fine.
+- **Stable assets**: For social demos use `content/articles/one_to_rule/sample.mp3` (tracked). For dev demos, test assets under `audiometa/test/assets/` are fine.
 - **Colored output**: Use `--color` on `audiometa read` / `audiometa unified` in the tape so the video shows colored headers, keys, and values (e.g. `audiometa read ... --format table --color`). Plain output is the CLI default; `--color` is opt-in for demos and terminals.
 
 ## Checklist for New Social Demos
 
 - [ ] Single, clear feature; duration ~15–45s
 - [ ] `Require` the needed CLI/binary
-- [ ] `Output` set to `docs/demos/output/<name>.gif` (or `.mp4`); tape file in `docs/demos/tapes/`
+- [ ] `Output` set to the article’s `output/<name>.gif`; tape file in the article’s `tapes/`. See `content/articles/README.md` and the article’s README.
 - [ ] FontSize 14–18; Width/Height set
 - [ ] TypingSpeed and Sleep tuned so output is readable
 - [ ] Commands and paths valid from project root
-- [ ] For social demos: tape uses `docs/demos/sample.mp3` (tracked demo asset)
+- [ ] For social demos: tape uses the article’s `sample.mp3` (tracked)
 - [ ] For read/unified demos: commands include `--color` so output is colorized in the video
 - [ ] Run with `vhs <file>.tape` (and `--preview` when editing); activate venv first
 

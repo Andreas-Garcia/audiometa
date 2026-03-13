@@ -68,7 +68,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### Documentation
 
-- **Demo outputs in .gitignore**: Generated demo outputs (GIFs, MP4s, tape sources under docs/demos) excluded from version control; source tapes and final demo asset remain tracked.
+- **Demo outputs in .gitignore**: Generated demo outputs (GIFs, MP4s, tape sources under content/articles/one_to_rule) excluded from version control; source tapes and final demo asset remain tracked.
 
 ## [1.1.2] - 2025-03-04
 

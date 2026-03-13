@@ -1,20 +1,9 @@
-# Content drafts
+# Content
 
-This folder stores draft media content (posts, captions, and related assets) used for project communication—e.g. LinkedIn, blog, or other channels.
+This folder stores media content (demos, videos, and related assets) used for project communication.
 
 ## Layout
 
-- **Channel folders** – One subfolder per channel: `linkedin/`, and later e.g. `blog/`, `twitter/` as needed.
-- **One draft = one text file** – Use a markdown file named `YYYY-MM-short-slug.md` (e.g. `2025-02-audiometa-release.md`).
-- **Assets** – Optional folder with the same base name as the draft (no `.md`): e.g. `2025-02-audiometa-release/` for images, PDFs, or other files linked to that draft. Same name keeps draft and assets together.
-
-## Adding a new draft
-
-1. Choose the channel folder (e.g. `linkedin/`).
-2. Create a new file `YYYY-MM-your-slug.md`.
-3. If you have images or PDFs, create a folder `YYYY-MM-your-slug/` next to the `.md` and put assets there.
-4. Optionally copy `_template/` when starting from a blank draft and rename to match the convention.
-
-## Adding a new channel
-
-Add a new top-level subfolder under `content/` (e.g. `content/blog/`) and use the same draft + same-named-asset-folder pattern.
+- **`scripts/`** – Content build scripts. Run from repo root with venv activated. See [scripts/README.md](scripts/README.md).
+- **`articles/`** – One dir per article (explicit names). Each article can have tapes, samples, build output, and optional platform subdirs (mastodon, linkedin, twitter). See [articles/README.md](articles/README.md).
+- **`_template/`** – Optional template for new drafts (draft.md, assets/).
