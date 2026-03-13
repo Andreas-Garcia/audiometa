@@ -41,7 +41,7 @@ If a command’s output is taller than the terminal height, it will scroll off-s
 ## Content and Copy
 
 - **Echo a short title** (optional): e.g. `Type "echo '=== AudioMeta – Get full metadata'"` then `Enter` and `Sleep 1s` to introduce the clip.
-- **Real commands only**: Use real `audiometa` CLI or Python API calls; avoid placeholder or fake commands.
+- **Real commands only**: Use real `audiometa` CLI or Python API calls; **no placeholders**. Every demo panel in the hero video must have a tape that produces the GIF. The video script fails early if any required tape output is missing.
 - **Stable assets**: For social demos use `content/articles/one_to_rule/sample.mp3` (tracked). For dev demos, test assets under `audiometa/test/assets/` are fine.
 - **Colored output**: Use `--color` on `audiometa read` / `audiometa unified` in the tape so the video shows colored headers, keys, and values (e.g. `audiometa read ... --format table --color`). Plain output is the CLI default; `--color` is opt-in for demos and terminals.
 

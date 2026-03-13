@@ -24,17 +24,17 @@ Demo videos are produced with [VHS](https://github.com/charmbracelet/vhs) from d
 ## Article layout (e.g. one_to_rule)
 
 - **`content/articles/one_to_rule/tapes/`** – Tape sources. **`output/`** – Tape GIFs, hero video, intermediates (gitignored).
-- **Hero video**: `./content/scripts/generate_one_to_rule_video.sh` → `one_to_rule/output/`. **Linked-post GIFs**: side-by-side scripts in `one_to_rule/` (`run_demo_side_by_side.sh`, `run_demo_side_by_side_vorbis.sh`) copy to `one_to_rule/{mastodon,linkedin,twitter}/output/`.
+- **Hero video**: `generate_one_to_rule_video.sh` (from article dir) → `one_to_rule/output/`. All cell GIFs come from VHS tapes; **no placeholders**. Script fails early if logo or any required tape output is missing.
+- **Linked-post GIFs**: Side-by-side scripts (`run_demo_side_by_side.sh`, `run_demo_side_by_side_vorbis.sh`) write to article `output/`. Use assets from that single `output/` for mastodon/linkedin/twitter.
 
 ## When editing
 
-- **Authoring .tape files**: See `.cursor/rules/demo-tape-authoring.mdc`. Tapes live in the article’s `tapes/` and set `Output` to that article’s `output/<name>.gif`. For read/unified demos, include `--color` in CLI commands.
-- **Scripts**: `content/scripts/` has `run_demo_tape.py` and video launcher. Side-by-side scripts live in the article dir `one_to_rule/` (`run_demo_side_by_side.sh`, `run_demo_side_by_side_vorbis.sh`). All write to article `output/`; copy linked-post GIFs to `one_to_rule/{mastodon,linkedin,twitter}/output/`.
+- **Authoring .tape files**: See `.cursor/rules/demo-tape-authoring.mdc`. Tapes live in the article’s `tapes/` and set `Output` to that article’s `output/<name>.gif`. For read/unified demos, include `--color` in CLI commands. Every demo panel must have a tape; no placeholders.
+- **Scripts**: `content/scripts/` has `run_demo_tape.py`. Hero video and side-by-side scripts live in the article dir. All write to article `output/`. **Do not use placeholder GIFs**; every panel must have a tape. Video script fails early if a required tape output is missing.
 - **Docs**: Update the article’s README and `content/README.md` when changing paths.
 
 ## Generated outputs (gitignored)
 
-- `content/articles/one_to_rule/output/` — tape GIFs, hero video
-- `content/articles/one_to_rule/{mastodon,linkedin,twitter}/output/` — linked post GIFs
+- `content/articles/<article>/output/` — tape GIFs, hero video, side-by-side GIFs
 
 Tracked: article `tapes/`, `sample.mp3`, `sample.flac`, READMEs, scenario. See `.gitignore`.
