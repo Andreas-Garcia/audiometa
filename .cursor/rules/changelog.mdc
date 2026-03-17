@@ -30,11 +30,10 @@ Before preparing a release, refer to the "Releasing _(For Maintainers)_" section
 
 1. **Ensuring you're on the `main` branch** - Releases must be prepared from `main`, not from feature branches
 2. Checking `TODO.md` for critical items
-3. Updating `CHANGELOG.md` with the new release version and changes
-4. Bumping version numbers using `bump2version` (or manually updating `pyproject.toml` and `README.md`)
-5. Verifying changes and pushing
-6. Tagging the release
-7. CI/CD will automatically handle PyPI publishing
+3. Reviewing the `[Unreleased]` section in `CHANGELOG.md`
+4. Running `scripts/prepare_release.py` (updates CHANGELOG with version and date, bumps version, commits, and tags)
+5. Pushing main and the new tag
+6. CI/CD will automatically handle PyPI publishing
 
 **Do not skip any steps in the release process.** See `CONTRIBUTING.md` for detailed instructions.
 

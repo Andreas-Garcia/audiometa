@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+"""Update CHANGELOG and run bump2version for a release. Run from repo root with venv active."""
+
+import argparse
+import re
+import subprocess
+from datetime import date
+from pathlib import Path
+
+
+def get_current_version(repo_root: Path) -> str:
+    cfg = (repo_root / ".bumpversion.cfg").read_text()
+    match = re.search(r"current_version\s*=\s*(\d+\.\d+\.\d+)", cfg)
+    if not match:
+        raise SystemExit("Could not find current_version in .bumpversion.cfg")
+    return match.group(1)
+
+
+def parse_version(v: str) -> tuple[int, int, int]:
+    parts = v.split(".")
+    if len(parts) != 3:
+        raise ValueError(f"Expected X.Y.Z, got {v}")
+    return int(parts[0]), int(parts[1]), int(parts[2])
+
+
+def next_version(current: str, part: str) -> str:
+    major, minor, patch = parse_version(current)
+    if part == "major":
+        return f"{major + 1}.0.0"
+    if part == "minor":
+        return f"{major}.{minor + 1}.0"
+    if part == "patch":
+        return f"{major}.{minor}.{patch + 1}"
+    raise ValueError(f"part must be major|minor|patch, got {part}")
+
+
+def update_changelog(repo_root: Path, new_version: str, release_date: str) -> None:
+    path = repo_root / "CHANGELOG.md"
+    content = path.read_text()
+    pattern = r"(## \[Unreleased\])\n\n" r"(.*?)" r"(\n## \[\d+\.\d+\.\d+\] - \d{4}-\d{2}-\d{2})"
+    replacement = f"## [{new_version}] - {release_date}\n\n" r"\2\n\n## [Unreleased]\n\n" r"\3"
+    new_content, n = re.subn(pattern, replacement, content, count=1, flags=re.DOTALL)
+    if n != 1:
+        raise SystemExit(
+            "CHANGELOG.md: expected exactly one '## [Unreleased]' block followed by a version header. "
+            "Check the format."
+        )
+    path.write_text(new_content)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Update CHANGELOG with release version and date, then run bump2version."
+    )
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument(
+        "part",
+        nargs="?",
+        choices=["patch", "minor", "major"],
+        help="Version part to bump",
+    )
+    group.add_argument("--new-version", metavar="X.Y.Z", help="Explicit version (e.g. 1.3.1)")
+    args = parser.parse_args()
+
+    repo_root = Path(__file__).resolve().parent.parent
+    if not (repo_root / ".bumpversion.cfg").exists():
+        raise SystemExit("Run from repository root (where .bumpversion.cfg lives).")
+
+    current = get_current_version(repo_root)
+    if args.new_version:
+        new_version = args.new_version
+        bump_arg = ["--new-version", new_version]
+    elif args.part:
+        new_version = next_version(current, args.part)
+        bump_arg = [args.part]
+    else:
+        raise SystemExit("Provide part (patch|minor|major) or --new-version X.Y.Z")
+
+    release_date = date.today().isoformat()
+    update_changelog(repo_root, new_version, release_date)
+
+    subprocess.run(
+        ["bump2version", "--no-commit", "--no-tag"] + bump_arg,
+        cwd=repo_root,
+        check=True,
+    )
+
+    subprocess.run(
+        ["git", "add", "CHANGELOG.md", "pyproject.toml", ".bumpversion.cfg"],
+        cwd=repo_root,
+        check=True,
+    )
+    subprocess.run(
+        ["git", "commit", "-m", f"chore: prepare release {new_version}"],
+        cwd=repo_root,
+        check=True,
+    )
+    subprocess.run(
+        ["git", "tag", f"v{new_version}"],
+        cwd=repo_root,
+        check=True,
+    )
+    print(f"Release {new_version} prepared. Push with: git push origin main && git push origin v{new_version}")
+
+
+if __name__ == "__main__":
+    main()
