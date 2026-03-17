@@ -25,6 +25,11 @@ Usage:
     verify_dependency_versions()
 """
 
+import sys
+
+if sys.version_info < (3, 12):  # noqa: UP036
+    sys.exit("Python 3.12+ required (project minimum). Activate the project venv: source .venv/bin/activate")
+
 import importlib.util
 import sys
 import types

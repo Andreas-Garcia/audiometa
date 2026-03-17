@@ -20,7 +20,7 @@ Type "cp content/articles/one_to_rule/sample.mp3 content/articles/one_to_rule/de
 Enter
 Sleep 1s
 
-Type "python3 -c \"from mutagen.id3 import ID3, TIT2, TPE1, ID3v1SaveOptions; f=ID3('content/articles/one_to_rule/demo_id3v1_before.mp3'); f.add(TIT2(encoding=0, text=['Demo Title'])); f.add(TPE1(encoding=0, text=['Demo Artist'])); f.save(v1=ID3v1SaveOptions.CREATE)\""
+Type "python3 content/articles/one_to_rule/write_id3v1_before.py"
 Enter
 Sleep 2s
 

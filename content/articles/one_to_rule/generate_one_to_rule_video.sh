@@ -5,11 +5,13 @@
 # Run from repo root; requires venv, vhs, ffmpeg, ffprobe, metaflac, mid3v2.
 
 set -e
-cd "$(dirname "$0")/../../.."
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+cd "$REPO_ROOT"
 OUT_DIR="content/articles/one_to_rule/output"
 SHARED_OUT="content/articles/one_to_rule/output"
 VIDEO_OUT="$OUT_DIR/one_to_rule_them_all.mp4"
-TAPES_DIR="content/articles/one_to_rule/tapes"
+TAPES_DIR="$REPO_ROOT/content/articles/one_to_rule/tapes"
 CELL_W=600
 CELL_H=350
 # All segments same size (intro and content pages)
@@ -65,20 +67,21 @@ ffmpeg -y -f lavfi -i "color=c=0xffffff:s=${INTRO_W}x${INTRO_H}:d=${INTRO_DURATI
     [v1]drawtext=text='MP3\, WAV\, FLAC | ID3v1\, ID3v2\, Vorbis\, RIFF':fontsize=22${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=(w-text_w)/2:y=500:enable='gte(t,3)'[v]
   " -map "[v]" -r 25 -c:v libx264 -pix_fmt yuv420p -t "$INTRO_DURATION" "$INTRO_MP4" -loglevel warning
 
-# 3. Build cell GIFs from tapes only (no placeholders). Run VHS when needed; fail if output missing.
+# 3. Build cell GIFs from tapes only (no placeholders). Run VHS only when output missing; fail if tape fails to produce.
+command -v vhs >/dev/null || { echo "Error: vhs not found in PATH" >&2; exit 1; }
 run_tape() {
   local name="$1"
-  local tape="$TAPES_DIR/$2"
-  local out="$SHARED_OUT/$3"
-  [[ -f "$tape" ]] || { echo "Error: tape not found: $tape" >&2; exit 1; }
+  local tape_path="$TAPES_DIR/$2"
+  local out="$REPO_ROOT/$SHARED_OUT/$3"
+  [[ -f "$tape_path" ]] || { echo "Error: tape not found: $tape_path" >&2; exit 1; }
   if [[ ! -f "$out" ]]; then
     if [[ "$2" == before_only_vorbis.tape ]]; then
-      cp content/articles/one_to_rule/sample.flac content/articles/one_to_rule/demo_vorbis_before.flac || true
+      cp "$REPO_ROOT/content/articles/one_to_rule/sample.flac" "$REPO_ROOT/content/articles/one_to_rule/demo_vorbis_before.flac" || true
     elif [[ "$2" == after_only_vorbis.tape ]]; then
-      cp content/articles/one_to_rule/sample.flac content/articles/one_to_rule/demo_vorbis_after.flac || true
+      cp "$REPO_ROOT/content/articles/one_to_rule/sample.flac" "$REPO_ROOT/content/articles/one_to_rule/demo_vorbis_after.flac" || true
     fi
     echo "Running $name..."
-    vhs "$tape"
+    (cd "$REPO_ROOT" && command vhs "$tape_path")
   fi
   [[ -f "$out" ]] || { echo "Error: tape did not produce: $out" >&2; exit 1; }
 }
@@ -104,8 +107,17 @@ cp "$SHARED_OUT/after_only_id3v1.gif" "$OUT_DIR/cell_now_write_id3v1.gif"
 cp "$SHARED_OUT/before_only_vorbis.gif" "$OUT_DIR/cell_before_write_vorbis.gif"
 cp "$SHARED_OUT/after_only_vorbis.gif" "$OUT_DIR/cell_now_write_vorbis.gif"
 
-# 4. Build 4 pages (2 panels each): same size as intro (PAGE_W x PAGE_H), title in reserved band, panels below.
+# 4. Convert cell GIFs to MP4 so overlay works reliably. Force rgb24 so palette-based GIFs decode correctly.
 PAGE_DURATION=8
+echo "Converting cell GIFs to MP4..."
+for gif in cell_before_read_id3v2 cell_now_read_id3v2 cell_before_read_riff cell_now_read_riff \
+           cell_before_write_id3v1 cell_now_write_id3v1 cell_before_write_vorbis cell_now_write_vorbis; do
+  ffmpeg -y -stream_loop -1 -i "$OUT_DIR/${gif}.gif" -t "$PAGE_DURATION" \
+    -vf "format=rgb24,scale=${CELL_W}:${CELL_H}:force_original_aspect_ratio=increase,crop=${CELL_W}:${CELL_H}:(iw-${CELL_W})/2:(ih-${CELL_H})/2,format=yuv420p" \
+    -r 25 -c:v libx264 -pix_fmt yuv420p "$OUT_DIR/${gif}.mp4" -loglevel warning
+done
+
+# 5. Build 4 pages (2 panels each): same size as intro, title in reserved band, panels from MP4s.
 build_page_2() {
   local name="$1"
   local title="$2"
@@ -113,34 +125,32 @@ build_page_2() {
   local out="$OUT_DIR/page_${name}.mp4"
   local title_escaped
   title_escaped=$(printf '%s' "$title" | sed 's/:/\\:/g; s/,/\\,/g')
-  ffmpeg -y -stream_loop -1 -i "$a" -stream_loop -1 -i "$b" \
+  ffmpeg -y -i "$a" -i "$b" \
     -f lavfi -i "color=c=0x282a36:s=${PAGE_W}x${PAGE_H}:d=${PAGE_DURATION}:r=25" \
     -filter_complex "
-      [0:v]scale=${CELL_W}:${CELL_H}:force_original_aspect_ratio=increase,crop=${CELL_W}:${CELL_H}:(iw-${CELL_W})/2:(ih-${CELL_H})/2,trim=duration=${PAGE_DURATION},setpts=PTS-STARTPTS[v0];
-      [1:v]scale=${CELL_W}:${CELL_H}:force_original_aspect_ratio=increase,crop=${CELL_W}:${CELL_H}:(iw-${CELL_W})/2:(ih-${CELL_H})/2,trim=duration=${PAGE_DURATION},setpts=PTS-STARTPTS[v1];
-      [v0][v1]hstack=inputs=2[row];
+      [0:v][1:v]hstack=inputs=2[row];
       [2:v][row]overlay=0:${PANELS_TOP}[withrow];
       [withrow]drawtext=text='$title_escaped':fontsize=24${FONT_OPT}:fontcolor=white:borderw=2:bordercolor=black:x=(w-text_w)/2:y=${TITLE_TOP}[v]
     " -map "[v]" -r 25 -c:v libx264 -pix_fmt yuv420p -t "$PAGE_DURATION" "$out" -loglevel warning
 }
 
 build_page_2 "before_read" "Before: Reading (mid3v2, ffprobe)" \
-  "$OUT_DIR/cell_before_read_id3v2.gif" \
-  "$OUT_DIR/cell_before_read_riff.gif"
+  "$OUT_DIR/cell_before_read_id3v2.mp4" \
+  "$OUT_DIR/cell_before_read_riff.mp4"
 
 build_page_2 "now_read" "Now: Reading with AudioMeta (ID3v2, RIFF)" \
-  "$OUT_DIR/cell_now_read_id3v2.gif" \
-  "$OUT_DIR/cell_now_read_riff.gif"
+  "$OUT_DIR/cell_now_read_id3v2.mp4" \
+  "$OUT_DIR/cell_now_read_riff.mp4"
 
 build_page_2 "before_write" "Before: Writing (ID3v1, Vorbis)" \
-  "$OUT_DIR/cell_before_write_id3v1.gif" \
-  "$OUT_DIR/cell_before_write_vorbis.gif"
+  "$OUT_DIR/cell_before_write_id3v1.mp4" \
+  "$OUT_DIR/cell_before_write_vorbis.mp4"
 
 build_page_2 "now_write" "Now: Writing with AudioMeta (ID3v1, Vorbis)" \
-  "$OUT_DIR/cell_now_write_id3v1.gif" \
-  "$OUT_DIR/cell_now_write_vorbis.gif"
+  "$OUT_DIR/cell_now_write_id3v1.mp4" \
+  "$OUT_DIR/cell_now_write_vorbis.mp4"
 
-# 5. Concat intro + 4 pages (use absolute paths for concat)
+# 6. Concat intro + 4 pages (use absolute paths for concat)
 echo "Concatenating final video..."
 CONCAT_LIST="$OUT_DIR/concat_list.txt"
 ABS_OUT="$(cd "$OUT_DIR" && pwd)"
