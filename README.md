@@ -13,6 +13,8 @@
 
 A powerful, unified Python library for reading and writing audio metadata across multiple formats. AudioMeta supports MP3, FLAC, and WAV audio files, working seamlessly with ID3v1, ID3v2, Vorbis, and RIFF metadata formats through a single, consistent API.
 
+**Try it**: A demo web app is available at [audiometa.themusictree.org](https://audiometa.themusictree.org).
+
 **Author**: [Andreas Garcia](https://github.com/BehindTheMusicTree)
 
 ## ⭐ Show Your Support
