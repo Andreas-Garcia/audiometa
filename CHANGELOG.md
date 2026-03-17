@@ -48,6 +48,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+## [1.3.1] - 2025-03-17
+
 ### Added
 
 - **Release automation**: `scripts/prepare_release.py` updates CHANGELOG with new version and date, runs bump2version, then commits and tags. Bump2version configured to create tags (`tag = True`, `tag_name = v{new_version}`).
