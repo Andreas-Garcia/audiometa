@@ -85,13 +85,19 @@ def main() -> None:
     update_changelog(repo_root, new_version, release_date)
 
     subprocess.run(
-        ["bump2version", "--no-commit", "--no-tag"] + bump_arg,
+        ["bump2version", "--no-commit", "--no-tag", "--allow-dirty"] + bump_arg,
         cwd=repo_root,
         check=True,
     )
 
+    release_files = ["CHANGELOG.md", "pyproject.toml", ".bumpversion.cfg"]
     subprocess.run(
-        ["git", "add", "CHANGELOG.md", "pyproject.toml", ".bumpversion.cfg"],
+        ["pre-commit", "run", "--files"] + release_files,
+        cwd=repo_root,
+        check=False,
+    )
+    subprocess.run(
+        ["git", "add"] + release_files,
         cwd=repo_root,
         check=True,
     )
