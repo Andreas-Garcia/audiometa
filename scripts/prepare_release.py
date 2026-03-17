@@ -60,6 +60,11 @@ def main() -> None:
         help="Version part to bump",
     )
     group.add_argument("--new-version", metavar="X.Y.Z", help="Explicit version (e.g. 1.3.1)")
+    parser.add_argument(
+        "--push",
+        action="store_true",
+        help="Push main and the new tag to origin after committing and tagging",
+    )
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parent.parent
@@ -100,7 +105,12 @@ def main() -> None:
         cwd=repo_root,
         check=True,
     )
-    print(f"Release {new_version} prepared. Push with: git push origin main && git push origin v{new_version}")
+    if args.push:
+        subprocess.run(["git", "push", "origin", "main"], cwd=repo_root, check=True)
+        subprocess.run(["git", "push", "origin", f"v{new_version}"], cwd=repo_root, check=True)
+        print(f"Release {new_version} prepared and pushed.")
+    else:
+        print(f"Release {new_version} prepared. Push with: git push origin main && git push origin v{new_version}")
 
 
 if __name__ == "__main__":

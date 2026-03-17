@@ -48,6 +48,19 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Added
+
+- **Release automation**: `scripts/prepare_release.py` updates CHANGELOG with new version and date, runs bump2version, then commits and tags. Bump2version configured to create tags (`tag = True`, `tag_name = v{new_version}`).
+
+### Improved
+
+- **Pre-commit in CI**: Use pinned pre-commit from `.[dev]` only; removed redundant `pip install pre-commit` so the pinned version is used.
+- **Verify script**: Require Python 3.12+ and exit with a clear message when run with an older interpreter (e.g. activate venv and re-run).
+
+### Documentation
+
+- **Release process**: CONTRIBUTING.md documents the release script (review [Unreleased], run `prepare_release.py`, push). Changelog rule (`.cursor/rules/changelog.mdc`) updated to match.
+
 ## [1.3.0] - 2025-03-10
 
 ### Fixed

@@ -500,6 +500,8 @@ Quick release process:
 
 4. Run the release script (updates CHANGELOG, bumps version, commits, and tags):
 
+   **Use the release script, not `bump2version` directly.** Running `bump2version patch` alone does not update `CHANGELOG.md` and is easy to forget; the script does changelog + version + commit + tag in one go.
+
    ```bash
    source .venv/bin/activate
 
@@ -508,6 +510,7 @@ Quick release process:
    # Or: python scripts/prepare_release.py minor
    # Or: python scripts/prepare_release.py major
    # Or: python scripts/prepare_release.py --new-version 1.3.1
+   # Add --push to also push main and the new tag: python scripts/prepare_release.py patch --push
    ```
 
    **What the script does:**
@@ -516,9 +519,10 @@ Quick release process:
    - Runs `bump2version` to update `pyproject.toml` and `.bumpversion.cfg`
    - Commits `CHANGELOG.md`, `pyproject.toml`, and `.bumpversion.cfg` with message `chore: prepare release X.Y.Z`
    - Creates tag `vX.Y.Z`
-   - Does not push (you push in the next step)
+   - Without `--push`: stops here (verify with `git log -1` and `git tag -l`, then push manually)
+   - With `--push`: pushes `main` and the new tag to `origin`
 
-5. Verify and push:
+5. If you did not use `--push`, verify and push:
 
    ```bash
    git log -1
