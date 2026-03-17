@@ -46,7 +46,7 @@ repos:
         always_run: true
       - id: verify-system-dependency-versions
         name: Verify installed system dependency versions match pinned versions
-        entry: python3 scripts/verify-system-dependency-versions.py
+        entry: bash .pre-commit-hooks/run-with-venv-python.sh scripts/verify-system-dependency-versions.py
         language: system
         pass_filenames: false
         always_run: true
