@@ -50,7 +50,9 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
-## [Unreleased]
+### CI
+
+- **Checkout and setup-python**: Updated to Node.js 24 compatible versions.
 
 ## [1.3.1] - 2025-03-17
 
