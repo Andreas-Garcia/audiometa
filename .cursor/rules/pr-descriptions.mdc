@@ -4,6 +4,16 @@ alwaysApply: true
 
 # Pull Request Description Generation
 
+## User asks for a PR description
+
+When the user asks for a **PR description** (or equivalent: “PR desc”, “description for the PR”, “text for GitHub”):
+
+1. **Always write a separate file** under `.github/pr_descriptions/` — do **not** treat a long chat reply as sufficient. The markdown file is the deliverable; chat should point to it.
+2. **Use a descriptive name**: `.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md` (e.g. `PR_DESCRIPTION_VORBIS_DISC_READ.md`). Create or overwrite that file with the full template content.
+3. **In the chat reply**: give the **path** to the file, the **PR title** line to paste on GitHub, and at most a **short summary** — avoid duplicating the full PR body in chat.
+
+If the user only wants a **title** (no body), a one-line answer in chat is fine; otherwise default to the file workflow above.
+
 ## PR Description Format
 
 When generating PR descriptions, create them as **standalone markdown documents** that provide comprehensive context for code reviewers and maintainers.
@@ -14,7 +24,7 @@ When generating PR descriptions, create them as **standalone markdown documents*
 
 1. **Include a PR title** at the top of the document (or clearly stated) so the author can copy it into the GitHub PR title field.
 2. **Create or update PR description document** in the `.github/pr_descriptions/` directory (gitignored):
-   - Create `.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md` (e.g., `.github/pr_descriptions/PR_DESCRIPTION_WORKTREE.md`)
+   - Create `.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md` (e.g. `.github/pr_descriptions/PR_DESCRIPTION_WORKTREE.md`)
 3. **Follow the standard PR template structure** (see sections below)
 4. **Be thorough and specific** - reviewers need complete context
 5. **Include all checklist items** - track what's been completed
