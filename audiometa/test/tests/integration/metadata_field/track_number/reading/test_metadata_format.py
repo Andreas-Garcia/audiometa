@@ -26,6 +26,19 @@ class TestTrackNumberReading:
             track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
             assert track_number == "99"
 
+    @pytest.mark.parametrize(
+        ("raw", "expected"),
+        [
+            ("5/12", "5/12"),
+            ("4/11", "4/11"),
+            ("5-12", "5-12"),
+        ],
+    )
+    def test_vorbis_track_number_combined_or_hyphen(self, raw, expected):
+        with temp_file_with_metadata({"title": "Test Song", "track_number": raw}, "flac") as test_file:
+            track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
+            assert track_number == expected
+
     def test_riff(self):
         with temp_file_with_metadata({"title": "Test Song", "track_number": None}, "wav") as test_file:
             track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)

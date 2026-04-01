@@ -1,8 +1,86 @@
-# Disc Number Handling
+# Track and disc numbers
 
-The library handles different disc number formats across audio metadata standards:
+Unified metadata uses different shapes for **track** vs **disc/set** position:
 
-## ID3v1 Disc Number Format
+- **`TRACK_NUMBER`**: a single **string** (e.g. `"5"`, `"5/12"`) from ID3v2 `TRCK`, Vorbis `TRACKNUMBER`, RIFF `IPRT`, etc.
+- **`DISC_NUMBER`** and **`DISC_TOTAL`**: **integers** (total optional) from ID3v2 `TPOS`, Vorbis `DISCNUMBER` / `DISCTOTAL`, etc.
+
+The sections below document each concept by metadata format.
+
+## Track number
+
+### ID3v1 track number format
+
+ID3v1 does not natively support track numbers. The library supports storing track numbers in the comment field since ID3v1.1 format.
+
+- **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
+- **Parsing**: Returns as string
+- **Examples**:
+  - `"5"` → Track number: `"5"`
+  - `"12"` → Track number: `"12"`
+
+### ID3v2 track number format
+
+- **Format**: `"track/total"` (e.g., `"5/12"`, `"99/99"`) or simple `"track"` (e.g., `"5"`, `"1"`)
+- **Parsing**: Returns the full track number string as stored
+- **Examples**:
+  - `"5/12"` → Track number: `"5/12"`
+  - `"99/99"` → Track number: `"99/99"`
+  - `"1"` → Track number: `"1"` (simple format also supported)
+
+### Vorbis track number format
+
+- **Format**: Simple numeric string (e.g., `"5"`, `"12"`) or **`track/total`** (e.g., `"5/12"`, `"4/11"`), as commonly stored in `TRACKNUMBER` (same idea as ID3v2 `TRCK`). A single separator (`/` or `-`) with optional total segment is accepted; the value is not split into separate unified fields.
+- **Parsing**: Returns the **full string** when it matches the library pattern; otherwise `None` (see edge cases below).
+- **Examples**:
+  - `"5"` → Track number: `"5"`
+  - `"5/12"` → Track number: `"5/12"`
+  - `"4/11"` → Track number: `"4/11"`
+
+### RIFF track number format
+
+- **Format**: Simple numeric string (e.g., `"5"`, `"12"`)
+- **Parsing**: Returns as string
+- **Examples**:
+  - `"5"` → Track number: `"5"`
+  - `"12"` → Track number: `"12"`
+
+### Reading and writing track number
+
+#### Reading track number
+
+The library returns track numbers as strings. The library handles common edge cases:
+
+- `"5/"` → Track number: `"5/"` (trailing slash preserved)
+- `"/12"` → Track number: `None` (no track number before slash)
+- `"abc/def"` → Track number: `None` (non-numeric values)
+- `""` → Track number: `None` (empty string)
+- `"5/12/15"` → Track number: `None` (multiple slashes, invalid format)
+- `"5-12"` → Track number: `"5-12"` (different separator preserved)
+- `"01"` → Track number: `"01"` (leading zeros preserved)
+
+#### Writing track number
+
+The library supports writing track numbers in various formats. For formats that support track totals, the full format is preserved. The following matrix shows what value is written for each input format:
+
+| Input Value | ID3v1  | ID3v2     | Vorbis    | RIFF      |
+| ----------- | ------ | --------- | --------- | --------- |
+| `5` (int)   | `"5"`  | `"5"`     | `"5"`     | `"5"`     |
+| `"5"` (str) | `"5"`  | `"5"`     | `"5"`     | `"5"`     |
+| `"5/12"`    | `"5"`  | `"5/12"`  | `"5/12"`  | `"5/12"`  |
+| `"99/99"`   | `"99"` | `"99/99"` | `"99/99"` | `"99/99"` |
+| `"1"`       | `"1"`  | `"1"`     | `"1"`     | `"1"`     |
+
+**Notes:**
+
+- **ID3v1**: Only supports track numbers (1-255), extracts the track number from formats like "5/12" and ignores the total
+- **ID3v2**: Supports full track/total format (e.g., "5/12") as per ID3v2 specification
+- **Vorbis**: Supports full track/total format through TRACKNUMBER field
+- **RIFF**: Track number writing is not currently supported
+
+## Disc number
+
+### ID3v1 disc number format
 
 ID3v1 does not support disc numbers due to its limited fixed structure.
 
@@ -10,7 +88,7 @@ ID3v1 does not support disc numbers due to its limited fixed structure.
 - **Reason**: ID3v1 has a fixed 128-byte structure with no field for disc number
 - **Workaround**: None available (format limitation)
 
-## ID3v2 Disc Number Format
+### ID3v2 disc number format
 
 ID3v2 supports disc numbers through the `TPOS` (Part of a set) frame.
 
@@ -32,7 +110,7 @@ ID3v2 supports disc numbers through the `TPOS` (Part of a set) frame.
 - Maximum total discs: 255
 - Values exceeding 255 are typically truncated or may cause errors depending on the implementation
 
-## Vorbis Disc Number Format
+### Vorbis disc number format
 
 Vorbis comments support disc numbers through `DISCNUMBER` and optionally `DISCTOTAL`. Many encoders and taggers also store a **combined** `disc/total` string in `DISCNUMBER` alone (same idea as ID3v2 `TPOS`), e.g. `DISCNUMBER=1/2`. AudioMeta **reads** all of these shapes; when **writing**, it uses separate `DISCNUMBER` and `DISCTOTAL` tags (native for the unified API).
 
@@ -58,7 +136,7 @@ Vorbis comments support disc numbers through `DISCNUMBER` and optionally `DISCTO
 - Can represent multi-disc sets with more than 255 discs (theoretical)
 - Native support for separate fields matches the unified API design
 
-## RIFF Disc Number Format
+### RIFF disc number format
 
 RIFF (WAV) format does not natively support disc numbers in its INFO chunk structure.
 
@@ -66,7 +144,7 @@ RIFF (WAV) format does not natively support disc numbers in its INFO chunk struc
 - **Reason**: RIFF INFO chunk has no standard field for disc number
 - **Workaround**: None available (format limitation)
 
-## Unified Metadata API
+### Unified metadata API (disc)
 
 The library provides two separate unified metadata fields for disc number handling:
 
@@ -80,7 +158,7 @@ This two-field approach provides:
 - **Semantic clarity**: Disc number and total are conceptually separate pieces of information
 - **Native Vorbis support**: Matches Vorbis' separate `DISCNUMBER` and `DISCTOTAL` fields
 
-### Reading Disc Number
+#### Reading disc number
 
 The library returns disc numbers as separate fields:
 
@@ -95,7 +173,7 @@ The library returns disc numbers as separate fields:
 - **ID3v1**: Not supported
 - **RIFF**: Not supported
 
-### Writing Disc Number
+#### Writing disc number
 
 The library writes disc numbers based on the unified metadata fields:
 
@@ -122,7 +200,7 @@ The library writes disc numbers based on the unified metadata fields:
   - No hard limit on disc numbers (unlimited in theory)
 - **RIFF**: Disc number writing is not supported - no standard field in INFO chunk
 
-## Format Comparison
+### Format comparison (disc)
 
 | Format | Frame/Field           | Format Support | Range Limit | Unified API Mapping                                                              |
 | ------ | --------------------- | -------------- | ----------- | -------------------------------------------------------------------------------- |
@@ -131,14 +209,14 @@ The library writes disc numbers based on the unified metadata fields:
 | Vorbis | DISCNUMBER, DISCTOTAL | ✓              | Unlimited   | Separate tags and combined `DISCNUMBER=disc/total` → `DISC_NUMBER`, `DISC_TOTAL` |
 | RIFF   | ✗                     | ✗              | N/A         | ✗                                                                                |
 
-## Common Use Cases
+### Common use cases (disc)
 
 1. **Single Disc Albums**: `DISC_NUMBER=1`, `DISC_TOTAL=1` or `DISC_NUMBER=1`, `DISC_TOTAL=None`
 2. **Multi-Disc Albums**: `DISC_NUMBER=1`, `DISC_TOTAL=2` for disc 1 of 2-disc set
 3. **Large Box Sets**: `DISC_NUMBER=1`, `DISC_TOTAL=10` for disc 1 of 10-disc set
 4. **Unknown Total**: `DISC_NUMBER=1`, `DISC_TOTAL=None` when total number of discs is unknown
 
-## API Usage Examples
+### API usage examples (disc)
 
 ```python
 from audiometa import update_metadata, get_unified_metadata
@@ -161,7 +239,7 @@ disc_number = metadata.get(UnifiedMetadataKey.DISC_NUMBER)  # 1
 disc_total = metadata.get(UnifiedMetadataKey.DISC_TOTAL)    # 2 or None
 ```
 
-## Limitations Summary
+### Limitations summary (disc)
 
 - **ID3v1**: Cannot store disc numbers (format limitation)
 - **ID3v2**: Limited to 255 discs maximum (both disc number and total)

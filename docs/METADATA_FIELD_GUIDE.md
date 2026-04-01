@@ -305,7 +305,7 @@ The library returns track numbers as strings. Edge cases:
 - **Vorbis**: Supports full track/total format through TRACKNUMBER field
 - **RIFF**: Track number writing is not currently supported
 
-For detailed information, see the **[Track Number Handling Guide](TRACK_NUMBER.md)**.
+For detailed information, see **[Track and disc numbers](TRACK_AND_DISC_NUMBERS.md#track-number)**.
 
 ## Disc Number Handling
 
@@ -321,7 +321,7 @@ The library provides two separate unified metadata fields for disc number:
 - **Vorbis**: Separate `DISCNUMBER` and `DISCTOTAL` tags (unlimited range); **reading** also accepts combined `DISCNUMBER=disc/total` (e.g. `1/2`) and maps it to `DISC_NUMBER` / `DISC_TOTAL` when `DISCTOTAL` is not set separately
 - **RIFF**: ✗ Not supported (format limitation)
 
-For detailed information on disc number formats, limitations, reading/writing behavior, and examples, see the **[Disc Number Handling Guide](DISC_NUMBER.md)**.
+For detailed information on disc number formats, limitations, reading/writing behavior, and examples, see **[Track and disc numbers](TRACK_AND_DISC_NUMBERS.md#disc-number)**.
 
 ## Lyrics Support
 
