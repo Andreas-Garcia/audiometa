@@ -303,7 +303,7 @@ The library returns track numbers as strings. Edge cases:
 - **ID3v1**: Only supports track numbers (1-255), extracts the track number from formats like "5/12" and ignores the total
 - **ID3v2**: Supports full track/total format (e.g., "5/12") as per ID3v2 specification
 - **Vorbis**: Supports full track/total format through TRACKNUMBER field
-- **RIFF**: Track number writing is not currently supported
+- **RIFF**: Track number written to INFO `IPRT` (see `TRACK_NUMBER.md`)
 
 For detailed information, see the **[Track Number Handling Guide](TRACK_NUMBER.md)**.
 
@@ -318,7 +318,7 @@ The library provides two separate unified metadata fields for disc number:
 
 - **ID3v1**: ✗ Not supported (format limitation)
 - **ID3v2**: TPOS frame - maps `"disc/total"` format to/from `DISC_NUMBER` and `DISC_TOTAL`, limited to 0-255 range
-- **Vorbis**: Native separate `DISCNUMBER` and `DISCTOTAL` fields, unlimited range
+- **Vorbis**: `DISCNUMBER` / `DISCTOTAL` (unlimited range); combined `DISCNUMBER=disc/total` is common in the wild but is **not** parsed into `DISC_NUMBER`/`DISC_TOTAL` on read yet—see `DISC_NUMBER.md`
 - **RIFF**: ✗ Not supported (format limitation)
 
 For detailed information on disc number formats, limitations, reading/writing behavior, and examples, see the **[Disc Number Handling Guide](DISC_NUMBER.md)**.

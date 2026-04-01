@@ -1,10 +1,11 @@
 # Disc Number Handling
 
-The library handles different disc number formats across audio metadata standards:
+For each format, **Spec / convention** is what the standard or usual ecosystem practice implies. **This library** describes how broadly we read and write so typical multi-disc tags (and a few edge cases) map cleanly to **`DISC_NUMBER`** / **`DISC_TOTAL`**. We aim for **wide read** compatibility where the format allows; where the spec has no disc field, we do not invent one.
 
 ## ID3v1 Disc Number Format
 
-ID3v1 does not support disc numbers due to its limited fixed structure.
+- **Spec / convention**: **ID3v1** is a fixed **128-byte** trailer with title, artist, album, year, comment, genre—**no** disc or “part of set” field. Extending it would break the layout.
+- **This library**: **Not supported**; unified disc fields raise “not supported” for ID3v1.
 
 - **Support**: ✗ Not supported
 - **Reason**: ID3v1 has a fixed 128-byte structure with no field for disc number
@@ -12,19 +13,21 @@ ID3v1 does not support disc numbers due to its limited fixed structure.
 
 ## ID3v2 Disc Number Format
 
-ID3v2 supports disc numbers through the `TPOS` (Part of a set) frame.
+- **Spec / convention**: **ID3v2** defines **`TPOS`** (“part of a set”) as a numeric string, by the same pattern as **`TRCK`**: **part** or **`part/total`** with **`/`**. Stored values are effectively limited by the **8-bit** character model in common use (**0–255** per component).
+- **This library**: We parse **`part`**, **`part/total`**, and—on read only—**`part-total`** with **`-`** as an alias separator (wider than the letter of the spec, matching how we treat `TRCK`). Invalid multi-part strings yield **`None`**. **Write** uses **`/`** only so other ID3v2 software sees the canonical shape.
 
 - **Frame**: TPOS (Part of a set)
-- **Format**: `"disc/total"` (e.g., `"1/2"`, `"2/3"`, `"99/99"`) or simple `"disc"` (e.g., `"1"`, `"2"`)
-- **Range**: 0-255 for both disc number and total discs
-- **Unified API Mapping**:
-  - `TPOS="1/2"` → `DISC_NUMBER=1`, `DISC_TOTAL=2`
-  - `TPOS="1"` → `DISC_NUMBER=1`, `DISC_TOTAL=None`
+- **Stored form**: ID3v2 convention is **`/`** between part and total (same family as `TRCK`). On **read**, this library also accepts **`-`** between the two numbers (lenient alias, parity with `TRCK` / `TRACK_NUMBER`); **writes** still use **`/`** only.
+- **Read parsing** (current implementation):
+  - `DISC_NUMBER` ← first integer if the value matches `^(\d+)(?:[-/](\d+))?$`; otherwise **`None`**
+  - `DISC_TOTAL` ← second integer only if the value matches `^(\d+)[-/](\d+)$` (both parts required); otherwise **`None`**
+- **Range**: 0-255 for both disc number and total discs (ID3v2 constraints)
 - **Examples**:
-  - `"1/2"` → `DISC_NUMBER=1`, `DISC_TOTAL=2` (disc 1 of 2)
-  - `"2/3"` → `DISC_NUMBER=2`, `DISC_TOTAL=3` (disc 2 of 3)
-  - `"1"` → `DISC_NUMBER=1`, `DISC_TOTAL=None` (simple format, disc 1, total unknown)
-  - `"99/99"` → `DISC_NUMBER=99`, `DISC_TOTAL=99` (maximum supported value)
+  - `"1/2"` → `DISC_NUMBER=1`, `DISC_TOTAL=2`
+  - `"1-2"` → `DISC_NUMBER=1`, `DISC_TOTAL=2` (non-standard separator, accepted on read)
+  - `"1"` → `DISC_NUMBER=1`, `DISC_TOTAL=None`
+  - `"1/2/3"` → `DISC_NUMBER=None`, `DISC_TOTAL=None` (invalid for this parser)
+  - `"99/99"` → `DISC_NUMBER=99`, `DISC_TOTAL=99`
 
 **Limitations:**
 
@@ -34,20 +37,34 @@ ID3v2 supports disc numbers through the `TPOS` (Part of a set) frame.
 
 ## Vorbis Disc Number Format
 
-Vorbis comments support disc numbers through separate `DISCNUMBER` and `DISCTOTAL` fields.
+- **Spec / convention**: **Vorbis comment** keys are **ASCII** names with **UTF-8** values; **`DISCNUMBER`** and **`DISCTOTAL`** are **informal** but widely used. There is **no** normative grammar—tools either use **two separate fields** or cram **`n/m` into `DISCNUMBER`**, copying ID3 habits.
+- **This library**: **Write** always uses **separate** `DISCNUMBER` and `DISCTOTAL` (widest compatibility with metaflac-style workflows). **Read** today accepts **plain integers** in each tag; **combined `DISCNUMBER=n/m`** is **not** yet split (see below)—so we do **not** yet cover the full width of field data in the wild; the table under _Suggested implementation_ is the intended direction.
 
-- **Fields**:
-  - `DISCNUMBER` - Current disc number (simple numeric string, e.g., `"1"`, `"2"`, `"99"`)
-  - `DISCTOTAL` - Total number of discs (optional, simple numeric string, e.g., `"2"`, `"3"`, `"99"`)
-- **Range**: Unlimited (no hard limit, but practical limits apply)
-- **Unified API Mapping**:
-  - `DISCNUMBER="1"`, `DISCTOTAL="2"` → `DISC_NUMBER=1`, `DISC_TOTAL=2`
-  - `DISCNUMBER="2"` → `DISC_NUMBER=2`, `DISC_TOTAL=None`
-  - `DISCNUMBER="99"`, `DISCTOTAL="99"` → `DISC_NUMBER=99`, `DISC_TOTAL=99`
-- **Examples**:
-  - `DISCNUMBER="1"`, `DISCTOTAL="2"` → `DISC_NUMBER=1`, `DISC_TOTAL=2` (disc 1 of 2)
-  - `DISCNUMBER="2"` → `DISC_NUMBER=2`, `DISC_TOTAL=None` (disc 2, total unknown)
-  - `DISCNUMBER="99"`, `DISCTOTAL="99"` → `DISC_NUMBER=99`, `DISC_TOTAL=99` (disc 99 of 99)
+Vorbis comments use `DISCNUMBER` and optionally `DISCTOTAL`. Many taggers also store **`disc/total` inside `DISCNUMBER` alone** (same idea as ID3v2 `TPOS`).
+
+### Current read behavior (library)
+
+- Each mapped tag value is read with **plain integer conversion** on the first entry (`int(...)`).
+- **`DISCNUMBER="1/2"`** does **not** parse as an integer → unified **`DISC_NUMBER`** is **`None`** (and **`DISC_TOTAL`** is only filled from **`DISCTOTAL`** when that tag is a valid integer).
+- So today, only **separate** numeric `DISCNUMBER` / `DISCTOTAL` (or `DISCTOTAL` alone with a numeric `DISCNUMBER`) behaves as users expect from the unified API.
+
+### Suggested implementation: slash in `DISCNUMBER` and conflicting totals
+
+When adding TPOS-like parsing for Vorbis, these cases should be decided explicitly:
+
+| Situation                                                                              | Suggested rule                                                                                                                                                                                                                                                           |
+| -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `DISCNUMBER="n"` only                                                                  | `DISC_NUMBER=n`, `DISC_TOTAL=None`                                                                                                                                                                                                                                       |
+| `DISCNUMBER="n/m"` and **no** `DISCTOTAL`                                              | `DISC_NUMBER=n`, `DISC_TOTAL=m`                                                                                                                                                                                                                                          |
+| `DISCNUMBER="n"` and `DISCTOTAL="m"`                                                   | `DISC_NUMBER=n`, `DISC_TOTAL=m`                                                                                                                                                                                                                                          |
+| `DISCNUMBER="n/m"` **and** `DISCTOTAL="m"` **where** `m` ≠ second part of `DISCNUMBER` | **Prefer explicit `DISCTOTAL`** for unified `DISC_TOTAL`, and **the leading integer segment of `DISCNUMBER`** for `DISC_NUMBER` (so retaggers can correct total without rewriting the combined string). Optionally emit a **debug log** when the slash suffix disagrees. |
+| Invalid `DISCNUMBER` (non-numeric, multiple slashes)                                   | `DISC_NUMBER=None`; derive `DISC_TOTAL` only from `DISCTOTAL` if valid                                                                                                                                                                                                   |
+
+**Rationale:** `DISCTOTAL` is an explicit correction channel; the numeric prefix of `DISCNUMBER` remains the disc index even when the embedded `/total` is stale.
+
+**Fields (native-on-write):**
+
+- **Writing** (current): separate `DISCNUMBER` and `DISCTOTAL` tags, matching the unified API.
 
 **Advantages over ID3v2:**
 
@@ -58,7 +75,8 @@ Vorbis comments support disc numbers through separate `DISCNUMBER` and `DISCTOTA
 
 ## RIFF Disc Number Format
 
-RIFF (WAV) format does not natively support disc numbers in its INFO chunk structure.
+- **Spec / convention**: Standard **RIFF INFO** lists do **not** define a **disc** or **part-of-set** FourCC comparable to **`TPOS`**. BWF/INFO extensions focus on title, artist, dates, ISRC, etc.—disc index is **out of band** for typical WAV metadata.
+- **This library**: **Not supported** for unified disc fields (no stable field to map).
 
 - **Support**: ✗ Not supported
 - **Reason**: RIFF INFO chunk has no standard field for disc number
@@ -87,9 +105,8 @@ The library returns disc numbers as separate fields:
 
 **Format Mapping:**
 
-- **ID3v2**: Reads `TPOS` frame with `"disc/total"` format (e.g., `"1/2"`) → `DISC_NUMBER=1`, `DISC_TOTAL=2`
-- **ID3v2**: Reads `TPOS` frame with `"disc"` format (e.g., `"1"`) → `DISC_NUMBER=1`, `DISC_TOTAL=None`
-- **Vorbis**: Reads `DISCNUMBER` and `DISCTOTAL` fields directly → `DISC_NUMBER` and `DISC_TOTAL`
+- **ID3v2**: `TPOS` parsed with `^(\d+)(?:[-/](\d+))?$` for `DISC_NUMBER`; `DISC_TOTAL` only if `^(\d+)[-/](\d+)$` matches (see [ID3v2 disc number format](#id3v2-disc-number-format)).
+- **Vorbis**: Today, integer parse per tag; combined `DISCNUMBER=disc/total` is **not** split until the behavior in [Vorbis disc number format](#vorbis-disc-number-format) is implemented.
 - **ID3v1**: Not supported
 - **RIFF**: Not supported
 
@@ -122,12 +139,12 @@ The library writes disc numbers based on the unified metadata fields:
 
 ## Format Comparison
 
-| Format | Frame/Field           | Format Support | Range Limit | Unified API Mapping                           |
-| ------ | --------------------- | -------------- | ----------- | --------------------------------------------- |
-| ID3v1  | ✗                     | ✗              | N/A         | ✗                                             |
-| ID3v2  | TPOS                  | ✓              | 0-255       | `"disc/total"` → `DISC_NUMBER`, `DISC_TOTAL`  |
-| Vorbis | DISCNUMBER, DISCTOTAL | ✓              | Unlimited   | Separate fields → `DISC_NUMBER`, `DISC_TOTAL` |
-| RIFF   | ✗                     | ✗              | N/A         | ✗                                             |
+| Format | Frame/Field           | Format Support | Range Limit | Unified API Mapping                                          |
+| ------ | --------------------- | -------------- | ----------- | ------------------------------------------------------------ |
+| ID3v1  | ✗                     | ✗              | N/A         | ✗                                                            |
+| ID3v2  | TPOS                  | ✓              | 0-255       | `"disc/total"` → `DISC_NUMBER`, `DISC_TOTAL`                 |
+| Vorbis | DISCNUMBER, DISCTOTAL | ✓              | Unlimited   | Separate tags; combined `DISCNUMBER` not split on read (yet) |
+| RIFF   | ✗                     | ✗              | N/A         | ✗                                                            |
 
 ## Common Use Cases
 
@@ -162,6 +179,6 @@ disc_total = metadata.get(UnifiedMetadataKey.DISC_TOTAL)    # 2 or None
 ## Limitations Summary
 
 - **ID3v1**: Cannot store disc numbers (format limitation)
-- **ID3v2**: Limited to 255 discs maximum (both disc number and total)
-- **Vorbis**: No hard limit, but practical limits apply based on implementation
+- **ID3v2**: Limited to 255 discs maximum (both disc number and total); invalid `TPOS` strings yield `None` for disc fields
+- **Vorbis**: No hard limit on numeric values; **combined `DISCNUMBER=disc/total` is not split on read** in the current implementation (see suggested rules above)
 - **RIFF**: Cannot store disc numbers (format limitation)
