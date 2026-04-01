@@ -50,6 +50,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Documentation
+
+- **PR descriptions (Cursor)**: `.cursor/rules/pr-descriptions.mdc` requires writing PR bodies to `.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md` when asked; `pr-naming.mdc`, `AGENTS.md`, and `CONTRIBUTING.md` point to that workflow and to `.github/pr_descriptions/pull_request_template.md`.
+
 ### CI
 
 - **Checkout and setup-python**: Updated to Node.js 24 compatible versions.
