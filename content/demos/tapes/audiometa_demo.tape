@@ -1,10 +1,12 @@
 # VHS documentation: https://github.com/charmbracelet/vhs
 #
 # AudioMeta get_full_metadata() Demo for Twitter
+#
+# Run from content/demos: (cd content/demos && vhs tapes/audiometa_demo.tape)
 
 # Output settings
-Output audiometa_demo.mp4
-Output audiometa_demo.gif
+Output output/audiometa_demo.mp4
+Output output/audiometa_demo.gif
 
 # Set up the terminal
 Set FontSize 18
@@ -17,6 +19,10 @@ Set PlaybackSpeed 1.0
 
 # Hide initial shell prompt
 Hide
+
+# Repo root so paths match contributor docs (tape cwd is content/demos)
+Type "cd ../.." Enter
+Sleep 300ms
 
 # Type the Python command
 Type "python3" Enter

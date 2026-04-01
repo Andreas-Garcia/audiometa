@@ -31,7 +31,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 **Example:**
 
 ```markdown
-## [Unreleased]
+## [1.3.2] - 2026-03-18
 
 ### Added
 
@@ -46,11 +46,38 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 **Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-XX`).
 
+## [1.3.2] - 2026-03-18
+
 ## [Unreleased]
+
+### Changed
+
+- **Demo layout**: Library VHS tapes (`audiometa_demo.tape`, `audiometa_demo_script.tape`) moved from repo root to `content/demos/tapes/`; generated GIF/MP4 go to `content/demos/output/` (gitignored). Docs now describe `content/demos/` instead of `docs/demos/`.
 
 ### Documentation
 
 - **README**: Added ecosystem section with portfolio links (`themusictree.org`, AudioMeta Python project page, `the-music-tree-frontend`).
+- **PR descriptions (Cursor)**: `.cursor/rules/pr-descriptions.mdc` requires writing PR bodies to `.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md` when asked; `pr-naming.mdc`, `AGENTS.md`, and `CONTRIBUTING.md` point to that workflow and to `.github/pr_descriptions/pull_request_template.md`.
+- **Demo outputs**: `.gitignore` excludes article `output/` and loose/generated files under `content/articles/<article>/`, while allowing tapes, scripts, markdown, and **whitelisted demo audio** under `content/articles/<article>/samples/` (`sample.mp3`, `sample.flac`, `sample.wav` per article as needed). Library demos use `content/demos/tapes/` and `content/demos/output/`. `DEMO_INSTALLATION.md` and `.cursor/rules/demo-videos.mdc` document the layout.
+
+### CI
+
+- **Checkout and setup-python**: Updated to Node.js 24 compatible versions.
+
+## [1.3.1] - 2025-03-17
+
+### Added
+
+- **Release automation**: `scripts/prepare_release.py` updates CHANGELOG with new version and date, runs bump2version, then commits and tags. Bump2version configured to create tags (`tag = True`, `tag_name = v{new_version}`).
+
+### Improved
+
+- **Pre-commit in CI**: Use pinned pre-commit from `.[dev]` only; removed redundant `pip install pre-commit` so the pinned version is used.
+- **Verify script**: Require Python 3.12+ and exit with a clear message when run with an older interpreter (e.g. activate venv and re-run).
+
+### Documentation
+
+- **Release process**: CONTRIBUTING.md documents the release script (review [Unreleased], run `prepare_release.py`, push). Changelog rule (`.cursor/rules/changelog.mdc`) updated to match.
 
 ## [1.3.0] - 2025-03-10
 

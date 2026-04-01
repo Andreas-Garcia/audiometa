@@ -1,6 +1,6 @@
 # AudioMeta VHS Demo
 
-This directory contains a VHS tape file for generating the AudioMeta demo video.
+Library demo tapes live under **`content/demos/tapes/`** and write GIF/MP4 to **`content/demos/output/`** (gitignored). Run VHS with cwd `content/demos` so outputs and paths resolve correctly (see `content/demos/README.md`).
 
 ## What is VHS?
 
@@ -51,28 +51,28 @@ sudo apt-get install ttyd ffmpeg
 ### Generate the demo video
 
 ```bash
-# Make sure you're in the project root with venv activated
+# Project root, venv activated
 source .venv/bin/activate
+mkdir -p content/demos/output
 
-# Run VHS with the tape file
-vhs audiometa_demo.tape
+# Run VHS with cwd = content/demos (required for Output paths)
+(cd content/demos && vhs tapes/audiometa_demo.tape)
 ```
 
 This will generate:
 
-- `audiometa_demo.mp4` - Video file (for Twitter)
-- `audiometa_demo.gif` - Animated GIF (for README/documentation)
+- `content/demos/output/audiometa_demo.mp4` - Video file (for Twitter)
+- `content/demos/output/audiometa_demo.gif` - Animated GIF (for README/documentation)
 
 ### Preview before recording
 
 ```bash
-# Preview the tape file
-vhs audiometa_demo.tape --preview
+(cd content/demos && vhs tapes/audiometa_demo.tape --preview)
 ```
 
 ## Customization
 
-Edit `audiometa_demo.tape` to customize:
+Edit `content/demos/tapes/audiometa_demo.tape` to customize:
 
 - **Output format**: Change `Output` lines
 - **Terminal size**: Adjust `Set Width` and `Set Height`
@@ -106,19 +106,19 @@ The VHS demo shows:
 ## Example VHS Commands
 
 ```bash
-# Generate video only
-vhs audiometa_demo.tape --output audiometa_demo.mp4
+# Generate video only (from repo root; cwd still content/demos for the recording shell)
+(cd content/demos && vhs tapes/audiometa_demo.tape --output output/audiometa_demo.mp4)
 
 # Generate GIF only
-vhs audiometa_demo.tape --output audiometa_demo.gif
+(cd content/demos && vhs tapes/audiometa_demo.tape --output output/audiometa_demo.gif)
 
 # Use different theme
 # Edit the tape file: Set Theme "Nord"
-vhs audiometa_demo.tape
+(cd content/demos && vhs tapes/audiometa_demo.tape)
 
 # Faster playback
 # Edit the tape file: Set PlaybackSpeed 1.5
-vhs audiometa_demo.tape
+(cd content/demos && vhs tapes/audiometa_demo.tape)
 ```
 
 ## Troubleshooting
@@ -150,7 +150,7 @@ sudo apt-get install ffmpeg
 source .venv/bin/activate
 
 # Then run VHS
-vhs audiometa_demo.tape
+(cd content/demos && vhs tapes/audiometa_demo.tape)
 ```
 
 ## Links

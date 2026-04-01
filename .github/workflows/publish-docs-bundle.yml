@@ -1,0 +1,40 @@
+name: Publish docs bundle
+
+on:
+  push:
+    tags:
+      - "v*"
+    paths:
+      - "docs/**"
+      - "scripts/build_docs_bundle.py"
+  workflow_dispatch:
+
+jobs:
+  build-and-commit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Build docs bundle
+        run: python3 scripts/build_docs_bundle.py
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add publish/docs-bundle.json
+          if git diff --staged --quiet; then
+            echo "No changes to docs-bundle.json"
+          else
+            git commit -m "chore: update docs bundle for frontend"
+            git push
+          fi

@@ -28,7 +28,12 @@ Usage:
 import sys
 
 if sys.version_info < (3, 12):  # noqa: UP036
-    sys.exit("Python 3.12+ required (project minimum). Activate the project venv: source .venv/bin/activate")
+    cur = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+    msg = (
+        f"This project requires Python 3.12+. Current: {cur}. "
+        "Activate the project venv (e.g. source .venv/bin/activate) and re-run."
+    )
+    sys.exit(msg)
 
 import importlib.util
 import sys

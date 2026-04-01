@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "audiometa-python"
-version = "1.3.0"
+version = "1.3.2"
 description = "A comprehensive Python library for reading and writing audio metadata across multiple formats"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -109,6 +109,8 @@ ignore = ["N999", "PLR0911", "PLR0912", "PLR0913", "PLR0914", "PLR0915", "TRY301
 "scripts/demo_repl.py" = ["T201"]
 "content/articles/one_to_rule/ensure_demo_read_id3v1.py" = ["PLR2004", "TRY003", "EM102"]
 "content/articles/one_to_rule/print_id3v1_tags.py" = ["PLR2004", "TRY003", "EM101"]
+# Release script: CLI tool; relax exception/literal and magic-number rules for clarity
+"scripts/prepare_release.py" = ["TRY003", "EM101", "EM102", "PLR2004", "DTZ011", "RUF005", "T201"]
 
 [tool.mypy]
 python_version = "3.12"

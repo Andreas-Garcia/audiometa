@@ -35,6 +35,12 @@ This will generate:
 
 - `get_full_metadata_demo.gif` - Animated GIF
 
+### Generated files and Git
+
+- **`content/demos/output/`** — GIFs/MP4s from tapes under `content/demos/tapes/` are **not committed** (gitignored via `content/**/output/`). Tracked sources are `content/demos/tapes/` and `content/demos/README.md`. Library REPL demos use `audiometa/test/assets/sample.mp3` after a hidden `cd` to repo root (see tape comments).
+- **`content/articles/<article>/output/`** — Outputs from article demo pipelines (VHS, ffmpeg, concat intermediates) are **not committed**. Regenerate locally after cloning; version control holds tapes, scripts, and READMEs for each article.
+- **Per-article demo audio** (whatever a given article’s tapes/scripts need) may live under **`content/articles/<article>/samples/`** — `.gitignore` whitelists only `sample.mp3`, `sample.flac`, and `sample.wav` there (add the files you use). That is **not** a global “official” sample set; each article owns its folder. Copied or generated files (e.g. `demo_read_*.mp3`) stay **local-only** at the article root or under `output/`.
+
 ## Troubleshooting
 
 ### libvpx/ffmpeg Error
@@ -95,10 +101,12 @@ bash scripts/install-demo-dependencies-macos.sh
 
 ## Available Tape Files
 
-The repository includes pre-made tape files in the root directory:
+Library demos under **`content/demos/tapes/`**:
 
-1. **audiometa_demo.tape** - Interactive Python REPL demo
-2. **audiometa_demo_script.tape** - Script execution demo
+1. **`audiometa_demo.tape`** — Interactive Python REPL demo
+2. **`audiometa_demo_script.tape`** — Script execution demo
+
+Run with `(cd content/demos && vhs tapes/<name>.tape)` (see `content/demos/README.md`).
 
 ### Creating New Tape Files
 

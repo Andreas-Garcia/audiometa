@@ -28,9 +28,13 @@ See `CONTRIBUTING.md` for full details. Quick reference:
 - **Test**: `pytest` (all 1553 tests) / `pytest -m unit` / `pytest -m integration` / `pytest -m e2e`
 - **CLI**: `audiometa read <file>` / `audiometa write <file> --title "..." --artist "..."` / `audiometa delete <file>`
 
+### Pull request descriptions
+
+When asked for a PR description, write it to **`.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md`** (gitignored); do not rely on chat-only text. See `.cursor/rules/pr-descriptions.mdc` and use `.github/pr_descriptions/pull_request_template.md` for sections.
+
 ### Demo videos
 
-Demos are generated with [VHS](https://github.com/charmbracelet/vhs) from `.tape` files. See `VHS_DEMO_README.md` and `DEMO_INSTALLATION.md` for full instructions. **Demos** live under `content/articles/` (one dir per article, each with `tapes/` and a single `output/` for GIFs and video). Example article: `content/articles/one_to_rule/`. Quick path: install deps (macOS) with `bash scripts/install-demo-dependencies-macos.sh`, activate venv, then run `(cd content/articles/one_to_rule && vhs tapes/<name>.tape)` or `python content/scripts/run_demo_tape.py` or `./content/articles/one_to_rule/generate_one_to_rule_video.sh` (hero video; all cells from tapes, no placeholders, fails early if required asset missing). Side-by-side scripts live in the article dir (e.g. `one_to_rule/run_demo_side_by_side.sh`). When editing tapes or demo workflow, follow `.cursor/rules/demo-videos.mdc`; for authoring .tape content, follow `.cursor/rules/demo-tape-authoring.mdc`.
+Demos are generated with [VHS](https://github.com/charmbracelet/vhs) from `.tape` files. See `VHS_DEMO_README.md` and `DEMO_INSTALLATION.md` for full instructions. **Article demos** live under `content/articles/` (one dir per article, each with `tapes/` and `output/` for GIFs and video). Example: `content/articles/one_to_rule/`. **Library REPL demos** live under `content/demos/tapes/` with output in `content/demos/output/`; run with `(cd content/demos && vhs tapes/<name>.tape)`. Quick path: install deps (macOS) with `bash scripts/install-demo-dependencies-macos.sh`, activate venv, then run `(cd content/articles/one_to_rule && vhs tapes/<name>.tape)` or `python content/scripts/run_demo_tape.py` or `./content/articles/one_to_rule/generate_one_to_rule_video.sh` (hero video; all cells from tapes, no placeholders, fails early if required asset missing). Side-by-side scripts live in the article dir (e.g. `one_to_rule/run_demo_side_by_side.sh`). When editing tapes or demo workflow, follow `.cursor/rules/demo-videos.mdc`; for authoring .tape content, follow `.cursor/rules/demo-tape-authoring.mdc`.
 
 ### Gotchas
 

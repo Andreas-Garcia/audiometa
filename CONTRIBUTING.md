@@ -452,7 +452,7 @@ When opening a Pull Request, a template will be automatically provided. Ensure y
 - ✅ Note any breaking changes
 - ✅ Include testing instructions if applicable
 
-**Note:** The PR template (`.github/pull_request_template.md`) will guide you through the process and ensure all necessary information is included.
+**Note:** The PR template is at **`.github/pr_descriptions/pull_request_template.md`**. When using Cursor to draft a description, save the full text to **`.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md`** (gitignored) per `.cursor/rules/pr-descriptions.mdc`, then paste into GitHub.
 
 ##### Breaking Changes
 
@@ -492,58 +492,48 @@ Quick release process:
    - Review high-priority tasks and ensure they're either completed or deferred to next release
    - Update TODO items if needed to reflect current project status
 
-3. Update the changelog (`CHANGELOG.md`) with the new release version and changes
+3. Review and consolidate the `[Unreleased]` section in `CHANGELOG.md`
 
    - Review changes in the `[Unreleased]` section and decide on version number (following Semantic Versioning)
-   - Move content from `[Unreleased]` section to new version entry with date (e.g., `## [0.2.3] - 2025-11-17`)
-   - Review and consolidate entries if needed (group similar changes, ensure clarity)
-   - Leave the `[Unreleased]` section empty (or with a placeholder) for future PRs
+   - Consolidate entries if needed (group similar changes, ensure clarity)
+   - Do not manually move or add the version header—the release script does that with today's date
 
-4. Bump version numbers using `bump2version`:
+4. Run the release script (updates CHANGELOG, bumps version, commits, and tags):
+
+   **Use the release script, not `bump2version` directly.** Running `bump2version patch` alone does not update `CHANGELOG.md` and is easy to forget; the script does changelog + version + commit + tag in one go.
 
    ```bash
-   # Activate virtual environment (required for pre-commit hooks)
    source .venv/bin/activate
 
-   # Use bump2version to update version numbers in all configured files
-   # This will update pyproject.toml and README.md automatically
-   bump2version --new-version 0.2.3 patch
-
-   # Or use semantic versioning parts:
-   # bump2version patch    # 0.2.2 -> 0.2.3
-   # bump2version minor    # 0.2.2 -> 0.3.0
-   # bump2version major    # 0.2.2 -> 1.0.0
+   # From repo root: updates CHANGELOG with new version and today's date, bumps pyproject.toml, commits, and tags
+   python scripts/prepare_release.py patch
+   # Or: python scripts/prepare_release.py minor
+   # Or: python scripts/prepare_release.py major
+   # Or: python scripts/prepare_release.py --new-version 1.3.1
+   # Add --push to also push main and the new tag: python scripts/prepare_release.py patch --push
    ```
 
-   **What bump2version does:**
+   **What the script does:**
 
-   - Updates version in `pyproject.toml` (from `.bumpversion.cfg` configuration)
-   - Updates version badge in `README.md`
-   - Creates a commit with the configured commit message (e.g., "chore: prepare release 0.2.3")
-   - Does NOT update `CHANGELOG.md` (this is done manually in step 2)
+   - Replaces `## [Unreleased]` in `CHANGELOG.md` with `## [X.Y.Z] - YYYY-MM-DD` (today) and adds a new `## [Unreleased]` section
+   - Runs `bump2version` to update `pyproject.toml` and `.bumpversion.cfg`
+   - Commits `CHANGELOG.md`, `pyproject.toml`, and `.bumpversion.cfg` with message `chore: prepare release X.Y.Z`
+   - Creates tag `vX.Y.Z`
+   - Without `--push`: stops here (verify with `git log -1` and `git tag -l`, then push manually)
+   - With `--push`: pushes `main` and the new tag to `origin`
 
-   **Configuration:** The `.bumpversion.cfg` file specifies which files to update. See the file for details.
-
-5. Verify changes and push:
+5. If you did not use `--push`, verify and push:
 
    ```bash
-   # Review the commit created by bump2version
    git log -1
+   git tag -l
 
-   # Push the release commit
    git push origin main
-   ```
-
-6. Tag the release (create a Git tag to mark this specific commit as the release point):
-
-   ```bash
-   git tag v0.2.3
    git push origin v0.2.3
+   # Or: git push origin main --follow-tags
    ```
 
-   **Important:** The tag version must match the version in `pyproject.toml` (without the `v` prefix).
-
-7. CI/CD will automatically:
+6. CI/CD will automatically:
 
    - Verify tag version matches `pyproject.toml` version
    - Verify tag is on main branch
@@ -557,7 +547,7 @@ Quick release process:
 
 **Note:** Ensure `PYPI_API_TOKEN` is configured in GitHub repository secrets before tagging. See [PyPI Publishing Guide](docs/PYPI_PUBLISHING.md) for setup instructions.
 
-**Alternative:** If you prefer to update versions manually instead of using `bump2version`, you can manually edit `pyproject.toml` and `README.md`, then commit the changes yourself.
+**Alternative (manual):** Edit `CHANGELOG.md` (move `[Unreleased]` to a versioned section with date), then run `bump2version patch` (or minor/major/`--new-version`) and commit + tag yourself.
 
 ## 🪪 License & Attribution
 

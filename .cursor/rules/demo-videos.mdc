@@ -6,20 +6,20 @@ alwaysApply: false
 
 # Demo Videos (VHS)
 
-Demo videos are produced with [VHS](https://github.com/charmbracelet/vhs) from declarative `.tape` files. **Articles** live under **`content/articles/`** — one dir per article (explicit names, e.g. `one_to_rule/`). No generic "demos" dir: each article has its own `tapes/`, samples, and `output/`.
+Demo videos are produced with [VHS](https://github.com/charmbracelet/vhs) from declarative `.tape` files. **Articles** live under **`content/articles/`** — one dir per article (explicit names, e.g. `one_to_rule/`). **Library REPL/script demos** live under **`content/demos/tapes/`** with outputs in **`content/demos/output/`** (gitignored); run `vhs` with cwd **`content/demos`** (see `content/demos/README.md`).
 
 ## Canonical docs
 
 - **Usage and install**: `VHS_DEMO_README.md` (root)
 - **Install/troubleshooting**: `DEMO_INSTALLATION.md` (root)
-- **Layout**: `content/articles/README.md`; per-article: `content/articles/one_to_rule/README.md` (see `content/README.md`)
+- **Layout**: `content/README.md`; `content/demos/README.md` (library tapes); per-article: `content/articles/README.md`, e.g. `content/articles/one_to_rule/README.md`
 
 ## Workflow
 
 1. **Dependencies (macOS)**: `bash scripts/install-demo-dependencies-macos.sh` (VHS, ttyd, ffmpeg; fixes libvpx issues).
 2. **Activate venv** before running VHS: `source .venv/bin/activate`.
-3. **Record from a tape**: `(cd content/articles/one_to_rule && vhs tapes/<name>.tape)` so cwd is the article dir (short paths, no `cd` in the GIF). Or `python content/scripts/run_demo_tape.py`. Writes to that article’s `output/`.
-4. **Preview**: same cwd as above, e.g. `(cd content/articles/one_to_rule && vhs tapes/<file>.tape --preview)`.
+3. **Record from a tape**: `(cd content/articles/one_to_rule && vhs tapes/<name>.tape)` so cwd is the article dir (short paths, no `cd` in the GIF). Or `python content/scripts/run_demo_tape.py`. Writes to that article’s `output/`. Library REPL demos: `(cd content/demos && vhs tapes/audiometa_demo.tape)` → `content/demos/output/`.
+4. **Preview**: same cwd as above, e.g. `(cd content/articles/one_to_rule && vhs tapes/<file>.tape --preview)` or `(cd content/demos && vhs tapes/<file>.tape --preview)`.
 
 ## Article layout (e.g. one_to_rule)
 
@@ -32,9 +32,11 @@ Demo videos are produced with [VHS](https://github.com/charmbracelet/vhs) from d
 - **Authoring .tape files**: See `.cursor/rules/demo-tape-authoring.mdc`. Tapes live in the article’s `tapes/` and set `Output` to that article’s `output/<name>.gif`. For read/unified demos, include `--color` in CLI commands. Every demo panel must have a tape; no placeholders.
 - **Scripts**: `content/scripts/` has `run_demo_tape.py`. Hero video and side-by-side scripts live in the article dir. All write to article `output/`. **Do not use placeholder GIFs**; every panel must have a tape. Video script fails early if a required tape output is missing.
 - **Docs**: Update the article’s README and `content/README.md` when changing paths.
+- **Tracked vs gitignored**: GIFs/MP4s for **content/demos** go in `content/demos/output/` (gitignored). Source tapes live in `content/demos/tapes/`. Article demos under `content/articles/<name>/` use per-article `output/` (gitignored). **Tracked demo audio** for an article can live in **`content/articles/<article>/samples/`** (whitelisted: `sample.mp3`, `sample.flac`, `sample.wav`). Do not leave those loose at the article root. Track tapes, top-level `.md`, `.sh`, `.py`; **do not commit** ad hoc `demo_*` copies or other loose binaries. See `.gitignore`.
 
 ## Generated outputs (gitignored)
 
+- `content/demos/output/` — library REPL/script demo GIFs/MP4
 - `content/articles/<article>/output/` — tape GIFs, hero video, side-by-side GIFs
 
-Tracked: article `tapes/`, `sample.mp3`, `sample.flac`, READMEs, scenario. See `.gitignore`.
+Tracked: `content/demos/tapes/`, article `tapes/`, `samples/` (per article), READMEs, scenario. See `.gitignore`.
