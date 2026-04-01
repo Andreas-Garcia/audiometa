@@ -50,6 +50,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Documentation
+
+- **Demo outputs**: `.gitignore` excludes `content/articles/*/output/` (VHS/ffmpeg artifacts), aligned with `docs/demos/output/`. `DEMO_INSTALLATION.md` and `.cursor/rules/demo-videos.mdc` document the layout.
+
 ### CI
 
 - **Checkout and setup-python**: Updated to Node.js 24 compatible versions.

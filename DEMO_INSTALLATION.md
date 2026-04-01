@@ -35,6 +35,11 @@ This will generate:
 
 - `get_full_metadata_demo.gif` - Animated GIF
 
+### Generated files and Git
+
+- **`docs/demos/output/`** — GIFs/MP4s from tapes under `docs/demos/tapes/` are **not committed** (gitignored). Tracked sources are tapes and `sample.mp3`.
+- **`content/articles/<article>/output/`** — Outputs from article demo pipelines (VHS, ffmpeg, concat intermediates) are **not committed**. Regenerate locally after cloning; version control holds tapes, scripts, and READMEs for each article.
+
 ## Troubleshooting
 
 ### libvpx/ffmpeg Error

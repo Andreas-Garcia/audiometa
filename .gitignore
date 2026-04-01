@@ -44,6 +44,9 @@ docs/demos/*
 !docs/demos/tapes/
 !docs/demos/sample.mp3
 
+# Article demos (e.g. content/articles/one_to_rule): VHS GIFs, ffmpeg MP4s, concat lists — same policy as docs/demos/output/
+content/articles/*/output/
+
 # Node.js (for git-worktree-scripts dev dependency)
 node_modules/
 package-lock.json
