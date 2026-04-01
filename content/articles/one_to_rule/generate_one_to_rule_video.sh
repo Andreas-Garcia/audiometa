@@ -2,6 +2,7 @@
 # Hero video: intro + four reading comparisons (other tool left, audiometa right).
 # Order: RIFF (WAV), ID3v2 (MP3), ID3v1 (MP3), Vorbis (FLAC).
 # Run from repo root; requires venv, ffmpeg, ffprobe, metaflac, mid3v2; vhs only if recording GIFs.
+# Intro requires assets/logo.mp4 (tracked) or content/articles/one_to_rule/logo.mp4.
 # VHS runs with cwd = the article dir so tapes need no in-GIF cd; Output in tapes is output/*.gif.
 #
 # Options:
@@ -11,6 +12,12 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 cd "$REPO_ROOT"
+VENV_BIN="$REPO_ROOT/.venv/bin"
+if [[ ! -x "$VENV_BIN/audiometa" ]] || [[ ! -x "$VENV_BIN/python3" ]]; then
+  echo "Error: project venv required ($VENV_BIN/audiometa and python3). Run: source .venv/bin/activate && pip install -e ." >&2
+  exit 1
+fi
+export PATH="$VENV_BIN:$PATH"
 
 SKIP_GIFS=0
 while [[ $# -gt 0 ]]; do
@@ -111,7 +118,7 @@ run_tape() {
 }
 
 echo "Preparing demo files for ID3v1 and Vorbis..."
-python3 "$ARTICLE/ensure_demo_read_id3v1.py"
+"$VENV_BIN/python3" "$ARTICLE/ensure_demo_read_id3v1.py"
 cp "$ARTICLE/sample.flac" "$ARTICLE/demo_read_vorbis.flac"
 
 if [[ "$SKIP_GIFS" -eq 1 ]]; then
@@ -130,9 +137,11 @@ run_tape "Vorbis audiometa" "read_vorbis_audiometa.tape" "read_vorbis_audiometa.
 
 PAGE_DURATION=16
 echo "Converting GIFs to MP4..."
+# x=0, y=0: after scale-to-cover, take the top-left CELL_W×CELL_H. VHS terminal frames are top-heavy (title + output);
+# the lower part is often empty padding—bottom- or center-crop can show mostly blank (black) or misaligned hstack pairs.
 for stem in before_only_riff after_only_riff before_only after_only read_id3v1_other read_id3v1_audiometa read_vorbis_metaflac read_vorbis_audiometa; do
   ffmpeg -y -i "$OUT_DIR/${stem}.gif" -t "$PAGE_DURATION" \
-    -vf "format=rgb24,scale=${CELL_W}:${CELL_H}:force_original_aspect_ratio=increase,crop=${CELL_W}:${CELL_H}:(iw-${CELL_W})/2:0,format=yuv420p" \
+    -vf "format=rgb24,scale=${CELL_W}:${CELL_H}:force_original_aspect_ratio=increase,crop=${CELL_W}:${CELL_H}:0:0,format=yuv420p" \
     -r 25 -c:v libx264 -pix_fmt yuv420p "$OUT_DIR/${stem}.mp4" -loglevel warning
 done
 

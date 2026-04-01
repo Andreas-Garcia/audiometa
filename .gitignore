@@ -59,7 +59,6 @@ content/articles/*/samples/*
 !content/articles/*/samples/sample.mp3
 !content/articles/*/samples/sample.flac
 !content/articles/*/samples/sample.wav
-content/articles/*/output/
 
 # Node.js (for git-worktree-scripts dev dependency)
 node_modules/

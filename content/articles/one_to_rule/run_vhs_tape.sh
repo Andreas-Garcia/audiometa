@@ -3,6 +3,14 @@
 # Usage (from repo root or anywhere): bash content/articles/one_to_rule/run_vhs_tape.sh <name>.tape
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$HERE/../../.." && pwd)"
+VENV_BIN="$REPO_ROOT/.venv/bin"
+if [[ ! -x "$VENV_BIN/audiometa" ]] || [[ ! -x "$VENV_BIN/python3" ]]; then
+  echo "Error: use the project venv (no global audiometa): $VENV_BIN/audiometa and python3 missing." >&2
+  echo "  python3 -m venv .venv && source .venv/bin/activate && pip install -e ." >&2
+  exit 1
+fi
+export PATH="$VENV_BIN:$PATH"
 TAPE_ARG="${1:?usage: $0 <tape>.tape}"
 TAPE_BASENAME="${TAPE_ARG##*/}"
 [[ "$TAPE_BASENAME" == *.tape ]] || TAPE_BASENAME="${TAPE_BASENAME}.tape"
@@ -16,7 +24,7 @@ cleanup() {
   rm -f "$tmp"
 }
 trap cleanup EXIT
-python3 -c "
+"$VENV_BIN/python3" -c "
 from pathlib import Path
 import sys
 

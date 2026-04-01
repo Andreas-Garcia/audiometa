@@ -73,7 +73,7 @@ class UnifiedMetadataKey(str, Enum):
             UnifiedMetadataKey.LANGUAGE: str,
             UnifiedMetadataKey.RELEASE_DATE: str,
             UnifiedMetadataKey.TRACK_NUMBER: str,  # Can be int or str
-            UnifiedMetadataKey.DISC_NUMBER: int,
+            UnifiedMetadataKey.DISC_NUMBER: int | None,
             UnifiedMetadataKey.DISC_TOTAL: int | None,
             UnifiedMetadataKey.BPM: int,
             UnifiedMetadataKey.COMPOSERS: list[str],
