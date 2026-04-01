@@ -1,13 +1,13 @@
-# Article demo audio (tracked)
+# Demo audio (this article)
 
-Place **canonical** demo files here so paths are obvious and `.gitignore` can whitelist this directory without allowing random binaries at the article root.
+Put the **audio files this article’s tapes and scripts reference** here. That keeps a small, explicit set of paths under `samples/` so `.gitignore` can allow them without opening the whole article root to arbitrary binaries.
 
-Expected filenames (add as needed for your tapes/scripts):
+Suggested names (only add what this article actually uses):
 
-- `sample.mp3` — ID3 / MP3 demos
-- `sample.flac` — Vorbis / FLAC demos
-- `sample.wav` — RIFF / WAV demos (e.g. created with ffmpeg from another sample)
+- `sample.mp3` — MP3 / ID3 demos
+- `sample.flac` — FLAC / Vorbis demos
+- `sample.wav` — WAV / RIFF demos (e.g. generated with ffmpeg)
 
-Ephemeral copies used only during a run (e.g. `demo_read_*.mp3`) stay in the article root or `output/`; those remain gitignored.
+One-off or generated copies for a single run (e.g. `demo_read_*.mp3`) should stay in the article root or `output/`; those paths stay gitignored.
 
-`docs/demos/` keeps a single shared `sample.mp3` for library-wide tapes; article-specific demos can mirror all three formats here.
+Other articles under `content/articles/` can use their own `samples/` the same way. Library-wide demos under `docs/demos/tapes/` keep using `docs/demos/sample.mp3`.

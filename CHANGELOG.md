@@ -52,7 +52,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### Documentation
 
-- **Demo outputs**: `.gitignore` excludes article `output/` and loose/generated files under `content/articles/<article>/`, while allowing tapes, scripts, markdown, and **canonical audio only** under `content/articles/<article>/samples/` (`sample.mp3`, `sample.flac`, `sample.wav`). `docs/demos/sample.mp3` stays the shared asset for `docs/demos/` tapes. `DEMO_INSTALLATION.md` and `.cursor/rules/demo-videos.mdc` document the layout.
+- **Demo outputs**: `.gitignore` excludes article `output/` and loose/generated files under `content/articles/<article>/`, while allowing tapes, scripts, markdown, and **whitelisted demo audio** under `content/articles/<article>/samples/` (`sample.mp3`, `sample.flac`, `sample.wav` per article as needed). `docs/demos/sample.mp3` stays the shared asset for `docs/demos/` tapes. `DEMO_INSTALLATION.md` and `.cursor/rules/demo-videos.mdc` document the layout.
 
 ### CI
 

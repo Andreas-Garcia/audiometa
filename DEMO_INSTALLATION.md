@@ -39,7 +39,7 @@ This will generate:
 
 - **`docs/demos/output/`** — GIFs/MP4s from tapes under `docs/demos/tapes/` are **not committed** (gitignored). Tracked sources are tapes and `sample.mp3`.
 - **`content/articles/<article>/output/`** — Outputs from article demo pipelines (VHS, ffmpeg, concat intermediates) are **not committed**. Regenerate locally after cloning; version control holds tapes, scripts, and READMEs for each article.
-- **Canonical samples** live under **`content/articles/<article>/samples/`** — whitelist in `.gitignore` for `sample.mp3`, `sample.flac`, and `sample.wav` (use the ones you need; same names as test assets for consistency). This keeps tracked audio separate from scripts and tapes. **`docs/demos/sample.mp3`** remains the single shared asset for demos under `docs/demos/tapes/`. Copied or generated files (e.g. `demo_read_*.mp3`) stay **local-only** at the article root or under `output/`.
+- **Per-article demo audio** (whatever a given article’s tapes/scripts need) may live under **`content/articles/<article>/samples/`** — `.gitignore` whitelists only `sample.mp3`, `sample.flac`, and `sample.wav` there (add the files you use). That is **not** a global “official” sample set; each article owns its folder. **`docs/demos/sample.mp3`** stays the shared asset for `docs/demos/tapes/`. Copied or generated files (e.g. `demo_read_*.mp3`) stay **local-only** at the article root or under `output/`.
 
 ## Troubleshooting
 
