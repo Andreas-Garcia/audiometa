@@ -34,18 +34,20 @@ ID3v2 supports disc numbers through the `TPOS` (Part of a set) frame.
 
 ## Vorbis Disc Number Format
 
-Vorbis comments support disc numbers through separate `DISCNUMBER` and `DISCTOTAL` fields.
+Vorbis comments support disc numbers through `DISCNUMBER` and optionally `DISCTOTAL`. Many encoders and taggers also store a **combined** `disc/total` string in `DISCNUMBER` alone (same idea as ID3v2 `TPOS`), e.g. `DISCNUMBER=1/2`. AudioMeta **reads** all of these shapes; when **writing**, it uses separate `DISCNUMBER` and `DISCTOTAL` tags (native for the unified API).
 
 - **Fields**:
-  - `DISCNUMBER` - Current disc number (simple numeric string, e.g., `"1"`, `"2"`, `"99"`)
-  - `DISCTOTAL` - Total number of discs (optional, simple numeric string, e.g., `"2"`, `"3"`, `"99"`)
+  - `DISCNUMBER` - Current disc number as a simple numeric string (e.g. `"1"`, `"2"`) **or** combined `"disc/total"` (e.g. `"1/2"`, `"1/1"`)
+  - `DISCTOTAL` - Total number of discs when stored separately (optional simple numeric string, e.g. `"2"`, `"3"`)
 - **Range**: Unlimited (no hard limit, but practical limits apply)
-- **Unified API Mapping**:
+- **Unified API Mapping (reading)**:
   - `DISCNUMBER="1"`, `DISCTOTAL="2"` → `DISC_NUMBER=1`, `DISC_TOTAL=2`
+  - `DISCNUMBER="1/2"` → `DISC_NUMBER=1`, `DISC_TOTAL=2` (total taken from the part after `/` when `DISCTOTAL` is absent)
   - `DISCNUMBER="2"` → `DISC_NUMBER=2`, `DISC_TOTAL=None`
   - `DISCNUMBER="99"`, `DISCTOTAL="99"` → `DISC_NUMBER=99`, `DISC_TOTAL=99`
 - **Examples**:
   - `DISCNUMBER="1"`, `DISCTOTAL="2"` → `DISC_NUMBER=1`, `DISC_TOTAL=2` (disc 1 of 2)
+  - `DISCNUMBER="1/2"` → `DISC_NUMBER=1`, `DISC_TOTAL=2` (combined form, common in the wild)
   - `DISCNUMBER="2"` → `DISC_NUMBER=2`, `DISC_TOTAL=None` (disc 2, total unknown)
   - `DISCNUMBER="99"`, `DISCTOTAL="99"` → `DISC_NUMBER=99`, `DISC_TOTAL=99` (disc 99 of 99)
 
@@ -89,7 +91,7 @@ The library returns disc numbers as separate fields:
 
 - **ID3v2**: Reads `TPOS` frame with `"disc/total"` format (e.g., `"1/2"`) → `DISC_NUMBER=1`, `DISC_TOTAL=2`
 - **ID3v2**: Reads `TPOS` frame with `"disc"` format (e.g., `"1"`) → `DISC_NUMBER=1`, `DISC_TOTAL=None`
-- **Vorbis**: Reads `DISCNUMBER` and `DISCTOTAL` fields directly → `DISC_NUMBER` and `DISC_TOTAL`
+- **Vorbis**: Reads `DISCNUMBER` and `DISCTOTAL`; if `DISCNUMBER` is `disc/total` and `DISCTOTAL` is absent, maps both parts to `DISC_NUMBER` and `DISC_TOTAL` (same semantics as ID3v2 `TPOS`)
 - **ID3v1**: Not supported
 - **RIFF**: Not supported
 
@@ -122,12 +124,12 @@ The library writes disc numbers based on the unified metadata fields:
 
 ## Format Comparison
 
-| Format | Frame/Field           | Format Support | Range Limit | Unified API Mapping                           |
-| ------ | --------------------- | -------------- | ----------- | --------------------------------------------- |
-| ID3v1  | ✗                     | ✗              | N/A         | ✗                                             |
-| ID3v2  | TPOS                  | ✓              | 0-255       | `"disc/total"` → `DISC_NUMBER`, `DISC_TOTAL`  |
-| Vorbis | DISCNUMBER, DISCTOTAL | ✓              | Unlimited   | Separate fields → `DISC_NUMBER`, `DISC_TOTAL` |
-| RIFF   | ✗                     | ✗              | N/A         | ✗                                             |
+| Format | Frame/Field           | Format Support | Range Limit | Unified API Mapping                                                              |
+| ------ | --------------------- | -------------- | ----------- | -------------------------------------------------------------------------------- |
+| ID3v1  | ✗                     | ✗              | N/A         | ✗                                                                                |
+| ID3v2  | TPOS                  | ✓              | 0-255       | `"disc/total"` → `DISC_NUMBER`, `DISC_TOTAL`                                     |
+| Vorbis | DISCNUMBER, DISCTOTAL | ✓              | Unlimited   | Separate tags and combined `DISCNUMBER=disc/total` → `DISC_NUMBER`, `DISC_TOTAL` |
+| RIFF   | ✗                     | ✗              | N/A         | ✗                                                                                |
 
 ## Common Use Cases
 

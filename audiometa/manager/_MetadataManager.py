@@ -698,6 +698,14 @@ class _MetadataManager:
                 return track_str
             return None
 
+        # DISCNUMBER / TPOS-style "n" or "n/m" (Vorbis and others using the base read path)
+        if unified_metadata_key == UnifiedMetadataKey.DISC_NUMBER:
+            disc_str = str(value[0])
+            match = re.match(r"^(\d+)(?:/(\d+))?$", disc_str)
+            if match:
+                return int(match.group(1))
+            return None
+
         from typing import get_args, get_origin
 
         origin = get_origin(unified_metadata_key_optional_type)

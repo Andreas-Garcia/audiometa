@@ -318,7 +318,7 @@ The library provides two separate unified metadata fields for disc number:
 
 - **ID3v1**: ✗ Not supported (format limitation)
 - **ID3v2**: TPOS frame - maps `"disc/total"` format to/from `DISC_NUMBER` and `DISC_TOTAL`, limited to 0-255 range
-- **Vorbis**: Native separate `DISCNUMBER` and `DISCTOTAL` fields, unlimited range
+- **Vorbis**: Separate `DISCNUMBER` and `DISCTOTAL` tags (unlimited range); **reading** also accepts combined `DISCNUMBER=disc/total` (e.g. `1/2`) and maps it to `DISC_NUMBER` / `DISC_TOTAL` when `DISCTOTAL` is not set separately
 - **RIFF**: ✗ Not supported (format limitation)
 
 For detailed information on disc number formats, limitations, reading/writing behavior, and examples, see the **[Disc Number Handling Guide](DISC_NUMBER.md)**.

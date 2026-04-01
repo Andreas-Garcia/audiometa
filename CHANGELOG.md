@@ -50,6 +50,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Fixed
+
+- **Vorbis (FLAC) unified read**: Reading unified metadata no longer fails when `DISCNUMBER` uses the combined form (e.g. `1/2`). The value is parsed like track numbers; `disc_total` is taken from the slash suffix when `DISCTOTAL` is absent. Includes an integration regression test.
+
 ### CI
 
 - **Checkout and setup-python**: Updated to Node.js 24 compatible versions.

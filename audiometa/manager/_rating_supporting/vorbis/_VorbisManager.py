@@ -1,4 +1,5 @@
 import contextlib
+import re
 import struct
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, TypeVar, cast
@@ -259,6 +260,31 @@ class _VorbisManager(_RatingSupportingMetadataManager):
 
         # Cast to RawMetadataDict since RawMetadataKey is str, Enum and string keys work
         self.raw_clean_metadata_uppercase_keys = cast(RawMetadataDict, result_dict)
+
+    def get_unified_metadata_field(self, unified_metadata_key: UnifiedMetadataKey) -> UnifiedMetadataValue:
+        if unified_metadata_key == UnifiedMetadataKey.DISC_TOTAL:
+            if self.raw_clean_metadata_uppercase_keys is None:
+                self._extract_raw_clean_metadata_uppercase_keys_from_file()
+            keys = self.raw_clean_metadata_uppercase_keys
+            if keys is None:
+                return None
+            disc_total_key = self.VorbisKey.DISC_TOTAL
+            disc_number_key = self.VorbisKey.DISC_NUMBER
+            if disc_total_key in keys:
+                values = keys[disc_total_key]
+                if values and len(values) > 0 and values[0] not in (None, ""):
+                    try:
+                        return int(str(values[0]))
+                    except (ValueError, TypeError):
+                        pass
+            if disc_number_key in keys:
+                values = keys[disc_number_key]
+                if values and len(values) > 0 and values[0]:
+                    match = re.match(r"^\d+/(\d+)$", str(values[0]))
+                    if match:
+                        return int(match.group(1))
+            return None
+        return super().get_unified_metadata_field(unified_metadata_key)
 
     def _get_raw_rating_by_traktor_or_not(self, raw_clean_metadata: RawMetadataDict) -> tuple[int | None, bool]:
         if self.VorbisKey.RATING in raw_clean_metadata:

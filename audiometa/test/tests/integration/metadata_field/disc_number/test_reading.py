@@ -49,6 +49,14 @@ class TestDiscNumberReading:
             assert disc_number == 2
             assert disc_total is None
 
+    def test_vorbis_disc_number_combined_slash_form(self):
+        with temp_file_with_metadata({}, "flac") as test_file:
+            VorbisMetadataSetter.set_tag(test_file, "DISCNUMBER", "3/5")
+            disc_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_NUMBER)
+            disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
+            assert disc_number == 3
+            assert disc_total == 5
+
     def test_id3v1_not_supported(self):
         from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError
         from audiometa.utils.metadata_format import MetadataFormat
