@@ -38,7 +38,7 @@ For each format, **Spec / convention** is what the standard or usual ecosystem p
 ## Vorbis Disc Number Format
 
 - **Spec / convention**: **Vorbis comment** keys are **ASCII** names with **UTF-8** values; **`DISCNUMBER`** and **`DISCTOTAL`** are **informal** but widely used. There is **no** normative grammar—tools either use **two separate fields** or cram **`n/m` into `DISCNUMBER`**, copying ID3 habits.
-- **This library**: **Write** always uses **separate** `DISCNUMBER` and `DISCTOTAL` (widest compatibility with metaflac-style workflows). **Read** today accepts **plain integers** in each tag; **combined `DISCNUMBER=n/m`** is **not** yet split (see below)—so we do **not** yet cover the full width of field data in the wild; the table under *Suggested implementation* is the intended direction.
+- **This library**: **Write** always uses **separate** `DISCNUMBER` and `DISCTOTAL` (widest compatibility with metaflac-style workflows). **Read** today accepts **plain integers** in each tag; **combined `DISCNUMBER=n/m`** is **not** yet split (see below)—so we do **not** yet cover the full width of field data in the wild; the table under _Suggested implementation_ is the intended direction.
 
 Vorbis comments use `DISCNUMBER` and optionally `DISCTOTAL`. Many taggers also store **`disc/total` inside `DISCNUMBER` alone** (same idea as ID3v2 `TPOS`).
 
@@ -52,13 +52,13 @@ Vorbis comments use `DISCNUMBER` and optionally `DISCTOTAL`. Many taggers also s
 
 When adding TPOS-like parsing for Vorbis, these cases should be decided explicitly:
 
-| Situation | Suggested rule |
-| --------- | -------------- |
-| `DISCNUMBER="n"` only | `DISC_NUMBER=n`, `DISC_TOTAL=None` |
-| `DISCNUMBER="n/m"` and **no** `DISCTOTAL` | `DISC_NUMBER=n`, `DISC_TOTAL=m` |
-| `DISCNUMBER="n"` and `DISCTOTAL="m"` | `DISC_NUMBER=n`, `DISC_TOTAL=m` |
+| Situation                                                                              | Suggested rule                                                                                                                                                                                                                                                           |
+| -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `DISCNUMBER="n"` only                                                                  | `DISC_NUMBER=n`, `DISC_TOTAL=None`                                                                                                                                                                                                                                       |
+| `DISCNUMBER="n/m"` and **no** `DISCTOTAL`                                              | `DISC_NUMBER=n`, `DISC_TOTAL=m`                                                                                                                                                                                                                                          |
+| `DISCNUMBER="n"` and `DISCTOTAL="m"`                                                   | `DISC_NUMBER=n`, `DISC_TOTAL=m`                                                                                                                                                                                                                                          |
 | `DISCNUMBER="n/m"` **and** `DISCTOTAL="m"` **where** `m` ≠ second part of `DISCNUMBER` | **Prefer explicit `DISCTOTAL`** for unified `DISC_TOTAL`, and **the leading integer segment of `DISCNUMBER`** for `DISC_NUMBER` (so retaggers can correct total without rewriting the combined string). Optionally emit a **debug log** when the slash suffix disagrees. |
-| Invalid `DISCNUMBER` (non-numeric, multiple slashes) | `DISC_NUMBER=None`; derive `DISC_TOTAL` only from `DISCTOTAL` if valid |
+| Invalid `DISCNUMBER` (non-numeric, multiple slashes)                                   | `DISC_NUMBER=None`; derive `DISC_TOTAL` only from `DISCTOTAL` if valid                                                                                                                                                                                                   |
 
 **Rationale:** `DISCTOTAL` is an explicit correction channel; the numeric prefix of `DISCNUMBER` remains the disc index even when the embedded `/total` is stale.
 
@@ -139,12 +139,12 @@ The library writes disc numbers based on the unified metadata fields:
 
 ## Format Comparison
 
-| Format | Frame/Field           | Format Support | Range Limit | Unified API Mapping                           |
-| ------ | --------------------- | -------------- | ----------- | --------------------------------------------- |
-| ID3v1  | ✗                     | ✗              | N/A         | ✗                                             |
-| ID3v2  | TPOS                  | ✓              | 0-255       | `"disc/total"` → `DISC_NUMBER`, `DISC_TOTAL`  |
+| Format | Frame/Field           | Format Support | Range Limit | Unified API Mapping                                          |
+| ------ | --------------------- | -------------- | ----------- | ------------------------------------------------------------ |
+| ID3v1  | ✗                     | ✗              | N/A         | ✗                                                            |
+| ID3v2  | TPOS                  | ✓              | 0-255       | `"disc/total"` → `DISC_NUMBER`, `DISC_TOTAL`                 |
 | Vorbis | DISCNUMBER, DISCTOTAL | ✓              | Unlimited   | Separate tags; combined `DISCNUMBER` not split on read (yet) |
-| RIFF   | ✗                     | ✗              | N/A         | ✗                                             |
+| RIFF   | ✗                     | ✗              | N/A         | ✗                                                            |
 
 ## Common Use Cases
 
