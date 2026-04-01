@@ -48,6 +48,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Documentation
+
+- **README**: Added ecosystem section with portfolio links (`themusictree.org`, AudioMeta Python project page, `the-music-tree-frontend`).
+
 ## [1.3.0] - 2025-03-10
 
 ### Fixed

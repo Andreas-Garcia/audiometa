@@ -15,6 +15,14 @@ A powerful, unified Python library for reading and writing audio metadata across
 
 **Author**: [Andreas Garcia](https://github.com/BehindTheMusicTree)
 
+## Ecosystem
+
+Built inside the **[BehindTheMusicTree](https://github.com/BehindTheMusicTree)** ecosystem.
+
+Want the big picture? Explore the full project universe on **[themusictree.org](https://themusictree.org)**, and see where this library fits on **[AudioMeta Python](https://themusictree.org/projects/audiometa)**.
+
+The portfolio website content lives in **[the-music-tree-frontend](https://github.com/BehindTheMusicTree/the-music-tree-frontend)**; this README focuses on building, testing, packaging, and contributing to this library.
+
 ## ⭐ Show Your Support
 
 If you find AudioMeta Python useful, please consider:
@@ -29,6 +37,7 @@ Your support helps make this project better for everyone! 🎵
 
 ## Table of Contents
 
+- [Ecosystem](#ecosystem)
 - [⭐ Show Your Support](#-show-your-support)
 - [✨ Features](#-features)
 - [Comparison with other tools](#comparison-with-other-tools)
