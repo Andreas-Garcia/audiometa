@@ -12,9 +12,9 @@ OUT="$OUT_DIR/before_after_side_by_side.gif"
 
 mkdir -p "$OUT_DIR"
 echo "Building left (before_only)..."
-vhs content/articles/one_to_rule/tapes/before_only.tape
+bash content/articles/one_to_rule/run_vhs_tape.sh before_only.tape
 echo "Building right (after_only)..."
-vhs content/articles/one_to_rule/tapes/after_only.tape
+bash content/articles/one_to_rule/run_vhs_tape.sh after_only.tape
 echo "Combining side-by-side (palette-encoded for normal size)..."
 ffmpeg -y -i "$LEFT" -i "$RIGHT" -filter_complex \
   "[0:v][1:v]hstack=inputs=2[stacked];[stacked]split[s0][s1];[s0]palettegen=max_colors=256[p];[s1][p]paletteuse[v]" \

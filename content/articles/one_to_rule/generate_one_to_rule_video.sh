@@ -1,30 +1,51 @@
 #!/usr/bin/env bash
-# Generate the "One to rule them all" video from content/articles/one_to_rule/VIDEO_SCENARIO_ONE_TO_RULE.md.
-# Parts: intro (title + subtitles), then 4 pages with 2 panels each: Read (id3v2, riff) and Write (id3v1, vorbis).
-# All cell GIFs come from VHS tapes; no placeholders. Fails early if logo or any required tape output is missing.
-# Run from repo root; requires venv, vhs, ffmpeg, ffprobe, metaflac, mid3v2.
+# Hero video: intro + four reading comparisons (other tool left, audiometa right).
+# Order: RIFF (WAV), ID3v2 (MP3), ID3v1 (MP3), Vorbis (FLAC).
+# Run from repo root; requires venv, ffmpeg, ffprobe, metaflac, mid3v2; vhs only if recording GIFs.
+# VHS runs with cwd = the article dir so tapes need no in-GIF cd; Output in tapes is output/*.gif.
+#
+# Options:
+#   --skip-gifs   Do not run VHS; reuse existing output/*.gif (fails if any required GIF is missing).
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 cd "$REPO_ROOT"
+
+SKIP_GIFS=0
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --skip-gifs)
+      SKIP_GIFS=1
+      shift
+      ;;
+    -h | --help)
+      sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1 (try --help)" >&2
+      exit 1
+      ;;
+  esac
+done
 OUT_DIR="content/articles/one_to_rule/output"
-SHARED_OUT="content/articles/one_to_rule/output"
+ARTICLE="content/articles/one_to_rule"
 VIDEO_OUT="$OUT_DIR/one_to_rule_them_all.mp4"
-TAPES_DIR="$REPO_ROOT/content/articles/one_to_rule/tapes"
+TAPES_DIR="$REPO_ROOT/$ARTICLE/tapes"
 CELL_W=600
-CELL_H=350
-# All segments same size (intro and content pages)
+CELL_H=420
 INTRO_W=$((CELL_W * 2))
 INTRO_H=$((CELL_H * 2))
 PAGE_W=$INTRO_W
 PAGE_H=$INTRO_H
-# Intro duration (seconds)
-INTRO_DURATION=5
-# Content page: title band height (space above panels)
-TITLE_TOP=30
-PANELS_TOP=80
-# Font: use same style as logo (clean sans-serif). Auto-detect from common paths, or set FONT_FILE to override.
+INTRO_DURATION=6
+SECTION_DURATION=3
+TITLE_TOP=93
+# Vertical offset for the hstack (GIF row); larger = panels sit lower on the page
+PANELS_TOP=220
+# Distance from bottom of GIF row to panel labels (smaller = labels lower on screen)
+LABEL_BOTTOM_PAD=-20
 FONT_FILE=""
 for candidate in \
   "/System/Library/Fonts/Supplemental/Arial.ttf" \
@@ -40,123 +61,124 @@ FONT_OPT=""
 
 mkdir -p "$OUT_DIR"
 
-# 1. Ensure sample.wav exists
-if [[ ! -f content/articles/one_to_rule/sample.wav ]]; then
-  echo "Creating content/articles/one_to_rule/sample.wav from sample.mp3..."
-  ffmpeg -y -i content/articles/one_to_rule/sample.mp3 -map 0:a -c:a pcm_s16le content/articles/one_to_rule/sample.wav -loglevel warning
+if [[ ! -f $ARTICLE/sample.wav ]]; then
+  echo "Creating $ARTICLE/sample.wav from sample.mp3..."
+  ffmpeg -y -i "$ARTICLE/sample.mp3" -map 0:a -c:a pcm_s16le "$ARTICLE/sample.wav" -loglevel warning
 fi
 
-# 2. Intro segment: logo required, then title and subtitle (staggered). Fails if logo missing.
 echo "Building intro..."
 INTRO_MP4="$OUT_DIR/intro_segment.mp4"
 LOGO_PATH=""
-for candidate in assets/logo.png content/articles/one_to_rule/logo.png; do
-  if [[ -f "$candidate" ]]; then
-    LOGO_PATH="$candidate"
-    break
-  fi
+for candidate in assets/logo.mp4 "$ARTICLE/logo.mp4"; do
+  [[ -f "$candidate" ]] && LOGO_PATH="$candidate" && break
 done
-[[ -z "$LOGO_PATH" ]] && { echo "Error: logo not found (expected assets/logo.png or content/articles/one_to_rule/logo.png)." >&2; exit 1; }
-# White background (same as logo). Logo at top; title and subtitles in lower half, text in black.
-# Escape commas in drawtext: use '\,' so they are not parsed as filter separators
-ffmpeg -y -f lavfi -i "color=c=0xffffff:s=${INTRO_W}x${INTRO_H}:d=${INTRO_DURATION}:r=25" -i "$LOGO_PATH" \
+[[ -z "$LOGO_PATH" ]] && { echo "Error: logo not found (assets/logo.mp4 or $ARTICLE/logo.mp4)." >&2; exit 1; }
+ffmpeg -y -f lavfi -i "color=c=0xffffff:s=${INTRO_W}x${INTRO_H}:d=${INTRO_DURATION}:r=25" \
+  -stream_loop -1 -i "$LOGO_PATH" \
   -filter_complex "
-    [1:v]scale=560:-1[logo];
-    [0:v][logo]overlay=x=(main_w-overlay_w)/2:y=-45[v0];
-    [v0]drawtext=text='One audio metadata manager to rule them all':fontsize=28${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=(w-text_w)/2:y=420:enable='gte(t,1)'[v1];
-    [v1]drawtext=text='MP3\, WAV\, FLAC | ID3v1\, ID3v2\, Vorbis\, RIFF':fontsize=22${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=(w-text_w)/2:y=500:enable='gte(t,3)'[v]
-  " -map "[v]" -r 25 -c:v libx264 -pix_fmt yuv420p -t "$INTRO_DURATION" "$INTRO_MP4" -loglevel warning
+    [1:v]fps=25,scale=560:-1,format=yuv420p,setpts=PTS-STARTPTS[logo];
+    [0:v][logo]overlay=x=(main_w-overlay_w)/2:y=-45:eof_action=repeat[v0];
+    [v0]drawtext=text='One tool for every format':fontsize=28${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=(w-text_w)/2:y=420:enable='gte(t\,1)'[v1];
+    [v1]drawtext=text='RIFF\, ID3v2\, ID3v1\, Vorbis':fontsize=22${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=(w-text_w)/2:y=500:enable='gte(t\,3)'[v]
+  " -map "[v]" -an -r 25 -c:v libx264 -pix_fmt yuv420p -t "$INTRO_DURATION" "$INTRO_MP4" -loglevel warning
 
-# 3. Build cell GIFs from tapes only (no placeholders). Run VHS only when output missing; fail if tape fails to produce.
-command -v vhs >/dev/null || { echo "Error: vhs not found in PATH" >&2; exit 1; }
+echo "Building section page..."
+SECTION_MP4="$OUT_DIR/section_unified_metadata_reading.mp4"
+ffmpeg -y -f lavfi -i "color=c=0xffffff:s=${PAGE_W}x${PAGE_H}:d=${SECTION_DURATION}:r=25" \
+  -vf "drawtext=text='Unified Metadata Reading':fontsize=64${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=(w-text_w)/2:y=(h-text_h)/2" \
+  -r 25 -c:v libx264 -pix_fmt yuv420p -t "$SECTION_DURATION" "$SECTION_MP4" -loglevel warning
+
+if [[ "$SKIP_GIFS" -eq 0 ]]; then
+  command -v vhs >/dev/null || { echo "Error: vhs not found in PATH (use --skip-gifs to reuse existing GIFs)" >&2; exit 1; }
+fi
 run_tape() {
   local name="$1"
   local tape_path="$TAPES_DIR/$2"
-  local out="$REPO_ROOT/$SHARED_OUT/$3"
+  local out="$REPO_ROOT/$OUT_DIR/$3"
   [[ -f "$tape_path" ]] || { echo "Error: tape not found: $tape_path" >&2; exit 1; }
+  if [[ "$SKIP_GIFS" -eq 1 ]]; then
+    [[ -f "$out" ]] || {
+      echo "Error: missing $out — record GIFs first or run without --skip-gifs" >&2
+      exit 1
+    }
+    return 0
+  fi
   if [[ ! -f "$out" ]]; then
-    if [[ "$2" == before_only_vorbis.tape ]]; then
-      cp "$REPO_ROOT/content/articles/one_to_rule/sample.flac" "$REPO_ROOT/content/articles/one_to_rule/demo_vorbis_before.flac" || true
-    elif [[ "$2" == after_only_vorbis.tape ]]; then
-      cp "$REPO_ROOT/content/articles/one_to_rule/sample.flac" "$REPO_ROOT/content/articles/one_to_rule/demo_vorbis_after.flac" || true
-    fi
     echo "Running $name..."
-    (cd "$REPO_ROOT" && command vhs "$tape_path")
+    bash "$REPO_ROOT/$ARTICLE/run_vhs_tape.sh" "$2"
   fi
   [[ -f "$out" ]] || { echo "Error: tape did not produce: $out" >&2; exit 1; }
 }
 
-echo "Building Read cells (id3v2, riff)..."
-run_tape "before_only (ID3v2)" "before_only.tape" "before_only.gif"
-run_tape "after_only (ID3v2)" "after_only.tape" "after_only.gif"
-run_tape "before_only_riff" "before_only_riff.tape" "before_only_riff.gif"
-run_tape "after_only_riff" "after_only_riff.tape" "after_only_riff.gif"
+echo "Preparing demo files for ID3v1 and Vorbis..."
+python3 "$ARTICLE/ensure_demo_read_id3v1.py"
+cp "$ARTICLE/sample.flac" "$ARTICLE/demo_read_vorbis.flac"
 
-echo "Building Write cells (id3v1, vorbis)..."
-run_tape "before_only_id3v1" "before_only_id3v1.tape" "before_only_id3v1.gif"
-run_tape "after_only_id3v1" "after_only_id3v1.tape" "after_only_id3v1.gif"
-run_tape "before_only_vorbis" "before_only_vorbis.tape" "before_only_vorbis.gif"
-run_tape "after_only_vorbis" "after_only_vorbis.tape" "after_only_vorbis.gif"
+if [[ "$SKIP_GIFS" -eq 1 ]]; then
+  echo "Skipping VHS (--skip-gifs); using existing cell GIFs..."
+else
+  echo "Recording cell GIFs..."
+fi
+run_tape "RIFF ffprobe" "before_only_riff.tape" "before_only_riff.gif"
+run_tape "RIFF audiometa" "after_only_riff.tape" "after_only_riff.gif"
+run_tape "ID3v2 mid3v2" "before_only.tape" "before_only.gif"
+run_tape "ID3v2 audiometa" "after_only.tape" "after_only.gif"
+run_tape "ID3v1 other" "read_id3v1_other.tape" "read_id3v1_other.gif"
+run_tape "ID3v1 audiometa" "read_id3v1_audiometa.tape" "read_id3v1_audiometa.gif"
+run_tape "Vorbis metaflac" "read_vorbis_metaflac.tape" "read_vorbis_metaflac.gif"
+run_tape "Vorbis audiometa" "read_vorbis_audiometa.tape" "read_vorbis_audiometa.gif"
 
-cp "$SHARED_OUT/before_only.gif" "$OUT_DIR/cell_before_read_id3v2.gif"
-cp "$SHARED_OUT/after_only.gif" "$OUT_DIR/cell_now_read_id3v2.gif"
-cp "$SHARED_OUT/before_only_riff.gif" "$OUT_DIR/cell_before_read_riff.gif"
-cp "$SHARED_OUT/after_only_riff.gif" "$OUT_DIR/cell_now_read_riff.gif"
-cp "$SHARED_OUT/before_only_id3v1.gif" "$OUT_DIR/cell_before_write_id3v1.gif"
-cp "$SHARED_OUT/after_only_id3v1.gif" "$OUT_DIR/cell_now_write_id3v1.gif"
-cp "$SHARED_OUT/before_only_vorbis.gif" "$OUT_DIR/cell_before_write_vorbis.gif"
-cp "$SHARED_OUT/after_only_vorbis.gif" "$OUT_DIR/cell_now_write_vorbis.gif"
-
-# 4. Convert cell GIFs to MP4 so overlay works reliably. Force rgb24 so palette-based GIFs decode correctly.
-PAGE_DURATION=8
-echo "Converting cell GIFs to MP4..."
-for gif in cell_before_read_id3v2 cell_now_read_id3v2 cell_before_read_riff cell_now_read_riff \
-           cell_before_write_id3v1 cell_now_write_id3v1 cell_before_write_vorbis cell_now_write_vorbis; do
-  ffmpeg -y -stream_loop -1 -i "$OUT_DIR/${gif}.gif" -t "$PAGE_DURATION" \
-    -vf "format=rgb24,scale=${CELL_W}:${CELL_H}:force_original_aspect_ratio=increase,crop=${CELL_W}:${CELL_H}:(iw-${CELL_W})/2:(ih-${CELL_H})/2,format=yuv420p" \
-    -r 25 -c:v libx264 -pix_fmt yuv420p "$OUT_DIR/${gif}.mp4" -loglevel warning
+PAGE_DURATION=16
+echo "Converting GIFs to MP4..."
+for stem in before_only_riff after_only_riff before_only after_only read_id3v1_other read_id3v1_audiometa read_vorbis_metaflac read_vorbis_audiometa; do
+  ffmpeg -y -i "$OUT_DIR/${stem}.gif" -t "$PAGE_DURATION" \
+    -vf "format=rgb24,scale=${CELL_W}:${CELL_H}:force_original_aspect_ratio=increase,crop=${CELL_W}:${CELL_H}:(iw-${CELL_W})/2:0,format=yuv420p" \
+    -r 25 -c:v libx264 -pix_fmt yuv420p "$OUT_DIR/${stem}.mp4" -loglevel warning
 done
 
-# 5. Build 4 pages (2 panels each): same size as intro, title in reserved band, panels from MP4s.
 build_page_2() {
   local name="$1"
-  local title="$2"
-  local a="$3" b="$4"
+  local title_line_1="$2"
+  local left_label="$3"
+  local right_label="$4"
+  local a="$5" b="$6"
   local out="$OUT_DIR/page_${name}.mp4"
-  local title_escaped
-  title_escaped=$(printf '%s' "$title" | sed 's/:/\\:/g; s/,/\\,/g')
+  local title_line_1_escaped
+  local left_label_escaped
+  local right_label_escaped
+  title_line_1_escaped=$(printf '%s' "$title_line_1" | sed 's/:/\\:/g; s/,/\\,/g')
+  left_label_escaped=$(printf '%s' "$left_label" | sed 's/:/\\:/g; s/,/\\,/g')
+  right_label_escaped=$(printf '%s' "$right_label" | sed 's/:/\\:/g; s/,/\\,/g')
   ffmpeg -y -i "$a" -i "$b" \
-    -f lavfi -i "color=c=0x282a36:s=${PAGE_W}x${PAGE_H}:d=${PAGE_DURATION}:r=25" \
+    -f lavfi -i "color=c=0xffffff:s=${PAGE_W}x${PAGE_H}:d=${PAGE_DURATION}:r=25" \
     -filter_complex "
-      [0:v][1:v]hstack=inputs=2[row];
+      [0:v][1:v]hstack=inputs=2,format=yuv420p[row];
       [2:v][row]overlay=0:${PANELS_TOP}[withrow];
-      [withrow]drawtext=text='$title_escaped':fontsize=24${FONT_OPT}:fontcolor=white:borderw=2:bordercolor=black:x=(w-text_w)/2:y=${TITLE_TOP}[v]
+      [withrow]drawtext=text='$title_line_1_escaped':fontsize=35${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=(w-text_w)/2:y=${TITLE_TOP}[v1];
+      [v1]drawtext=text='$left_label_escaped':fontsize=24${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=((${CELL_W}-text_w)/2):y=$((PANELS_TOP + CELL_H - LABEL_BOTTOM_PAD))[v2];
+      [v2]drawtext=text='$right_label_escaped':fontsize=24${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=(${CELL_W}+(${CELL_W}-text_w)/2):y=$((PANELS_TOP + CELL_H - LABEL_BOTTOM_PAD))[v]
     " -map "[v]" -r 25 -c:v libx264 -pix_fmt yuv420p -t "$PAGE_DURATION" "$out" -loglevel warning
 }
 
-build_page_2 "before_read" "Before: Reading (mid3v2, ffprobe)" \
-  "$OUT_DIR/cell_before_read_id3v2.mp4" \
-  "$OUT_DIR/cell_before_read_riff.mp4"
+build_page_2 "read_riff" "Reading RIFF (WAV)" "ffprobe" "unified" \
+  "$OUT_DIR/before_only_riff.mp4" "$OUT_DIR/after_only_riff.mp4"
+build_page_2 "read_id3v2" "Reading ID3v2 (MP3)" "mid3v2" "unified" \
+  "$OUT_DIR/before_only.mp4" "$OUT_DIR/after_only.mp4"
+build_page_2 "read_id3v1" "Reading ID3v1 (MP3)" "raw TAG" "unified" \
+  "$OUT_DIR/read_id3v1_other.mp4" "$OUT_DIR/read_id3v1_audiometa.mp4"
+build_page_2 "read_vorbis" "Reading Vorbis (FLAC)" "metaflac" "unified" \
+  "$OUT_DIR/read_vorbis_metaflac.mp4" "$OUT_DIR/read_vorbis_audiometa.mp4"
 
-build_page_2 "now_read" "Now: Reading with AudioMeta (ID3v2, RIFF)" \
-  "$OUT_DIR/cell_now_read_id3v2.mp4" \
-  "$OUT_DIR/cell_now_read_riff.mp4"
-
-build_page_2 "before_write" "Before: Writing (ID3v1, Vorbis)" \
-  "$OUT_DIR/cell_before_write_id3v1.mp4" \
-  "$OUT_DIR/cell_before_write_vorbis.mp4"
-
-build_page_2 "now_write" "Now: Writing with AudioMeta (ID3v1, Vorbis)" \
-  "$OUT_DIR/cell_now_write_id3v1.mp4" \
-  "$OUT_DIR/cell_now_write_vorbis.mp4"
-
-# 6. Concat intro + 4 pages (use absolute paths for concat)
 echo "Concatenating final video..."
 CONCAT_LIST="$OUT_DIR/concat_list.txt"
 ABS_OUT="$(cd "$OUT_DIR" && pwd)"
-printf "file '%s/intro_segment.mp4'\nfile '%s/page_before_read.mp4'\nfile '%s/page_now_read.mp4'\nfile '%s/page_before_write.mp4'\nfile '%s/page_now_write.mp4'\n" \
-  "$ABS_OUT" "$ABS_OUT" "$ABS_OUT" "$ABS_OUT" "$ABS_OUT" \
+printf "file '%s/intro_segment.mp4'\nfile '%s/section_unified_metadata_reading.mp4'\nfile '%s/page_read_riff.mp4'\nfile '%s/page_read_id3v2.mp4'\nfile '%s/page_read_id3v1.mp4'\nfile '%s/page_read_vorbis.mp4'\n" \
+  "$ABS_OUT" "$ABS_OUT" "$ABS_OUT" "$ABS_OUT" "$ABS_OUT" "$ABS_OUT" \
   > "$CONCAT_LIST"
 ffmpeg -y -f concat -safe 0 -i "$CONCAT_LIST" -c copy "$VIDEO_OUT" -loglevel warning
+
+if [[ -d $ARTICLE/linkedin/output ]]; then
+  cp "$VIDEO_OUT" "$ARTICLE/linkedin/output/" || true
+fi
 
 echo "Done: $VIDEO_OUT"

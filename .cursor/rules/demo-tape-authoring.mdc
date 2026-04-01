@@ -17,9 +17,10 @@ When writing or editing `.tape` files to produce demo videos for social posts (M
 ## Tape Structure
 
 - **Header**: Put `Output`, `Require`, and `Set` at the top. Use `Require audiometa` (or the relevant CLI) so the tape fails fast if the env is wrong.
-- **Run from project root**: Always run `vhs` from repo root so paths resolve. Tapes assume the shell CWD is repo root.
-- **Output location**: Tapes live in `content/articles/<article>/tapes/`. Set `Output` to that article’s `output/<name>.gif` (e.g. `content/articles/one_to_rule/output/<name>.gif`). All GIFs and video are generated in the article’s single `output/` dir.
-- **Audio files – social / marketing demos**: Use the article’s `sample.mp3` (e.g. `content/articles/one_to_rule/sample.mp3`; tracked) so the video shows a clean, professional path.
+- **Run `vhs` from the article directory**: VHS only allows `Set Shell` values like `bash` (not a custom script path). To avoid typing `cd …` in the tape (which can leak into scrollback or early GIF frames), **start the recording with cwd = the article dir**—e.g. `(cd content/articles/<article> && vhs tapes/<name>.tape)` or use `generate_one_to_rule_video.sh` / `run_demo_tape.py`, which do this. The shell then starts already next to `sample.mp3` etc.
+- **Short paths on screen (social demos)**: Use only short filenames (`sample.mp3`, `sample.wav`, `demo_*.flac`, etc.) after starting in the article dir as above—never rely on `Hide`+`cd` alone.
+- **Output location**: Tapes live in `content/articles/<article>/tapes/`. When cwd is the article dir, set `Output output/<name>.gif`. GIFs land in that article’s `output/` folder.
+- **Audio files – social / marketing demos**: Use the article’s `sample.mp3` / `sample.flac` (tracked) via short names with the shell already in the article dir (see “Run `vhs` from the article directory” above) so the GIF does not show a long path on every command.
 - **Audio files – dev-only demos**: Using `audiometa/test/assets/...` in the tape is fine when the audience is contributors; run from repo root so those paths resolve. Ensure test assets exist (e.g. `create_test_files.py`) before recording.
 
 ## Readability on Small Screens
@@ -52,9 +53,9 @@ If a command’s output is taller than the terminal height, it will scroll off-s
 - [ ] `Output` set to the article’s `output/<name>.gif`; tape file in the article’s `tapes/`. See `content/articles/README.md` and the article’s README.
 - [ ] FontSize 14–18; Width/Height set
 - [ ] TypingSpeed and Sleep tuned so output is readable
-- [ ] Commands and paths valid from project root
+- [ ] Commands and paths valid with **cwd = article dir** (or adjust `Output` / paths accordingly)
 - [ ] For social demos: tape uses the article’s `sample.mp3` (tracked)
 - [ ] For read/unified demos: commands include `--color` so output is colorized in the video
-- [ ] Run with `vhs <file>.tape` (and `--preview` when editing); activate venv first
+- [ ] Run with `(cd content/articles/<article> && vhs tapes/<file>.tape)` or `run_demo_tape.py` (and `--preview` when editing); activate venv first
 
 For workflow (install, run, preview) and where to put tapes, see `.cursor/rules/demo-videos.mdc`. For the text of the social post (e.g. 494 char max), see `.cursor/rules/mastodon-posts.mdc`.

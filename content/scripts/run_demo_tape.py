@@ -112,9 +112,16 @@ def main() -> None:
     output_dir = articles_dir / article / "output"
     output_gif = output_dir / f"{name}.gif"
     output_dir.mkdir(parents=True, exist_ok=True)
+    article_dir = tape_path.parent.parent
 
     tape_content = tape_path.read_text()
-    output_path_str = str(output_gif.relative_to(repo_root)).replace("\\", "/")
+    article_abs_placeholder = "@@ONE_TO_RULE_ABS@@"
+    if article_abs_placeholder in tape_content:
+        tape_content = tape_content.replace(
+            article_abs_placeholder,
+            str(article_dir.resolve()),
+        )
+    output_path_str = f"output/{name}.gif"
     tape_content = re.sub(
         r"^Output\s+.*$",
         f"Output {output_path_str}",
@@ -130,7 +137,7 @@ def main() -> None:
     try:
         subprocess.run(
             ["vhs", str(tmp_tape)],
-            cwd=repo_root,
+            cwd=article_dir,
             check=True,
         )
     finally:

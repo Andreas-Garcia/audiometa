@@ -18,13 +18,13 @@ Demo videos are produced with [VHS](https://github.com/charmbracelet/vhs) from d
 
 1. **Dependencies (macOS)**: `bash scripts/install-demo-dependencies-macos.sh` (VHS, ttyd, ffmpeg; fixes libvpx issues).
 2. **Activate venv** before running VHS: `source .venv/bin/activate`.
-3. **Record from a tape**: `vhs content/articles/one_to_rule/tapes/<name>.tape` (writes to that article’s `output/`).
-4. **Preview**: `vhs <file>.tape --preview`.
+3. **Record from a tape**: `(cd content/articles/one_to_rule && vhs tapes/<name>.tape)` so cwd is the article dir (short paths, no `cd` in the GIF). Or `python content/scripts/run_demo_tape.py`. Writes to that article’s `output/`.
+4. **Preview**: same cwd as above, e.g. `(cd content/articles/one_to_rule && vhs tapes/<file>.tape --preview)`.
 
 ## Article layout (e.g. one_to_rule)
 
 - **`content/articles/one_to_rule/tapes/`** – Tape sources. **`output/`** – Tape GIFs, hero video, intermediates (gitignored).
-- **Hero video**: `generate_one_to_rule_video.sh` (from article dir) → `one_to_rule/output/`. All cell GIFs come from VHS tapes; **no placeholders**. Script fails early if logo or any required tape output is missing.
+- **Hero video**: `generate_one_to_rule_video.sh` (from article dir) → `one_to_rule/output/`. Reading-only flow: four side-by-side comparisons (other tool left, audiometa right). All GIFs from VHS tapes; script fails early if logo or tape output is missing.
 - **Linked-post GIFs**: Side-by-side scripts (`run_demo_side_by_side.sh`, `run_demo_side_by_side_vorbis.sh`) write to article `output/`. Use assets from that single `output/` for mastodon/linkedin/twitter.
 
 ## When editing

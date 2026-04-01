@@ -1,8 +1,9 @@
 # Before/after demo – format-specific tool vs one AudioMeta command (social / docs)
-# Run from repo root with venv: vhs content/articles/one_to_rule/tapes/before_after_one_command.tape
+# Run with repo runner: bash content/articles/one_to_rule/run_vhs_tape.sh before_after_one_command.tape
 # Requires: audiometa (Require) and mid3v2 on PATH (for "before" step; from mutagen).
-# Audio: content/articles/one_to_rule/sample.mp3 (tracked). Output: content/articles/one_to_rule/output/<name>.gif
-Output content/articles/one_to_rule/output/before_after_one_command.gif
+# Audio: sample.mp3 in article dir (tracked). Output: output/<name>.gif (no cd is typed in the tape).
+Output output/before_after_one_command.gif
+
 
 Require audiometa
 
@@ -13,6 +14,10 @@ Set Height 700
 Set Padding 20
 Set Theme "Dracula"
 Set TypingSpeed 50ms
+Env HOME "@@ONE_TO_RULE_ABS@@"
+
+
+Sleep 300ms
 
 # Intro: before = format-specific tool
 Type "echo '=== Before: format-specific tool (mid3v2 for MP3)'"
@@ -20,7 +25,7 @@ Enter
 Sleep 2s
 
 # Before: mid3v2 list (truncated)
-Type "(mid3v2 -l content/articles/one_to_rule/sample.mp3 2>/dev/null | head -26; echo '...')"
+Type "(mid3v2 -l sample.mp3 2>/dev/null | head -26; echo '...')"
 Enter
 Sleep 5s
 
@@ -29,7 +34,7 @@ Type "echo '=== After: one command for any format (MP3, FLAC, WAV)'"
 Enter
 Sleep 2s
 
-# After: audiometa read (truncated)
-Type "(env -u NO_COLOR audiometa read content/articles/one_to_rule/sample.mp3 --format table --color | head -26; echo '...')"
+# After: audiometa unified (truncated)
+Type "(env -u NO_COLOR audiometa unified sample.mp3 --format table --color | head -26; echo '...')"
 Enter
 Sleep 6s
