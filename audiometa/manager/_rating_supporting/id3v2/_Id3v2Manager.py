@@ -417,7 +417,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             tpos_str = str(tpos_value[0])
             import re
 
-            match = re.match(r"^(\d+)(?:/(\d+))?$", tpos_str)
+            match = re.match(r"^(\d+)(?:[-/](\d+))?$", tpos_str)
             if match:
                 return int(match.group(1))
             return None
@@ -431,7 +431,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             tpos_str = str(tpos_value[0])
             import re
 
-            match = re.match(r"^(\d+)/(\d+)$", tpos_str)
+            match = re.match(r"^(\d+)[-/](\d+)$", tpos_str)
             if match:
                 return int(match.group(2))
             return None

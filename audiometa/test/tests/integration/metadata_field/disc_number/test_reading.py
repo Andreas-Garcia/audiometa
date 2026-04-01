@@ -33,6 +33,22 @@ class TestDiscNumberReading:
             assert disc_number == 99
             assert disc_total == 99
 
+    def test_id3v2_hyphen_separator_read(self):
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            ID3v2MetadataSetter.set_metadata(test_file, {"disc_number": "1-2"})
+            disc_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_NUMBER)
+            disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
+            assert disc_number == 1
+            assert disc_total == 2
+
+    def test_id3v2_invalid_tpos_multiple_slashes_returns_none(self):
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            ID3v2MetadataSetter.set_metadata(test_file, {"disc_number": "1/2/3"})
+            disc_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_NUMBER)
+            disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
+            assert disc_number is None
+            assert disc_total is None
+
     def test_vorbis_with_total(self):
         with temp_file_with_metadata({}, "flac") as test_file:
             VorbisMetadataSetter.set_metadata(test_file, {"disc_number": "1", "disc_total": "2"})
@@ -47,6 +63,14 @@ class TestDiscNumberReading:
             disc_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_NUMBER)
             disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
             assert disc_number == 2
+            assert disc_total is None
+
+    def test_vorbis_discnumber_combined_slash_not_split_on_read(self):
+        with temp_file_with_metadata({}, "flac") as test_file:
+            VorbisMetadataSetter.set_metadata(test_file, {"disc_number": "1/2"})
+            disc_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_NUMBER)
+            disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
+            assert disc_number is None
             assert disc_total is None
 
     def test_id3v1_not_supported(self):
