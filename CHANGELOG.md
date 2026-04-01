@@ -52,7 +52,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### Documentation
 
-- **Demo outputs**: `.gitignore` excludes `content/articles/*/output/` (VHS/ffmpeg artifacts), aligned with `docs/demos/output/`. `DEMO_INSTALLATION.md` and `.cursor/rules/demo-videos.mdc` document the layout.
+- **Demo outputs**: `.gitignore` excludes article `output/` trees and other loose/generated files under `content/articles/<article>/`, while allowing tracked sources: tapes, `sample.mp3` / `sample.flac` / `sample.wav`, scripts, and markdown (same policy as `docs/demos/`). `DEMO_INSTALLATION.md` and `.cursor/rules/demo-videos.mdc` document the layout.
 
 ### CI
 

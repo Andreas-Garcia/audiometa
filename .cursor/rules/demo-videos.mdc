@@ -30,4 +30,4 @@ Demo videos are produced with [VHS](https://github.com/charmbracelet/vhs) from d
 
 ## Generated outputs
 
-GIFs/MP4s go in `docs/demos/output/` (gitignored). Source tapes and `docs/demos/sample.mp3` are tracked. Article demos (e.g. `content/articles/one_to_rule/`) use per-article `output/` directories for GIFs, MP4s, and ffmpeg intermediates; those dirs are gitignored too—track tapes and scripts only. See `.gitignore` for patterns.
+GIFs/MP4s go in `docs/demos/output/` (gitignored). Source tapes and `docs/demos/sample.mp3` are tracked. Article demos (e.g. `content/articles/one_to_rule/`) use per-article `output/` for GIFs, MP4s, and ffmpeg intermediates (gitignored). Under each article directory, **track** `sample.mp3` / `sample.flac` / `sample.wav` (canonical assets), tapes, `.md`, `.sh`, `.py`; **do not commit** ad hoc demo copies (`demo_*` files) or anything else not un-ignored in `.gitignore`. See `.gitignore` for patterns.
