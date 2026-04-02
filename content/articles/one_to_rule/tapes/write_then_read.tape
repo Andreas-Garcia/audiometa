@@ -1,5 +1,5 @@
 # Write then read demo – AudioMeta CLI (social / docs)
-# Run with repo runner: bash content/articles/one_to_rule/run_vhs_tape.sh write_then_read.tape
+# Run with repo runner: bash content/articles/one_to_rule/scripts/run_vhs_tape.sh write_then_read.tape
 # Uses a copy of samples/sample.mp3 so the tracked file is not modified.
 Output output/write_then_read.gif
 

@@ -22,7 +22,7 @@ _CANONICAL: dict[UnifiedMetadataKey, object] = {
 
 
 def main() -> None:
-    root = Path(__file__).resolve().parent
+    root = Path(__file__).resolve().parent.parent
     samples = root / "samples"
     for name in ("sample.mp3", "sample.flac"):
         path = samples / name

@@ -1,4 +1,4 @@
-# Read ID3v1: print raw TAG fields (other tool). Requires demo from ensure_demo_read_id3v1.py (run by video script).
+# Read ID3v1: print raw TAG fields (other tool). Requires demo from scripts/ensure_demo_read_id3v1.py (run by video script).
 Output output/read_id3v1_other.gif
 
 
@@ -18,6 +18,6 @@ Type "echo '=== ID3v1: parse 128-byte TAG'"
 Enter
 Sleep 1s
 
-Type "python3 print_id3v1_tags.py"
+Type "python3 scripts/print_id3v1_tags.py"
 Enter
 Sleep 5s

@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-"""Print ID3v1 fields from demo_read_id3v1.mp3 (other-tool style output for demos)."""
+"""Print ID3v1 fields from output/demo_read_id3v1.mp3 (other-tool style output for demos)."""
 import sys
 from pathlib import Path
 
 
 def main() -> None:
-    path = Path(__file__).resolve().parent / "demo_read_id3v1.mp3"
+    path = Path(__file__).resolve().parent.parent / "output" / "demo_read_id3v1.mp3"
     if not path.is_file():
-        raise FileNotFoundError("Run ensure_demo_read_id3v1.py first (missing demo_read_id3v1.mp3)")
+        raise FileNotFoundError(
+            "Run scripts/ensure_demo_read_id3v1.py first (missing output/demo_read_id3v1.mp3)",
+        )
     data = path.read_bytes()
     if len(data) < 128 or data[-128:][:3] != b"TAG":
         sys.stdout.write("No ID3v1 tag.\n")

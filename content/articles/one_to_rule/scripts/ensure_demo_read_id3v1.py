@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build demo_read_id3v1.mp3: MPEG audio from samples/sample.mp3 with tags stripped and a fresh ID3v1 tag only."""
+"""Build output/demo_read_id3v1.mp3 from samples/sample.mp3 (ID3v2/v1 stripped; new ID3v1 only)."""
 from pathlib import Path
 
 
@@ -21,9 +21,11 @@ def _field(text: str, length: int) -> bytes:
 
 
 def main() -> None:
-    root = Path(__file__).resolve().parent
+    root = Path(__file__).resolve().parent.parent
     src = root / "samples" / "sample.mp3"
-    dst = root / "demo_read_id3v1.mp3"
+    out_dir = root / "output"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    dst = out_dir / "demo_read_id3v1.mp3"
     if not src.is_file():
         raise FileNotFoundError(str(src))
     data = _strip_id3v2(_strip_id3v1(src.read_bytes()))

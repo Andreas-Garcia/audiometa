@@ -24,15 +24,15 @@ Demo videos are produced with [VHS](https://github.com/charmbracelet/vhs) from d
 ## Article layout (e.g. one_to_rule)
 
 - **`content/articles/one_to_rule/tapes/`** – Tape sources. **`output/`** – Tape GIFs, hero video, intermediates (gitignored).
-- **Hero video**: `generate_one_to_rule_video.sh` (from article dir) → `one_to_rule/output/`. Reading-only flow: four side-by-side comparisons (other tool left, audiometa right). All GIFs from VHS tapes; script fails early if logo or tape output is missing.
-- **Linked-post GIFs**: Side-by-side scripts (`run_demo_side_by_side.sh`, `run_demo_side_by_side_vorbis.sh`) write to article `output/`. Use assets from that single `output/` for mastodon/linkedin/twitter.
+- **Hero video**: `scripts/generate_one_to_rule_video.sh` (run from repo root; VHS cwd stays the article dir) → `one_to_rule/output/`. Reading-only flow: four side-by-side comparisons (other tool left, audiometa right). All GIFs from VHS tapes; script fails early if logo or tape output is missing.
+- **Linked-post GIFs**: Side-by-side scripts (`scripts/run_demo_side_by_side.sh`, `scripts/run_demo_side_by_side_vorbis.sh`) write to article `output/`. Use assets from that single `output/` for mastodon/linkedin/twitter.
 
 ## When editing
 
 - **Authoring .tape files**: See `.cursor/rules/demo-tape-authoring.mdc`. Tapes live in the article’s `tapes/` and set `Output` to that article’s `output/<name>.gif`. For read/unified demos, include `--color` in CLI commands. Every demo panel must have a tape; no placeholders.
-- **Scripts**: `content/scripts/` has `run_demo_tape.py`. Hero video and side-by-side scripts live in the article dir. All write to article `output/`. **Do not use placeholder GIFs**; every panel must have a tape. Video script fails early if a required tape output is missing.
+- **Scripts**: `content/scripts/` has `run_demo_tape.py`. Per-article helpers (hero video, side-by-side) live in **`content/articles/<name>/scripts/`**. All write to article `output/`. **Do not use placeholder GIFs**; every panel must have a tape. Video script fails early if a required tape output is missing.
 - **Docs**: Update the article’s README and `content/README.md` when changing paths.
-- **Tracked vs gitignored**: GIFs/MP4s for **content/demos** go in `content/demos/output/` (gitignored). Source tapes live in `content/demos/tapes/`. Article demos under `content/articles/<name>/` use per-article `output/` (gitignored). **Tracked demo audio** for an article can live in **`content/articles/<article>/samples/`** (whitelisted: `sample.mp3`, `sample.flac`, `sample.wav`). Do not leave those loose at the article root. Track tapes, top-level `.md`, `.sh`, `.py`; **do not commit** ad hoc `demo_*` copies or other loose binaries. See `.gitignore`.
+- **Tracked vs gitignored**: GIFs/MP4s for **content/demos** go in `content/demos/output/` (gitignored). Source tapes live in `content/demos/tapes/`. Article demos under `content/articles/<name>/` use per-article `output/` (gitignored). **Tracked demo audio** for an article can live in **`content/articles/<article>/samples/`** (whitelisted: `sample.mp3`, `sample.flac`, `sample.wav`). Do not leave those loose at the article root. Track tapes, top-level `.md`, and **`scripts/*.sh` / `scripts/*.py`**; **do not commit** ad hoc `demo_*` copies or other loose binaries. See `.gitignore`.
 
 ## Generated outputs (gitignored)
 

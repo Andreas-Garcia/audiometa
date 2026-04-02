@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Run a VHS tape for this article: injects @@ONE_TO_RULE_ABS@@ then records.
-# Usage (from repo root or anywhere): bash content/articles/one_to_rule/run_vhs_tape.sh <name>.tape
+# Usage (from repo root or anywhere): bash content/articles/one_to_rule/scripts/run_vhs_tape.sh <name>.tape
 set -euo pipefail
-HERE="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "$HERE/../../.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ARTICLE_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 VENV_BIN="$REPO_ROOT/.venv/bin"
 if [[ ! -x "$VENV_BIN/audiometa" ]] || [[ ! -x "$VENV_BIN/python3" ]]; then
   echo "Error: use the project venv (no global audiometa): $VENV_BIN/audiometa and python3 missing." >&2
@@ -14,7 +15,7 @@ export PATH="$VENV_BIN:$PATH"
 TAPE_ARG="${1:?usage: $0 <tape>.tape}"
 TAPE_BASENAME="${TAPE_ARG##*/}"
 [[ "$TAPE_BASENAME" == *.tape ]] || TAPE_BASENAME="${TAPE_BASENAME}.tape"
-TAPE_PATH="$HERE/tapes/$TAPE_BASENAME"
+TAPE_PATH="$ARTICLE_ROOT/tapes/$TAPE_BASENAME"
 [[ -f "$TAPE_PATH" ]] || {
   echo "Tape not found: $TAPE_PATH" >&2
   exit 1
@@ -28,13 +29,13 @@ trap cleanup EXIT
 from pathlib import Path
 import sys
 
-root = Path('$HERE').resolve()
+article_root = Path('$ARTICLE_ROOT').resolve()
 tape = Path('$TAPE_PATH')
 text = tape.read_text()
 needle = '@@ONE_TO_RULE_ABS@@'
 if needle not in text:
     sys.stderr.write(f'Error: {needle!r} missing in {tape}\n')
     sys.exit(1)
-Path('$tmp').write_text(text.replace(needle, str(root)))
+Path('$tmp').write_text(text.replace(needle, str(article_root)))
 "
-(cd "$HERE" && command vhs "$tmp")
+(cd "$ARTICLE_ROOT" && command vhs "$tmp")

@@ -4,14 +4,14 @@
 # Run from repo root; requires venv, ffmpeg, ffprobe, metaflac, mid3v2; vhs only if recording GIFs.
 # Intro requires assets/logo.mp4 (tracked) or content/articles/one_to_rule/logo.mp4.
 # Comparison pages use assets/logo-round.png (or assets/logo.png) + "AudioMeta" under the right GIF (replaces plain "unified" text).
-# VHS runs with cwd = the article dir so tapes need no in-GIF cd; Output in tapes is output/*.gif.
+# VHS runs with cwd = the article dir (parent of this scripts/) so tapes need no in-GIF cd; Output is output/*.gif.
 #
 # Options:
 #   --skip-gifs   Do not run VHS; reuse existing output/*.gif (fails if any required GIF is missing).
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 cd "$REPO_ROOT"
 VENV_BIN="$REPO_ROOT/.venv/bin"
 if [[ ! -x "$VENV_BIN/audiometa" ]] || [[ ! -x "$VENV_BIN/python3" ]]; then
@@ -68,7 +68,7 @@ for candidate in \
   "/System/Library/Fonts/Helvetica.ttc" \
   "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf" \
   "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf" \
-  "$(dirname "$0")/../fonts/Inter-Regular.ttf" \
+  "$(dirname "$0")/../../fonts/Inter-Regular.ttf" \
   "assets/fonts/Inter-Regular.ttf"; do
   [[ -f "$candidate" ]] && FONT_FILE="$candidate" && break
 done
@@ -141,14 +141,14 @@ run_tape() {
   fi
   if [[ ! -f "$out" ]]; then
     echo "Running $name..."
-    bash "$REPO_ROOT/$ARTICLE/run_vhs_tape.sh" "$2"
+    bash "$REPO_ROOT/$ARTICLE/scripts/run_vhs_tape.sh" "$2"
   fi
   [[ -f "$out" ]] || { echo "Error: tape did not produce: $out" >&2; exit 1; }
 }
 
 echo "Preparing demo files for ID3v1 and Vorbis..."
-"$VENV_BIN/python3" "$ARTICLE/ensure_demo_read_id3v1.py"
-cp "$ARTICLE/samples/sample.flac" "$ARTICLE/demo_read_vorbis.flac"
+"$VENV_BIN/python3" "$ARTICLE/scripts/ensure_demo_read_id3v1.py"
+cp "$ARTICLE/samples/sample.flac" "$OUT_DIR/demo_read_vorbis.flac"
 
 if [[ "$SKIP_GIFS" -eq 1 ]]; then
   echo "Skipping VHS (--skip-gifs); using existing cell GIFs..."
