@@ -33,6 +33,30 @@ class TestDiscNumberReading:
             assert disc_number == 99
             assert disc_total == 99
 
+    def test_id3v2_hyphen_separator_read(self):
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            ID3v2MetadataSetter.set_metadata(test_file, {"disc_number": "1-2"})
+            disc_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_NUMBER)
+            disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
+            assert disc_number == 1
+            assert disc_total == 2
+
+    def test_id3v2_invalid_tpos_multiple_slashes_returns_none(self):
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            ID3v2MetadataSetter.set_metadata(test_file, {"disc_number": "1/2/3"})
+            disc_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_NUMBER)
+            disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
+            assert disc_number is None
+            assert disc_total is None
+
+    def test_id3v2_read_tpos_above_255_not_clamped(self):
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            ID3v2MetadataSetter.set_metadata(test_file, {"disc_number": "256/300"})
+            disc_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_NUMBER)
+            disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
+            assert disc_number == 256
+            assert disc_total == 300
+
     def test_vorbis_with_total(self):
         with temp_file_with_metadata({}, "flac") as test_file:
             VorbisMetadataSetter.set_metadata(test_file, {"disc_number": "1", "disc_total": "2"})
@@ -57,6 +81,14 @@ class TestDiscNumberReading:
             assert disc_number == 3
             assert disc_total == 5
 
+    def test_vorbis_discnumber_combined_slash_via_set_metadata(self):
+        with temp_file_with_metadata({}, "flac") as test_file:
+            VorbisMetadataSetter.set_metadata(test_file, {"disc_number": "1/2"})
+            disc_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_NUMBER)
+            disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
+            assert disc_number == 1
+            assert disc_total == 2
+
     def test_vorbis_disc_number_hyphen_form(self):
         with temp_file_with_metadata({}, "flac") as test_file:
             VorbisMetadataSetter.set_tag(test_file, "DISCNUMBER", "1-2")
@@ -69,6 +101,14 @@ class TestDiscNumberReading:
         with temp_file_with_metadata({}, "flac") as test_file:
             VorbisMetadataSetter.set_tag(test_file, "DISCNUMBER", "1/3")
             VorbisMetadataSetter.set_tag(test_file, "DISCTOTAL", "2")
+            disc_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_NUMBER)
+            disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
+            assert disc_number == 1
+            assert disc_total == 2
+
+    def test_vorbis_discnumber_slash_with_matching_disctotal(self):
+        with temp_file_with_metadata({}, "flac") as test_file:
+            VorbisMetadataSetter.set_metadata(test_file, {"disc_number": "1/2", "disc_total": "2"})
             disc_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_NUMBER)
             disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
             assert disc_number == 1
@@ -107,30 +147,6 @@ class TestDiscNumberReading:
             disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
             assert disc_number is None
             assert disc_total == 2
-
-    def test_id3v2_hyphen_separator_read(self):
-        with temp_file_with_metadata({}, "mp3") as test_file:
-            ID3v2MetadataSetter.set_metadata(test_file, {"disc_number": "1-2"})
-            disc_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_NUMBER)
-            disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
-            assert disc_number == 1
-            assert disc_total == 2
-
-    def test_id3v2_invalid_tpos_multiple_slashes(self):
-        with temp_file_with_metadata({}, "mp3") as test_file:
-            ID3v2MetadataSetter.set_metadata(test_file, {"disc_number": "1/2/3"})
-            disc_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_NUMBER)
-            disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
-            assert disc_number is None
-            assert disc_total is None
-
-    def test_id3v2_read_tpos_above_255_not_clamped(self):
-        with temp_file_with_metadata({}, "mp3") as test_file:
-            ID3v2MetadataSetter.set_metadata(test_file, {"disc_number": "256/300"})
-            disc_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_NUMBER)
-            disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
-            assert disc_number == 256
-            assert disc_total == 300
 
     def test_id3v1_not_supported(self):
         from audiometa.exceptions import MetadataFieldNotSupportedByMetadataFormatError

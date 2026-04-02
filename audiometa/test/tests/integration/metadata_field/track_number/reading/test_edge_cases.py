@@ -7,37 +7,50 @@ from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 @pytest.mark.integration
 class TestTrackNumberReadingEdgeCases:
-    def test_trailing_slash(self):
-        with temp_file_with_metadata({"track_number": "5/"}, "mp3") as test_file:
+    @pytest.mark.parametrize("fmt", ["mp3", "flac"])
+    def test_trailing_slash(self, fmt):
+        with temp_file_with_metadata({"track_number": "5/"}, fmt) as test_file:
             track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
             assert track_number == "5/"
 
-    def test_leading_slash_no_track(self):
-        with temp_file_with_metadata({"track_number": "/12"}, "mp3") as test_file:
+    @pytest.mark.parametrize("fmt", ["mp3", "flac"])
+    def test_leading_slash_no_track(self, fmt):
+        with temp_file_with_metadata({"track_number": "/12"}, fmt) as test_file:
             track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
             assert track_number is None
 
-    def test_non_numeric_values(self):
-        with temp_file_with_metadata({"track_number": "abc/def"}, "mp3") as test_file:
+    @pytest.mark.parametrize("fmt", ["mp3", "flac"])
+    def test_non_numeric_values(self, fmt):
+        with temp_file_with_metadata({"track_number": "abc/def"}, fmt) as test_file:
             track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
             assert track_number is None
 
-    def test_empty_string(self):
-        with temp_file_with_metadata({"track_number": ""}, "mp3") as test_file:
+    @pytest.mark.parametrize(
+        ("fmt", "expected"),
+        [
+            ("mp3", None),
+            ("flac", ""),
+        ],
+    )
+    def test_empty_string(self, fmt, expected):
+        with temp_file_with_metadata({"track_number": ""}, fmt) as test_file:
+            track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
+            assert track_number == expected
+
+    @pytest.mark.parametrize("fmt", ["mp3", "flac"])
+    def test_multiple_slashes(self, fmt):
+        with temp_file_with_metadata({"track_number": "5/12/15"}, fmt) as test_file:
             track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
             assert track_number is None
 
-    def test_multiple_slashes(self):
-        with temp_file_with_metadata({"track_number": "5/12/15"}, "mp3") as test_file:
-            track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
-            assert track_number is None
-
-    def test_different_separator(self):
-        with temp_file_with_metadata({"track_number": "5-12"}, "mp3") as test_file:
+    @pytest.mark.parametrize("fmt", ["mp3", "flac"])
+    def test_different_separator(self, fmt):
+        with temp_file_with_metadata({"track_number": "5-12"}, fmt) as test_file:
             track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
             assert track_number == "5-12"
 
-    def test_leading_zeros_preserved(self):
-        with temp_file_with_metadata({"track_number": "01"}, "mp3") as test_file:
+    @pytest.mark.parametrize("fmt", ["mp3", "flac"])
+    def test_leading_zeros_preserved(self, fmt):
+        with temp_file_with_metadata({"track_number": "01"}, fmt) as test_file:
             track_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.TRACK_NUMBER)
             assert track_number == "01"

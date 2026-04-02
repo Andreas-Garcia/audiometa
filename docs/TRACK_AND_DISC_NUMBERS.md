@@ -120,9 +120,11 @@ Vorbis comments support disc numbers through `DISCNUMBER` and optionally `DISCTO
 - **Range**: Unlimited (no hard limit, but practical limits apply)
 - **Unified API Mapping (reading)**:
   - `DISCNUMBER="1"`, `DISCTOTAL="2"` → `DISC_NUMBER=1`, `DISC_TOTAL=2`
-  - `DISCNUMBER="1/2"` → `DISC_NUMBER=1`, `DISC_TOTAL=2` (total taken from the part after `/` when `DISCTOTAL` is absent)
+  - `DISCNUMBER="1/2"` → `DISC_NUMBER=1`, `DISC_TOTAL=2` (same idea as ID3v2 `TPOS`; hyphen `1-2` is accepted on read)
+  - `DISCNUMBER="1/3"`, `DISCTOTAL="2"` → `DISC_NUMBER=1`, `DISC_TOTAL=2` (explicit `DISCTOTAL` overrides the total embedded in `DISCNUMBER` when it is a valid non-negative integer)
   - `DISCNUMBER="2"` → `DISC_NUMBER=2`, `DISC_TOTAL=None`
   - `DISCNUMBER="99"`, `DISCTOTAL="99"` → `DISC_NUMBER=99`, `DISC_TOTAL=99`
+  - `DISCTOTAL="2"` with no usable `DISCNUMBER` → `DISC_NUMBER=None`, `DISC_TOTAL=2`
 - **Examples**:
   - `DISCNUMBER="1"`, `DISCTOTAL="2"` → `DISC_NUMBER=1`, `DISC_TOTAL=2` (disc 1 of 2)
   - `DISCNUMBER="1/2"` → `DISC_NUMBER=1`, `DISC_TOTAL=2` (combined form, common in the wild)
@@ -169,7 +171,7 @@ The library returns disc numbers as separate fields:
 
 - **ID3v2**: Reads `TPOS` frame with `"disc/total"` format (e.g., `"1/2"`) → `DISC_NUMBER=1`, `DISC_TOTAL=2`
 - **ID3v2**: Reads `TPOS` frame with `"disc"` format (e.g., `"1"`) → `DISC_NUMBER=1`, `DISC_TOTAL=None`
-- **Vorbis**: Reads `DISCNUMBER` and `DISCTOTAL`; if `DISCNUMBER` is `disc/total` and `DISCTOTAL` is absent, maps both parts to `DISC_NUMBER` and `DISC_TOTAL` (same semantics as ID3v2 `TPOS`)
+- **Vorbis**: Reads `DISCNUMBER` like ID3v2 `TPOS` (`n`, `n/m`, `n-m`); explicit `DISCTOTAL` overrides the embedded total when valid (see `DISC_NUMBER.md`)
 - **ID3v1**: Not supported
 - **RIFF**: Not supported
 
