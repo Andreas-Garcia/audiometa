@@ -52,7 +52,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### Fixed
 
-- **Vorbis (FLAC) unified read**: Reading unified metadata no longer fails when `DISCNUMBER` uses the combined form (e.g. `1/2`). The value is parsed like track numbers; `disc_total` is taken from the slash suffix when `DISCTOTAL` is absent. Includes an integration regression test.
+- **Vorbis / ID3v2 disc read alignment**: Vorbis `DISCNUMBER` is read with the same `n` / `n/m` / `n-m` rules as ID3v2 `TPOS`. Explicit `DISCTOTAL` overrides the total embedded in `DISCNUMBER=n/m` when it is a valid non-negative integer; invalid or negative `DISCTOTAL` falls back to the combined string. Shared parsing lives in `audiometa.utils.disc_number_read`; integration and unit tests cover the documented cases.
 
 ### Documentation
 

@@ -30,6 +30,7 @@ from mutagen.id3._frames import (
 )
 from mutagen.id3._util import ID3NoHeaderError
 
+from audiometa.utils.disc_number_read import parse_disc_number_from_combined_str, parse_disc_total_from_combined_str
 from audiometa.utils.raw_metadata_sanitizer import sanitize_id3v2_raw_info
 from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
@@ -415,12 +416,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             if tpos_value is None or len(tpos_value) == 0:
                 return None
             tpos_str = str(tpos_value[0])
-            import re
-
-            match = re.match(r"^(\d+)(?:/(\d+))?$", tpos_str)
-            if match:
-                return int(match.group(1))
-            return None
+            return parse_disc_number_from_combined_str(tpos_str)
         if unified_metadata_key == UnifiedMetadataKey.DISC_TOTAL:
             tpos_key = self.Id3TextFrame.DISC_NUMBER
             if tpos_key not in raw_clean_metadata:
@@ -429,12 +425,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             if tpos_value is None or len(tpos_value) == 0:
                 return None
             tpos_str = str(tpos_value[0])
-            import re
-
-            match = re.match(r"^(\d+)/(\d+)$", tpos_str)
-            if match:
-                return int(match.group(2))
-            return None
+            return parse_disc_total_from_combined_str(tpos_str)
         msg = f"Metadata key not handled: {unified_metadata_key}"
         raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
