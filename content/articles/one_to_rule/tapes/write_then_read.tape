@@ -1,6 +1,6 @@
 # Write then read demo – AudioMeta CLI (social / docs)
 # Run with repo runner: bash content/articles/one_to_rule/run_vhs_tape.sh write_then_read.tape
-# Uses a copy of sample.mp3 so the tracked file is not modified.
+# Uses a copy of samples/sample.mp3 so the tracked file is not modified.
 Output output/write_then_read.gif
 
 
@@ -24,12 +24,12 @@ Enter
 Sleep 2s
 
 # Copy sample so we don't modify the tracked file
-Type "cp sample.mp3 demo_write.mp3"
+Type "cp samples/sample.mp3 demo_write.mp3"
 Enter
 Sleep 1s
 
 # Write title and artist
-Type "audiometa write demo_write.mp3 --title 'Demo Title' --artist 'Demo Artist'"
+Type "audiometa write demo_write.mp3 --title 'We Are the Champions' --artist 'Queen'"
 Enter
 Sleep 2s
 

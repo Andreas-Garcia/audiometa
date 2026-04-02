@@ -21,6 +21,6 @@ Type "echo '=== Before: mid3v2 (MP3 only)'"
 Enter
 Sleep 2s
 
-Type "(mid3v2 -l sample.mp3 2>/dev/null | head -26; echo '...')"
+Type "(mid3v2 -l samples/sample.mp3 2>/dev/null | head -26; echo '...')"
 Enter
 Sleep 6s

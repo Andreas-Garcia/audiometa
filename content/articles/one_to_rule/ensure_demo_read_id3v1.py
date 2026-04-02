@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build demo_read_id3v1.mp3: MPEG audio from sample.mp3 with tags stripped and a fresh ID3v1 tag only."""
+"""Build demo_read_id3v1.mp3: MPEG audio from samples/sample.mp3 with tags stripped and a fresh ID3v1 tag only."""
 from pathlib import Path
 
 
@@ -22,15 +22,15 @@ def _field(text: str, length: int) -> bytes:
 
 def main() -> None:
     root = Path(__file__).resolve().parent
-    src = root / "sample.mp3"
+    src = root / "samples" / "sample.mp3"
     dst = root / "demo_read_id3v1.mp3"
     if not src.is_file():
         raise FileNotFoundError(str(src))
     data = _strip_id3v2(_strip_id3v1(src.read_bytes()))
-    title = _field("Demo Title", 30)
-    artist = _field("Demo Artist", 30)
-    album = _field("", 30)
-    year = _field("2025", 4)
+    title = _field("We Are the Champions", 30)
+    artist = _field("Queen", 30)
+    album = _field("News of the World", 30)
+    year = _field("1977", 4)
     comment = _field("", 28)
     tag = b"TAG" + title + artist + album + year + comment + b"\x00\x00\x00"
     if len(tag) != 128:

@@ -11,7 +11,7 @@ RIGHT="$OUT_DIR/read_vorbis_audiometa.gif"
 OUT="$OUT_DIR/before_after_side_by_side_vorbis.gif"
 
 mkdir -p "$OUT_DIR"
-cp "$ARTICLE/sample.flac" "$ARTICLE/demo_read_vorbis.flac"
+cp "$ARTICLE/samples/sample.flac" "$ARTICLE/demo_read_vorbis.flac"
 echo "Building left (metaflac read)..."
 bash "$ARTICLE/run_vhs_tape.sh" read_vorbis_metaflac.tape
 echo "Building right (audiometa read)..."

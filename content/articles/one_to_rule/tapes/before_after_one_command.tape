@@ -1,7 +1,7 @@
 # Before/after demo – format-specific tool vs one AudioMeta command (social / docs)
 # Run with repo runner: bash content/articles/one_to_rule/run_vhs_tape.sh before_after_one_command.tape
 # Requires: audiometa (Require) and mid3v2 on PATH (for "before" step; from mutagen).
-# Audio: sample.mp3 in article dir (tracked). Output: output/<name>.gif (no cd is typed in the tape).
+# Audio: samples/sample.mp3 (tracked). Output: output/<name>.gif (no cd is typed in the tape).
 Output output/before_after_one_command.gif
 
 
@@ -25,7 +25,7 @@ Enter
 Sleep 2s
 
 # Before: mid3v2 list (truncated)
-Type "(mid3v2 -l sample.mp3 2>/dev/null | head -26; echo '...')"
+Type "(mid3v2 -l samples/sample.mp3 2>/dev/null | head -26; echo '...')"
 Enter
 Sleep 5s
 
@@ -35,6 +35,6 @@ Enter
 Sleep 2s
 
 # After: audiometa unified (truncated)
-Type "(env -u NO_COLOR audiometa unified sample.mp3 --format table --color | head -26; echo '...')"
+Type "(env -u NO_COLOR audiometa unified samples/sample.mp3 --format table --color | head -26; echo '...')"
 Enter
 Sleep 6s

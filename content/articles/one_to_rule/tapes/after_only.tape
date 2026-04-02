@@ -21,6 +21,6 @@ Type "echo '=== After: audiometa (any format)'"
 Enter
 Sleep 2s
 
-Type "(env -u NO_COLOR audiometa unified sample.mp3 --format table --color | head -26; echo '...')"
+Type "(env -u NO_COLOR audiometa unified samples/sample.mp3 --format table --color | head -26; echo '...')"
 Enter
 Sleep 6s

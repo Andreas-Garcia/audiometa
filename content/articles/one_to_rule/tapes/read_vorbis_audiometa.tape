@@ -16,10 +16,6 @@ Env HOME "@@ONE_TO_RULE_ABS@@"
 
 Sleep 300ms
 
-Type "clear"
-Enter
-Sleep 400ms
-
 Type "echo '=== Vorbis (FLAC): audiometa unified'"
 Enter
 Sleep 1s

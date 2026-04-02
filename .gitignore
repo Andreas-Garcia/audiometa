@@ -60,6 +60,13 @@ content/articles/*/samples/*
 !content/articles/*/samples/sample.flac
 !content/articles/*/samples/sample.wav
 
+# one_to_rule: hero video + helpers live next to tapes (not under scripts/); keep tracked explicitly.
+!content/articles/one_to_rule/generate_one_to_rule_video.sh
+!content/articles/one_to_rule/run_vhs_tape.sh
+!content/articles/one_to_rule/run_demo_side_by_side.sh
+!content/articles/one_to_rule/run_demo_side_by_side_vorbis.sh
+!content/articles/one_to_rule/sync_article_sample_metadata.py
+
 # Node.js (for git-worktree-scripts dev dependency)
 node_modules/
 package-lock.json

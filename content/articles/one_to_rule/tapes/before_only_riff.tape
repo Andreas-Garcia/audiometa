@@ -1,5 +1,5 @@
 # Before only (RIFF): read WAV metadata with ffprobe; for video panel.
-# Half width (600). Run with cwd = article dir. Requires ffprobe on PATH. sample.wav must exist (script creates it).
+# Half width (600). Run with cwd = article dir. Requires ffprobe on PATH. samples/sample.wav must exist (script creates it).
 Output output/before_only_riff.gif
 
 
@@ -21,6 +21,6 @@ Type "echo '=== Before: RIFF (ffprobe)'"
 Enter
 Sleep 2s
 
-Type "(ffprobe -show_entries format_tags -v quiet -of default=noprint_wrappers=1 sample.wav 2>/dev/null | head -20; echo '...')"
+Type "(ffprobe -show_entries format_tags -v quiet -of default=noprint_wrappers=1 samples/sample.wav 2>/dev/null | head -20; echo '...')"
 Enter
 Sleep 5s

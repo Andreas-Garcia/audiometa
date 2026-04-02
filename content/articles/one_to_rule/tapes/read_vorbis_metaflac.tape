@@ -1,4 +1,4 @@
-# Read Vorbis comments (FLAC) with metaflac. Uses demo_read_vorbis.flac (copy of sample.flac from video script).
+# Read Vorbis comments (FLAC) with metaflac. Uses demo_read_vorbis.flac (copy of samples/sample.flac from video script).
 Output output/read_vorbis_metaflac.gif
 
 

@@ -3,6 +3,7 @@
 # Order: RIFF (WAV), ID3v2 (MP3), ID3v1 (MP3), Vorbis (FLAC).
 # Run from repo root; requires venv, ffmpeg, ffprobe, metaflac, mid3v2; vhs only if recording GIFs.
 # Intro requires assets/logo.mp4 (tracked) or content/articles/one_to_rule/logo.mp4.
+# Comparison pages use assets/logo-round.png (or assets/logo.png) + "AudioMeta" under the right GIF (replaces plain "unified" text).
 # VHS runs with cwd = the article dir so tapes need no in-GIF cd; Output in tapes is output/*.gif.
 #
 # Options:
@@ -41,16 +42,24 @@ ARTICLE="content/articles/one_to_rule"
 VIDEO_OUT="$OUT_DIR/one_to_rule_them_all.mp4"
 TAPES_DIR="$REPO_ROOT/$ARTICLE/tapes"
 CELL_W=600
-CELL_H=420
+# Baseline cell height was 420; overall video height is 15% lower (85% scale).
+BASE_CELL_H=420
+CELL_H=$((BASE_CELL_H * 70 / 100))
+# Terminal strips: layout cell + 15%, then +15% again (tall panels); keep within PAGE_H (~714).
+GIF_CELL_H=$((CELL_H * 115 * 115 / 10000))
 INTRO_W=$((CELL_W * 2))
 INTRO_H=$((CELL_H * 2))
 PAGE_W=$INTRO_W
 PAGE_H=$INTRO_H
 INTRO_DURATION=6
 SECTION_DURATION=3
-TITLE_TOP=93
-# Vertical offset for the hstack (GIF row); larger = panels sit lower on the page
-PANELS_TOP=220
+# Comparison-page header band (title only; intro uses INTRO_TEXT_Y* below).
+TITLE_TOP=52
+# GIF hstack vertical offset — lower value = panels sit higher (tighter header).
+PANELS_TOP=118
+# Intro drawtext Y positions (scaled from 840px reference; higher numerator = lower on frame)
+INTRO_TEXT_Y1=$((INTRO_H * 460 / (BASE_CELL_H * 2)))
+INTRO_TEXT_Y2=$((INTRO_H * 540 / (BASE_CELL_H * 2)))
 # Distance from bottom of GIF row to panel labels (smaller = labels lower on screen)
 LABEL_BOTTOM_PAD=-20
 FONT_FILE=""
@@ -66,11 +75,31 @@ done
 FONT_OPT=""
 [[ -n "$FONT_FILE" ]] && FONT_OPT=":fontfile=$FONT_FILE"
 
+AUDIO_META_LOGO_STILL=""
+for candidate in "$REPO_ROOT/assets/logo-round.png" "$REPO_ROOT/assets/logo.png"; do
+  [[ -f "$candidate" ]] && AUDIO_META_LOGO_STILL="$candidate" && break
+done
+[[ -z "$AUDIO_META_LOGO_STILL" ]] && {
+  echo "Error: static logo not found (assets/logo-round.png or assets/logo.png)." >&2
+  exit 1
+}
+
+# Right column footer: scaled logo + "AudioMeta" (replacing plain "unified" text)
+TAG_LOGO_PX=36
+TAG_GAP=10
+TAG_TEXT_W_EST=130
+RIGHT_COL_MID_X=$((CELL_W + CELL_W / 2))
+TAG_BRAND_W=$((TAG_LOGO_PX + TAG_GAP + TAG_TEXT_W_EST))
+LABEL_ROW_Y=$((PANELS_TOP + GIF_CELL_H - LABEL_BOTTOM_PAD))
+TAG_LOGO_X=$((RIGHT_COL_MID_X - TAG_BRAND_W / 2))
+TAG_TEXT_X=$((TAG_LOGO_X + TAG_LOGO_PX + TAG_GAP))
+TAG_LOGO_Y=$((LABEL_ROW_Y - TAG_LOGO_PX + 4))
+
 mkdir -p "$OUT_DIR"
 
-if [[ ! -f $ARTICLE/sample.wav ]]; then
-  echo "Creating $ARTICLE/sample.wav from sample.mp3..."
-  ffmpeg -y -i "$ARTICLE/sample.mp3" -map 0:a -c:a pcm_s16le "$ARTICLE/sample.wav" -loglevel warning
+if [[ ! -f $ARTICLE/samples/sample.wav ]]; then
+  echo "Creating $ARTICLE/samples/sample.wav from samples/sample.mp3..."
+  ffmpeg -y -i "$ARTICLE/samples/sample.mp3" -map 0:a -c:a pcm_s16le "$ARTICLE/samples/sample.wav" -loglevel warning
 fi
 
 echo "Building intro..."
@@ -85,8 +114,8 @@ ffmpeg -y -f lavfi -i "color=c=0xffffff:s=${INTRO_W}x${INTRO_H}:d=${INTRO_DURATI
   -filter_complex "
     [1:v]fps=25,scale=560:-1,format=yuv420p,setpts=PTS-STARTPTS[logo];
     [0:v][logo]overlay=x=(main_w-overlay_w)/2:y=-45:eof_action=repeat[v0];
-    [v0]drawtext=text='One tool for every format':fontsize=28${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=(w-text_w)/2:y=420:enable='gte(t\,1)'[v1];
-    [v1]drawtext=text='RIFF\, ID3v2\, ID3v1\, Vorbis':fontsize=22${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=(w-text_w)/2:y=500:enable='gte(t\,3)'[v]
+    [v0]drawtext=text='One tool for every format':fontsize=28${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=(w-text_w)/2:y=${INTRO_TEXT_Y1}:enable='gte(t\,1)'[v1];
+    [v1]drawtext=text='RIFF\, ID3v2\, ID3v1\, Vorbis':fontsize=22${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=(w-text_w)/2:y=${INTRO_TEXT_Y2}:enable='gte(t\,3)'[v]
   " -map "[v]" -an -r 25 -c:v libx264 -pix_fmt yuv420p -t "$INTRO_DURATION" "$INTRO_MP4" -loglevel warning
 
 echo "Building section page..."
@@ -119,7 +148,7 @@ run_tape() {
 
 echo "Preparing demo files for ID3v1 and Vorbis..."
 "$VENV_BIN/python3" "$ARTICLE/ensure_demo_read_id3v1.py"
-cp "$ARTICLE/sample.flac" "$ARTICLE/demo_read_vorbis.flac"
+cp "$ARTICLE/samples/sample.flac" "$ARTICLE/demo_read_vorbis.flac"
 
 if [[ "$SKIP_GIFS" -eq 1 ]]; then
   echo "Skipping VHS (--skip-gifs); using existing cell GIFs..."
@@ -137,11 +166,11 @@ run_tape "Vorbis audiometa" "read_vorbis_audiometa.tape" "read_vorbis_audiometa.
 
 PAGE_DURATION=16
 echo "Converting GIFs to MP4..."
-# x=0, y=0: after scale-to-cover, take the top-left CELL_W×CELL_H. VHS terminal frames are top-heavy (title + output);
+# x=0, y=0: after scale-to-cover, take the top-left CELL_W×GIF_CELL_H. VHS terminal frames are top-heavy (title + output);
 # the lower part is often empty padding—bottom- or center-crop can show mostly blank (black) or misaligned hstack pairs.
 for stem in before_only_riff after_only_riff before_only after_only read_id3v1_other read_id3v1_audiometa read_vorbis_metaflac read_vorbis_audiometa; do
   ffmpeg -y -i "$OUT_DIR/${stem}.gif" -t "$PAGE_DURATION" \
-    -vf "format=rgb24,scale=${CELL_W}:${CELL_H}:force_original_aspect_ratio=increase,crop=${CELL_W}:${CELL_H}:0:0,format=yuv420p" \
+    -vf "format=rgb24,scale=${CELL_W}:${GIF_CELL_H}:force_original_aspect_ratio=increase,crop=${CELL_W}:${GIF_CELL_H}:0:0,format=yuv420p" \
     -r 25 -c:v libx264 -pix_fmt yuv420p "$OUT_DIR/${stem}.mp4" -loglevel warning
 done
 
@@ -149,33 +178,33 @@ build_page_2() {
   local name="$1"
   local title_line_1="$2"
   local left_label="$3"
-  local right_label="$4"
-  local a="$5" b="$6"
+  local a="$4" b="$5"
   local out="$OUT_DIR/page_${name}.mp4"
   local title_line_1_escaped
   local left_label_escaped
-  local right_label_escaped
   title_line_1_escaped=$(printf '%s' "$title_line_1" | sed 's/:/\\:/g; s/,/\\,/g')
   left_label_escaped=$(printf '%s' "$left_label" | sed 's/:/\\:/g; s/,/\\,/g')
-  right_label_escaped=$(printf '%s' "$right_label" | sed 's/:/\\:/g; s/,/\\,/g')
   ffmpeg -y -i "$a" -i "$b" \
     -f lavfi -i "color=c=0xffffff:s=${PAGE_W}x${PAGE_H}:d=${PAGE_DURATION}:r=25" \
+    -i "$AUDIO_META_LOGO_STILL" \
     -filter_complex "
       [0:v][1:v]hstack=inputs=2,format=yuv420p[row];
       [2:v][row]overlay=0:${PANELS_TOP}[withrow];
       [withrow]drawtext=text='$title_line_1_escaped':fontsize=35${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=(w-text_w)/2:y=${TITLE_TOP}[v1];
-      [v1]drawtext=text='$left_label_escaped':fontsize=24${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=((${CELL_W}-text_w)/2):y=$((PANELS_TOP + CELL_H - LABEL_BOTTOM_PAD))[v2];
-      [v2]drawtext=text='$right_label_escaped':fontsize=24${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=(${CELL_W}+(${CELL_W}-text_w)/2):y=$((PANELS_TOP + CELL_H - LABEL_BOTTOM_PAD))[v]
+      [v1]drawtext=text='$left_label_escaped':fontsize=24${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=((${CELL_W}-text_w)/2):y=${LABEL_ROW_Y}[v2];
+      [3:v]scale=-1:${TAG_LOGO_PX},format=yuv420p[lg];
+      [v2][lg]overlay=x=${TAG_LOGO_X}:y=${TAG_LOGO_Y}[v3];
+      [v3]drawtext=text='AudioMeta':fontsize=24${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=${TAG_TEXT_X}:y=${LABEL_ROW_Y}[v]
     " -map "[v]" -r 25 -c:v libx264 -pix_fmt yuv420p -t "$PAGE_DURATION" "$out" -loglevel warning
 }
 
-build_page_2 "read_riff" "Reading RIFF (WAV)" "ffprobe" "unified" \
+build_page_2 "read_riff" "Reading RIFF (WAV)" "ffprobe" \
   "$OUT_DIR/before_only_riff.mp4" "$OUT_DIR/after_only_riff.mp4"
-build_page_2 "read_id3v2" "Reading ID3v2 (MP3)" "mid3v2" "unified" \
+build_page_2 "read_id3v2" "Reading ID3v2 (MP3)" "mid3v2" \
   "$OUT_DIR/before_only.mp4" "$OUT_DIR/after_only.mp4"
-build_page_2 "read_id3v1" "Reading ID3v1 (MP3)" "raw TAG" "unified" \
+build_page_2 "read_id3v1" "Reading ID3v1 (MP3)" "raw TAG" \
   "$OUT_DIR/read_id3v1_other.mp4" "$OUT_DIR/read_id3v1_audiometa.mp4"
-build_page_2 "read_vorbis" "Reading Vorbis (FLAC)" "metaflac" "unified" \
+build_page_2 "read_vorbis" "Reading Vorbis (FLAC)" "metaflac" \
   "$OUT_DIR/read_vorbis_metaflac.mp4" "$OUT_DIR/read_vorbis_audiometa.mp4"
 
 echo "Concatenating final video..."

@@ -21,6 +21,6 @@ Type "echo '=== After: audiometa unified (RIFF)'"
 Enter
 Sleep 2s
 
-Type "(env -u NO_COLOR audiometa unified sample.wav --format table --color | head -26; echo '...')"
+Type "(env -u NO_COLOR audiometa unified samples/sample.wav --format table --color | head -26; echo '...')"
 Enter
 Sleep 5s
