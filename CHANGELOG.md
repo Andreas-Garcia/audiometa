@@ -46,9 +46,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 **Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-XX`).
 
-## [1.3.2] - 2026-03-18
-
-## [Unreleased]
+## [1.3.3] - 2026-04-02
 
 ### Fixed
 
@@ -63,6 +61,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### CI
 
 - **Checkout and setup-python**: Updated to Node.js 24 compatible versions.
+
+## [Unreleased]
 
 ## [1.3.1] - 2025-03-17
 
