@@ -50,8 +50,13 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Fixed
+
+- **Vorbis / ID3v2 disc read alignment**: Vorbis `DISCNUMBER` is read with the same `n` / `n/m` / `n-m` rules as ID3v2 `TPOS`. Explicit `DISCTOTAL` overrides the total embedded in `DISCNUMBER=n/m` when it is a valid non-negative integer; invalid or negative `DISCTOTAL` falls back to the combined string. Shared parsing lives in `audiometa.utils.disc_number_read`; integration and unit tests cover the documented cases.
+
 ### Documentation
 
+- **Track and disc numbers**: Consolidated track and disc documentation into `docs/TRACK_AND_DISC_NUMBERS.md` (removed `docs/TRACK_NUMBER.md`; updated links throughout; `docs/DISC_NUMBER.md` updated in place).
 - **PR descriptions (Cursor)**: `.cursor/rules/pr-descriptions.mdc` requires writing PR bodies to `.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md` when asked; `pr-naming.mdc`, `AGENTS.md`, and `CONTRIBUTING.md` point to that workflow and to `.github/pr_descriptions/pull_request_template.md`.
 - **Demo outputs**: `.gitignore` excludes article `output/` and loose/generated files under `content/articles/<article>/`, while allowing tapes, scripts, markdown, and **whitelisted demo audio** under `content/articles/<article>/samples/` (`sample.mp3`, `sample.flac`, `sample.wav` per article as needed). `docs/demos/sample.mp3` stays the shared asset for `docs/demos/` tapes. `DEMO_INSTALLATION.md` and `.cursor/rules/demo-videos.mdc` document the layout.
 
@@ -460,7 +465,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Vorbis support: Reads/writes separate `DISCNUMBER` and `DISCTOTAL` fields with unlimited range
   - ID3v1 and RIFF formats properly raise exceptions when attempting to read/write disc numbers (not supported)
   - Includes comprehensive unit tests (23 test cases) and integration tests (27 test cases) covering validation, reading, writing, and deletion across all supported formats
-  - See `docs/DISC_NUMBER.md` for detailed documentation on format support, limitations, and usage examples
+  - See `docs/TRACK_AND_DISC_NUMBERS.md` (Disc number section) for detailed documentation on format support, limitations, and usage examples
 
 ### Changed
 

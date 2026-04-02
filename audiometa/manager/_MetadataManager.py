@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, TypeVar, Union, cast
 from mutagen._file import FileType as MutagenMetadata
 
 from audiometa.exceptions import InvalidMetadataFieldFormatError, InvalidMetadataFieldTypeError
+from audiometa.utils.disc_number_read import parse_disc_number_from_combined_str
 from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 if TYPE_CHECKING:
@@ -697,6 +698,10 @@ class _MetadataManager:
             if re.match(r"^\d+([-/]\d*)?$", track_str):
                 return track_str
             return None
+
+        # DISCNUMBER / TPOS-style "n", "n/m", "n-m" (formats using the base read path)
+        if unified_metadata_key == UnifiedMetadataKey.DISC_NUMBER:
+            return parse_disc_number_from_combined_str(str(value[0]))
 
         from typing import get_args, get_origin
 

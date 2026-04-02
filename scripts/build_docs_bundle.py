@@ -17,6 +17,7 @@ OUTPUT_FILE = PUBLISH_DIR / "docs-bundle.json"
 DOC_SLUGS = {
     "METADATA_FORMATS.md": "metadata-formats",
     "METADATA_FIELD_GUIDE.md": "field-support",
+    "TRACK_AND_DISC_NUMBERS.md": "track-and-disc-numbers",
     "AUDIO_TECHNICAL_INFO_GUIDE.md": "audio-technical-info",
     "WRITING_METADATA.md": "writing-metadata",
 }

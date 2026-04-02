@@ -301,6 +301,7 @@ Common standardized field names:
 - **File Types**: FLAC (native)
 - **Implementation**: Uses mutagen library with custom parsing
 - **Key Normalization**: Case-insensitive reading, uppercase writing for consistency
+- **Track / disc values**: `TRACKNUMBER` may be `track` or `track/total` (string in unified metadata). `DISCNUMBER` may be a single integer string, **`disc/total` in one tag** (common from encoders tagging like ID3v2), or split across `DISCNUMBER` + `DISCTOTAL`; combined `DISCNUMBER` is parsed into `DISC_NUMBER` and `DISC_TOTAL` when no separate `DISCTOTAL` is present
 
 ---
 

@@ -6,6 +6,11 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 if TYPE_CHECKING:
     from ...._audio_file import _AudioFile
 from ....exceptions import FileCorruptedError, InvalidRatingValueError, MetadataFieldNotSupportedByMetadataFormatError
+from ....utils.disc_number_read import (
+    parse_disc_number_from_combined_str,
+    parse_disc_total_from_combined_str,
+    parse_explicit_non_negative_disctotal,
+)
 from ....utils.rating_profiles import RatingWriteProfile
 from ....utils.raw_metadata_sanitizer import sanitize_vorbis_raw_info
 from ....utils.tool_path_resolver import get_tool_path
@@ -259,6 +264,49 @@ class _VorbisManager(_RatingSupportingMetadataManager):
 
         # Cast to RawMetadataDict since RawMetadataKey is str, Enum and string keys work
         self.raw_clean_metadata_uppercase_keys = cast(RawMetadataDict, result_dict)
+
+    def get_unified_metadata_field(self, unified_metadata_key: UnifiedMetadataKey) -> UnifiedMetadataValue:
+        if unified_metadata_key not in (
+            UnifiedMetadataKey.DISC_NUMBER,
+            UnifiedMetadataKey.DISC_TOTAL,
+        ):
+            return super().get_unified_metadata_field(unified_metadata_key)
+
+        if self.raw_clean_metadata_uppercase_keys is None:
+            self._extract_raw_clean_metadata_uppercase_keys_from_file()
+        keys = self.raw_clean_metadata_uppercase_keys
+        if keys is None:
+            return None
+
+        disc_number_key = self.VorbisKey.DISC_NUMBER
+        disc_total_key = self.VorbisKey.DISC_TOTAL
+
+        def _first_string(raw_key: RawMetadataKey) -> str | None:
+            if raw_key not in keys:
+                return None
+            vals = keys[raw_key]
+            if not vals or len(vals) == 0:
+                return None
+            v = vals[0]
+            if v is None or v == "":
+                return None
+            return str(v)
+
+        d = _first_string(disc_number_key)
+        t = _first_string(disc_total_key)
+
+        if unified_metadata_key == UnifiedMetadataKey.DISC_NUMBER:
+            if d is None:
+                return None
+            return parse_disc_number_from_combined_str(d)
+
+        if t is not None:
+            explicit = parse_explicit_non_negative_disctotal(t)
+            if explicit is not None:
+                return explicit
+        if d is None:
+            return None
+        return parse_disc_total_from_combined_str(d)
 
     def _get_raw_rating_by_traktor_or_not(self, raw_clean_metadata: RawMetadataDict) -> tuple[int | None, bool]:
         if self.VorbisKey.RATING in raw_clean_metadata:
