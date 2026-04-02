@@ -64,6 +64,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Changed
+
+- **PyPI metadata**: `Development Status` Trove classifier updated from Alpha to Beta to better reflect current release maturity (no API or runtime change).
+
 ## [1.3.1] - 2025-03-17
 
 ### Added
