@@ -313,7 +313,7 @@ Before submitting a Pull Request, ensure the following checks are completed:
 - ✅ Update docstrings for new functions/classes (only when needed - see [Docstrings](DEVELOPMENT.md#docstrings) section in DEVELOPMENT.md)
 - ✅ Update README or other more focused documentation if adding new features or changing behavior
 - ✅ Add/update type hints where appropriate
-- ✅ Update `CHANGELOG.md` with your changes in the `[Unreleased]` section (see [Changelog Best Practices](CHANGELOG.md#changelog-best-practices) for guidelines)
+- ✅ Update `CHANGELOG.md` with your changes in the `[Unreleased]` section in the same PR as the code (see [Changelog and `[Unreleased]`](DEVELOPMENT.md#changelog-and-unreleased), [Changelog Best Practices](CHANGELOG.md#changelog-best-practices), and `.cursor/rules/changelog.mdc`)
 - ⚠️ Update CONTRIBUTING.md only in exceptional cases (e.g., when adding hooks for new features in other languages)
 
 **4. Git Hygiene**

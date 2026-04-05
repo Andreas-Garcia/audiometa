@@ -8,6 +8,7 @@ This document consolidates comprehensive metadata field handling across all supp
 
 ## Table of Contents
 
+- [Unified field schema and full-metadata API](#unified-field-schema-and-full-metadata-api)
 - [Metadata Support by Format](#metadata-support-by-format)
 - [Multiple Values Handling](#multiple-values-handling)
 - [Genre Handling](#genre-handling)
@@ -20,6 +21,29 @@ This document consolidates comprehensive metadata field handling across all supp
 - [Disc Number Handling](#disc-number-handling)
 - [Lyrics Support](#lyrics-support)
 - [None vs Empty String Handling](#none-vs-empty-string-handling)
+
+## Unified field schema and full-metadata API
+
+The library exposes a **stable, JSON-friendly description** of every unified field for apps, CLIs, and documentation generators:
+
+- **`get_unified_metadata_field_schema()`** (exported from `audiometa`) returns a `list` of dicts, one per `UnifiedMetadataKey`, with:
+
+  - **`id`**: `UnifiedMetadataKey.value` (e.g. `"title"`, `"album_artists"`)
+  - **`label`**: Short English label (not localized)
+  - **`multiple`**: Whether the field can hold multiple values
+  - **`value_type`**: Coarse hint (`"string"`, `"strings"`, `"integer"`, `"number"`, `"string_or_integer"`, etc.)
+  - **`optional_value`**: Whether a scalar may be omitted (e.g. disc total)
+
+  Implementation: `audiometa.utils.unified_metadata_field_schema`. Per-field detail: `describe_unified_metadata_field(key)`.
+
+- **`get_supported_unified_metadata_field_ids(file)`** returns sorted **`id`** strings for unified fields that have a **non-`None` write mapping** in the file’s **primary** metadata format (the first format in the extension’s priority list). Fields with no writer for that format are omitted.
+
+- **`get_full_metadata(file)`** always includes:
+
+  - **`unified_metadata_field_schema`**: Same list as `get_unified_metadata_field_schema()`
+  - **`supported_unified_metadata_field_ids`**: Same list as `get_supported_unified_metadata_field_ids(file)`
+
+The **`audiometa read`** command includes these keys in **JSON** and **YAML** output; **table** output does not print them (it only shows unified, technical, and format sections).
 
 ## Metadata Support by Format
 

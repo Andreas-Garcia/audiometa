@@ -562,6 +562,7 @@ AudioMeta provides a unified API that abstracts format differences:
 - **Field Normalization**: Field names normalized across formats
 - **Value Conversion**: Automatic conversion (e.g., genre codes to names)
 - **Multiple Values**: Intelligent handling of multiple values per format
+- **Field schema**: `get_unified_metadata_field_schema()` describes every unified field for APIs and UIs; `get_full_metadata()` also returns that list plus per-file writable ids (`supported_unified_metadata_field_ids`). See **[Metadata Field Guide](METADATA_FIELD_GUIDE.md#unified-field-schema-and-full-metadata-api)**.
 
 For detailed information on field support and handling, see the **[Metadata Field Guide](METADATA_FIELD_GUIDE.md)**.
 
