@@ -46,6 +46,18 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 **Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-29`).
 
+## [Unreleased]
+
+### CI
+
+- **Publish docs bundle**: When rulesets block `GITHUB_TOKEN` from pushing to `main`, the workflow either uses optional repository secret `DOCS_BUNDLE_PUSH_PAT` (fine-grained PAT with **Contents** read/write for this repo) to `git push origin HEAD:main`, or—if unset—force-pushes to `chore/update-docs-bundle` and opens a PR to `main`. See `publish/README.md`.
+
+## [1.4.1] - 2026-04-06
+
+### CI
+
+- **Publish docs bundle**: Workflow runs on version tags with a detached `HEAD`; the bundle commit is pushed with `git push origin HEAD:main` so updates to `publish/docs-bundle.json` apply to `main` instead of failing with `git push` without a branch.
+
 ## [1.4.0] - 2026-04-06
 
 ### Added
@@ -61,14 +73,6 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### Documentation
 
 - **Unified field schema**: README, `get_full_metadata` docstring, `FullMetadata` / `UnifiedMetadataFieldDescriptor` in `audiometa.utils.types`, `docs/METADATA_FIELD_GUIDE.md`, and `docs/METADATA_FORMATS.md` document `get_unified_metadata_field_schema`, `get_supported_unified_metadata_field_ids`, CLI JSON/YAML behavior, and the new `get_full_metadata` keys.
-
-## [1.4.1] - 2026-04-06
-
-### CI
-
-- **Publish docs bundle**: Workflow runs on version tags with a detached `HEAD`; the bundle commit is pushed with `git push origin HEAD:main` so updates to `publish/docs-bundle.json` apply to `main` instead of failing with `git push` without a branch.
-
-## [Unreleased]
 
 ## [1.3.3] - 2026-04-02
 
