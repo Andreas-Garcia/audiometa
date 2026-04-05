@@ -61,6 +61,23 @@ def verify_changelog(path: Path) -> list[str]:
                 "(see .cursor/rules/changelog.mdc and scripts/prepare_release.py)."
             )
 
+        # Verify the first ## heading after [Unreleased] (outside fences) is a version header.
+        in_fence = False
+        for idx in range(u, len(lines)):  # u is 1-based; lines[u] is the first line after [Unreleased]
+            stripped = lines[idx].strip()
+            if stripped.startswith("```"):
+                in_fence = not in_fence
+                continue
+            if in_fence:
+                continue
+            if lines[idx].startswith("## "):
+                if not VERSION_HEADER.match(lines[idx]):
+                    errors.append(
+                        f"Line {idx + 1}: the first '## ' section after '[Unreleased]' must be a release "
+                        f"header matching '## [X.Y.Z] - YYYY-MM-DD'; got: {lines[idx]!r}."
+                    )
+                break
+
     for i in range(len(version_rows) - 1):
         _, ma, mi, pa = version_rows[i]
         _, mb, mib, pb = version_rows[i + 1]
