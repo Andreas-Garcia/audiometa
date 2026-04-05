@@ -54,6 +54,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 - **Per-file supported unified field ids**: `get_supported_unified_metadata_field_ids(file)` returns sorted `UnifiedMetadataKey.value` strings for fields that have a non-`None` write mapping in the file’s primary (native) metadata format.
 - **`get_full_metadata` payload**: Responses now include `unified_metadata_field_schema` and `supported_unified_metadata_field_ids` alongside existing top-level keys. Integration tests assert structure, sorted supported ids, and consistency with `get_unified_metadata_field_schema()`; unit tests cover every `UnifiedMetadataKey` descriptor shape, `get_supported_unified_metadata_field_ids` (MP3/FLAC/WAV, sort order, parity with `get_full_metadata`, str path, unsupported extension error).
 
+### Performance
+
+- **`get_full_metadata`**: Builds `supported_unified_metadata_field_ids` from the already-constructed primary-format metadata manager instead of opening and parsing the file again via `get_supported_unified_metadata_field_ids`.
+
 ### Documentation
 
 - **Unified field schema**: README, `get_full_metadata` docstring, `FullMetadata` / `UnifiedMetadataFieldDescriptor` in `audiometa.utils.types`, `docs/METADATA_FIELD_GUIDE.md`, and `docs/METADATA_FORMATS.md` document `get_unified_metadata_field_schema`, `get_supported_unified_metadata_field_ids`, CLI JSON/YAML behavior, and the new `get_full_metadata` keys.

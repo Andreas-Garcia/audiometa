@@ -82,6 +82,15 @@ METADATA_FORMAT_MANAGER_CLASS_MAP: dict[MetadataFormat, type] = {
 type PublicFileType = str | Path
 
 
+def _supported_unified_metadata_field_ids_from_manager(manager: _MetadataManager | None) -> list[str]:
+    if manager is None:
+        return []
+    wmap = getattr(manager, "metadata_keys_direct_map_write", None)
+    if not wmap:
+        return []
+    return sorted(ukey.value for ukey, raw_key in wmap.items() if raw_key is not None)
+
+
 def get_supported_unified_metadata_field_ids(file: PublicFileType) -> list[str]:
     """Return unified field ids writable to the file's primary (native) metadata format.
 
@@ -99,10 +108,7 @@ def get_supported_unified_metadata_field_ids(file: PublicFileType) -> list[str]:
         normalized_rating_max_value=None,
         id3v2_version=None,
     )
-    wmap = getattr(manager, "metadata_keys_direct_map_write", None)
-    if not wmap:
-        return []
-    return sorted(ukey.value for ukey, raw_key in wmap.items() if raw_key is not None)
+    return _supported_unified_metadata_field_ids_from_manager(manager)
 
 
 def _get_metadata_manager(
@@ -1365,6 +1371,9 @@ def get_full_metadata(
     # Get file-specific format priorities
     available_formats = MetadataFormat.get_priorities().get(audio_file.file_extension, [])
 
+    primary_format = available_formats[0] if available_formats else None
+    primary_manager = all_managers.get(primary_format) if primary_format is not None else None
+
     # Initialize result structure
     result: dict[str, Any] = {
         "unified_metadata": {},
@@ -1373,7 +1382,7 @@ def get_full_metadata(
         "headers": {},
         "raw_metadata": {},
         "unified_metadata_field_schema": get_unified_metadata_field_schema(),
-        "supported_unified_metadata_field_ids": get_supported_unified_metadata_field_ids(file),
+        "supported_unified_metadata_field_ids": _supported_unified_metadata_field_ids_from_manager(primary_manager),
         "format_priorities": {
             "file_extension": audio_file.file_extension,
             "reading_order": [fmt.value for fmt in available_formats],
