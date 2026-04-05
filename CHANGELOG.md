@@ -46,7 +46,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 **Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-29`).
 
-## [Unreleased]
+## [1.4.0] - 2026-04-06
 
 ### Added
 
@@ -61,6 +61,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### Documentation
 
 - **Unified field schema**: README, `get_full_metadata` docstring, `FullMetadata` / `UnifiedMetadataFieldDescriptor` in `audiometa.utils.types`, `docs/METADATA_FIELD_GUIDE.md`, and `docs/METADATA_FORMATS.md` document `get_unified_metadata_field_schema`, `get_supported_unified_metadata_field_ids`, CLI JSON/YAML behavior, and the new `get_full_metadata` keys.
+
+## [Unreleased]
 
 ## [1.3.3] - 2026-04-02
 
