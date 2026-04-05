@@ -34,10 +34,13 @@ from .utils.flac_md5_state import FlacMd5State
 from .utils.metadata_format import MetadataFormat
 from .utils.metadata_writing_strategy import MetadataWritingStrategy
 from .utils.types import UnifiedMetadata, UnifiedMetadataValue
+from .utils.unified_metadata_field_schema import get_unified_metadata_field_schema
 from .utils.unified_metadata_key import UnifiedMetadataKey
 
 __all__ = [
     "UnifiedMetadataKey",
+    "get_unified_metadata_field_schema",
+    "get_supported_unified_metadata_field_ids",
     "FlacMd5State",
     "MetadataFormat",
     "MetadataWritingStrategy",
@@ -77,6 +80,29 @@ METADATA_FORMAT_MANAGER_CLASS_MAP: dict[MetadataFormat, type] = {
 
 # Public API: only accepts standard file path types (not _AudioFile)
 type PublicFileType = str | Path
+
+
+def get_supported_unified_metadata_field_ids(file: PublicFileType) -> list[str]:
+    """Return unified field ids writable to the file's primary (native) metadata format.
+
+    Keys are :attr:`UnifiedMetadataKey.value` strings. Fields with no write mapping
+    for that format (``None`` in the manager's write map) are omitted.
+    """
+    audio_file = _AudioFile(file)
+    available_formats = MetadataFormat.get_priorities().get(audio_file.file_extension, [])
+    if not available_formats:
+        return []
+    target_format = available_formats[0]
+    manager = _get_metadata_manager(
+        audio_file=audio_file,
+        metadata_format=target_format,
+        normalized_rating_max_value=None,
+        id3v2_version=None,
+    )
+    wmap = getattr(manager, "metadata_keys_direct_map_write", None)
+    if not wmap:
+        return []
+    return sorted(ukey.value for ukey, raw_key in wmap.items() if raw_key is not None)
 
 
 def _get_metadata_manager(
@@ -1331,6 +1357,8 @@ def get_full_metadata(
         "metadata_format": {},
         "headers": {},
         "raw_metadata": {},
+        "unified_metadata_field_schema": get_unified_metadata_field_schema(),
+        "supported_unified_metadata_field_ids": get_supported_unified_metadata_field_ids(file),
         "format_priorities": {
             "file_extension": audio_file.file_extension,
             "reading_order": [fmt.value for fmt in available_formats],
