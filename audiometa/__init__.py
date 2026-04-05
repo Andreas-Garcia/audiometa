@@ -1316,7 +1316,18 @@ def get_full_metadata(
             TRAKTOR4). If False (default), such content is replaced by size placeholders.
 
     Returns:
-        Comprehensive dictionary containing all available metadata and technical information
+        Comprehensive dictionary. Top-level keys always include:
+
+        - ``unified_metadata``: Same merged view as :func:`get_unified_metadata`
+        - ``technical_info``, ``metadata_format``, ``headers``, ``raw_metadata``: As documented below;
+          ``technical_info`` / ``headers`` may be empty dicts when disabled via parameters
+        - ``unified_metadata_field_schema``: List of field descriptors (``id``, ``label``, ``multiple``,
+          ``value_type``, ``optional_value``) for every
+          :class:`~audiometa.utils.unified_metadata_key.UnifiedMetadataKey`; same data as
+          :func:`get_unified_metadata_field_schema`
+        - ``supported_unified_metadata_field_ids``: Sorted :attr:`UnifiedMetadataKey.value` strings writable
+          for this file's primary metadata format (see :func:`get_supported_unified_metadata_field_ids`)
+        - ``format_priorities``: Extension, reading order, and primary writing format
 
     Raises:
         FileTypeNotSupportedError: If the file format is not supported
@@ -1341,6 +1352,10 @@ def get_full_metadata(
         # Access header information
         print(f"ID3v2 Version: {full_metadata['headers']['id3v2']['version']}")
         print(f"Has ID3v1 Header: {full_metadata['headers']['id3v1']['present']}")
+
+        # Full unified key schema; writable field ids for this file's primary format
+        print(len(full_metadata['unified_metadata_field_schema']))
+        print(full_metadata['supported_unified_metadata_field_ids'])
     """
     audio_file = _AudioFile(file)
 

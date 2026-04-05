@@ -71,6 +71,16 @@ class RawMetadataInfo(TypedDict):
     chunk_structure: dict[str, Any]
 
 
+class UnifiedMetadataFieldDescriptor(TypedDict):
+    """Single entry from get_unified_metadata_field_schema()."""
+
+    id: str
+    label: str
+    multiple: bool
+    value_type: str
+    optional_value: bool
+
+
 class FullMetadata(TypedDict):
     """Type for comprehensive metadata returned by get_full_metadata."""
 
@@ -79,4 +89,6 @@ class FullMetadata(TypedDict):
     metadata_format: dict[str, UnifiedMetadata]
     headers: dict[str, HeaderInfo]
     raw_metadata: dict[str, RawMetadataInfo]
+    unified_metadata_field_schema: list[UnifiedMetadataFieldDescriptor]
+    supported_unified_metadata_field_ids: list[str]
     format_priorities: FormatPriorities
