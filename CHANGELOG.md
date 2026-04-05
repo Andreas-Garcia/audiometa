@@ -64,6 +64,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### CI
+
+- **Publish docs bundle**: Workflow runs on version tags with a detached `HEAD`; the bundle commit is pushed with `git push origin HEAD:main` so updates to `publish/docs-bundle.json` apply to `main` instead of failing with `git push` without a branch.
+
 ## [1.3.3] - 2026-04-02
 
 ### Fixed

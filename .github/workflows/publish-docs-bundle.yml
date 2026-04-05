@@ -36,5 +36,5 @@ jobs:
             echo "No changes to docs-bundle.json"
           else
             git commit -m "chore: update docs bundle for frontend"
-            git push
+            git push origin HEAD:main
           fi
