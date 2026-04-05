@@ -15,6 +15,23 @@ alwaysApply: true
 - Use ISO 8601 date format: YYYY-MM-DD.
 - Avoid dumping raw git logs; summarize notable changes clearly.
 
+## Keeping `[Unreleased]` aligned with code changes
+
+**Whenever you modify the codebase in ways that matter to users or integrators**, update `CHANGELOG.md` under `## [Unreleased]` in the **same** PR or change series as the code. Do not ship behavioral, API, or CLI changes with an empty or outdated `[Unreleased]` section.
+
+**Add or adjust `[Unreleased]` entries when you:**
+
+- Add, change, or remove **public API** (symbols exported from `audiometa`, CLI commands, flags, or documented behavior)
+- Fix a **user-visible** bug in the library or CLI
+- Change **defaults** or **response shapes** (e.g. new top-level keys from `get_full_metadata`, new required fields)
+- Introduce **breaking changes** (document clearly; follow repo conventions for severity)
+
+**Usually skip a new changelog bullet** when the change is strictly internal (refactor with identical external behavior, private helpers only). **Test-only** changes that do not fix a user-visible bug typically do not need their own entry; mention tests under the related feature or fix if applicable.
+
+**Before you treat a coding task as complete:** Open `CHANGELOG.md`, read `## [Unreleased]`, and confirm it still describes the current diff. If the code moved on (new API, behavior change, fix), **edit `[Unreleased]`** so it stays accurate.
+
+**Human-readable summary:** [DEVELOPMENT.md — Changelog and `[Unreleased]`](DEVELOPMENT.md#changelog-and-unreleased).
+
 ## Release Process
 
 **IMPORTANT: All releases must follow the steps documented in `CONTRIBUTING.md`.**
