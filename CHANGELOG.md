@@ -93,6 +93,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - **Pre-commit verify hook**: Local `verify` hook uses the project venv Python when available (consistent with other hooks).
 
+### Changed
+
+- **PyPI metadata**: `Development Status` Trove classifier updated from Alpha to Beta to better reflect current release maturity (no API or runtime change).
+
 ## [1.3.1] - 2025-03-17
 
 ### Added
