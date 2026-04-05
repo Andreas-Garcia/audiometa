@@ -174,5 +174,6 @@ Edit `CHANGELOG.md` under `## [Unreleased]` whenever your change affects **users
 - **What usually needs an entry** — New or changed public symbols, CLI changes, user-visible bug fixes, breaking changes (document clearly).
 - **What often does not** — Internal refactors with identical external behavior; test-only work that does not fix a user-visible bug (mention tests under the related feature or fix if there is one).
 - **Before you open or finalize a PR** — Re-read `## [Unreleased]` and confirm it matches the diff.
+- **After editing `CHANGELOG.md`** — Run `python scripts/verify_changelog.py` so section order matches `scripts/prepare_release.py` (see `.cursor/rules/changelog.mdc`, **CHANGELOG.md structure and integrity**).
 
 Cursor/agents also follow `.cursor/rules/changelog.mdc` and [AGENTS.md](AGENTS.md#changelog).
