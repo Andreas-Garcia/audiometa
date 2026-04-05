@@ -37,6 +37,7 @@ class TestGetFullMetadata:
         supported = result["supported_unified_metadata_field_ids"]
         assert isinstance(supported, list)
         assert all(isinstance(x, str) for x in supported)
+        assert supported == sorted(supported)
         assert set(supported) <= {k.value for k in UnifiedMetadataKey}
         assert schema == get_unified_metadata_field_schema()
 
