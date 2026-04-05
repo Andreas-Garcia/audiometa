@@ -62,11 +62,13 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - **Unified field schema**: README, `get_full_metadata` docstring, `FullMetadata` / `UnifiedMetadataFieldDescriptor` in `audiometa.utils.types`, `docs/METADATA_FIELD_GUIDE.md`, and `docs/METADATA_FORMATS.md` document `get_unified_metadata_field_schema`, `get_supported_unified_metadata_field_ids`, CLI JSON/YAML behavior, and the new `get_full_metadata` keys.
 
-## [Unreleased]
+## [1.4.1] - 2026-04-06
 
 ### CI
 
 - **Publish docs bundle**: Workflow runs on version tags with a detached `HEAD`; the bundle commit is pushed with `git push origin HEAD:main` so updates to `publish/docs-bundle.json` apply to `main` instead of failing with `git push` without a branch.
+
+## [Unreleased]
 
 ## [1.3.3] - 2026-04-02
 
