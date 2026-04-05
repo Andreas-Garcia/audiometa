@@ -31,7 +31,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 **Example:**
 
 ```markdown
-## [1.3.2] - 2026-03-18
+## [1.4.0] - 2026-06-01
 
 ### Added
 
@@ -44,7 +44,9 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Includes regression tests to prevent future occurrences
 ```
 
-**Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-XX`).
+**Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-29`).
+
+## [Unreleased]
 
 ## [1.3.3] - 2026-04-02
 
@@ -62,7 +64,20 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - **Checkout and setup-python**: Updated to Node.js 24 compatible versions.
 
-## [Unreleased]
+## [1.3.2] - 2026-03-18
+
+### Added
+
+- **Release script**: `scripts/prepare_release.py` supports `--push` to push `main` and the release tag after prepare; documented in `CONTRIBUTING.md`.
+
+### Documentation
+
+- **Bump2version**: `.bumpversion.cfg` comment clarifies how bump2version relates to the release script.
+- **Docs site publish**: GitHub Actions workflow publishes the documentation bundle for the frontend; publishing documentation describes the canonical bundle URL and `publish/` vs `dist/`.
+
+### Improved
+
+- **Pre-commit verify hook**: Local `verify` hook uses the project venv Python when available (consistent with other hooks).
 
 ### Changed
 
@@ -165,7 +180,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - **System dependency pins**: mediainfo 25.10 → 26.01; bwfmetaedit macOS 26.01; exiftool 13.50 (macOS/Windows). macOS exiftool installed via Homebrew (13.50)
 
-## [0.11.1] - 2025-12-11
+## [0.11.1] - 2025-02-13
 
 ### Improved
 
@@ -183,7 +198,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Updated version verification to include shellcheck (PowerShell remains "latest" due to complex version management)
   - Ensures shellcheck version consistency across environments and aligns with dependency pinning best practices
 
-## [0.11.0] - 2025-12-11
+## [0.11.0] - 2025-02-12
 
 ### Added
 
@@ -218,7 +233,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Improved error messages with tool location diagnostics when tools are not found
   - Prevents false negatives where tools are installed but not found in PATH during verification
 
-## [0.10.0] - 2025-12-09
+## [0.10.0] - 2025-02-11
 
 ### Added
 
@@ -230,7 +245,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - **Documentation**: Updated metadata field guide to reflect Originator support matrix
   - **Error Handling**: Proper error handling for unsupported formats (Vorbis/FLAC, ID3v1/ID3v2) with appropriate exceptions
 
-## [0.9.0] - 2025-12-08
+## [0.9.0] - 2025-02-10
 
 ### Added
 
@@ -260,7 +275,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Updated macOS and Windows pinned versions to 13.43 (latest available from https://exiftool.org/ver.txt)
   - Fixes download failures when installing exiftool from exiftool.org in macOS CI
 
-## [0.8.1] - 2025-12-04
+## [0.8.1] - 2025-02-09
 
 ### Fixed
 
@@ -281,7 +296,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Updated remote URL to point to new organization location
   - Maintains all existing functionality and contribution workflows
 
-## [0.8.0] - 2025-12-03
+## [0.8.0] - 2025-02-08
 
 ### Added
 
@@ -305,7 +320,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - **Genre and Rating Handling Guides**: Added Table of Contents to improve navigation and added cross-references between metadata field guides
 
-## [0.7.1] - 2025-12-02
+## [0.7.1] - 2025-02-07
 
 ### Fixed
 
@@ -314,7 +329,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Fixes issue where `get_full_metadata()` would return enum values instead of boolean in technical_info dictionary
   - Ensures consistent boolean return type for `is_flac_md5_valid` field in technical_info
 
-## [0.7.0] - 2025-12-02
+## [0.7.0] - 2025-02-06
 
 ### Changed
 
@@ -355,7 +370,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Cross-referenced from README.md for better documentation organization
 - **README Updates**: Updated README.md to reflect per-field warning behavior in SYNC strategy and reference new writing metadata guide
 
-## [0.6.0] - 2025-12-01
+## [0.6.0] - 2025-02-05
 
 ### Changed
 
@@ -392,7 +407,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Adds missing disc_number, disc_total, and rating validation to `update_metadata()`
   - Reduces code duplication between `validate_metadata_for_update()` and `update_metadata()`
 
-## [0.5.0] - 2025-12-01
+## [0.5.0] - 2025-02-04
 
 ### Added
 
@@ -409,7 +424,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 - **Metadata Formats Guide**: Added `METADATA_FORMATS.md` guide documenting all supported metadata formats with BWF versions and structure details
 - **Metadata Field Guide**: Enhanced `METADATA_FIELD_GUIDE.md` with BWF field support and improved table presentation
 
-## [0.4.1] - 2025-11-29
+## [0.4.1] - 2025-02-03
 
 ### Fixed
 
@@ -419,7 +434,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Version verification still ensures pinned versions are available, maintaining CI reliability
   - Prevents CI failures from transient Homebrew API network issues
 
-## [0.4.0] - 2025-11-29
+## [0.4.0] - 2025-02-02
 
 ### Added
 
@@ -431,7 +446,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Includes integration tests verifying compatibility with other library functions
   - Documentation added to README.md and Audio Technical Info Guide
 
-## [0.3.1] - 2025-11-28
+## [0.3.1] - 2025-02-01
 
 ### Added
 
@@ -459,7 +474,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Shows which metadata fields can be written via CLI command-line arguments
   - Indicates CLI argument names (e.g., `--title`, `--artist`, `--album`) for supported fields
 
-## [0.3.0] - 2025-11-27
+## [0.3.0] - 2025-01-31
 
 ### Added
 
@@ -475,7 +490,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - **Git Worktree Scripts**: Migrated from local scripts to npm package `git-worktree-scripts`. System dependency installation scripts now automatically install Node.js/npm. Added repository-specific `scripts/setup-worktree.sh` for Python virtual environment setup.
 
-## [0.2.9] - 2025-11-25
+## [0.2.9] - 2025-01-30
 
 ### Added
 
@@ -499,7 +514,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Added `--linewrap-full-docstring` to wrap long docstring lines to max-line-length without breaking sentences
 - **Pytest Warning Filtering**: Replaced `--disable-warnings` with `filterwarnings` configuration in `pyproject.toml` to selectively suppress only expected UserWarnings about unsupported metadata fields. This provides more precise control and ensures unexpected warnings are still visible, improving test output quality while maintaining clean CI logs
 
-## [0.2.8] - 2025-11-24
+## [0.2.8] - 2025-01-29
 
 ### Added
 
@@ -527,7 +542,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 - **GitHub Issue and PR Templates**: Added Cursor rules for generating GitHub issues and PR descriptions
 - **README**: Removed broken download badges and updated remaining badges to use PePy for more accurate statistics
 
-## [0.2.7] - 2025-11-20
+## [0.2.7] - 2025-01-28
 
 ### Added
 
@@ -572,7 +587,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Updated README with concise exception summary and link to detailed guide
   - Improves readability and maintains consistency with other detailed guides (Metadata Field Guide, Audio Technical Info Guide)
 
-## [0.2.5] - 2025-11-18
+## [0.2.5] - 2025-01-26
 
 ### Fixed
 
@@ -598,7 +613,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Added cacheSeconds parameter to shields.io badges to reduce API calls and rate limiting
   - Maintains download statistics visibility with improved reliability
 
-## [0.2.4] - 2025-11-17
+## [0.2.4] - 2025-01-25
 
 ### Fixed
 
@@ -608,7 +623,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Automatically proceeds with publishing once CI passes
   - Improves release process reliability and eliminates need for manual re-runs
 
-## [0.2.3] - 2025-11-17
+## [0.2.3] - 2025-01-24
 
 ### Improved
 
@@ -666,7 +681,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Checks if PowerShell is already installed before attempting installation
   - Provides helpful warnings if PowerShell is installed but not in PATH
 
-## [0.2.2] - 2025-11-17
+## [0.2.2] - 2025-01-23
 
 ### CI
 
@@ -708,7 +723,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Added PyPI downloads badges (monthly and weekly) showing download statistics
   - Updated version badge to reflect current release version
 
-## [0.2.1] - 2025-11-16
+## [0.2.1] - 2025-01-22
 
 ### Fixed
 
@@ -754,7 +769,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 - **Technical Information Guide**: Created separate AUDIO_TECHNICAL_INFO_GUIDE.md to document technical information functions (duration, bitrate, MD5 validation) separately from metadata field handling
 - **FLAC MD5 Validation**: Updated AUDIO_TECHNICAL_INFO_GUIDE.md to reflect consistent behavior for unset MD5 checksums
 
-## [0.2.0] - 2025-11-15
+## [0.2.0] - 2025-01-21
 
 ### Added
 
