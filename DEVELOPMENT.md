@@ -159,7 +159,7 @@ def some_function():
 When making changes to the codebase, ensure relevant documentation is updated:
 
 - **README.md**: Update when adding new features, changing behavior, or modifying installation/usage instructions
-- **CHANGELOG.md**: Always update `## [Unreleased]` in the **same PR** as the code ([Changelog and `[Unreleased`](#changelog-and-unreleased); [Changelog Best Practices](CHANGELOG.md#changelog-best-practices); `.cursor/rules/changelog.mdc`)
+- **CHANGELOG.md**: Always update `## [Unreleased]` in the **same PR** as the code ([Changelog and `[Unreleased]`](#changelog-and-unreleased); [Changelog Best Practices](CHANGELOG.md#changelog-best-practices); `.cursor/rules/changelog.mdc`)
 - **DEVELOPMENT.md**: Update when changing development standards or adding new guidelines
 - **CONTRIBUTING.md**: Update when changing development workflow (primarily for maintainers; contributors may update in exceptional cases, e.g., when adding hooks for new features in other languages)
 - **docs/**: Update relevant documentation files in the `docs/` directory when adding features or changing behavior that affects user-facing functionality
