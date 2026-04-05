@@ -62,8 +62,9 @@ def verify_changelog(path: Path) -> list[str]:
             )
 
         # Verify the first ## heading after [Unreleased] (outside fences) is a version header.
+        # u is a 1-based line number, so lines[u-1] is [Unreleased]; the scan starts at lines[u].
         in_fence = False
-        for idx in range(u, len(lines)):  # u is 1-based; lines[u] is the first line after [Unreleased]
+        for idx in range(u, len(lines)):
             stripped = lines[idx].strip()
             if stripped.startswith("```"):
                 in_fence = not in_fence
@@ -76,7 +77,7 @@ def verify_changelog(path: Path) -> list[str]:
                         f"Line {idx + 1}: the first '## ' section after '[Unreleased]' must be a release "
                         f"header matching '## [X.Y.Z] - YYYY-MM-DD'; got: {lines[idx]!r}."
                     )
-                break
+                break  # only the first ## heading matters; stop scanning
 
     for i in range(len(version_rows) - 1):
         _, ma, mi, pa = version_rows[i]
