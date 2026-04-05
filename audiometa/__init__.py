@@ -34,10 +34,13 @@ from .utils.flac_md5_state import FlacMd5State
 from .utils.metadata_format import MetadataFormat
 from .utils.metadata_writing_strategy import MetadataWritingStrategy
 from .utils.types import UnifiedMetadata, UnifiedMetadataValue
+from .utils.unified_metadata_field_schema import get_unified_metadata_field_schema
 from .utils.unified_metadata_key import UnifiedMetadataKey
 
 __all__ = [
     "UnifiedMetadataKey",
+    "get_unified_metadata_field_schema",
+    "get_supported_unified_metadata_field_ids",
     "FlacMd5State",
     "MetadataFormat",
     "MetadataWritingStrategy",
@@ -77,6 +80,35 @@ METADATA_FORMAT_MANAGER_CLASS_MAP: dict[MetadataFormat, type] = {
 
 # Public API: only accepts standard file path types (not _AudioFile)
 type PublicFileType = str | Path
+
+
+def _supported_unified_metadata_field_ids_from_manager(manager: _MetadataManager | None) -> list[str]:
+    if manager is None:
+        return []
+    wmap = getattr(manager, "metadata_keys_direct_map_write", None)
+    if not wmap:
+        return []
+    return sorted(ukey.value for ukey, raw_key in wmap.items() if raw_key is not None)
+
+
+def get_supported_unified_metadata_field_ids(file: PublicFileType) -> list[str]:
+    """Return unified field ids writable to the file's primary (native) metadata format.
+
+    Keys are :attr:`UnifiedMetadataKey.value` strings. Fields with no write mapping
+    for that format (``None`` in the manager's write map) are omitted.
+    """
+    audio_file = _AudioFile(file)
+    available_formats = MetadataFormat.get_priorities().get(audio_file.file_extension, [])
+    if not available_formats:
+        return []
+    target_format = available_formats[0]
+    manager = _get_metadata_manager(
+        audio_file=audio_file,
+        metadata_format=target_format,
+        normalized_rating_max_value=None,
+        id3v2_version=None,
+    )
+    return _supported_unified_metadata_field_ids_from_manager(manager)
 
 
 def _get_metadata_manager(
@@ -1290,7 +1322,18 @@ def get_full_metadata(
             TRAKTOR4). If False (default), such content is replaced by size placeholders.
 
     Returns:
-        Comprehensive dictionary containing all available metadata and technical information
+        Comprehensive dictionary. Top-level keys always include:
+
+        - ``unified_metadata``: Same merged view as :func:`get_unified_metadata`
+        - ``technical_info``, ``metadata_format``, ``headers``, ``raw_metadata``: As documented below;
+          ``technical_info`` / ``headers`` may be empty dicts when disabled via parameters
+        - ``unified_metadata_field_schema``: List of field descriptors (``id``, ``label``, ``multiple``,
+          ``value_type``, ``optional_value``) for every
+          :class:`~audiometa.utils.unified_metadata_key.UnifiedMetadataKey`; same data as
+          :func:`get_unified_metadata_field_schema`
+        - ``supported_unified_metadata_field_ids``: Sorted :attr:`UnifiedMetadataKey.value` strings writable
+          for this file's primary metadata format (see :func:`get_supported_unified_metadata_field_ids`)
+        - ``format_priorities``: Extension, reading order, and primary writing format
 
     Raises:
         FileTypeNotSupportedError: If the file format is not supported
@@ -1315,6 +1358,10 @@ def get_full_metadata(
         # Access header information
         print(f"ID3v2 Version: {full_metadata['headers']['id3v2']['version']}")
         print(f"Has ID3v1 Header: {full_metadata['headers']['id3v1']['present']}")
+
+        # Full unified key schema; writable field ids for this file's primary format
+        print(len(full_metadata['unified_metadata_field_schema']))
+        print(full_metadata['supported_unified_metadata_field_ids'])
     """
     audio_file = _AudioFile(file)
 
@@ -1324,6 +1371,9 @@ def get_full_metadata(
     # Get file-specific format priorities
     available_formats = MetadataFormat.get_priorities().get(audio_file.file_extension, [])
 
+    primary_format = available_formats[0] if available_formats else None
+    primary_manager = all_managers.get(primary_format) if primary_format is not None else None
+
     # Initialize result structure
     result: dict[str, Any] = {
         "unified_metadata": {},
@@ -1331,6 +1381,8 @@ def get_full_metadata(
         "metadata_format": {},
         "headers": {},
         "raw_metadata": {},
+        "unified_metadata_field_schema": get_unified_metadata_field_schema(),
+        "supported_unified_metadata_field_ids": _supported_unified_metadata_field_ids_from_manager(primary_manager),
         "format_priorities": {
             "file_extension": audio_file.file_extension,
             "reading_order": [fmt.value for fmt in available_formats],

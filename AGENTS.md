@@ -28,6 +28,10 @@ See `CONTRIBUTING.md` for full details. Quick reference:
 - **Test**: `pytest` (all 1553 tests) / `pytest -m unit` / `pytest -m integration` / `pytest -m e2e`
 - **CLI**: `audiometa read <file>` / `audiometa write <file> --title "..." --artist "..."` / `audiometa delete <file>`
 
+### Changelog
+
+When you change production code under `audiometa/`, the CLI, or user-visible behavior, update `CHANGELOG.md` in the `## [Unreleased]` section in the same work. Before finishing, confirm `[Unreleased]` matches what you changed. See [DEVELOPMENT.md — Changelog and `[Unreleased]`](DEVELOPMENT.md#changelog-and-unreleased) and `.cursor/rules/changelog.mdc`.
+
 ### Pull request descriptions
 
 When asked for a PR description, write it to **`.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md`** (gitignored); do not rely on chat-only text. See `.cursor/rules/pr-descriptions.mdc` and use `.github/pr_descriptions/pull_request_template.md` for sections.
