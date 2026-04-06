@@ -4,6 +4,7 @@
 import argparse
 import re
 import subprocess
+import sys
 from datetime import date
 from pathlib import Path
 
@@ -70,6 +71,9 @@ def main() -> None:
     repo_root = Path(__file__).resolve().parent.parent
     if not (repo_root / ".bumpversion.cfg").exists():
         raise SystemExit("Run from repository root (where .bumpversion.cfg lives).")
+
+    verify_script = repo_root / "scripts" / "verify_changelog.py"
+    subprocess.run([sys.executable, str(verify_script)], cwd=repo_root, check=True)
 
     current = get_current_version(repo_root)
     if args.new_version:

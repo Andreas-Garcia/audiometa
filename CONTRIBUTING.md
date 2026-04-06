@@ -498,7 +498,15 @@ Quick release process:
    - Consolidate entries if needed (group similar changes, ensure clarity)
    - Do not manually move or add the version header—the release script does that with today's date
 
-4. Run the release script (updates CHANGELOG, bumps version, commits, and tags):
+4. Verify changelog layout (ordering and `prepare_release.py` compatibility):
+
+   ```bash
+   python scripts/verify_changelog.py
+   ```
+
+   See `.cursor/rules/changelog.mdc` (**CHANGELOG.md structure and integrity**). Fix any reported errors before the release script.
+
+5. Run the release script (updates CHANGELOG, bumps version, commits, and tags):
 
    **Use the release script, not `bump2version` directly.** Running `bump2version patch` alone does not update `CHANGELOG.md` and is easy to forget; the script does changelog + version + commit + tag in one go.
 
@@ -522,7 +530,7 @@ Quick release process:
    - Without `--push`: stops here (verify with `git log -1` and `git tag -l`, then push manually)
    - With `--push`: pushes `main` and the new tag to `origin`
 
-5. If you did not use `--push`, verify and push:
+6. If you did not use `--push`, verify and push:
 
    ```bash
    git log -1
@@ -533,7 +541,7 @@ Quick release process:
    # Or: git push origin main --follow-tags
    ```
 
-6. CI/CD will automatically:
+7. CI/CD will automatically:
 
    - Verify tag version matches `pyproject.toml` version
    - Verify tag is on main branch

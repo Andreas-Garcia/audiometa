@@ -30,7 +30,7 @@ See `CONTRIBUTING.md` for full details. Quick reference:
 
 ### Changelog
 
-When you change production code under `audiometa/`, the CLI, or user-visible behavior, update `CHANGELOG.md` in the `## [Unreleased]` section in the same work. Before finishing, confirm `[Unreleased]` matches what you changed. See [DEVELOPMENT.md — Changelog and `[Unreleased]`](DEVELOPMENT.md#changelog-and-unreleased) and `.cursor/rules/changelog.mdc`.
+When you change production code under `audiometa/`, the CLI, or user-visible behavior, update `CHANGELOG.md` in the `## [Unreleased]` section in the same work. Before finishing, confirm `[Unreleased]` matches what you changed. After any substantive edit to `CHANGELOG.md`, run `python scripts/verify_changelog.py` (layout must match `prepare_release.py`; see `.cursor/rules/changelog.mdc`). See [DEVELOPMENT.md — Changelog and `[Unreleased]`](DEVELOPMENT.md#changelog-and-unreleased).
 
 ### Pull request descriptions
 
