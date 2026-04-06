@@ -23,10 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 All contributors (including maintainers) should update `CHANGELOG.md` when creating PRs:
 
 1. **Add entries to the `[Unreleased]` section** - Add your changes under the appropriate category (Added, Changed, Improved, Deprecated, Removed, Fixed, Documentation, Performance, CI) in the **same PR** as the code so `[Unreleased]` never lags the codebase
-2. **Follow the changelog format** - See examples below and `.cursor/rules/changelog.mdc` for detailed guidelines
-3. **Group related changes** - Similar changes should be grouped together
-4. **Be descriptive** - Write clear, user-focused descriptions of what changed
-5. **Mention tests when relevant** - Tests should be mentioned within the related feature or fix entry, not as standalone entries
+2. **Keep section order** - `## [Unreleased]` comes first, then released versions newest-first (`## [X.Y.Z] - YYYY-MM-DD`); run `python scripts/verify_changelog.py` after edits (see `.cursor/rules/changelog.mdc`)
+3. **Follow the changelog format** - See examples below and `.cursor/rules/changelog.mdc` for detailed guidelines
+4. **Group related changes** - Similar changes should be grouped together
+5. **Be descriptive** - Write clear, user-focused descriptions of what changed
+6. **Mention tests when relevant** - Tests should be mentioned within the related feature or fix entry, not as standalone entries
 
 **Example:**
 
@@ -46,6 +47,18 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 **Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-29`).
 
+## [Unreleased]
+
+### Improved
+
+- **Changelog layout**: `CHANGELOG.md` keeps `## [Unreleased]` before released versions in descending semver order. `scripts/verify_changelog.py` checks structure and `prepare_release.py` compatibility; `prepare_release.py` runs it before updating the changelog. CONTRIBUTING, DEVELOPMENT, AGENTS, and `.cursor/rules/changelog.mdc` document the workflow.
+
+## [1.4.1] - 2026-04-06
+
+### CI
+
+- **Publish docs bundle**: Workflow runs on version tags with a detached `HEAD`; the bundle commit is pushed with `git push origin HEAD:main` so updates to `publish/docs-bundle.json` apply to `main` instead of failing with `git push` without a branch.
+
 ## [1.4.0] - 2026-04-06
 
 ### Added
@@ -61,14 +74,6 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### Documentation
 
 - **Unified field schema**: README, `get_full_metadata` docstring, `FullMetadata` / `UnifiedMetadataFieldDescriptor` in `audiometa.utils.types`, `docs/METADATA_FIELD_GUIDE.md`, and `docs/METADATA_FORMATS.md` document `get_unified_metadata_field_schema`, `get_supported_unified_metadata_field_ids`, CLI JSON/YAML behavior, and the new `get_full_metadata` keys.
-
-## [1.4.1] - 2026-04-06
-
-### CI
-
-- **Publish docs bundle**: Workflow runs on version tags with a detached `HEAD`; the bundle commit is pushed with `git push origin HEAD:main` so updates to `publish/docs-bundle.json` apply to `main` instead of failing with `git push` without a branch.
-
-## [Unreleased]
 
 ## [1.3.3] - 2026-04-02
 
