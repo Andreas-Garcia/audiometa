@@ -35,6 +35,7 @@ jobs:
           HAS_PUSH_PAT: ${{ secrets.DOCS_BUNDLE_PUSH_PAT != '' }}
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add publish/docs-bundle.json
@@ -49,7 +50,7 @@ jobs:
           fi
           bundle_branch="chore/update-docs-bundle"
           git push --force origin "HEAD:${bundle_branch}"
-          open_prs="$(gh pr list --head "${bundle_branch}" --base main --state open --json number --jq 'length')"
+          open_prs="$(gh pr list --head "${bundle_branch}" --base main --state open --json number --jq 'length')" || exit 1
           if [ "${open_prs}" = "0" ]; then
             gh pr create --base main --head "${bundle_branch}" \
               --title "chore: update docs bundle for frontend" \
