@@ -47,7 +47,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 **Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-29`).
 
-## [Unreleased]
+## [1.4.2] - 2026-04-06
 
 ### Improved
 
@@ -56,6 +56,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### CI
 
 - **Publish docs bundle**: When rulesets block `GITHUB_TOKEN` from pushing to `main`, the workflow either uses optional repository secret `DOCS_BUNDLE_PUSH_PAT` (fine-grained PAT with **Contents** read/write for this repo) to `git push origin HEAD:main`, or—if unset—force-pushes to `chore/update-docs-bundle` and opens a PR to `main`. See `publish/README.md`.
+
+## [Unreleased]
 
 ## [1.4.1] - 2026-04-06
 
