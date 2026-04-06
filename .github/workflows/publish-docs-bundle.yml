@@ -14,10 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.DOCS_BUNDLE_PUSH_PAT || github.token }}
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -27,14 +30,31 @@ jobs:
       - name: Build docs bundle
         run: python3 scripts/build_docs_bundle.py
 
-      - name: Commit and push if changed
+      - name: Commit and push or open PR if changed
+        env:
+          HAS_PUSH_PAT: ${{ secrets.DOCS_BUNDLE_PUSH_PAT != '' }}
+          GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add publish/docs-bundle.json
           if git diff --staged --quiet; then
             echo "No changes to docs-bundle.json"
-          else
-            git commit -m "chore: update docs bundle for frontend"
+            exit 0
+          fi
+          git commit -m "chore: update docs bundle for frontend"
+          if [ "${HAS_PUSH_PAT}" = "true" ]; then
             git push origin HEAD:main
+            exit 0
+          fi
+          bundle_branch="chore/update-docs-bundle"
+          git push --force origin "HEAD:${bundle_branch}"
+          open_prs="$(gh pr list --head "${bundle_branch}" --base main --state open --json number --jq 'length')" || exit 1
+          if [ "${open_prs}" = "0" ]; then
+            gh pr create --base main --head "${bundle_branch}" \
+              --title "chore: update docs bundle for frontend" \
+              --body "Automated update from the [Publish docs bundle](https://github.com/${{ github.repository }}/actions/workflows/publish-docs-bundle.yml) workflow. Merge after CI passes."
+          else
+            echo "PR already open for ${bundle_branch} -> main"
           fi

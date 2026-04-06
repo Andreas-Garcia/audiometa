@@ -53,6 +53,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - **Changelog layout**: `CHANGELOG.md` keeps `## [Unreleased]` before released versions in descending semver order. `scripts/verify_changelog.py` checks structure and `prepare_release.py` compatibility; `prepare_release.py` runs it before updating the changelog. CONTRIBUTING, DEVELOPMENT, AGENTS, and `.cursor/rules/changelog.mdc` document the workflow.
 
+### CI
+
+- **Publish docs bundle**: When rulesets block `GITHUB_TOKEN` from pushing to `main`, the workflow either uses optional repository secret `DOCS_BUNDLE_PUSH_PAT` (fine-grained PAT with **Contents** read/write for this repo) to `git push origin HEAD:main`, or—if unset—force-pushes to `chore/update-docs-bundle` and opens a PR to `main`. See `publish/README.md`.
+
 ## [1.4.1] - 2026-04-06
 
 ### CI
