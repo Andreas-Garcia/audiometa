@@ -13,7 +13,7 @@ concurrency:
 jobs:
   lint:
     name: Lint
-    uses: BehindTheMusicTree/python-project-standards/.github/workflows/reusable-pre-commit.yml@v2.1.0
+    uses: BehindTheMusicTree/python-project-standards/.github/workflows/reusable-pre-commit.yml@v2.2.0
     with:
       runs-on: ubuntu-24.04
       python-version: "3.13"
@@ -30,7 +30,7 @@ jobs:
 
   test:
     name: Test
-    uses: BehindTheMusicTree/python-project-standards/.github/workflows/reusable-test-matrix.yml@v2.1.0
+    uses: BehindTheMusicTree/python-project-standards/.github/workflows/reusable-test-matrix.yml@v2.2.0
     with:
       os-matrix: '["ubuntu-24.04","macos-14","windows-2022"]'
       python-matrix: '["3.12","3.13","3.14"]'
@@ -48,7 +48,7 @@ jobs:
       unit-command: pytest -m unit --cov=audiometa --cov-report=xml --cov-report=term
       integration-command: pytest -m integration --cov=audiometa --cov-report=xml --cov-report=term --cov-append
       e2e-command: pytest -m e2e --cov=audiometa --cov-report=xml --cov-report=term --cov-append
-      coverage-command: coverage report --fail-under=85
+      coverage-fail-under: "85"
       cache-pytest: true
 
   lint-and-tests-success:
