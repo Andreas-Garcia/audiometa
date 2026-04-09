@@ -401,7 +401,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
 
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
                 metadata_format_name = self._get_formatted_metadata_format_name()
-                msg = f"{unified_metadata_key} metadata not supported by {metadata_format_name} format"
+                msg = f"{unified_metadata_key.qualified_name()} metadata not supported by {metadata_format_name} format"
                 raise MetadataFieldNotSupportedByMetadataFormatError(msg)
             raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
             if raw_metadata_key:
@@ -563,7 +563,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
     def _get_undirectly_mapped_metadata_value_other_than_rating_from_raw_clean_metadata(
         self, _raw_clean_metadata: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey
     ) -> UnifiedMetadataValue:
-        msg = f"Metadata key not handled: {unified_metadata_key}"
+        msg = f"Metadata key not handled: {unified_metadata_key.qualified_name()}"
         raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
     def _update_undirectly_mapped_metadata(
@@ -600,5 +600,5 @@ class _VorbisManager(_RatingSupportingMetadataManager):
                 if self.VorbisKey.RATING_TRAKTOR in raw_mutagen_metadata:
                     del raw_mutagen_metadata[self.VorbisKey.RATING_TRAKTOR]
         else:
-            msg = f"Metadata key not handled: {unified_metadata_key}"
+            msg = f"Metadata key not handled: {unified_metadata_key.qualified_name()}"
             raise MetadataFieldNotSupportedByMetadataFormatError(msg)

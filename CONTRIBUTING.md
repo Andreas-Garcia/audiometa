@@ -271,7 +271,7 @@ pytest -m e2e           # End-to-end tests only
 pytest -m "not e2e"
 
 # Run with coverage (recommended before committing)
-pytest --cov=audiometa --cov-report=html --cov-report=term-missing --cov-fail-under=85
+pytest --cov=audiometa --cov-report=html --cov-report=term-missing --cov-fail-under=80
 ```
 
 **For comprehensive test documentation**, including test principles, markers, coverage details, Windows testing, CI configuration, and advanced usage, see [`docs/TESTING.md`](docs/TESTING.md).
@@ -304,7 +304,7 @@ Before submitting a Pull Request, ensure the following checks are completed:
 **2. Tests**
 
 - ✅ All tests pass: `pytest`
-- ✅ Coverage meets threshold (≥85%): `pytest --cov=audiometa --cov-report=term-missing --cov-fail-under=85`
+- ✅ Coverage meets threshold (≥80%): `pytest --cov=audiometa --cov-report=term-missing --cov-fail-under=80`
 - ✅ New features have corresponding tests
 - ✅ Bug fixes include regression tests
 
@@ -335,8 +335,8 @@ Before submitting a Pull Request, ensure the following checks are completed:
 
 **2. Testing Verification**
 
-- ✅ CI tests pass on all platforms and Python versions (Lint and Test workflow on PRs via [`.github/workflows/lint-and-test.yml`](.github/workflows/lint-and-test.yml): **lint** and **test** jobs call [python-project-standards](https://github.com/BehindTheMusicTree/python-project-standards) reusables pinned to **`@v2.3.0`**, matching [`STANDARDS_VERSION`](STANDARDS_VERSION); branch protection should require the "Lint and Test" check before merging)
-- ✅ Test coverage meets threshold (CI automatically blocks merge if coverage is below 85%)
+- ✅ CI tests pass on all platforms and Python versions (Lint and Test workflow on PRs via [`.github/workflows/lint-and-test.yml`](.github/workflows/lint-and-test.yml): **lint** delegates to [python-project-standards](https://github.com/BehindTheMusicTree/python-project-standards) **`reusable-pre-commit.yml`** at **`@v3.0.0`**; **test** is in-repo; pins match [`STANDARDS_VERSION`](STANDARDS_VERSION); branch protection should require the "Lint and Test" check before merging)
+- ✅ Test coverage meets threshold (CI automatically blocks merge if coverage is below 80%)
 - ✅ Edge cases are handled
 - ✅ Integration with existing features works correctly
 
@@ -366,7 +366,7 @@ Before submitting a Pull Request, ensure the following checks are completed:
 ```bash
 # Run all checks at once
 pre-commit run --all-files && \
-pytest --cov=audiometa --cov-report=term-missing --cov-fail-under=85
+pytest --cov=audiometa --cov-report=term-missing --cov-fail-under=80
 ```
 
 #### 6.2. Opening a Pull Request

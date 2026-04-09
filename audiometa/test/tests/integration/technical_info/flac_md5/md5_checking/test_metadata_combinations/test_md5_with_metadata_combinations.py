@@ -45,9 +45,9 @@ class TestMd5WithMetadataCombinations:
             ID3v1MetadataSetter.set_title(test_file, "ID3v1 Title")
             ID3v1MetadataSetter.set_artist(test_file, "ID3v1 Artist")
             state = is_flac_md5_valid(test_file)
-            assert (
-                state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1
-            ), "FLAC with ID3v1 metadata only should return UNCHECKABLE_DUE_TO_ID3"
+            assert state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1, (
+                "FLAC with ID3v1 metadata only should return UNCHECKABLE_DUE_TO_ID3"
+            )
 
     def test_valid_md5_vorbis_and_id3v2(self):
         """Test VALID state with Vorbis and ID3v2 metadata."""
@@ -66,9 +66,9 @@ class TestMd5WithMetadataCombinations:
             ID3v1MetadataSetter.set_title(test_file, "ID3v1 Title")
             ID3v1MetadataSetter.set_artist(test_file, "ID3v1 Artist")
             state = is_flac_md5_valid(test_file)
-            assert (
-                state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1
-            ), "FLAC with Vorbis and ID3v1 metadata should return UNCHECKABLE_DUE_TO_ID3"
+            assert state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1, (
+                "FLAC with Vorbis and ID3v1 metadata should return UNCHECKABLE_DUE_TO_ID3"
+            )
 
     def test_uncheckable_md5_id3v1_and_id3v2(self):
         """Test UNCHECKABLE_DUE_TO_ID3 state with ID3v1 and ID3v2 metadata."""
@@ -77,9 +77,9 @@ class TestMd5WithMetadataCombinations:
             ID3v1MetadataSetter.set_title(test_file, "ID3v1 Title")
             ID3v2MetadataSetter.set_metadata(test_file, {"title": "ID3v2 Title", "artist": "ID3v2 Artist"})
             state = is_flac_md5_valid(test_file)
-            assert (
-                state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1
-            ), "FLAC with ID3v1 and ID3v2 metadata should return UNCHECKABLE_DUE_TO_ID3"
+            assert state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1, (
+                "FLAC with ID3v1 and ID3v2 metadata should return UNCHECKABLE_DUE_TO_ID3"
+            )
 
     def test_uncheckable_md5_vorbis_id3v1_and_id3v2(self):
         """Test UNCHECKABLE_DUE_TO_ID3 state with all metadata formats."""
@@ -89,6 +89,6 @@ class TestMd5WithMetadataCombinations:
             ID3v1MetadataSetter.set_title(test_file, "ID3v1 Title")
             ID3v2MetadataSetter.set_metadata(test_file, {"title": "ID3v2 Title", "artist": "ID3v2 Artist"})
             state = is_flac_md5_valid(test_file)
-            assert (
-                state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1
-            ), "FLAC with all metadata formats should return UNCHECKABLE_DUE_TO_ID3 (ID3v1 present)"
+            assert state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1, (
+                "FLAC with all metadata formats should return UNCHECKABLE_DUE_TO_ID3 (ID3v1 present)"
+            )

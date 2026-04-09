@@ -15,14 +15,10 @@ from .id3v2_metadata_setter import ID3v2MetadataSetter
 
 
 __all__ = [
-    # Core operations
+    "ExternalMetadataToolError",
     "ID3v2HeaderVerifier",
     "ID3v2MetadataDeleter",
-    "ID3v2MetadataSetter",
     "ID3v2MetadataGetter",
-    # Specialized managers (moved to ID3v2MetadataSetter)
-    # Advanced tools
+    "ID3v2MetadataSetter",
     "ManualID3v2FrameCreator",
-    # External tool wrappers
-    "ExternalMetadataToolError",
 ]

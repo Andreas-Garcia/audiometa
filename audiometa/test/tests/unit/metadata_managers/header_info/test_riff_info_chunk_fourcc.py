@@ -51,9 +51,15 @@ class TestRiffInfoChunkFourCCValidation:
             inam_size += 1
         if invalid_size % 2:
             invalid_size += 1
-        list_payload = b"INFO" b"INAM" + inam_size.to_bytes(4, "little") + inam_data.ljust(
-            inam_size, b"\x00"
-        ) + b"IN\x00M" + invalid_size.to_bytes(4, "little") + invalid_data.ljust(invalid_size, b"\x00")
+        list_payload = (
+            b"INFO"
+            b"INAM"
+            + inam_size.to_bytes(4, "little")
+            + inam_data.ljust(inam_size, b"\x00")
+            + b"IN\x00M"
+            + invalid_size.to_bytes(4, "little")
+            + invalid_data.ljust(invalid_size, b"\x00")
+        )
         list_size = len(list_payload)
         if list_size % 2:
             list_payload += b"\x00"

@@ -51,14 +51,14 @@ class TestGetFullMetadataBinaryDataFiltering:
         for frame_id, frame_data in id3v2_frames.items():
             text = frame_data.get("text", "")
 
-            assert not any(
-                ord(c) < 32 and c not in "\t\n\r" for c in text
-            ), f"Frame {frame_id} contains binary data in text: {text[:50]!r}"
+            assert not any(ord(c) < 32 and c not in "\t\n\r" for c in text), (
+                f"Frame {frame_id} contains binary data in text: {text[:50]!r}"
+            )
 
             if _is_binary_frame(frame_id):
-                assert text.startswith(
-                    "<Binary data:"
-                ), f"Binary frame {frame_id} should have placeholder text, got: {text}"
+                assert text.startswith("<Binary data:"), (
+                    f"Binary frame {frame_id} should have placeholder text, got: {text}"
+                )
                 assert text.endswith(" bytes>"), f"Binary frame {frame_id} should end with ' bytes>', got: {text}"
 
     def test_get_full_metadata_id3v2_binary_frames_sanitized(self, sample_mp3_file):
@@ -72,9 +72,9 @@ class TestGetFullMetadataBinaryDataFiltering:
                 assert text.startswith("<Binary data:"), f"Binary frame {frame_id} should have placeholder text"
                 assert text.endswith(" bytes>"), f"Binary frame {frame_id} should end with ' bytes>'"
             else:
-                assert not any(
-                    ord(c) < 32 and c not in "\t\n\r" for c in text
-                ), f"Text frame {frame_id} contains binary data: {text[:50]!r}"
+                assert not any(ord(c) < 32 and c not in "\t\n\r" for c in text), (
+                    f"Text frame {frame_id} contains binary data: {text[:50]!r}"
+                )
 
     def test_get_full_metadata_vorbis_no_binary_data(self, sample_flac_file):
         """Test that get_full_metadata Vorbis comments don't contain binary data."""
@@ -86,9 +86,9 @@ class TestGetFullMetadataBinaryDataFiltering:
             assert isinstance(values, list), f"Vorbis comment {key} should be a list"
             for value in values:
                 assert isinstance(value, str), f"Vorbis comment {key} value should be string"
-                assert not any(
-                    ord(c) < 32 and c not in "\t\n\r" for c in value
-                ), f"Vorbis comment {key} contains binary data: {value[:50]!r}"
+                assert not any(ord(c) < 32 and c not in "\t\n\r" for c in value), (
+                    f"Vorbis comment {key} contains binary data: {value[:50]!r}"
+                )
 
     def test_get_full_metadata_vorbis_opaque_comment_sanitized(self):
         """TRAKTOR4 and other opaque Vorbis comment keys are replaced with size placeholder."""
@@ -133,9 +133,9 @@ class TestGetFullMetadataBinaryDataFiltering:
         for key, value in riff_fields.items():
             assert isinstance(value, str), f"RIFF field {key} should be string"
             # Check for binary data patterns
-            assert not any(
-                ord(c) < 32 and c not in "\t\n\r" for c in value
-            ), f"RIFF field {key} contains binary data: {value[:50]!r}"
+            assert not any(ord(c) < 32 and c not in "\t\n\r" for c in value), (
+                f"RIFF field {key} contains binary data: {value[:50]!r}"
+            )
 
     def test_get_full_metadata_id3v1_no_binary_data(self, sample_mp3_file):
         """Test that get_full_metadata ID3v1 metadata doesn't contain binary data."""
@@ -147,9 +147,9 @@ class TestGetFullMetadataBinaryDataFiltering:
         for key, value in id3v1_fields.items():
             assert isinstance(value, str), f"ID3v1 field {key} should be string"
             # Check for binary data patterns
-            assert not any(
-                ord(c) < 32 and c not in "\t\n\r" for c in value
-            ), f"ID3v1 field {key} contains binary data: {value[:50]!r}"
+            assert not any(ord(c) < 32 and c not in "\t\n\r" for c in value), (
+                f"ID3v1 field {key} contains binary data: {value[:50]!r}"
+            )
 
     def test_cli_output_no_binary_data(self, sample_mp3_file):
         """Test that CLI output doesn't contain binary data."""

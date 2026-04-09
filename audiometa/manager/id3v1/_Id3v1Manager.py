@@ -161,7 +161,7 @@ class _Id3v1Manager(_MetadataManager):
                 raw_clean_metadata=raw_clean_metadata_uppercase_keys,
                 raw_metadata_ket=Id3v1RawMetadataKey.GENRE_CODE_OR_NAME,
             )
-        msg = f"{unified_metadata_key} metadata is not undirectly handled"
+        msg = f"{unified_metadata_key.qualified_name()} metadata is not undirectly handled"
         raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
     def _update_undirectly_mapped_metadata(
@@ -187,7 +187,7 @@ class _Id3v1Manager(_MetadataManager):
                 if genre_code is not None:
                     tags[Id3v1RawMetadataKey.GENRE_CODE_OR_NAME] = [str(genre_code)]
         else:
-            msg = f"{unified_metadata_key} metadata is not undirectly handled"
+            msg = f"{unified_metadata_key.qualified_name()} metadata is not undirectly handled"
             raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
     def _update_formatted_value_in_raw_mutagen_metadata(
@@ -204,8 +204,7 @@ class _Id3v1Manager(_MetadataManager):
 
         # If value is None, remove the field (delete from tags)
         if app_metadata_value is None:
-            if raw_metadata_key in tags:
-                del tags[raw_metadata_key]
+            tags.pop(raw_metadata_key, None)
             return
 
         # Convert and truncate the value according to ID3v1 constraints
@@ -258,7 +257,7 @@ class _Id3v1Manager(_MetadataManager):
         for unified_metadata_key in unified_metadata:
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
                 metadata_format_name = self._get_formatted_metadata_format_name()
-                msg = f"{unified_metadata_key} metadata not supported by {metadata_format_name} format"
+                msg = f"{unified_metadata_key.qualified_name()} metadata not supported by {metadata_format_name} format"
                 raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
         # Read the entire file
