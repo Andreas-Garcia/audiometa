@@ -299,7 +299,7 @@ Before submitting a Pull Request, ensure the following checks are completed:
 **1. Code Quality**
 
 - ✅ Follow [Code Quality](DEVELOPMENT.md#code-quality) standards in DEVELOPMENT.md
-- ✅ Run pre-commit hooks: `pre-commit run --all-files` (includes linting, formatting, type checking, assert statement check, debug statement detection, etc.)
+- ✅ Run pre-commit hooks: `pre-commit run --all-files` (includes **`verify-python-project-standards`**, linting, formatting, type checking, assert statement check, debug statement detection, etc.)
 
 **2. Tests**
 
@@ -335,7 +335,7 @@ Before submitting a Pull Request, ensure the following checks are completed:
 
 **2. Testing Verification**
 
-- ✅ CI tests pass on all platforms and Python versions (Lint and Test workflow runs on pull requests only via `.github/workflows/lint-and-test.yml`; branch protection should require the "Lint and Test" check before merging)
+- ✅ CI tests pass on all platforms and Python versions (Lint and Test workflow on PRs via [`.github/workflows/lint-and-test.yml`](.github/workflows/lint-and-test.yml): **lint** and **test** jobs call [python-project-standards](https://github.com/BehindTheMusicTree/python-project-standards) reusables pinned to **`@v2.1.0`**, matching [`STANDARDS_VERSION`](STANDARDS_VERSION); branch protection should require the "Lint and Test" check before merging)
 - ✅ Test coverage meets threshold (CI automatically blocks merge if coverage is below 85%)
 - ✅ Edge cases are handled
 - ✅ Integration with existing features works correctly

@@ -2,6 +2,8 @@
 
 This document outlines the coding standards and best practices for developing this project.
 
+Organization-wide Python tooling, CI patterns, and shared style (including [string enums](https://github.com/BehindTheMusicTree/python-project-standards/blob/main/docs/string-enums.md)) are summarized in **[BehindTheMusicTree/python-project-standards — Development baseline](https://github.com/BehindTheMusicTree/python-project-standards/blob/main/docs/development.md)**. This library uses **Tier A** callables (see that repo’s README): [`.github/workflows/lint-and-test.yml`](.github/workflows/lint-and-test.yml) pins **`reusable-pre-commit.yml`** and **`reusable-test-matrix.yml`** to **`@v2.1.0`**, matching root [`STANDARDS_VERSION`](STANDARDS_VERSION). When upgrading standards, bump the workflow **`uses:`** refs and **`STANDARDS_VERSION`** together, then read the upstream [CHANGELOG](https://github.com/BehindTheMusicTree/python-project-standards/blob/main/CHANGELOG.md) and [versioning](https://github.com/BehindTheMusicTree/python-project-standards/blob/main/docs/versioning.md) docs.
+
 ## Table of Contents
 
 - [Code Quality](#code-quality)
@@ -27,7 +29,7 @@ Follow these code quality standards when developing:
 
 - **Remove commented-out code** - Don't leave commented-out code in the codebase. If code is no longer needed, remove it. Use version control (git) to recover old code if needed.
 - **No hardcoded credentials, API keys, or secrets** - Never commit credentials, API keys, passwords, or other sensitive information to the repository. Use environment variables or secure configuration management instead.
-- **Run pre-commit hooks** - Always run `pre-commit run --all-files` before committing. This includes linting, formatting, type checking, assert statement checks, debug statement detection, and other quality checks. Pre-commit hooks are automatically enforced, but running them manually helps catch issues early.
+- **Run pre-commit hooks** - Always run `pre-commit run --all-files` before committing. This includes **`verify-python-project-standards`** ([`scripts/verify-standards.sh`](scripts/verify-standards.sh): layout, ruff/mypy in config, CI references org reusables, **`STANDARDS_VERSION`** vs **`@v…`** pins), linting, formatting, type checking, assert statement checks, debug statement detection, and other quality checks. Pre-commit hooks are automatically enforced, but running them manually helps catch issues early.
 
 **Note:** Pre-commit hooks are configured to use tools from your active Python environment. Always activate the project's virtual environment (`.venv`) before running git commits. See the [Virtual Environment](.cursor/rules/virtual-environment.mdc) rules for details.
 

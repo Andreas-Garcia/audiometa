@@ -67,6 +67,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - **python-project-standards**: Pin [`reusable-pre-commit.yml`](https://github.com/BehindTheMusicTree/python-project-standards/blob/v2.1.0/.github/workflows/reusable-pre-commit.yml) and [`reusable-test-matrix.yml`](https://github.com/BehindTheMusicTree/python-project-standards/blob/v2.1.0/.github/workflows/reusable-test-matrix.yml) to **`@v2.1.0`** (replacing **`@main`**). Add root [`STANDARDS_VERSION`](STANDARDS_VERSION) **`2.1.0`** and pre-commit hook **`verify-python-project-standards`** ([`scripts/verify-standards.sh`](scripts/verify-standards.sh), org template) so layout and workflow pins stay aligned with the adopted standards release. Reusable test matrix still uses pytest cache (`cache-pytest: true`).
 
+### Documentation
+
+- **python-project-standards adoption**: [DEVELOPMENT.md](DEVELOPMENT.md), [CONTRIBUTING.md](CONTRIBUTING.md), [docs/TESTING.md](docs/TESTING.md), [docs/COMMITTING.md](docs/COMMITTING.md), and [AGENTS.md](AGENTS.md) describe Tier A reusables (**`@v2.1.0`**), [`STANDARDS_VERSION`](STANDARDS_VERSION), and **`verify-python-project-standards`** / [`scripts/verify-standards.sh`](scripts/verify-standards.sh).
+
 ## [1.4.1] - 2026-04-06
 
 ### CI
