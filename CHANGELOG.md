@@ -47,16 +47,6 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 **Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-29`).
 
-## [1.4.2] - 2026-04-06
-
-### Improved
-
-- **Changelog layout**: `CHANGELOG.md` keeps `## [Unreleased]` before released versions in descending semver order. `scripts/verify_changelog.py` checks structure and `prepare_release.py` compatibility; `prepare_release.py` runs it before updating the changelog. CONTRIBUTING, DEVELOPMENT, AGENTS, and `.cursor/rules/changelog.mdc` document the workflow.
-
-### CI
-
-- **Publish docs bundle**: When rulesets block `GITHUB_TOKEN` from pushing to `main`, the workflow either uses optional repository secret `DOCS_BUNDLE_PUSH_PAT` (fine-grained PAT with **Contents** read/write for this repo) to `git push origin HEAD:main`, or—if unset—force-pushes to `chore/update-docs-bundle` and opens a PR to `main`. See `publish/README.md`.
-
 ## [Unreleased]
 
 ### Changed
@@ -70,6 +60,20 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### Documentation
 
 - **python-project-standards adoption**: [DEVELOPMENT.md](DEVELOPMENT.md), [CONTRIBUTING.md](CONTRIBUTING.md), [docs/TESTING.md](docs/TESTING.md), [docs/COMMITTING.md](docs/COMMITTING.md), and [AGENTS.md](AGENTS.md) describe Tier A reusables (**`@v2.1.0`**), [`STANDARDS_VERSION`](STANDARDS_VERSION), and **`verify-python-project-standards`** / [`scripts/verify-standards.sh`](scripts/verify-standards.sh).
+
+### Fixed
+
+- **CHANGELOG.md**: Placed `## [Unreleased]` before `## [1.4.2]` (released content had been above `[Unreleased]`). `python scripts/verify_changelog.py` passes again.
+
+## [1.4.2] - 2026-04-06
+
+### Improved
+
+- **Changelog layout**: `CHANGELOG.md` keeps `## [Unreleased]` before released versions in descending semver order. `scripts/verify_changelog.py` checks structure and `prepare_release.py` compatibility; `prepare_release.py` runs it before updating the changelog. CONTRIBUTING, DEVELOPMENT, AGENTS, and `.cursor/rules/changelog.mdc` document the workflow.
+
+### CI
+
+- **Publish docs bundle**: When rulesets block `GITHUB_TOKEN` from pushing to `main`, the workflow either uses optional repository secret `DOCS_BUNDLE_PUSH_PAT` (fine-grained PAT with **Contents** read/write for this repo) to `git push origin HEAD:main`, or—if unset—force-pushes to `chore/update-docs-bundle` and opens a PR to `main`. See `publish/README.md`.
 
 ## [1.4.1] - 2026-04-06
 
