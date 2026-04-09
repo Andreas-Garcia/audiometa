@@ -13,7 +13,7 @@ concurrency:
 jobs:
   lint:
     name: Lint
-    uses: BehindTheMusicTree/python-project-standards/.github/workflows/reusable-pre-commit.yml@main
+    uses: BehindTheMusicTree/python-project-standards/.github/workflows/reusable-pre-commit.yml@v2.1.0
     with:
       runs-on: ubuntu-24.04
       python-version: "3.13"
@@ -30,7 +30,7 @@ jobs:
 
   test:
     name: Test
-    uses: BehindTheMusicTree/python-project-standards/.github/workflows/reusable-test-matrix.yml@main
+    uses: BehindTheMusicTree/python-project-standards/.github/workflows/reusable-test-matrix.yml@v2.1.0
     with:
       os-matrix: '["ubuntu-24.04","macos-14","windows-2022"]'
       python-matrix: '["3.12","3.13","3.14"]'

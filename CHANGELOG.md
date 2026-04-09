@@ -59,6 +59,14 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Changed
+
+- **Dev tooling**: Bumped **Ruff** from `0.6.9` to `0.15.9` in `[project.optional-dependencies] dev` (py3.14-compatible parser and current rule set). Added `PLC0415` / `RUF043` to `ignore` for existing lazy-import and test patterns. Migrated string enums in `audiometa.utils` (and related usage) to **`StrEnum`**, `Self` return on `_AudioFile.__enter__`, and **ruff format** on files touched by the new formatter.
+
+### CI
+
+- **python-project-standards**: Pin [`reusable-pre-commit.yml`](https://github.com/BehindTheMusicTree/python-project-standards/blob/v2.1.0/.github/workflows/reusable-pre-commit.yml) and [`reusable-test-matrix.yml`](https://github.com/BehindTheMusicTree/python-project-standards/blob/v2.1.0/.github/workflows/reusable-test-matrix.yml) to **`@v2.1.0`** (replacing **`@main`**). Add root [`STANDARDS_VERSION`](STANDARDS_VERSION) **`2.1.0`** and pre-commit hook **`verify-python-project-standards`** ([`scripts/verify-standards.sh`](scripts/verify-standards.sh), org template) so layout and workflow pins stay aligned with the adopted standards release. Reusable test matrix still uses pytest cache (`cache-pytest: true`).
+
 ## [1.4.1] - 2026-04-06
 
 ### CI
