@@ -335,7 +335,7 @@ Before submitting a Pull Request, ensure the following checks are completed:
 
 **2. Testing Verification**
 
-- ✅ CI tests pass on all platforms and Python versions (Lint and Test workflow on PRs via [`.github/workflows/lint-and-test.yml`](.github/workflows/lint-and-test.yml): **lint** and **test** jobs call [python-project-standards](https://github.com/BehindTheMusicTree/python-project-standards) reusables pinned to **`@v2.2.0`**, matching [`STANDARDS_VERSION`](STANDARDS_VERSION); branch protection should require the "Lint and Test" check before merging)
+- ✅ CI tests pass on all platforms and Python versions (Lint and Test workflow on PRs via [`.github/workflows/lint-and-test.yml`](.github/workflows/lint-and-test.yml): **lint** and **test** jobs call [python-project-standards](https://github.com/BehindTheMusicTree/python-project-standards) reusables pinned to **`@v2.3.0`**, matching [`STANDARDS_VERSION`](STANDARDS_VERSION); branch protection should require the "Lint and Test" check before merging)
 - ✅ Test coverage meets threshold (CI automatically blocks merge if coverage is below 85%)
 - ✅ Edge cases are handled
 - ✅ Integration with existing features works correctly

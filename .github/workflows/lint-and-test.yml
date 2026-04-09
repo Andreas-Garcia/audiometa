@@ -13,7 +13,7 @@ concurrency:
 jobs:
   lint:
     name: Lint
-    uses: BehindTheMusicTree/python-project-standards/.github/workflows/reusable-pre-commit.yml@v2.2.0
+    uses: BehindTheMusicTree/python-project-standards/.github/workflows/reusable-pre-commit.yml@v2.3.0
     with:
       runs-on: ubuntu-24.04
       python-version: "3.13"
@@ -23,14 +23,11 @@ jobs:
         echo 'deb http://security.ubuntu.com/ubuntu noble-security main universe' | sudo tee -a /etc/apt/sources.list
         sudo apt-get update -qq
         bash scripts/install-system-dependencies-ubuntu.sh lint
-      install-command: |
-        python -m pip install --upgrade pip
-        pip install -e ".[dev]"
       pre-commit-command: SKIP_SYSTEM_DEPENDENCY_VERIFICATION=true pre-commit run --all-files --verbose --show-diff-on-failure
 
   test:
     name: Test
-    uses: BehindTheMusicTree/python-project-standards/.github/workflows/reusable-test-matrix.yml@v2.2.0
+    uses: BehindTheMusicTree/python-project-standards/.github/workflows/reusable-test-matrix.yml@v2.3.0
     with:
       os-matrix: '["ubuntu-24.04","macos-14","windows-2022"]'
       python-matrix: '["3.12","3.13","3.14"]'
@@ -42,9 +39,6 @@ jobs:
         bash scripts/install-system-dependencies-ubuntu.sh
       pre-install-macos: bash scripts/install-system-dependencies-macos.sh
       pre-install-windows: .\scripts\install-system-dependencies-windows.ps1
-      install-command: |
-        python -m pip install --upgrade pip
-        pip install -e ".[dev]"
       unit-command: pytest -m unit --cov=audiometa --cov-report=xml --cov-report=term
       integration-command: pytest -m integration --cov=audiometa --cov-report=xml --cov-report=term --cov-append
       e2e-command: pytest -m e2e --cov=audiometa --cov-report=xml --cov-report=term --cov-append

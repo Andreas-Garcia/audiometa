@@ -55,13 +55,15 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### CI
 
-- **python-project-standards**: Pin [`reusable-pre-commit.yml`](https://github.com/BehindTheMusicTree/python-project-standards/blob/v2.2.0/.github/workflows/reusable-pre-commit.yml) and [`reusable-test-matrix.yml`](https://github.com/BehindTheMusicTree/python-project-standards/blob/v2.2.0/.github/workflows/reusable-test-matrix.yml) to **`@v2.2.0`**; [`STANDARDS_VERSION`](STANDARDS_VERSION) **`2.2.0`**. Test matrix uses **`coverage-fail-under: "85"`** instead of a full **`coverage-command`** line ([org `reusable-test-matrix` input](https://github.com/BehindTheMusicTree/python-project-standards/blob/main/docs/reusable-workflows.md)). Pre-commit hook **`verify-python-project-standards`** ([`scripts/verify-standards.sh`](scripts/verify-standards.sh)) unchanged. **`cache-pytest: true`** unchanged.
+- **python-project-standards**: Pin [`reusable-pre-commit.yml`](https://github.com/BehindTheMusicTree/python-project-standards/blob/v2.3.0/.github/workflows/reusable-pre-commit.yml) and [`reusable-test-matrix.yml`](https://github.com/BehindTheMusicTree/python-project-standards/blob/v2.3.0/.github/workflows/reusable-test-matrix.yml) to **`@v2.3.0`**; [`STANDARDS_VERSION`](STANDARDS_VERSION) **`2.3.0`**. Test matrix keeps **`coverage-fail-under: "85"`** (org default is **`80`** when unset). Pre-commit **`verify-python-project-standards`** unchanged. **`cache-pytest: true`** unchanged.
 
 ### Documentation
 
-- **python-project-standards adoption**: [DEVELOPMENT.md](DEVELOPMENT.md), [CONTRIBUTING.md](CONTRIBUTING.md), [docs/TESTING.md](docs/TESTING.md), [docs/COMMITTING.md](docs/COMMITTING.md), and [AGENTS.md](AGENTS.md) describe Tier A reusables (**`@v2.2.0`**), [`STANDARDS_VERSION`](STANDARDS_VERSION), and **`verify-python-project-standards`** / [`scripts/verify-standards.sh`](scripts/verify-standards.sh).
+- **python-project-standards adoption**: [DEVELOPMENT.md](DEVELOPMENT.md), [CONTRIBUTING.md](CONTRIBUTING.md), [docs/TESTING.md](docs/TESTING.md), [docs/COMMITTING.md](docs/COMMITTING.md), and [AGENTS.md](AGENTS.md) describe Tier A reusables (**`@v2.3.0`**), [`STANDARDS_VERSION`](STANDARDS_VERSION), and **`verify-python-project-standards`** / [`scripts/verify-standards.sh`](scripts/verify-standards.sh).
 
 ### Fixed
+
+- **Error messages**: `UnifiedMetadataKey` and `MetadataFormat` are `StrEnum`s, so embedding them in exception text with `f"{value}..."` used wire strings (e.g. `album_artists`, `vorbis`) instead of stable labels like `UnifiedMetadataKey.ALBUM_ARTISTS` / `MetadataFormat.VORBIS`. Managers and `_get_metadata_manager` now use `qualified_name()` where those identifiers appear in user-facing errors and warnings.
 
 - **CHANGELOG.md**: Placed `## [Unreleased]` before `## [1.4.2]` (released content had been above `[Unreleased]`). `python scripts/verify_changelog.py` passes again.
 
