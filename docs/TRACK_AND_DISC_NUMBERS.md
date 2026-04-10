@@ -87,14 +87,14 @@ For each format, **spec / convention** is what the standard or common ecosystem 
 | Format | Native fields             | Read                                                                                                                                                                               | Write                                                                                   |
 | ------ | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | ID3v1  | —                         | Not supported                                                                                                                                                                      | Not supported                                                                           |
-| ID3v2  | `TPOS`                    | `n`, `n/m`, `n-m` → integers ([details](#id3v2-disc-number-format))                                                                                                              | `n` or `n/m` with **`/`** only; **0–255** per component ([notes](#writing-disc-number)) |
+| ID3v2  | `TPOS`                    | `n`, `n/m`, `n-m` → integers ([details](#id3v2-disc-number-format))                                                                                                                | `n` or `n/m` with **`/`** only; **0–255** per component ([notes](#writing-disc-number)) |
 | Vorbis | `DISCNUMBER`, `DISCTOTAL` | Same **`n` / `n/m` / `n-m`** rules as ID3v2 **`TPOS`** on first **`DISCNUMBER`**; **`DISCTOTAL` overrides** embedded total when both apply ([details](#vorbis-disc-number-format)) | Separate tags ([notes](#writing-disc-number))                                           |
 | RIFF   | —                         | Not supported                                                                                                                                                                      | Not supported                                                                           |
 
 ### ID3v1 and RIFF
 
-**ID3v1**: fixed **128-byte** trailer with no disc field.  
-**RIFF INFO**: no standard disc / part-of-set FourCC comparable to `TPOS`.  
+**ID3v1**: fixed **128-byte** trailer with no disc field.
+**RIFF INFO**: no standard disc / part-of-set FourCC comparable to `TPOS`.
 **This library**: unified disc fields are not supported for ID3v1 or RIFF.
 
 ### ID3v1 disc number format
