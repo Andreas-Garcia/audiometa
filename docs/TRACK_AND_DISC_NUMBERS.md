@@ -199,6 +199,8 @@ The library writes disc numbers based on the unified metadata fields:
 - **Vorbis**:
   - Writes `DISCNUMBER` and `DISCTOTAL` as separate fields (native format)
   - If `DISC_TOTAL` is `None`, only `DISCNUMBER` is written
+  - Partial update behavior: when a file already has combined `DISCNUMBER` (`n/m` or `n-m`) and no explicit `DISCTOTAL`,
+    updating only `DISC_NUMBER` preserves the embedded total by writing/updating `DISCTOTAL`
   - No hard limit on disc numbers (unlimited in theory)
 - **RIFF**: Disc number writing is not supported - no standard field in INFO chunk
 

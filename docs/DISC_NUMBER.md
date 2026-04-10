@@ -84,7 +84,7 @@ Reading and writing follow the [format overview](#format-overview); ID3v2 **`TPO
 
 \* ID3v2 truncates values exceeding 255 to 255.
 
-**Notes:** ID3v1 and RIFF have no disc field. ID3v2 combines number and total into one `TPOS` string with **`/`**. Vorbis writes two comments; omit `DISCTOTAL` when `DISC_TOTAL` is **`None`**. Vorbis has no library-enforced max on write.
+**Notes:** ID3v1 and RIFF have no disc field. ID3v2 combines number and total into one `TPOS` string with **`/`**. Vorbis writes two comments and omits `DISCTOTAL` when `DISC_TOTAL` is **`None`** in normal writes. For partial updates, when updating only `DISC_NUMBER` and the existing Vorbis metadata stores combined `DISCNUMBER=n/m` or `DISCNUMBER=n-m` with no `DISCTOTAL`, the library preserves the total by materializing `DISCTOTAL` from the combined value. Vorbis has no library-enforced max on write.
 
 ## Common Use Cases
 
