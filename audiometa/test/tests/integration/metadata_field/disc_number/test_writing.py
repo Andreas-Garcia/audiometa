@@ -1,6 +1,7 @@
 import pytest
 
 from audiometa import get_unified_metadata_field, update_metadata
+from audiometa.test.helpers.id3v2.id3v2_metadata_setter import ID3v2MetadataSetter
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
 from audiometa.utils.metadata_format import MetadataFormat
 from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
@@ -67,6 +68,34 @@ class TestDiscNumberWriting:
             disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
             assert disc_number == 1
             assert disc_total is None
+
+    def test_id3v2_update_disc_number_preserves_total_from_hyphen_tpos(self):
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            ID3v2MetadataSetter.set_metadata(test_file, {"disc_number": "1-2"})
+
+            update_metadata(
+                test_file,
+                {UnifiedMetadataKey.DISC_NUMBER: 5},
+                metadata_format=MetadataFormat.ID3V2,
+            )
+            disc_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_NUMBER)
+            disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
+            assert disc_number == 5
+            assert disc_total == 2
+
+    def test_id3v2_update_disc_total_preserves_disc_number_from_hyphen_tpos(self):
+        with temp_file_with_metadata({}, "mp3") as test_file:
+            ID3v2MetadataSetter.set_metadata(test_file, {"disc_number": "1-2"})
+
+            update_metadata(
+                test_file,
+                {UnifiedMetadataKey.DISC_TOTAL: 4},
+                metadata_format=MetadataFormat.ID3V2,
+            )
+            disc_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_NUMBER)
+            disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
+            assert disc_number == 1
+            assert disc_total == 4
 
     def test_vorbis_disc_number_writes_separate_fields(self):
         with temp_file_with_metadata({}, "flac") as test_file:
