@@ -77,10 +77,10 @@ file_contains "$repo_path/.pre-commit-config.yaml" "https://github.com/pre-commi
 
 if command -v rg >/dev/null 2>&1; then
   has_remote_ruff=$(rg --quiet "https://github.com/astral-sh/ruff-pre-commit" "$repo_path/.pre-commit-config.yaml" && echo y || true)
-  has_local_ruff=$(rg --quiet "(^\\s*entry:.*\\bruff\\b|id:\\s*ruff)" "$repo_path/.pre-commit-config.yaml" && echo y || true)
+  has_local_ruff=$(rg --quiet "(^\\s*entry:.*\\bruff\\s+check\\b|id:\\s*ruff(\\s|$))" "$repo_path/.pre-commit-config.yaml" && echo y || true)
 else
   has_remote_ruff=$(grep -F "https://github.com/astral-sh/ruff-pre-commit" "$repo_path/.pre-commit-config.yaml" >/dev/null 2>&1 && echo y || true)
-  has_local_ruff=$(grep -E "(^\\s*entry:.*ruff|id:[[:space:]]*ruff)" "$repo_path/.pre-commit-config.yaml" >/dev/null 2>&1 && echo y || true)
+  has_local_ruff=$(grep -E "(^[[:space:]]*entry:.*ruff[[:space:]]+check|id:[[:space:]]*ruff([[:space:]]|$))" "$repo_path/.pre-commit-config.yaml" >/dev/null 2>&1 && echo y || true)
 fi
 
 if [[ -z "${has_remote_ruff:-}" ]] && [[ -z "${has_local_ruff:-}" ]]; then
@@ -139,9 +139,9 @@ else
   echo "Found STANDARDS_VERSION: $(tr -d '[:space:]' <"$repo_path/STANDARDS_VERSION")"
   if [[ "${VERIFY_STANDARDS_SKIP_PIN_CHECK:-}" != "1" ]] && [[ -d "$repo_path/.github/workflows" ]]; then
     ver=$(tr -d '[:space:]' <"$repo_path/STANDARDS_VERSION")
-    if grep -r "python-project-standards" "$repo_path/.github/workflows" --include='*.yml' --include='*.yaml' >/dev/null 2>&1; then
+    if grep -r --include='*.yml' --include='*.yaml' "python-project-standards" "$repo_path/.github/workflows" >/dev/null 2>&1; then
       ver_esc=${ver//./\\.}
-      if ! grep -rh "python-project-standards" "$repo_path/.github/workflows" --include='*.yml' --include='*.yaml' 2>/dev/null | grep -qE "@v${ver_esc}([^A-Za-z0-9_.-]|$)"; then
+      if ! grep -rh --include='*.yml' --include='*.yaml' "python-project-standards" "$repo_path/.github/workflows" 2>/dev/null | grep -qE "@v${ver_esc}([^A-Za-z0-9_.-]|$)"; then
         echo "Error: STANDARDS_VERSION is '${ver}' but no workflow pins python-project-standards to @v${ver}"
         exit 1
       fi
