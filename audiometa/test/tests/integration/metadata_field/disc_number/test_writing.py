@@ -128,6 +128,21 @@ class TestDiscNumberWriting:
             assert disc_number == 5
             assert disc_total == 2
 
+    def test_vorbis_update_disc_number_preserves_explicit_total_when_conflicting(self):
+        with temp_file_with_metadata({}, "flac") as test_file:
+            VorbisMetadataSetter.set_tag(test_file, "DISCNUMBER", "1/3")
+            VorbisMetadataSetter.set_tag(test_file, "DISCTOTAL", "2")
+
+            update_metadata(
+                test_file,
+                {UnifiedMetadataKey.DISC_NUMBER: 5},
+                metadata_format=MetadataFormat.VORBIS,
+            )
+            disc_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_NUMBER)
+            disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
+            assert disc_number == 5
+            assert disc_total == 2
+
     def test_id3v2_disc_number_max_value_truncated(self):
         with temp_file_with_metadata({}, "mp3") as test_file:
             update_metadata(
