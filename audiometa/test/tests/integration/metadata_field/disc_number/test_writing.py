@@ -3,6 +3,7 @@ import pytest
 from audiometa import get_unified_metadata_field, update_metadata
 from audiometa.test.helpers.id3v2.id3v2_metadata_setter import ID3v2MetadataSetter
 from audiometa.test.helpers.temp_file_with_metadata import temp_file_with_metadata
+from audiometa.test.helpers.vorbis.vorbis_metadata_setter import VorbisMetadataSetter
 from audiometa.utils.metadata_format import MetadataFormat
 from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
@@ -107,6 +108,24 @@ class TestDiscNumberWriting:
             disc_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_NUMBER)
             disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
             assert disc_number == 1
+            assert disc_total == 2
+
+    @pytest.mark.parametrize(
+        "initial_disc_number",
+        ["1/2", "1-2"],
+    )
+    def test_vorbis_update_disc_number_preserves_total_from_combined_discnumber(self, initial_disc_number):
+        with temp_file_with_metadata({}, "flac") as test_file:
+            VorbisMetadataSetter.set_tag(test_file, "DISCNUMBER", initial_disc_number)
+
+            update_metadata(
+                test_file,
+                {UnifiedMetadataKey.DISC_NUMBER: 5},
+                metadata_format=MetadataFormat.VORBIS,
+            )
+            disc_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_NUMBER)
+            disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
+            assert disc_number == 5
             assert disc_total == 2
 
     def test_id3v2_disc_number_max_value_truncated(self):
