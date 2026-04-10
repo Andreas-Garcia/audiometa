@@ -77,10 +77,10 @@ file_contains "$repo_path/.pre-commit-config.yaml" "https://github.com/pre-commi
 
 if command -v rg >/dev/null 2>&1; then
   has_remote_ruff=$(rg --quiet "https://github.com/astral-sh/ruff-pre-commit" "$repo_path/.pre-commit-config.yaml" && echo y || true)
-  has_local_ruff=$(rg --quiet "(^\\s*entry:.*\\bruff\\s+check\\b|id:\\s*ruff(\\s|$))" "$repo_path/.pre-commit-config.yaml" && echo y || true)
+  has_local_ruff=$(rg --quiet "(^\\s*entry:.*\\bruff\\b.*\\bcheck\\b|id:\\s*ruff(\\s|$))" "$repo_path/.pre-commit-config.yaml" && echo y || true)
 else
   has_remote_ruff=$(grep -F "https://github.com/astral-sh/ruff-pre-commit" "$repo_path/.pre-commit-config.yaml" >/dev/null 2>&1 && echo y || true)
-  has_local_ruff=$(grep -E "(^[[:space:]]*entry:.*ruff[[:space:]]+check|id:[[:space:]]*ruff([[:space:]]|$))" "$repo_path/.pre-commit-config.yaml" >/dev/null 2>&1 && echo y || true)
+  has_local_ruff=$(grep -E "(^[[:space:]]*entry:.*ruff.*check|id:[[:space:]]*ruff([[:space:]]|$))" "$repo_path/.pre-commit-config.yaml" >/dev/null 2>&1 && echo y || true)
 fi
 
 if [[ -z "${has_remote_ruff:-}" ]] && [[ -z "${has_local_ruff:-}" ]]; then
