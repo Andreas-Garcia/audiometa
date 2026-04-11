@@ -67,6 +67,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### CI
 
+- **Cursor Cloud Ubuntu 24.04 bootstrap**: Added `.cursor/environment.json` and `scripts/install-cursor-cloud-dependencies.sh` so cloud agents preinstall `shellcheck` and `pwsh` via the existing lint dependency installer, allowing `pre-commit run --all-files` to run without manual system-tool setup.
+
 - **python-project-standards**: Pin [`reusable-pre-commit.yml`](https://github.com/BehindTheMusicTree/python-project-standards/blob/v3.0.0/.github/workflows/reusable-pre-commit.yml) to **`@v3.0.0`**; [`STANDARDS_VERSION`](STANDARDS_VERSION) **`3.0.0`**. **Test** job is **in-repo** (OS × Python matrix, unit/integration/e2e with **`pytest-cov`**, **`coverage report --fail-under=80`** on Linux/macOS only—same shape as former org **`reusable-test-matrix`**). Pre-commit **`verify-python-project-standards`** unchanged. **`cache-pytest: true`** unchanged.
 
 - **exiftool pin**: Bumped pinned exiftool version from `13.50` → `13.55` for macOS and Windows in `system-dependencies-test-only.toml` to match the currently installed version.
