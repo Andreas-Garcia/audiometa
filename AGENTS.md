@@ -25,7 +25,7 @@ Pre-commit hooks require `shellcheck` and `pwsh` (PowerShell). These are install
 See `CONTRIBUTING.md` for full details. Quick reference:
 
 - **Lint**: `ruff check audiometa/` / `mypy --follow-imports=normal audiometa/ --exclude audiometa/test/` / `isort --check-only --profile black --line-length=120 audiometa/`
-- **Test**: `pytest` (all 1553 tests) / `pytest -m unit` / `pytest -m integration` / `pytest -m e2e`
+- **Test**: `pytest` (all 1665 tests) / `pytest -m unit` / `pytest -m integration` / `pytest -m e2e`
 - **CLI**: `audiometa read <file>` / `audiometa write <file> --title "..." --artist "..."` / `audiometa delete <file>`
 
 ### Changelog
