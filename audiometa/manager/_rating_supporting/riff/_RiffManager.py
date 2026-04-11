@@ -307,7 +307,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
             except Exception:
                 pass
             return None
-        msg = f"Metadata key not handled: {unified_metadata_key}"
+        msg = f"Metadata key not handled: {unified_metadata_key.qualified_name()}"
         raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
     def _update_not_using_mutagen_metadata(self, unified_metadata: UnifiedMetadata) -> None:
@@ -344,7 +344,7 @@ class _RiffManager(_RatingSupportingMetadataManager):
 
         for unified_metadata_key in unified_metadata:
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
-                msg = f"{unified_metadata_key} metadata not supported by RIFF format"
+                msg = f"{unified_metadata_key.qualified_name()} metadata not supported by RIFF format"
                 raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
     def _read_file_data_for_update(self) -> tuple[bytearray, bool]:

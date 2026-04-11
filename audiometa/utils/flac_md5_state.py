@@ -3,10 +3,10 @@
 This module defines the possible states of MD5 checksum validation for FLAC files.
 """
 
-from enum import Enum
+from enum import StrEnum
 
 
-class FlacMd5State(str, Enum):
+class FlacMd5State(StrEnum):
     """Enumeration of FLAC MD5 checksum validation states.
 
     FLAC files can have MD5 checksums in different states:

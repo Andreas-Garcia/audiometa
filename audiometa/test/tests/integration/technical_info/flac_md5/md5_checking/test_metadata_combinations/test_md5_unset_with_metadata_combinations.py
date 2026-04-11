@@ -49,9 +49,9 @@ class TestMd5UnsetWithMetadataCombinations:
             create_flac_without_md5(test_file)
             ID3v1MetadataSetter.set_title(test_file, "ID3v1 Title")
             state = is_flac_md5_valid(test_file)
-            assert (
-                state == FlacMd5State.UNSET
-            ), "FLAC with ID3v1 metadata and unset MD5 should return UNSET (unset takes precedence)"
+            assert state == FlacMd5State.UNSET, (
+                "FLAC with ID3v1 metadata and unset MD5 should return UNSET (unset takes precedence)"
+            )
 
     def test_unset_md5_vorbis_and_id3v2(self):
         """Test UNSET state with Vorbis and ID3v2 metadata."""
@@ -71,9 +71,9 @@ class TestMd5UnsetWithMetadataCombinations:
             VorbisMetadataSetter.add_title(test_file, "Vorbis Title")
             ID3v1MetadataSetter.set_title(test_file, "ID3v1 Title")
             state = is_flac_md5_valid(test_file)
-            assert (
-                state == FlacMd5State.UNSET
-            ), "FLAC with Vorbis and ID3v1 metadata and unset MD5 should return UNSET (unset takes precedence)"
+            assert state == FlacMd5State.UNSET, (
+                "FLAC with Vorbis and ID3v1 metadata and unset MD5 should return UNSET (unset takes precedence)"
+            )
 
     def test_unset_md5_id3v1_and_id3v2(self):
         """Test UNSET state with ID3v1 and ID3v2 metadata (unset takes precedence)."""
@@ -83,9 +83,9 @@ class TestMd5UnsetWithMetadataCombinations:
             ID3v1MetadataSetter.set_title(test_file, "ID3v1 Title")
             ID3v2MetadataSetter.set_metadata(test_file, {"title": "ID3v2 Title"})
             state = is_flac_md5_valid(test_file)
-            assert (
-                state == FlacMd5State.UNSET
-            ), "FLAC with ID3v1 and ID3v2 metadata and unset MD5 should return UNSET (unset takes precedence)"
+            assert state == FlacMd5State.UNSET, (
+                "FLAC with ID3v1 and ID3v2 metadata and unset MD5 should return UNSET (unset takes precedence)"
+            )
 
     def test_unset_md5_all_formats(self):
         """Test UNSET state with all metadata formats (unset takes precedence)."""
@@ -96,6 +96,6 @@ class TestMd5UnsetWithMetadataCombinations:
             ID3v1MetadataSetter.set_title(test_file, "ID3v1 Title")
             ID3v2MetadataSetter.set_metadata(test_file, {"title": "ID3v2 Title"})
             state = is_flac_md5_valid(test_file)
-            assert (
-                state == FlacMd5State.UNSET
-            ), "FLAC with all metadata formats and unset MD5 should return UNSET (unset takes precedence)"
+            assert state == FlacMd5State.UNSET, (
+                "FLAC with all metadata formats and unset MD5 should return UNSET (unset takes precedence)"
+            )

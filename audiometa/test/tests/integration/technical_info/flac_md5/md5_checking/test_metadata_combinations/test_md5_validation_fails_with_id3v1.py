@@ -33,9 +33,9 @@ class TestMd5ValidationFailsWithId3v1:
             VorbisMetadataSetter.add_title(test_file, "Vorbis Title")
             ID3v1MetadataSetter.set_title(test_file, "ID3v1 Title")
             state = is_flac_md5_valid(test_file)
-            assert (
-                state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1
-            ), "Validation should fail with Vorbis and ID3v1 metadata"
+            assert state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1, (
+                "Validation should fail with Vorbis and ID3v1 metadata"
+            )
 
     def test_validation_fails_id3v1_and_id3v2(self):
         """Test that validation fails with ID3v1 and ID3v2 metadata."""
@@ -44,9 +44,9 @@ class TestMd5ValidationFailsWithId3v1:
             ID3v1MetadataSetter.set_title(test_file, "ID3v1 Title")
             ID3v2MetadataSetter.set_metadata(test_file, {"title": "ID3v2 Title"})
             state = is_flac_md5_valid(test_file)
-            assert (
-                state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1
-            ), "Validation should fail with ID3v1 and ID3v2 metadata"
+            assert state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1, (
+                "Validation should fail with ID3v1 and ID3v2 metadata"
+            )
 
     def test_validation_fails_all_formats(self):
         """Test that validation fails with all metadata formats (ID3v1 present)."""
@@ -56,6 +56,6 @@ class TestMd5ValidationFailsWithId3v1:
             ID3v1MetadataSetter.set_title(test_file, "ID3v1 Title")
             ID3v2MetadataSetter.set_metadata(test_file, {"title": "ID3v2 Title"})
             state = is_flac_md5_valid(test_file)
-            assert (
-                state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1
-            ), "Validation should fail with all metadata formats when ID3v1 is present"
+            assert state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1, (
+                "Validation should fail with all metadata formats when ID3v1 is present"
+            )

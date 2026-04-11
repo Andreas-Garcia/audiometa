@@ -19,19 +19,20 @@
 # 1. check-tool-versions: Verify installed tool versions match pyproject.toml (fails fast if versions mismatch)
 # 2. verify-system-dependency-versions: Verify installed system dependency versions match pinned versions
 #    (also validates system-dependencies.toml can be parsed - replaces validate-system-dependencies)
-# 3. pre-commit-hooks: Basic checks (yaml, json, toml, large files, merge conflicts, debug statements, trailing whitespace)
-# 4. shellcheck: Check shell script syntax and common errors
-# 5. fix-shell-trailing-blank-lines: Fix trailing blank lines in shell scripts (auto-fixes)
-# 6. no-assert: Check for assert statements in production code
-# 7. ruff-format: Format code (replaces black, handles EOF newlines automatically)
-# 8. ruff: Auto-fix linting issues (including unused imports/variables, code style, line length)
-# 9. isort: Sort imports (configured to work with ruff-format/black)
-# 10. mypy: Type checking on formatted code
-# 11. pydocstringformatter: Format docstrings (after code formatting)
+# 3. verify-python-project-standards: scripts/verify-standards.sh (layout, STANDARDS_VERSION vs @v… pins; org template)
+# 4. pre-commit-hooks: Basic checks (yaml, json, toml, large files, merge conflicts, debug statements, trailing whitespace)
+# 5. shellcheck: Check shell script syntax and common errors
+# 6. fix-shell-trailing-blank-lines: Fix trailing blank lines in shell scripts (auto-fixes)
+# 7. no-assert: Check for assert statements in production code
+# 8. ruff-format: Format code (replaces black, handles EOF newlines automatically)
+# 9. ruff: Auto-fix linting issues (including unused imports/variables, code style, line length)
+# 10. isort: Sort imports (configured to work with ruff-format/black)
+# 11. mypy: Type checking on formatted code
+# 12. pydocstringformatter: Format docstrings (after code formatting)
 #     NOTE: File pattern must be ^audiometa/.*\.py$ (not ^audiometa/) to avoid processing binary files
-# 12. fix-long-comments: Fix long comment lines (custom hook)
-# 13. prettier: Format markdown files (preserves list numbering without zero-padding)
-# 14. psscriptanalyzer: Lint PowerShell scripts (.ps1 files)
+# 13. fix-long-comments: Fix long comment lines (custom hook)
+# 14. prettier: Format markdown files (preserves list numbering without zero-padding)
+# 15. psscriptanalyzer: Lint PowerShell scripts (.ps1 files)
 
 fail_fast: true
 
@@ -47,6 +48,12 @@ repos:
       - id: verify-system-dependency-versions
         name: Verify installed system dependency versions match pinned versions
         entry: bash .pre-commit-hooks/run-with-venv-python.sh scripts/verify-system-dependency-versions.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: verify-python-project-standards
+        name: Verify python-project-standards baseline
+        entry: bash scripts/verify-standards.sh
         language: system
         pass_filenames: false
         always_run: true

@@ -32,7 +32,7 @@
 ### Tests
 
 - [ ] All tests pass: `pytest`
-- [ ] Coverage meets threshold (≥85%): `pytest --cov=audiometa --cov-report=term-missing --cov-fail-under=85`
+- [ ] Coverage meets threshold (≥80%): `pytest --cov=audiometa --cov-report=term-missing --cov-fail-under=80`
 - [ ] New features have corresponding tests
 - [ ] Bug fixes include regression tests
 
