@@ -92,9 +92,9 @@ class TestGetFullMetadataStructure:
 
         # If there are parsed fields, they should use UnifiedMetadataKey enum values as keys
         for key in parsed_fields:
-            assert isinstance(
-                key, UnifiedMetadataKey
-            ), f"ID3v1 parsed_fields key {key} should be UnifiedMetadataKey enum, got {type(key)}"
+            assert isinstance(key, UnifiedMetadataKey), (
+                f"ID3v1 parsed_fields key {key} should be UnifiedMetadataKey enum, got {type(key)}"
+            )
             # Verify it's a valid UnifiedMetadataKey value
             assert key in UnifiedMetadataKey, f"ID3v1 parsed_fields key {key} is not a valid UnifiedMetadataKey"
 
@@ -138,9 +138,9 @@ class TestGetFullMetadataStructure:
             assert isinstance(key, str), f"ID3v1 parsed_fields key in CLI output should be string, got: {type(key)}"
 
             # Verify it's a valid UnifiedMetadataKey value
-            assert key in [
-                e.value for e in UnifiedMetadataKey
-            ], f"ID3v1 parsed_fields key {key} is not a valid UnifiedMetadataKey value"
+            assert key in [e.value for e in UnifiedMetadataKey], (
+                f"ID3v1 parsed_fields key {key} is not a valid UnifiedMetadataKey value"
+            )
 
     def test_parsed_fields_consistency_across_formats(self, sample_mp3_file: Path):
         result = get_full_metadata(sample_mp3_file)
@@ -150,12 +150,12 @@ class TestGetFullMetadataStructure:
         # Check that all formats have the expected structure
         for metadata_format_name, format_data in raw_metadata.items():
             assert "parsed_fields" in format_data, f"Format {metadata_format_name} should have parsed_fields"
-            assert isinstance(
-                format_data["parsed_fields"], dict
-            ), f"Format {metadata_format_name} parsed_fields should be a dictionary"
+            assert isinstance(format_data["parsed_fields"], dict), (
+                f"Format {metadata_format_name} parsed_fields should be a dictionary"
+            )
 
             # Check that parsed_fields values are strings (no binary data)
             for key, value in format_data["parsed_fields"].items():
-                assert isinstance(
-                    value, str
-                ), f"Format {metadata_format_name} parsed_fields value for {key} should be string, got {type(value)}"
+                assert isinstance(value, str), (
+                    f"Format {metadata_format_name} parsed_fields value for {key} should be string, got {type(value)}"
+                )

@@ -39,7 +39,7 @@ def demo() -> None:
     tech = metadata["technical_info"]
     print("{")
     print(f"  'duration': {tech['duration_seconds']:.1f}s,")
-    print(f"  'bitrate': {tech['bitrate_bps']//1000}kbps,")
+    print(f"  'bitrate': {tech['bitrate_bps'] // 1000}kbps,")
     print(f"  'sample_rate': {tech['sample_rate_hz']}Hz,")
     print(f"  'channels': {tech['channels']}")
     print("}")

@@ -4,16 +4,19 @@ This module defines the supported metadata formats and their file extension prio
 metadata across different file types.
 """
 
-from enum import Enum
+from enum import StrEnum
 
 
-class MetadataFormat(str, Enum):
+class MetadataFormat(StrEnum):
     """Enumeration of supported audio metadata formats."""
 
     ID3V2 = "id3v2"
     ID3V1 = "id3v1"
     VORBIS = "vorbis"
     RIFF = "riff"
+
+    def qualified_name(self) -> str:
+        return f"{type(self).__name__}.{self.name}"
 
     @classmethod
     def get_priorities(cls) -> dict[str, list["MetadataFormat"]]:

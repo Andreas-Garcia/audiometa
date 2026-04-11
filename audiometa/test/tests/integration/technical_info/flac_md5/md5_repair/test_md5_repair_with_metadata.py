@@ -25,9 +25,9 @@ class TestMd5RepairWithMetadata:
 
             # Verify initial state: UNCHECKABLE_DUE_TO_ID3V1
             initial_state = is_flac_md5_valid(test_file)
-            assert (
-                initial_state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1
-            ), "File with ID3v1 should be UNCHECKABLE_DUE_TO_ID3V1"
+            assert initial_state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1, (
+                "File with ID3v1 should be UNCHECKABLE_DUE_TO_ID3V1"
+            )
             assert ID3v1HeaderVerifier.has_id3v1_header(test_file), "File should have ID3v1 header initially"
 
             # Repair the MD5
@@ -36,9 +36,9 @@ class TestMd5RepairWithMetadata:
             # Verify repair results: VALID MD5 and ID3v1 tags removed
             final_state = is_flac_md5_valid(fixed_file_path)
             assert final_state == FlacMd5State.VALID, "Repaired file should have valid MD5"
-            assert not ID3v1HeaderVerifier.has_id3v1_header(
-                Path(fixed_file_path)
-            ), "ID3v1 tags should be removed during repair"
+            assert not ID3v1HeaderVerifier.has_id3v1_header(Path(fixed_file_path)), (
+                "ID3v1 tags should be removed during repair"
+            )
 
     def test_fix_md5_checking_warns_about_id3v1_removal(self):
         """Test that fix_md5_checking warns when ID3v1 tags will be removed."""

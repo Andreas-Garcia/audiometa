@@ -4,11 +4,11 @@ This module defines the standardized keys used throughout the application for re
 format.
 """
 
-from enum import Enum
+from enum import StrEnum
 from typing import cast
 
 
-class UnifiedMetadataKey(str, Enum):
+class UnifiedMetadataKey(StrEnum):
     """Enumeration of unified metadata keys used for audio file metadata."""
 
     TITLE = "title"
@@ -35,6 +35,9 @@ class UnifiedMetadataKey(str, Enum):
     MUSICBRAINZ_ARTISTIDS = "musicbrainz_artistids"
     DESCRIPTION = "description"
     ORIGINATOR = "originator"
+
+    def qualified_name(self) -> str:
+        return f"{type(self).__name__}.{self.name}"
 
     def can_semantically_have_multiple_values(self) -> bool:
         """Check if the metadata key can semantically have multiple values.

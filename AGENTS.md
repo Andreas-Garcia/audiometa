@@ -18,7 +18,7 @@ source .venv/bin/activate
 
 The `flac` apt package (CLI tools) is separate from `libflac12t64` (library). The install script (`scripts/install-system-dependencies-ubuntu.sh`) may install only the library; verify `flac` and `metaflac` are on PATH after running it. If missing, install explicitly: `sudo apt-get install -y flac`.
 
-Pre-commit hooks require `shellcheck` and `pwsh` (PowerShell). These are installed via the `lint` category: `bash scripts/install-system-dependencies-ubuntu.sh lint`. If you only need Python linting, run `ruff`, `mypy`, and `isort` directly instead of `pre-commit run --all-files`.
+Pre-commit hooks require `shellcheck` and `pwsh` (PowerShell). These are installed via the `lint` category: `bash scripts/install-system-dependencies-ubuntu.sh lint`. If you only need Python linting, run `ruff`, `mypy`, and `isort` directly instead of `pre-commit run --all-files`. The **`verify-python-project-standards`** hook runs [`scripts/verify-standards.sh`](scripts/verify-standards.sh) (org template): checks baseline layout and that workflow pins match [`STANDARDS_VERSION`](STANDARDS_VERSION).
 
 ### Key commands
 
