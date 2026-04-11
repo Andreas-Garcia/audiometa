@@ -38,4 +38,8 @@ if [ "$DISTRO_ID" != "ubuntu" ] || [ "$DISTRO_VERSION" != "24.04" ]; then
   exit 0
 fi
 
-bash scripts/install-system-dependencies-ubuntu.sh lint
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+UBUNTU_INSTALL_SCRIPT="$REPO_ROOT/scripts/install-system-dependencies-ubuntu.sh"
+
+bash "$UBUNTU_INSTALL_SCRIPT" lint
