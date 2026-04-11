@@ -405,7 +405,11 @@ class _VorbisManager(_RatingSupportingMetadataManager):
                 elif key_name == self.VorbisKey.DISC_NUMBER.value:
                     combined_discnumber = str(raw_values[0])
 
-            if explicit_total is None and combined_discnumber is not None:
+            explicit_total_is_usable = (
+                explicit_total is not None and parse_explicit_non_negative_disctotal(explicit_total) is not None
+            )
+
+            if not explicit_total_is_usable and combined_discnumber is not None:
                 parsed_total = parse_disc_total_from_combined_str(combined_discnumber)
                 if parsed_total is not None:
                     unified_metadata[UnifiedMetadataKey.DISC_TOTAL] = parsed_total

@@ -143,6 +143,25 @@ class TestDiscNumberWriting:
             assert disc_number == 5
             assert disc_total == 2
 
+    @pytest.mark.parametrize(
+        "invalid_total",
+        ["bogus", "-1"],
+    )
+    def test_vorbis_update_disc_number_ignores_invalid_explicit_total_and_preserves_embedded(self, invalid_total):
+        with temp_file_with_metadata({}, "flac") as test_file:
+            VorbisMetadataSetter.set_tag(test_file, "DISCNUMBER", "1/2")
+            VorbisMetadataSetter.set_tag(test_file, "DISCTOTAL", invalid_total)
+
+            update_metadata(
+                test_file,
+                {UnifiedMetadataKey.DISC_NUMBER: 5},
+                metadata_format=MetadataFormat.VORBIS,
+            )
+            disc_number = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_NUMBER)
+            disc_total = get_unified_metadata_field(test_file, UnifiedMetadataKey.DISC_TOTAL)
+            assert disc_number == 5
+            assert disc_total == 2
+
     def test_id3v2_disc_number_max_value_truncated(self):
         with temp_file_with_metadata({}, "mp3") as test_file:
             update_metadata(

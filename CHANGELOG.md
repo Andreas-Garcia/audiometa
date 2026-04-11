@@ -53,7 +53,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - **Disc number partial updates (`ID3v2` + `Vorbis`)**: Updating only one disc component now preserves the other component when older combined values are present.
   - **ID3v2 `TPOS`**: Existing hyphen (`n-m`) and slash (`n/m`) forms are both parsed for preservation and rewritten in canonical slash form.
-  - **Vorbis `DISCNUMBER`**: When `DISCNUMBER` stores combined `n/m` or `n-m` and `DISCTOTAL` is absent, updating only `DISC_NUMBER` preserves the embedded total by materializing `DISCTOTAL`.
+  - **Vorbis `DISCNUMBER`**: When `DISCNUMBER` stores combined `n/m` or `n-m`, updating only `DISC_NUMBER` preserves the embedded total by materializing `DISCTOTAL` when explicit `DISCTOTAL` is absent or invalid; valid explicit `DISCTOTAL` remains authoritative.
   - Includes regression integration tests for both formats.
 
 ## [1.4.2] - 2026-04-06
