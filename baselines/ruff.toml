@@ -1,0 +1,20 @@
+# Vendored Ruff baseline (digest in DIGESTS). Per-file ignores stay in pyproject.toml [tool.ruff.lint].
+
+line-length = 120
+target-version = "py312"
+
+[lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "DTZ", "T10", "EM", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SIM", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "NPY", "RUF"]
+# ISC001 (implicitly concatenated strings) conflicts with ruff formatter
+ignore = [
+    "N999",
+    "PLR0911",
+    "PLR0912",
+    "PLR0913",
+    "PLR0914",
+    "PLR0915",
+    "TRY301",
+    "ISC001",
+    "PLC0415",
+    "RUF043",
+]

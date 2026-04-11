@@ -41,7 +41,7 @@ dev = [
     "ruff==0.15.9",
     "isort==5.13.2",
     "mypy==1.18.2",
-    "pre-commit==3.0.0",
+    "pre-commit==4.5.1",
     "autoflake==2.0.0",
     "pydocstringformatter==0.7.5",
     "soundfile==0.10.1",
@@ -90,24 +90,8 @@ line_length = 120
 max-line-length = 120
 
 [tool.ruff]
-line-length = 120
-target-version = "py312"
-
-[tool.ruff.lint]
-select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "DTZ", "T10", "EM", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SIM", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "NPY", "RUF"]
-# ISC001 (implicitly concatenated strings) conflicts with ruff formatter
-ignore = [
-    "N999",
-    "PLR0911",
-    "PLR0912",
-    "PLR0913",
-    "PLR0914",
-    "PLR0915",
-    "TRY301",
-    "ISC001",
-    "PLC0415",
-    "RUF043",
-]
+# Shared rule set in baselines/ruff.toml (digest-checked by verify-standards).
+extend = "baselines/ruff.toml"
 
 [tool.ruff.lint.per-file-ignores]
 # PLR2004 (magic numbers) is acceptable in test files - test assertions often use literal values
