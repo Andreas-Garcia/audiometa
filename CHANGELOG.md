@@ -47,7 +47,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 **Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-29`).
 
-## [Unreleased]
+## [1.4.3] - 2026-04-11
 
 ### Fixed
 
@@ -76,6 +76,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### Documentation
 
 - **python-project-standards adoption**: [DEVELOPMENT.md](DEVELOPMENT.md), [CONTRIBUTING.md](CONTRIBUTING.md), [docs/TESTING.md](docs/TESTING.md), [docs/COMMITTING.md](docs/COMMITTING.md), and [AGENTS.md](AGENTS.md) describe **`reusable-pre-commit`** (**`@v3.0.0`**), local test workflow, [`STANDARDS_VERSION`](STANDARDS_VERSION), and **`verify-python-project-standards`** / [`scripts/verify-standards.sh`](scripts/verify-standards.sh).
+
+## [Unreleased]
 
 ## [1.4.2] - 2026-04-06
 
