@@ -83,7 +83,7 @@ if command -v rg >/dev/null 2>&1; then
 else
   has_remote_ruff=$(grep -F "https://github.com/astral-sh/ruff-pre-commit" "$repo_path/.pre-commit-config.yaml" >/dev/null 2>&1 && echo y || true)
   has_local_ruff=$(
-    grep -E '(id:[[:space:]]+ruff[[:space:]]*(#|$))|(id:[[:space:]]+ruff-check[[:space:]]*(#|$))|(entry:.*ruff[[:space:]]+check)' "$repo_path/.pre-commit-config.yaml" >/dev/null 2>&1 && echo y || true
+    grep -E '(id:[[:space:]]*ruff[[:space:]]*(#|$))|(id:[[:space:]]*ruff-check[[:space:]]*(#|$))|(entry:.*ruff[[:space:]]+check)' "$repo_path/.pre-commit-config.yaml" >/dev/null 2>&1 && echo y || true
   )
 fi
 
