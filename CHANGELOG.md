@@ -79,6 +79,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### CI
+
+- **python-project-standards**: Pin **`reusable-pre-commit.yml`** to **`@v4.1.0`**; **[`STANDARDS_VERSION`](STANDARDS_VERSION)** **`4.1.0`**. Refresh **[`scripts/verify-standards.sh`](scripts/verify-standards.sh)** (pin scan loop, optional **`check_lint_baseline.py`**) and add **[`scripts/check_lint_baseline.py`](scripts/check_lint_baseline.py)** for parity with upstream. **`verify-python-project-standards`** runs verify with **`VERIFY_STANDARDS_SKIP_LINT_BASELINE=1`** (inline in hook **`entry`**, because pre-commit **&lt;4** has no **`env:`** on local hooks) until the repo adopts org **`baselines/`** + thin **`[tool.ruff]`** / baseline-aligned **`[tool.mypy]`** (see upstream [migration guide](https://github.com/BehindTheMusicTree/python-project-standards/blob/main/docs/migration-guide.md)).
+
 ## [1.4.2] - 2026-04-06
 
 ### Improved

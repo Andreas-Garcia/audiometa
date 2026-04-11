@@ -53,7 +53,10 @@ repos:
         always_run: true
       - id: verify-python-project-standards
         name: Verify python-project-standards baseline
-        entry: bash scripts/verify-standards.sh
+        # Library uses custom [tool.ruff] / [tool.mypy] (not org baselines/ + expected-mypy.json).
+        # pre-commit<4 has no `env:` on local hooks; inline skip until baselines adoption.
+        # https://github.com/BehindTheMusicTree/python-project-standards/blob/main/docs/migration-guide.md
+        entry: bash -c 'VERIFY_STANDARDS_SKIP_LINT_BASELINE=1 exec bash scripts/verify-standards.sh'
         language: system
         pass_filenames: false
         always_run: true
