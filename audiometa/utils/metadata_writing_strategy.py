@@ -1,9 +1,9 @@
 """Metadata writing strategy constants for audio metadata handling."""
 
-from enum import Enum
+from enum import StrEnum
 
 
-class MetadataWritingStrategy(str, Enum):
+class MetadataWritingStrategy(StrEnum):
     """Strategy for handling metadata when writing to files with existing metadata in other formats."""
 
     SYNC = "sync"

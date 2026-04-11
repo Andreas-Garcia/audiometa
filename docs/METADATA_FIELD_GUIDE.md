@@ -341,8 +341,8 @@ The library provides two separate unified metadata fields for disc number:
 **Format Support:**
 
 - **ID3v1**: ✗ Not supported (format limitation)
-- **ID3v2**: TPOS frame - maps `"disc/total"` format to/from `DISC_NUMBER` and `DISC_TOTAL`; writer enforces **0–255**; reader uses the same `n` / `n/m` / `n-m` rules as documented (see `DISC_NUMBER.md`)
-- **Vorbis**: Separate `DISCNUMBER` and `DISCTOTAL` on write (unlimited range); **read** parses combined `DISCNUMBER` like ID3v2 `TPOS`, with explicit `DISCTOTAL` overriding the embedded total when valid (see `DISC_NUMBER.md`)
+- **ID3v2**: TPOS frame - maps `"disc/total"` format to/from `DISC_NUMBER` and `DISC_TOTAL`; writer enforces **0–255**; reader uses the same `n` / `n/m` / `n-m` rules as documented (see [Track and disc numbers](TRACK_AND_DISC_NUMBERS.md#disc-number))
+- **Vorbis**: Separate `DISCNUMBER` and `DISCTOTAL` on write (unlimited range); **read** parses combined `DISCNUMBER` like ID3v2 `TPOS`, with explicit `DISCTOTAL` overriding the embedded total when valid (see [Track and disc numbers](TRACK_AND_DISC_NUMBERS.md#disc-number))
 - **RIFF**: ✗ Not supported (format limitation)
 
 For detailed information on disc number formats, limitations, reading/writing behavior, and examples, see **[Track and disc numbers](TRACK_AND_DISC_NUMBERS.md#disc-number)**.

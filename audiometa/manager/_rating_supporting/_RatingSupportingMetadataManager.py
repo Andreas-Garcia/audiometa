@@ -212,7 +212,9 @@ class _RatingSupportingMetadataManager(_MetadataManager):
             or UnifiedMetadataKey.RATING not in self.metadata_keys_direct_map_write
         ):
             metadata_format_name = self._get_formatted_metadata_format_name()
-            msg = f"{UnifiedMetadataKey.RATING} metadata not supported by {metadata_format_name} format"
+            msg = (
+                f"{UnifiedMetadataKey.RATING.qualified_name()} metadata not supported by {metadata_format_name} format"
+            )
             raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
         # Validate rating value before processing

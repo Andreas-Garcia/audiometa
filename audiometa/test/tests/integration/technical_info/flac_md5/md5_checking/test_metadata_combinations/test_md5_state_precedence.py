@@ -23,9 +23,9 @@ class TestMd5StatePrecedence:
             ID3v1MetadataSetter.set_title(test_file, "ID3v1 Title")
             create_flac_without_md5(test_file)
             state = is_flac_md5_valid(test_file)
-            assert (
-                state == FlacMd5State.UNSET
-            ), "UNSET should take precedence over UNCHECKABLE_DUE_TO_ID3 when MD5 is unset"
+            assert state == FlacMd5State.UNSET, (
+                "UNSET should take precedence over UNCHECKABLE_DUE_TO_ID3 when MD5 is unset"
+            )
 
     def test_uncheckable_takes_precedence_over_invalid_when_id3v1_present(self):
         """Test that UNCHECKABLE_DUE_TO_ID3 takes precedence over INVALID when ID3v1 is present."""
@@ -34,6 +34,6 @@ class TestMd5StatePrecedence:
             ID3v1MetadataSetter.set_title(test_file, "ID3v1 Title")
             corrupt_md5(test_file, "random")
             state = is_flac_md5_valid(test_file)
-            assert (
-                state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1
-            ), "UNCHECKABLE_DUE_TO_ID3 should take precedence over INVALID when ID3v1 is present"
+            assert state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1, (
+                "UNCHECKABLE_DUE_TO_ID3 should take precedence over INVALID when ID3v1 is present"
+            )

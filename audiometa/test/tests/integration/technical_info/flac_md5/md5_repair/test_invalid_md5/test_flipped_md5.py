@@ -14,9 +14,9 @@ class TestFlippedMd5:
             ensure_flac_has_md5(test_file)
             corrupt_md5(test_file, "flip_all")
 
-            assert (
-                is_flac_md5_valid(test_file) == FlacMd5State.INVALID
-            ), "Test file should have invalid MD5 for fix_md5_checking test"
+            assert is_flac_md5_valid(test_file) == FlacMd5State.INVALID, (
+                "Test file should have invalid MD5 for fix_md5_checking test"
+            )
 
             fixed_file_path = fix_md5_checking(test_file)
             assert is_flac_md5_valid(fixed_file_path) == FlacMd5State.VALID, "Fixed file should have valid MD5"

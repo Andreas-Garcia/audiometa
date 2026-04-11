@@ -20,7 +20,7 @@ NC='\033[0m' # No Color
 # Extract version from pyproject.toml
 get_expected_version() {
     local tool=$1
-    # Match patterns like: "ruff==0.6.9", "isort==5.13.2", etc.
+    # Match patterns like: "ruff==0.15.9", "isort==5.13.2", etc.
     grep -E "\"${tool}==" pyproject.toml | sed -E "s/.*${tool}==([0-9.]+).*/\1/" | head -1
 }
 

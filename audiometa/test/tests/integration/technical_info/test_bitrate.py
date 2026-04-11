@@ -74,6 +74,6 @@ class TestGetBitrate:
             if file_path.exists():
                 bitrate = get_bitrate(file_path)
                 assert isinstance(bitrate, int), f"Bitrate for {filename} should be int"
-                assert (
-                    bitrate == expected_bitrate_bps
-                ), f"Expected {expected_bitrate_bps} bps for {filename}, got {bitrate} bps"
+                assert bitrate == expected_bitrate_bps, (
+                    f"Expected {expected_bitrate_bps} bps for {filename}, got {bitrate} bps"
+                )

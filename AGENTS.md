@@ -14,6 +14,12 @@ Always activate before running any command:
 source .venv/bin/activate
 ```
 
+Before every commit, run full hooks with:
+
+```bash
+pre-commit run --all-files
+```
+
 ### System dependencies
 
 The `flac` apt package (CLI tools) is separate from `libflac12t64` (library). The install script (`scripts/install-system-dependencies-ubuntu.sh`) may install only the library; verify `flac` and `metaflac` are on PATH after running it. If missing, install explicitly: `sudo apt-get install -y flac`.
@@ -25,7 +31,7 @@ Pre-commit hooks require `shellcheck` and `pwsh` (PowerShell). These are install
 See `CONTRIBUTING.md` for full details. Quick reference:
 
 - **Lint**: `ruff check audiometa/` / `mypy --follow-imports=normal audiometa/ --exclude audiometa/test/` / `isort --check-only --profile black --line-length=120 audiometa/`
-- **Test**: `pytest` (all 1553 tests) / `pytest -m unit` / `pytest -m integration` / `pytest -m e2e`
+- **Test**: `pytest` (all 1665 tests) / `pytest -m unit` / `pytest -m integration` / `pytest -m e2e`
 - **CLI**: `audiometa read <file>` / `audiometa write <file> --title "..." --artist "..."` / `audiometa delete <file>`
 
 ### Changelog

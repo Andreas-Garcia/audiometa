@@ -388,6 +388,32 @@ class _VorbisManager(_RatingSupportingMetadataManager):
         # Get current metadata
         current_metadata = self._extract_mutagen_metadata()
 
+        # Preserve total when existing DISCNUMBER is stored as combined n/m or n-m and only DISC_NUMBER is updated.
+        if (
+            UnifiedMetadataKey.DISC_NUMBER in unified_metadata
+            and UnifiedMetadataKey.DISC_TOTAL not in unified_metadata
+            and unified_metadata[UnifiedMetadataKey.DISC_NUMBER] is not None
+        ):
+            explicit_total = None
+            combined_discnumber = None
+            for raw_key, raw_values in current_metadata.items():
+                key_name = str(raw_key).upper()
+                if raw_values is None or len(raw_values) == 0 or raw_values[0] in (None, ""):
+                    continue
+                if key_name == self.VorbisKey.DISC_TOTAL.value:
+                    explicit_total = str(raw_values[0])
+                elif key_name == self.VorbisKey.DISC_NUMBER.value:
+                    combined_discnumber = str(raw_values[0])
+
+            explicit_total_is_usable = (
+                explicit_total is not None and parse_explicit_non_negative_disctotal(explicit_total) is not None
+            )
+
+            if not explicit_total_is_usable and combined_discnumber is not None:
+                parsed_total = parse_disc_total_from_combined_str(combined_discnumber)
+                if parsed_total is not None:
+                    unified_metadata[UnifiedMetadataKey.DISC_TOTAL] = parsed_total
+
         # Update metadata dict
         for unified_metadata_key in list(unified_metadata.keys()):
             app_metadata_value = unified_metadata[unified_metadata_key]
@@ -401,7 +427,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
 
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
                 metadata_format_name = self._get_formatted_metadata_format_name()
-                msg = f"{unified_metadata_key} metadata not supported by {metadata_format_name} format"
+                msg = f"{unified_metadata_key.qualified_name()} metadata not supported by {metadata_format_name} format"
                 raise MetadataFieldNotSupportedByMetadataFormatError(msg)
             raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
             if raw_metadata_key:
@@ -563,7 +589,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
     def _get_undirectly_mapped_metadata_value_other_than_rating_from_raw_clean_metadata(
         self, _raw_clean_metadata: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey
     ) -> UnifiedMetadataValue:
-        msg = f"Metadata key not handled: {unified_metadata_key}"
+        msg = f"Metadata key not handled: {unified_metadata_key.qualified_name()}"
         raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
     def _update_undirectly_mapped_metadata(
@@ -600,5 +626,5 @@ class _VorbisManager(_RatingSupportingMetadataManager):
                 if self.VorbisKey.RATING_TRAKTOR in raw_mutagen_metadata:
                     del raw_mutagen_metadata[self.VorbisKey.RATING_TRAKTOR]
         else:
-            msg = f"Metadata key not handled: {unified_metadata_key}"
+            msg = f"Metadata key not handled: {unified_metadata_key.qualified_name()}"
             raise MetadataFieldNotSupportedByMetadataFormatError(msg)

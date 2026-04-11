@@ -80,6 +80,23 @@ The library supports writing track numbers in various formats. For formats that 
 
 ## Disc number
 
+For each format, **spec / convention** is what the standard or common ecosystem practice implies. **This library** describes how values are read/written so multi-disc tags map predictably to **`DISC_NUMBER`** / **`DISC_TOTAL`**.
+
+### Format overview
+
+| Format | Native fields             | Read                                                                                                                                                                               | Write                                                                                   |
+| ------ | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| ID3v1  | —                         | Not supported                                                                                                                                                                      | Not supported                                                                           |
+| ID3v2  | `TPOS`                    | `n`, `n/m`, `n-m` → integers ([details](#id3v2-disc-number-format))                                                                                                                | `n` or `n/m` with **`/`** only; **0–255** per component ([notes](#writing-disc-number)) |
+| Vorbis | `DISCNUMBER`, `DISCTOTAL` | Same **`n` / `n/m` / `n-m`** rules as ID3v2 **`TPOS`** on first **`DISCNUMBER`**; **`DISCTOTAL` overrides** embedded total when both apply ([details](#vorbis-disc-number-format)) | Separate tags ([notes](#writing-disc-number))                                           |
+| RIFF   | —                         | Not supported                                                                                                                                                                      | Not supported                                                                           |
+
+### ID3v1 and RIFF
+
+**ID3v1**: fixed **128-byte** trailer with no disc field.
+**RIFF INFO**: no standard disc / part-of-set FourCC comparable to `TPOS`.
+**This library**: unified disc fields are not supported for ID3v1 or RIFF.
+
 ### ID3v1 disc number format
 
 ID3v1 does not support disc numbers due to its limited fixed structure.
@@ -93,7 +110,7 @@ ID3v1 does not support disc numbers due to its limited fixed structure.
 ID3v2 supports disc numbers through the `TPOS` (Part of a set) frame.
 
 - **Frame**: TPOS (Part of a set)
-- **Format**: `"disc/total"` (e.g., `"1/2"`, `"2/3"`, `"99/99"`) or simple `"disc"` (e.g., `"1"`, `"2"`)
+- **Format**: `"disc/total"` (e.g., `"1/2"`, `"2/3"`, `"99/99"`) or simple `"disc"` (e.g., `"1"`, `"2"`). Hyphen (`"1-2"`) is accepted on **read** as an alias.
 - **Range**: 0-255 for both disc number and total discs
 - **Unified API Mapping**:
   - `TPOS="1/2"` → `DISC_NUMBER=1`, `DISC_TOTAL=2`
@@ -109,6 +126,7 @@ ID3v2 supports disc numbers through the `TPOS` (Part of a set) frame.
 - Maximum disc number: 255
 - Maximum total discs: 255
 - Values exceeding 255 are typically truncated or may cause errors depending on the implementation
+- Read-side parsing does not clamp values >255 when such values already exist in tags
 
 ### Vorbis disc number format
 
@@ -171,7 +189,7 @@ The library returns disc numbers as separate fields:
 
 - **ID3v2**: Reads `TPOS` frame with `"disc/total"` format (e.g., `"1/2"`) → `DISC_NUMBER=1`, `DISC_TOTAL=2`
 - **ID3v2**: Reads `TPOS` frame with `"disc"` format (e.g., `"1"`) → `DISC_NUMBER=1`, `DISC_TOTAL=None`
-- **Vorbis**: Reads `DISCNUMBER` like ID3v2 `TPOS` (`n`, `n/m`, `n-m`); explicit `DISCTOTAL` overrides the embedded total when valid (see `DISC_NUMBER.md`)
+- **Vorbis**: Reads `DISCNUMBER` like ID3v2 `TPOS` (`n`, `n/m`, `n-m`); explicit `DISCTOTAL` overrides the embedded total when valid
 - **ID3v1**: Not supported
 - **RIFF**: Not supported
 
@@ -199,6 +217,8 @@ The library writes disc numbers based on the unified metadata fields:
 - **Vorbis**:
   - Writes `DISCNUMBER` and `DISCTOTAL` as separate fields (native format)
   - If `DISC_TOTAL` is `None`, only `DISCNUMBER` is written
+  - Partial update behavior: when a file already has combined `DISCNUMBER` (`n/m` or `n-m`) and no usable explicit `DISCTOTAL`,
+    updating only `DISC_NUMBER` preserves the embedded total by writing/updating `DISCTOTAL` (a valid explicit `DISCTOTAL` stays authoritative)
   - No hard limit on disc numbers (unlimited in theory)
 - **RIFF**: Disc number writing is not supported - no standard field in INFO chunk
 

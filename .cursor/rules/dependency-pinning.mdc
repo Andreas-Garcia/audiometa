@@ -50,14 +50,14 @@ alwaysApply: true
    # ✅ Good - Pinned version
    [project.optional-dependencies]
    dev = [
-       "ruff==0.6.9",
+       "ruff==0.15.9",
        "mypy==1.8.0",
    ]
 
    # ❌ Bad - Unpinned version
    [project.optional-dependencies]
    dev = [
-       "ruff>=0.6.9",  # Don't use >=
+       "ruff>=0.15.9",  # Don't use >=
        "mypy",  # Don't omit version
    ]
    ```
