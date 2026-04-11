@@ -6,6 +6,7 @@ from mutagen.id3 import ID3
 from mutagen.id3._frames import TPOS, TXXX, UFID
 
 from audiometa.manager._MetadataManager import _MetadataManager as MetadataManager
+from audiometa.utils.disc_number_read import parse_disc_number_from_combined_str, parse_disc_total_from_combined_str
 from audiometa.utils.types import RawMetadataKey, UnifiedMetadataValue
 from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
@@ -285,11 +286,7 @@ class _Id3v2Writer:
             current_total = None
             if current_tpos and len(current_tpos.text) > 0:
                 tpos_str = str(current_tpos.text[0])
-                import re
-
-                match = re.match(r"^(\d+)/(\d+)$", tpos_str)
-                if match:
-                    current_total = int(match.group(2))
+                current_total = parse_disc_total_from_combined_str(tpos_str)
 
             raw_mutagen_metadata.delall(tpos_key)
             if app_metadata_value is not None:
@@ -304,11 +301,7 @@ class _Id3v2Writer:
             current_disc_number = None
             if current_tpos and len(current_tpos.text) > 0:
                 tpos_str = str(current_tpos.text[0])
-                import re
-
-                match = re.match(r"^(\d+)(?:/(\d+))?$", tpos_str)
-                if match:
-                    current_disc_number = int(match.group(1))
+                current_disc_number = parse_disc_number_from_combined_str(tpos_str)
 
             raw_mutagen_metadata.delall(tpos_key)
             if app_metadata_value is not None:

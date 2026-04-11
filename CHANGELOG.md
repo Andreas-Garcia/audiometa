@@ -49,6 +49,18 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Fixed
+
+- **Disc number partial updates (`ID3v2` + `Vorbis`)**: Updating only one disc component now preserves the other component when older combined values are present.
+
+  - **ID3v2 `TPOS`**: Existing hyphen (`n-m`) and slash (`n/m`) forms are both parsed for preservation and rewritten in canonical slash form.
+  - **Vorbis `DISCNUMBER`**: When `DISCNUMBER` stores combined `n/m` or `n-m`, updating only `DISC_NUMBER` preserves the embedded total by materializing `DISCTOTAL` when explicit `DISCTOTAL` is absent or invalid; valid explicit `DISCTOTAL` remains authoritative.
+  - Includes regression integration tests for both formats.
+
+- **Error messages**: `UnifiedMetadataKey` and `MetadataFormat` are `StrEnum`s, so embedding them in exception text with `f"{value}..."` used wire strings (e.g. `album_artists`, `vorbis`) instead of stable labels like `UnifiedMetadataKey.ALBUM_ARTISTS` / `MetadataFormat.VORBIS`. Managers and `_get_metadata_manager` now use `qualified_name()` where those identifiers appear in user-facing errors and warnings.
+
+- **CHANGELOG.md**: Placed `## [Unreleased]` before `## [1.4.2]` (released content had been above `[Unreleased]`). `python scripts/verify_changelog.py` passes again.
+
 ### Changed
 
 - **Dev tooling**: Bumped **Ruff** from `0.6.9` to `0.15.9` in `[project.optional-dependencies] dev` (py3.14-compatible parser and current rule set). Added `PLC0415` / `RUF043` to `ignore` for existing lazy-import and test patterns. Migrated string enums in `audiometa.utils` (and related usage) to **`StrEnum`**, `Self` return on `_AudioFile.__enter__`, and **ruff format** on files touched by the new formatter.
@@ -62,12 +74,6 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### Documentation
 
 - **python-project-standards adoption**: [DEVELOPMENT.md](DEVELOPMENT.md), [CONTRIBUTING.md](CONTRIBUTING.md), [docs/TESTING.md](docs/TESTING.md), [docs/COMMITTING.md](docs/COMMITTING.md), and [AGENTS.md](AGENTS.md) describe **`reusable-pre-commit`** (**`@v3.0.0`**), local test workflow, [`STANDARDS_VERSION`](STANDARDS_VERSION), and **`verify-python-project-standards`** / [`scripts/verify-standards.sh`](scripts/verify-standards.sh).
-
-### Fixed
-
-- **Error messages**: `UnifiedMetadataKey` and `MetadataFormat` are `StrEnum`s, so embedding them in exception text with `f"{value}..."` used wire strings (e.g. `album_artists`, `vorbis`) instead of stable labels like `UnifiedMetadataKey.ALBUM_ARTISTS` / `MetadataFormat.VORBIS`. Managers and `_get_metadata_manager` now use `qualified_name()` where those identifiers appear in user-facing errors and warnings.
-
-- **CHANGELOG.md**: Placed `## [Unreleased]` before `## [1.4.2]` (released content had been above `[Unreleased]`). `python scripts/verify_changelog.py` passes again.
 
 ## [1.4.2] - 2026-04-06
 
@@ -109,7 +115,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### Documentation
 
-- **Track and disc numbers**: Consolidated track and disc documentation into `docs/TRACK_AND_DISC_NUMBERS.md` (removed `docs/TRACK_NUMBER.md`; updated links throughout; `docs/DISC_NUMBER.md` updated in place).
+- **Track and disc numbers**: Consolidated track and disc documentation into `docs/TRACK_AND_DISC_NUMBERS.md` (removed `docs/TRACK_NUMBER.md`; updated links throughout; `docs/DISC_NUMBER.md` was consolidated and removed).
 - **PR descriptions (Cursor)**: `.cursor/rules/pr-descriptions.mdc` requires writing PR bodies to `.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md` when asked; `pr-naming.mdc`, `AGENTS.md`, and `CONTRIBUTING.md` point to that workflow and to `.github/pr_descriptions/pull_request_template.md`.
 - **Demo outputs**: `.gitignore` excludes article `output/` and loose/generated files under `content/articles/<article>/`, while allowing tapes, scripts, markdown, and **whitelisted demo audio** under `content/articles/<article>/samples/` (`sample.mp3`, `sample.flac`, `sample.wav` per article as needed). `docs/demos/sample.mp3` stays the shared asset for `docs/demos/` tapes. `DEMO_INSTALLATION.md` and `.cursor/rules/demo-videos.mdc` document the layout.
 

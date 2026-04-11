@@ -388,6 +388,32 @@ class _VorbisManager(_RatingSupportingMetadataManager):
         # Get current metadata
         current_metadata = self._extract_mutagen_metadata()
 
+        # Preserve total when existing DISCNUMBER is stored as combined n/m or n-m and only DISC_NUMBER is updated.
+        if (
+            UnifiedMetadataKey.DISC_NUMBER in unified_metadata
+            and UnifiedMetadataKey.DISC_TOTAL not in unified_metadata
+            and unified_metadata[UnifiedMetadataKey.DISC_NUMBER] is not None
+        ):
+            explicit_total = None
+            combined_discnumber = None
+            for raw_key, raw_values in current_metadata.items():
+                key_name = str(raw_key).upper()
+                if raw_values is None or len(raw_values) == 0 or raw_values[0] in (None, ""):
+                    continue
+                if key_name == self.VorbisKey.DISC_TOTAL.value:
+                    explicit_total = str(raw_values[0])
+                elif key_name == self.VorbisKey.DISC_NUMBER.value:
+                    combined_discnumber = str(raw_values[0])
+
+            explicit_total_is_usable = (
+                explicit_total is not None and parse_explicit_non_negative_disctotal(explicit_total) is not None
+            )
+
+            if not explicit_total_is_usable and combined_discnumber is not None:
+                parsed_total = parse_disc_total_from_combined_str(combined_discnumber)
+                if parsed_total is not None:
+                    unified_metadata[UnifiedMetadataKey.DISC_TOTAL] = parsed_total
+
         # Update metadata dict
         for unified_metadata_key in list(unified_metadata.keys()):
             app_metadata_value = unified_metadata[unified_metadata_key]
