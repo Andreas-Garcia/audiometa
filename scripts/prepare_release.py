@@ -43,8 +43,7 @@ def update_changelog(repo_root: Path, new_version: str, release_date: str) -> No
     new_content, n = re.subn(pattern, replacement, content, count=1, flags=re.DOTALL)
     if n != 1:
         raise SystemExit(
-            "CHANGELOG.md: expected exactly one '## [Unreleased]' block followed by a version header. "
-            "Check the format."
+            "CHANGELOG.md: expected exactly one '## [Unreleased]' block followed by a version header. Check the format."
         )
     path.write_text(new_content)
 

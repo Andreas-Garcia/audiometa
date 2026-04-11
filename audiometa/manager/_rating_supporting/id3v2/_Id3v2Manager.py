@@ -426,7 +426,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
                 return None
             tpos_str = str(tpos_value[0])
             return parse_disc_total_from_combined_str(tpos_str)
-        msg = f"Metadata key not handled: {unified_metadata_key}"
+        msg = f"Metadata key not handled: {unified_metadata_key.qualified_name()}"
         raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
     def _update_formatted_value_in_raw_mutagen_metadata(
@@ -510,7 +510,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             app_metadata_value = unified_metadata[unified_metadata_key]
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
                 metadata_format_name = self._get_formatted_metadata_format_name()
-                msg = f"{unified_metadata_key} metadata not supported by {metadata_format_name} format"
+                msg = f"{unified_metadata_key.qualified_name()} metadata not supported by {metadata_format_name} format"
                 raise MetadataFieldNotSupportedByMetadataFormatError(msg)
             raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
             if raw_metadata_key:

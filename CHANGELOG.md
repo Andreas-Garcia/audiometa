@@ -56,6 +56,24 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - **Vorbis `DISCNUMBER`**: When `DISCNUMBER` stores combined `n/m` or `n-m`, updating only `DISC_NUMBER` preserves the embedded total by materializing `DISCTOTAL` when explicit `DISCTOTAL` is absent or invalid; valid explicit `DISCTOTAL` remains authoritative.
   - Includes regression integration tests for both formats.
 
+- **Error messages**: `UnifiedMetadataKey` and `MetadataFormat` are `StrEnum`s, so embedding them in exception text with `f"{value}..."` used wire strings (e.g. `album_artists`, `vorbis`) instead of stable labels like `UnifiedMetadataKey.ALBUM_ARTISTS` / `MetadataFormat.VORBIS`. Managers and `_get_metadata_manager` now use `qualified_name()` where those identifiers appear in user-facing errors and warnings.
+
+- **CHANGELOG.md**: Placed `## [Unreleased]` before `## [1.4.2]` (released content had been above `[Unreleased]`). `python scripts/verify_changelog.py` passes again.
+
+### Changed
+
+- **Dev tooling**: Bumped **Ruff** from `0.6.9` to `0.15.9` in `[project.optional-dependencies] dev` (py3.14-compatible parser and current rule set). Added `PLC0415` / `RUF043` to `ignore` for existing lazy-import and test patterns. Migrated string enums in `audiometa.utils` (and related usage) to **`StrEnum`**, `Self` return on `_AudioFile.__enter__`, and **ruff format** on files touched by the new formatter.
+
+### CI
+
+- **python-project-standards**: Pin [`reusable-pre-commit.yml`](https://github.com/BehindTheMusicTree/python-project-standards/blob/v3.0.0/.github/workflows/reusable-pre-commit.yml) to **`@v3.0.0`**; [`STANDARDS_VERSION`](STANDARDS_VERSION) **`3.0.0`**. **Test** job is **in-repo** (OS × Python matrix, unit/integration/e2e with **`pytest-cov`**, **`coverage report --fail-under=80`** on Linux/macOS only—same shape as former org **`reusable-test-matrix`**). Pre-commit **`verify-python-project-standards`** unchanged. **`cache-pytest: true`** unchanged.
+
+- **exiftool pin**: Bumped pinned exiftool version from `13.50` → `13.55` for macOS and Windows in `system-dependencies-test-only.toml` to match the currently installed version.
+
+### Documentation
+
+- **python-project-standards adoption**: [DEVELOPMENT.md](DEVELOPMENT.md), [CONTRIBUTING.md](CONTRIBUTING.md), [docs/TESTING.md](docs/TESTING.md), [docs/COMMITTING.md](docs/COMMITTING.md), and [AGENTS.md](AGENTS.md) describe **`reusable-pre-commit`** (**`@v3.0.0`**), local test workflow, [`STANDARDS_VERSION`](STANDARDS_VERSION), and **`verify-python-project-standards`** / [`scripts/verify-standards.sh`](scripts/verify-standards.sh).
+
 ## [1.4.2] - 2026-04-06
 
 ### Improved

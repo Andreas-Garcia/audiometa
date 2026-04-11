@@ -5,13 +5,13 @@ values.
 """
 
 from collections.abc import MutableMapping
-from enum import Enum
+from enum import StrEnum
 from typing import Any, TypedDict
 
 from .unified_metadata_key import UnifiedMetadataKey
 
 
-class RawMetadataKey(str, Enum):
+class RawMetadataKey(StrEnum):
     """Enumeration of raw metadata keys."""
 
     def __str__(self) -> str:

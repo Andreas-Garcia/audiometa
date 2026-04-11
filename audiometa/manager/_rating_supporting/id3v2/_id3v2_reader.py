@@ -254,5 +254,5 @@ class _Id3v2Reader:
         """
         uuid_hex_length = 32
         if len(uuid_str) == uuid_hex_length and all(c in "0123456789abcdefABCDEF" for c in uuid_str):
-            return f"{uuid_str[:8]}-{uuid_str[8:12]}-" f"{uuid_str[12:16]}-{uuid_str[16:20]}-{uuid_str[20:32]}"
+            return f"{uuid_str[:8]}-{uuid_str[8:12]}-{uuid_str[12:16]}-{uuid_str[16:20]}-{uuid_str[20:32]}"
         return uuid_str

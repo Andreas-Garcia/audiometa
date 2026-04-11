@@ -38,35 +38,35 @@ from .utils.unified_metadata_field_schema import get_unified_metadata_field_sche
 from .utils.unified_metadata_key import UnifiedMetadataKey
 
 __all__ = [
-    "UnifiedMetadataKey",
-    "get_unified_metadata_field_schema",
-    "get_supported_unified_metadata_field_ids",
-    "FlacMd5State",
-    "MetadataFormat",
-    "MetadataWritingStrategy",
-    "UnifiedMetadata",
-    "UnifiedMetadataValue",
     "FileCorruptedError",
     "FileTypeNotSupportedError",
+    "FlacMd5State",
     "InvalidMetadataFieldTypeError",
     "MetadataFieldNotSupportedByLibError",
     "MetadataFieldNotSupportedByMetadataFormatError",
+    "MetadataFormat",
     "MetadataFormatNotSupportedByAudioFormatError",
     "MetadataWritingConflictParametersError",
-    "get_unified_metadata",
-    "get_unified_metadata_field",
-    "validate_metadata_for_update",
-    "update_metadata",
+    "MetadataWritingStrategy",
+    "UnifiedMetadata",
+    "UnifiedMetadataKey",
+    "UnifiedMetadataValue",
     "delete_all_metadata",
+    "fix_md5_checking",
     "get_bitrate",
     "get_channels",
-    "get_file_size",
-    "get_sample_rate",
-    "is_audio_file",
     "get_duration_in_sec",
-    "is_flac_md5_valid",
-    "fix_md5_checking",
+    "get_file_size",
     "get_full_metadata",
+    "get_sample_rate",
+    "get_supported_unified_metadata_field_ids",
+    "get_unified_metadata",
+    "get_unified_metadata_field",
+    "get_unified_metadata_field_schema",
+    "is_audio_file",
+    "is_flac_md5_valid",
+    "update_metadata",
+    "validate_metadata_for_update",
 ]
 
 FILE_EXTENSION_NOT_HANDLED_MESSAGE = "The file's format is not handled by the service."
@@ -124,7 +124,10 @@ def _get_metadata_manager(
     if not metadata_format:
         metadata_format = audio_file_prioritized_tag_formats[0]
     elif metadata_format not in audio_file_prioritized_tag_formats:
-        msg = f"Tag format {metadata_format} not supported for file extension {audio_file.file_extension}"
+        msg = (
+            f"Tag format {metadata_format.qualified_name()} not supported for file extension "
+            f"{audio_file.file_extension}"
+        )
         raise MetadataFormatNotSupportedByAudioFormatError(msg)
 
     manager_class: type[_MetadataManager] = cast(Any, METADATA_FORMAT_MANAGER_CLASS_MAP[metadata_format])
@@ -901,7 +904,9 @@ def _handle_metadata_strategy(
         except MetadataFieldNotSupportedByMetadataFormatError as e:
             # For SYNC strategy, log warning but continue with other formats
             if warn_on_unsupported_field:
-                format_warn_msg = f"Format {target_format_actual} doesn't support some metadata fields: {e}"
+                format_warn_msg = (
+                    f"Format {target_format_actual.qualified_name()} doesn't support some metadata fields: {e}"
+                )
                 warnings.warn(format_warn_msg, stacklevel=2)
         except Exception as e:
             # Re-raise user errors (like InvalidRatingValueError) immediately

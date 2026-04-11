@@ -81,8 +81,8 @@ class UbuntuDependenciesChecker(OsDependenciesChecker):
         """
         # Extract upstream version (part before first '-')
         # Handle both formats: "24.01.1-1build2" -> "24.01.1" and "25.04.1" -> "25.04.1"
-        v1_upstream = version1.split("-")[0]
-        v2_upstream = version2.split("-")[0]
+        v1_upstream = version1.split("-", maxsplit=1)[0]
+        v2_upstream = version2.split("-", maxsplit=1)[0]
 
         # Normalize versions: remove revision suffix (like _4) and Debian suffixes (like +dfsg)
         # This allows "24.01" to match "24.01+dfsg" or "24.01.1"
