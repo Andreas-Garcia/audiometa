@@ -24,8 +24,8 @@ def _repo_root(argv: list[str]) -> Path:
 
 def _parse_digests(content: str) -> dict[str, str]:
     out: dict[str, str] = {}
-    for line in content.splitlines():
-        line = line.strip()
+    for raw_line in content.splitlines():
+        line = raw_line.strip()
         if not line or line.startswith("#"):
             continue
         m = re.match(r"^([a-fA-F0-9]{64})\s+(\S+)\s*$", line)
@@ -70,8 +70,7 @@ def _verify_ruff_overlay(pyproject: dict) -> None:
     ruff = tool.get("ruff") or {}
     if ruff.get("extend") != REQUIRED_RUFF_EXTEND:
         print(
-            f'[tool.ruff] must set extend = "{REQUIRED_RUFF_EXTEND}" '
-            f'(got {ruff.get("extend")!r}).',
+            f'[tool.ruff] must set extend = "{REQUIRED_RUFF_EXTEND}" (got {ruff.get("extend")!r}).',
             file=sys.stderr,
         )
         sys.exit(1)

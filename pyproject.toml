@@ -102,6 +102,7 @@ extend = "baselines/ruff.toml"
 # T201 (print) is acceptable in demo scripts - they are CLI/demo tools, not library code
 "scripts/run_demo_tape.py" = ["T201"]
 "scripts/demo_repl.py" = ["T201"]
+"scripts/check_lint_baseline.py" = ["T201"]
 # Release script: CLI tool; relax exception/literal and magic-number rules for clarity
 "scripts/prepare_release.py" = ["TRY003", "EM101", "EM102", "PLR2004", "DTZ011", "RUF005", "T201"]
 
