@@ -59,6 +59,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### CI
+
+- **Cursor Cloud Ubuntu 24.04 bootstrap**: Added `.cursor/environment.json` and `scripts/install-cursor-cloud-dependencies.sh` so cloud agents preinstall `shellcheck` and `pwsh` via the existing lint dependency installer, allowing `pre-commit run --all-files` to run without manual system-tool setup.
+
 ## [1.4.1] - 2026-04-06
 
 ### CI
