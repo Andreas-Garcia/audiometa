@@ -26,8 +26,8 @@ if [[ ! -d "$repo_path" ]]; then
   exit 2
 fi
 
-if [[ ! -f "$repo_path/pyproject.toml" ]] && [[ -d "$repo_path/templates/pyproject" ]]; then
-  echo "Skipping standards verification (python-project-standards repository has no root pyproject.toml)."
+if [[ -f "$repo_path/templates/pyproject/pyproject.toml" ]] && [[ ! -f "$repo_path/baselines/ruff.toml" ]]; then
+  echo "Skipping standards verification (python-project-standards meta-repository: no consumer baselines/)."
   exit 0
 fi
 

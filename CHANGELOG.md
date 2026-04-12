@@ -47,6 +47,12 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 **Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-29`).
 
+## [Unreleased]
+
+### CI
+
+- **python-project-standards v4.2.0**: Lint delegates to **`reusable-pre-commit.yml@v4.2.0`**; root **`STANDARDS_VERSION`** **`4.2.0`**. **`scripts/verify-standards.sh`** matches org template skip logic for the standards meta-repo ( **`templates/pyproject/pyproject.toml`** without consumer **`baselines/ruff.toml`**). Added **`.cursor/rules/changelog-alignment.mdc`** ( **`alwaysApply`** ) so substantive edits stay paired with **`CHANGELOG.md`** updates. Previous **`v4.1.1`** baseline work ( **`baselines/`**, **`check_lint_baseline.py`**, digest for **`expected-mypy.json`**, thin Ruff/Mypy overlay) is unchanged.
+
 ## [1.4.3] - 2026-04-11
 
 ### Fixed
@@ -76,12 +82,6 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### Documentation
 
 - **python-project-standards adoption**: [DEVELOPMENT.md](DEVELOPMENT.md), [CONTRIBUTING.md](CONTRIBUTING.md), [docs/TESTING.md](docs/TESTING.md), [docs/COMMITTING.md](docs/COMMITTING.md), and [AGENTS.md](AGENTS.md) describe **`reusable-pre-commit`** (**`@v3.0.0`**), local test workflow, [`STANDARDS_VERSION`](STANDARDS_VERSION), and **`verify-python-project-standards`** / [`scripts/verify-standards.sh`](scripts/verify-standards.sh).
-
-## [Unreleased]
-
-### CI
-
-- **python-project-standards v4.1.1**: Lint delegates to **`reusable-pre-commit.yml@v4.1.1`**; root **`STANDARDS_VERSION`** **`4.1.1`**. **`baselines/DIGESTS`** includes SHA-256 for **`expected-mypy.json`** (org **`v4.1.1`** fix) so baseline integrity checks catch Mypy JSON drift. Vendored **`baselines/`** (`ruff.toml`, **`DIGESTS`**, **`expected-mypy.json`**) with **`[tool.ruff] extend`** in **`pyproject.toml`**; **`scripts/check_lint_baseline.py`** + **`verify-standards.sh`** aligned with upstream. **`pre-commit-hooks`** **`v6.0.0`**, dev **`pre-commit==4.5.1`**.
 
 ## [1.4.2] - 2026-04-06
 
