@@ -55,8 +55,7 @@ def _verify_digests(repo: Path) -> None:
     missing_required = sorted(REQUIRED_DIGEST_FILES - expected.keys())
     if missing_required:
         print(
-            "baselines/DIGESTS is missing required digest entries: "
-            + ", ".join(missing_required),
+            "baselines/DIGESTS is missing required digest entries: " + ", ".join(missing_required),
             file=sys.stderr,
         )
         sys.exit(1)
