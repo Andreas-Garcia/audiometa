@@ -49,6 +49,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Changed
+
+- **Release tooling**: Replaced unmaintained **`bump2version`** with **`bump-my-version`**; configuration lives in **`pyproject.toml`** under **`[tool.bumpversion]`**. Removed **`.bumpversion.cfg`**. **`scripts/prepare_release.py`** invokes **`bump-my-version bump`** (no commit/tag; the script commits and tags separately).
+
 ### CI
 
 - **python-project-standards v4.2.0**: Lint delegates to **`reusable-pre-commit.yml@v4.2.0`**; root **`STANDARDS_VERSION`** **`4.2.0`**. **`scripts/verify-standards.sh`** matches org template skip logic for the standards meta-repo ( **`templates/pyproject/pyproject.toml`** without consumer **`baselines/ruff.toml`**). Added **`.cursor/rules/changelog-alignment.mdc`** ( **`alwaysApply`** ) so substantive edits stay paired with **`CHANGELOG.md`** updates. Previous **`v4.1.1`** baseline work ( **`baselines/`**, **`check_lint_baseline.py`**, digest for **`expected-mypy.json`**, thin Ruff/Mypy overlay) is unchanged.

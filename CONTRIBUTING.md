@@ -508,7 +508,7 @@ Quick release process:
 
 5. Run the release script (updates CHANGELOG, bumps version, commits, and tags):
 
-   **Use the release script, not `bump2version` directly.** Running `bump2version patch` alone does not update `CHANGELOG.md` and is easy to forget; the script does changelog + version + commit + tag in one go.
+   **Use the release script, not `bump-my-version` directly.** Running `bump-my-version bump patch` alone does not update `CHANGELOG.md` and is easy to forget; the script does changelog + version + commit + tag in one go.
 
    ```bash
    source .venv/bin/activate
@@ -524,8 +524,8 @@ Quick release process:
    **What the script does:**
 
    - Replaces `## [Unreleased]` in `CHANGELOG.md` with `## [X.Y.Z] - YYYY-MM-DD` (today) and adds a new `## [Unreleased]` section
-   - Runs `bump2version` to update `pyproject.toml` and `.bumpversion.cfg`
-   - Commits `CHANGELOG.md`, `pyproject.toml`, and `.bumpversion.cfg` with message `chore: prepare release X.Y.Z`
+   - Runs `bump-my-version bump` to update `project.version` and `[tool.bumpversion].current_version` in `pyproject.toml`
+   - Commits `CHANGELOG.md` and `pyproject.toml` with message `chore: prepare release X.Y.Z`
    - Creates tag `vX.Y.Z`
    - Without `--push`: stops here (verify with `git log -1` and `git tag -l`, then push manually)
    - With `--push`: pushes `main` and the new tag to `origin`
@@ -555,7 +555,7 @@ Quick release process:
 
 **Note:** Ensure `PYPI_API_TOKEN` is configured in GitHub repository secrets before tagging. See [PyPI Publishing Guide](docs/PYPI_PUBLISHING.md) for setup instructions.
 
-**Alternative (manual):** Edit `CHANGELOG.md` (move `[Unreleased]` to a versioned section with date), then run `bump2version patch` (or minor/major/`--new-version`) and commit + tag yourself.
+**Alternative (manual):** Edit `CHANGELOG.md` (move `[Unreleased]` to a versioned section with date), then run `bump-my-version bump patch` (or `minor` / `major` / `--new-version X.Y.Z`) and commit + tag yourself.
 
 ## 🪪 License & Attribution
 
