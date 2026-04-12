@@ -79,6 +79,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### CI
+
+- **python-project-standards v4.1.1**: Lint delegates to **`reusable-pre-commit.yml@v4.1.1`**; root **`STANDARDS_VERSION`** **`4.1.1`**. **`baselines/DIGESTS`** includes SHA-256 for **`expected-mypy.json`** (org **`v4.1.1`** fix) so baseline integrity checks catch Mypy JSON drift. Vendored **`baselines/`** (`ruff.toml`, **`DIGESTS`**, **`expected-mypy.json`**) with **`[tool.ruff] extend`** in **`pyproject.toml`**; **`scripts/check_lint_baseline.py`** + **`verify-standards.sh`** aligned with upstream. **`pre-commit-hooks`** **`v6.0.0`**, dev **`pre-commit==4.5.1`**.
+
 ## [1.4.2] - 2026-04-06
 
 ### Improved
