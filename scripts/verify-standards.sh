@@ -26,8 +26,8 @@ if [[ ! -d "$repo_path" ]]; then
   exit 2
 fi
 
-if [[ ! -f "$repo_path/pyproject.toml" ]] && [[ -d "$repo_path/templates/pyproject" ]]; then
-  echo "Skipping standards verification (python-project-standards repository has no root pyproject.toml)."
+if [[ -f "$repo_path/templates/pyproject/pyproject.toml" ]] && [[ ! -f "$repo_path/baselines/ruff.toml" ]]; then
+  echo "Skipping standards verification (python-project-standards meta-repository: no consumer baselines/)."
   exit 0
 fi
 
@@ -103,6 +103,24 @@ fi
 if [[ -z "${has_remote_mypy:-}" ]] && [[ -z "${has_local_mypy:-}" ]]; then
   echo "Missing mypy in .pre-commit-config.yaml (use mirrors-mypy or a local hook running mypy)."
   snippet_fail=1
+fi
+
+if [[ "${VERIFY_STANDARDS_ALLOW_ISORT:-}" != "1" ]]; then
+  has_isort_in_pc=
+  if command -v rg >/dev/null 2>&1; then
+    if rg --quiet -i -e 'mirrors-isort' -e 'pycqa/isort' -e 'id:\s*isort\s*(#|$)' "$repo_path/.pre-commit-config.yaml"; then
+      has_isort_in_pc=y
+    fi
+  else
+    if grep -i -E -q '(mirrors-isort|pycqa/isort)' "$repo_path/.pre-commit-config.yaml" \
+      || grep -i -E -q 'id:[[:space:]]*isort[[:space:]]*(#|$)' "$repo_path/.pre-commit-config.yaml"; then
+      has_isort_in_pc=y
+    fi
+  fi
+  if [[ "${has_isort_in_pc:-}" == y ]]; then
+    echo "Remove isort from .pre-commit-config.yaml (mirrors-isort, PyCQA/isort, or hook id isort). Isort disagrees with ruff format on some multiline imports, so pre-commit can oscillate. Import order is enforced by ruff check rule I via baselines/ruff.toml; use ruff format + ruff check only. Temporary bypass: VERIFY_STANDARDS_ALLOW_ISORT=1."
+    snippet_fail=1
+  fi
 fi
 
 file_contains "$repo_path/pyproject.toml" "[tool.ruff]" "pyproject.toml" || snippet_fail=1

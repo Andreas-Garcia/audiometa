@@ -13,7 +13,7 @@ concurrency:
 jobs:
   lint:
     name: Lint
-    uses: BehindTheMusicTree/python-project-standards/.github/workflows/reusable-pre-commit.yml@v4.1.1
+    uses: BehindTheMusicTree/python-project-standards/.github/workflows/reusable-pre-commit.yml@v4.3.2
     with:
       runs-on: ubuntu-24.04
       python-version: "3.13"

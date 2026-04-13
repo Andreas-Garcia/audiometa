@@ -25,14 +25,14 @@
 # 6. fix-shell-trailing-blank-lines: Fix trailing blank lines in shell scripts (auto-fixes)
 # 7. no-assert: Check for assert statements in production code
 # 8. ruff-format: Format code (replaces black, handles EOF newlines automatically)
-# 9. ruff: Auto-fix linting issues (including unused imports/variables, code style, line length)
-# 10. isort: Sort imports (configured to work with ruff-format/black)
-# 11. mypy: Type checking on formatted code
-# 12. pydocstringformatter: Format docstrings (after code formatting)
+# 9. ruff: Auto-fix linting issues (including unused imports/variables, import order via I rules, line length)
+# 10. mypy: Type checking on formatted code
+# 11. pydocstringformatter: Format docstrings (after code formatting)
 #     NOTE: File pattern must be ^audiometa/.*\.py$ (not ^audiometa/) to avoid processing binary files
-# 13. fix-long-comments: Fix long comment lines (custom hook)
-# 14. prettier: Format markdown files (preserves list numbering without zero-padding)
-# 15. psscriptanalyzer: Lint PowerShell scripts (.ps1 files)
+# 12. fix-long-comments: Fix long comment lines (custom hook)
+# 13. prettier: Format markdown files (preserves list numbering without zero-padding)
+# 14. psscriptanalyzer: Lint PowerShell scripts (.ps1 files)
+# Note: isort is not a pre-commit hook (org verify-python-project-standards forbids it vs ruff format); isort stays in pyproject dev extras for optional IDE/local use.
 
 fail_fast: true
 
@@ -106,12 +106,6 @@ repos:
         name: ruff
         # Use venv ruff explicitly for consistency (ruff is a binary, but still prefer venv version)
         entry: bash -c '.pre-commit-hooks/tool-wrapper.sh ruff check --fix --line-length=120 "$@"' --
-        language: system
-        files: ^(audiometa/|\.pre-commit-hooks/|scripts/).*\.py$
-      - id: isort
-        name: isort
-        # Use venv isort explicitly to avoid system isort with potentially broken shebang
-        entry: bash -c '.pre-commit-hooks/tool-wrapper.sh isort --profile black --line-length=120 "$@"' --
         language: system
         files: ^(audiometa/|\.pre-commit-hooks/|scripts/).*\.py$
       - id: mypy
