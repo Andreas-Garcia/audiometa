@@ -57,6 +57,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - **python-project-standards v4.2.0**: Lint delegates to **`reusable-pre-commit.yml@v4.2.0`**; root **`STANDARDS_VERSION`** **`4.2.0`**. **`scripts/verify-standards.sh`** matches org template skip logic for the standards meta-repo ( **`templates/pyproject/pyproject.toml`** without consumer **`baselines/ruff.toml`**). Added **`.cursor/rules/changelog-alignment.mdc`** ( **`alwaysApply`** ) so substantive edits stay paired with **`CHANGELOG.md`** updates. Previous **`v4.1.1`** baseline work ( **`baselines/`**, **`check_lint_baseline.py`**, digest for **`expected-mypy.json`**, thin Ruff/Mypy overlay) is unchanged.
 
+- **python-project-standards v4.3.1** ([org **`v4.3.1`**](https://github.com/BehindTheMusicTree/python-project-standards/releases/tag/v4.3.1)): Lint delegates to **`reusable-pre-commit.yml@v4.3.1`**; root **`STANDARDS_VERSION`** **`4.3.1`**. [**`scripts/verify-standards.sh`**](scripts/verify-standards.sh) and [**`scripts/check_lint_baseline.py`**](scripts/check_lint_baseline.py) match org **`templates/scripts/`** on that tag (verification rejects an **isort** pre-commit hook). Removed the **isort** hook from [**.pre-commit-config.yaml**](.pre-commit-config.yaml); **isort** remains in **[`pyproject.toml`](pyproject.toml)** dev extras for optional local or IDE use. Org **[`docs/versioning.md`](https://github.com/BehindTheMusicTree/python-project-standards/blob/main/docs/versioning.md)** documents **`BUMP_MY_VERSION_PYTHON`** for macOS **`bump-my-version`** crashes.
+
 ## [1.4.3] - 2026-04-11
 
 ### Fixed

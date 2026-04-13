@@ -11,7 +11,6 @@ import tomllib
 from pathlib import Path
 
 REQUIRED_RUFF_EXTEND = "baselines/ruff.toml"
-REQUIRED_DIGEST_FILES = {REQUIRED_RUFF_EXTEND, "baselines/expected-mypy.json"}
 ALLOWED_RUFF_TOP = {"extend", "exclude", "extend-exclude", "lint"}
 ALLOWED_RUFF_LINT_OVERLAY = {"per-file-ignores", "extend-per-file-ignores"}
 MYPY_OPTIONAL_KEYS = {"overrides"}
@@ -25,8 +24,8 @@ def _repo_root(argv: list[str]) -> Path:
 
 def _parse_digests(content: str) -> dict[str, str]:
     out: dict[str, str] = {}
-    for raw_line in content.splitlines():
-        line = raw_line.strip()
+    for raw in content.splitlines():
+        line = raw.strip()
         if not line or line.startswith("#"):
             continue
         m = re.match(r"^([a-fA-F0-9]{64})\s+(\S+)\s*$", line)
@@ -51,13 +50,6 @@ def _verify_digests(repo: Path) -> None:
     expected = _parse_digests(digests_path.read_text(encoding="utf-8"))
     if not expected:
         print("baselines/DIGESTS has no digest entries.", file=sys.stderr)
-        sys.exit(1)
-    missing_required = sorted(REQUIRED_DIGEST_FILES - expected.keys())
-    if missing_required:
-        print(
-            "baselines/DIGESTS is missing required digest entries: " + ", ".join(missing_required),
-            file=sys.stderr,
-        )
         sys.exit(1)
     for rel, want in expected.items():
         target = repo / rel
