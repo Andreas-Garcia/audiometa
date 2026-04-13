@@ -113,7 +113,7 @@ if [[ "${VERIFY_STANDARDS_ALLOW_ISORT:-}" != "1" ]]; then
     fi
   else
     if grep -i -E -q '(mirrors-isort|pycqa/isort)' "$repo_path/.pre-commit-config.yaml" \
-      || grep -E -q 'id:[[:space:]]+isort[[:space:]]*(#|$)' "$repo_path/.pre-commit-config.yaml"; then
+      || grep -i -E -q 'id:[[:space:]]+isort[[:space:]]*(#|$)' "$repo_path/.pre-commit-config.yaml"; then
       has_isort_in_pc=y
     fi
   fi
