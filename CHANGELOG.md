@@ -60,6 +60,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - **python-project-standards v4.3.1** ([org **`v4.3.1`**](https://github.com/BehindTheMusicTree/python-project-standards/releases/tag/v4.3.1)): Lint delegates to **`reusable-pre-commit.yml@v4.3.1`**; root **`STANDARDS_VERSION`** **`4.3.1`**. [**`scripts/verify-standards.sh`**](scripts/verify-standards.sh) and [**`scripts/check_lint_baseline.py`**](scripts/check_lint_baseline.py) match org **`templates/scripts/`** on that tag (verification rejects an **isort** pre-commit hook). Removed the **isort** hook from [**.pre-commit-config.yaml**](.pre-commit-config.yaml); **isort** remains in **[`pyproject.toml`](pyproject.toml)** dev extras for optional local or IDE use. Org **[`docs/versioning.md`](https://github.com/BehindTheMusicTree/python-project-standards/blob/main/docs/versioning.md)** documents **`BUMP_MY_VERSION_PYTHON`** for macOS **`bump-my-version`** crashes.
 
+- **python-project-standards v4.3.2** ([org **`v4.3.2`**](https://github.com/BehindTheMusicTree/python-project-standards/releases/tag/v4.3.2)): Lint delegates to **`reusable-pre-commit.yml@v4.3.2`**; root **`STANDARDS_VERSION`** **`4.3.2`**. [**`scripts/check_lint_baseline.py`**](scripts/check_lint_baseline.py) requires **`baselines/ruff.toml`** and **`baselines/expected-mypy.json`** in **`baselines/DIGESTS`**. [**`scripts/verify-standards.sh`**](scripts/verify-standards.sh) matches org on this bump.
+
 ## [1.4.3] - 2026-04-11
 
 ### Fixed
