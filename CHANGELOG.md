@@ -52,6 +52,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### Changed
 
 - **Release tooling**: Replaced unmaintained **`bump2version`** with **`bump-my-version`**; configuration lives in **`pyproject.toml`** under **`[tool.bumpversion]`**. Removed **`.bumpversion.cfg`**. **`scripts/prepare_release.py`** invokes **`bump-my-version bump`** (no commit/tag; the script commits and tags separately).
+- **Release tooling safety**: `scripts/prepare_release.py` now validates `project.version` matches `tool.bumpversion.current_version` before bumping, and exits with a clear error if they drift.
 
 ### CI
 

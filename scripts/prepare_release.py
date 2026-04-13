@@ -10,13 +10,18 @@ from datetime import date
 from pathlib import Path
 
 
-def get_current_version(repo_root: Path) -> str:
-    pyproject = repo_root / "pyproject.toml"
+def get_release_versions(pyproject: Path) -> tuple[str, str]:
     data = tomllib.loads(pyproject.read_text(encoding="utf-8"))
-    version = data.get("project", {}).get("version")
-    if not isinstance(version, str):
+    project_version = data.get("project", {}).get("version")
+    if not isinstance(project_version, str):
         raise SystemExit("Could not find project.version string in pyproject.toml")
-    return version
+    tool_bump = data.get("tool", {}).get("bumpversion")
+    if not isinstance(tool_bump, dict):
+        raise SystemExit("Missing [tool.bumpversion] in pyproject.toml (bump-my-version config).")
+    bump_current_version = tool_bump.get("current_version")
+    if not isinstance(bump_current_version, str):
+        raise SystemExit("Could not find tool.bumpversion.current_version string in pyproject.toml")
+    return project_version, bump_current_version
 
 
 def parse_version(v: str) -> tuple[int, int, int]:
@@ -73,14 +78,17 @@ def main() -> None:
     pyproject_path = repo_root / "pyproject.toml"
     if not pyproject_path.is_file():
         raise SystemExit("Run from repository root (missing pyproject.toml).")
-    tool_bump = tomllib.loads(pyproject_path.read_text(encoding="utf-8")).get("tool", {}).get("bumpversion")
-    if not isinstance(tool_bump, dict):
-        raise SystemExit("Missing [tool.bumpversion] in pyproject.toml (bump-my-version config).")
 
     verify_script = repo_root / "scripts" / "verify_changelog.py"
     subprocess.run([sys.executable, str(verify_script)], cwd=repo_root, check=True)
 
-    current = get_current_version(repo_root)
+    project_version, bump_current_version = get_release_versions(pyproject_path)
+    if project_version != bump_current_version:
+        raise SystemExit(
+            "Version mismatch in pyproject.toml: project.version "
+            f"({project_version}) != tool.bumpversion.current_version ({bump_current_version})"
+        )
+    current = project_version
     if args.new_version:
         new_version = args.new_version
     elif args.part:
