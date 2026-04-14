@@ -34,6 +34,12 @@ Demo videos are produced with [VHS](https://github.com/charmbracelet/vhs) from d
 - **Docs**: Update the article’s README and `content/README.md` when changing paths.
 - **Tracked vs gitignored**: GIFs/MP4s for **content/demo/demos** go in `content/demo/demos/output/` (gitignored). Source tapes live in `content/demo/demos/tapes/`. Article demos under `content/articles/<name>/` use per-article `output/work/` and `output/final/` (both gitignored via `content/**/output/`). **Tracked demo audio** for an article can live in **`content/articles/<article>/samples/`** (whitelisted: `sample.mp3`, `sample.flac`, `sample.wav`). Do not leave those loose at the article root. Track tapes, top-level `.md`, and **`scripts/*.sh` / `scripts/*.py`**; **do not commit** ad hoc `demo_*` copies or other loose binaries. See `.gitignore`.
 
+## Video generation best practices
+
+- **Brand text color**: In ffmpeg `drawtext` for article hero/section/page generation, use **`fontcolor=0x2b3a51`** (not plain black) for titles and labels so typography stays visually consistent across demos.
+- **Regenerate immediately after visual changes**: If you modify visual output logic (text copy/position/color/size, logo placement/scale/transparency, ffmpeg filters, page layout, intro/section composition), rerun the article generator in the same task before finishing. Use `bash content/articles/<article>/scripts/generate_<article>_video.sh --skip-gifs` when only ffmpeg/layout changed; run without `--skip-gifs` if tape content changed.
+- **Verification target**: Confirm the updated artifact exists at `content/articles/<article>/output/final/` and reflects the visual change before handing off.
+
 ## Generated outputs (gitignored)
 
 - `content/demo/demos/output/` — library REPL/script demo GIFs/MP4

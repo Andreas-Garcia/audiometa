@@ -3,7 +3,7 @@
 # Order: RIFF (WAV), ID3v2 (MP3), ID3v1 (MP3), Vorbis (FLAC).
 # Run from repo root; requires venv, ffmpeg, ffprobe, metaflac, mid3v2; vhs only if recording GIFs.
 # Intro requires assets/logo.mp4 (tracked) or <article>/logo.mp4.
-# Comparison pages use assets/logo-round.png (or assets/logo.png) + "AudioMeta" under the right GIF (replaces plain "unified" text).
+# Comparison pages use a centered logo mark under the right GIF (no "AudioMeta" text).
 # VHS runs with cwd = the article dir (parent of this scripts/) so tapes need no in-GIF cd; Output is output/work/*.gif.
 # Final deliverable is written to output/final/; intermediates (GIFs, per-cell MP4, concat list) under output/work/.
 #
@@ -69,42 +69,44 @@ TITLE_TOP=52
 # GIF hstack vertical offset — lower value = panels sit higher (tighter header).
 PANELS_TOP=118
 # Intro drawtext Y positions (scaled from 840px reference; higher numerator = lower on frame)
-INTRO_TEXT_Y1=$((INTRO_H * 460 / (BASE_CELL_H * 2)))
-INTRO_TEXT_Y2=$((INTRO_H * 540 / (BASE_CELL_H * 2)))
-# Distance from bottom of GIF row to panel labels (smaller = labels lower on screen)
+INTRO_TEXT_DESCEND_PX=85
+INTRO_TEXT_Y1=$((INTRO_H * 460 / (BASE_CELL_H * 2) + INTRO_TEXT_DESCEND_PX))
+INTRO_TEXT_Y2=$((INTRO_H * 540 / (BASE_CELL_H * 2) + INTRO_TEXT_DESCEND_PX))
+# Distance from bottom of GIF row to panel labels (larger = titles/logo lower under comparison GIFs)
 LABEL_BOTTOM_PAD=-20
+COMPARISON_FOOTER_DESCEND_PX=44
 FONT_FILE=""
 for candidate in \
+  "/System/Library/Fonts/Supplemental/Arial Bold.ttf" \
+  "/System/Library/Fonts/Supplemental/Arial-Bold.ttf" \
+  "/System/Library/Fonts/Supplemental/Helvetica Bold.ttf" \
   "/System/Library/Fonts/Supplemental/Arial.ttf" \
   "/System/Library/Fonts/Helvetica.ttc" \
   "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf" \
+  "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" \
   "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf" \
+  "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf" \
   "$(dirname "$0")/../../fonts/Inter-Regular.ttf" \
+  "$(dirname "$0")/../../fonts/Inter-Bold.ttf" \
   "assets/fonts/Inter-Regular.ttf"; do
   [[ -f "$candidate" ]] && FONT_FILE="$candidate" && break
 done
 FONT_OPT=""
 [[ -n "$FONT_FILE" ]] && FONT_OPT=":fontfile=$FONT_FILE"
+TEXT_COLOR="0x2b3a51"
 
-AUDIO_META_LOGO_STILL=""
-for candidate in "$REPO_ROOT/assets/logo-round.png" "$REPO_ROOT/assets/logo.png"; do
-  [[ -f "$candidate" ]] && AUDIO_META_LOGO_STILL="$candidate" && break
-done
-[[ -z "$AUDIO_META_LOGO_STILL" ]] && {
-  echo "Error: static logo not found (assets/logo-round.png or assets/logo.png)." >&2
+AUDIO_META_LOGO_STILL="$REPO_ROOT/assets/logo-round.png"
+[[ -f "$AUDIO_META_LOGO_STILL" ]] || {
+  echo "Error: static logo not found: assets/logo-round.png" >&2
   exit 1
 }
 
-# Right column footer: scaled logo + "AudioMeta" (replacing plain "unified" text)
-TAG_LOGO_PX=36
-TAG_GAP=10
-TAG_TEXT_W_EST=130
+# Right column footer: centered logo only (transparent overlay)
+TAG_LOGO_PX=70
 RIGHT_COL_MID_X=$((CELL_W + CELL_W / 2))
-TAG_BRAND_W=$((TAG_LOGO_PX + TAG_GAP + TAG_TEXT_W_EST))
-LABEL_ROW_Y=$((PANELS_TOP + GIF_CELL_H - LABEL_BOTTOM_PAD))
-TAG_LOGO_X=$((RIGHT_COL_MID_X - TAG_BRAND_W / 2))
-TAG_TEXT_X=$((TAG_LOGO_X + TAG_LOGO_PX + TAG_GAP))
-TAG_LOGO_Y=$((LABEL_ROW_Y - TAG_LOGO_PX + 4))
+LABEL_ROW_Y=$((PANELS_TOP + GIF_CELL_H - LABEL_BOTTOM_PAD + COMPARISON_FOOTER_DESCEND_PX))
+TAG_LOGO_X=$((RIGHT_COL_MID_X - TAG_LOGO_PX / 2))
+TAG_LOGO_Y=$((LABEL_ROW_Y - TAG_LOGO_PX / 2 + 12))
 
 if [[ ! -f "$ARTICLE_ABS/samples/sample.wav" ]]; then
   echo "Creating $ARTICLE_REL/samples/sample.wav from samples/sample.mp3..."
@@ -123,14 +125,14 @@ ffmpeg -y -f lavfi -i "color=c=0xffffff:s=${INTRO_W}x${INTRO_H}:d=${INTRO_DURATI
   -filter_complex "
     [1:v]fps=25,scale=560:-1,format=yuv420p,setpts=PTS-STARTPTS[logo];
     [0:v][logo]overlay=x=(main_w-overlay_w)/2:y=-45:eof_action=repeat[v0];
-    [v0]drawtext=text='One tool for every format':fontsize=28${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=(w-text_w)/2:y=${INTRO_TEXT_Y1}:enable='gte(t\,1)'[v1];
-    [v1]drawtext=text='RIFF\, ID3v2\, ID3v1\, Vorbis':fontsize=22${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=(w-text_w)/2:y=${INTRO_TEXT_Y2}:enable='gte(t\,3)'[v]
+    [v0]drawtext=text='One tool for every format':fontsize=28${FONT_OPT}:fontcolor=${TEXT_COLOR}:borderw=1:bordercolor=white:x=(w-text_w)/2:y=${INTRO_TEXT_Y1}:enable='gte(t\,1)'[v1];
+    [v1]drawtext=text='MP3\, WAV\, FLAC | ID3v2\, ID3v1\, RIFF\, Vorbis':fontsize=22${FONT_OPT}:fontcolor=${TEXT_COLOR}:borderw=1:bordercolor=white:x=(w-text_w)/2:y=${INTRO_TEXT_Y2}:enable='gte(t\,3)'[v]
   " -map "[v]" -an -r 25 -c:v libx264 -pix_fmt yuv420p -t "$INTRO_DURATION" "$INTRO_MP4" -loglevel warning
 
 echo "Building section page..."
 SECTION_MP4="$REPO_ROOT/$WORK_DIR/section_unified_metadata_reading.mp4"
 ffmpeg -y -f lavfi -i "color=c=0xffffff:s=${PAGE_W}x${PAGE_H}:d=${SECTION_DURATION}:r=25" \
-  -vf "drawtext=text='Unified Metadata Reading':fontsize=64${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=(w-text_w)/2:y=(h-text_h)/2" \
+  -vf "drawtext=text='Unified Metadata Reading':fontsize=64${FONT_OPT}:fontcolor=${TEXT_COLOR}:borderw=1:bordercolor=white:x=(w-text_w)/2:y=(h-text_h)/2" \
   -r 25 -c:v libx264 -pix_fmt yuv420p -t "$SECTION_DURATION" "$SECTION_MP4" -loglevel warning
 
 if [[ "$SKIP_GIFS" -eq 0 ]]; then
@@ -199,11 +201,10 @@ build_page_2() {
     -filter_complex "
       [0:v][1:v]hstack=inputs=2,format=yuv420p[row];
       [2:v][row]overlay=0:${PANELS_TOP}[withrow];
-      [withrow]drawtext=text='$title_line_1_escaped':fontsize=35${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=(w-text_w)/2:y=${TITLE_TOP}[v1];
-      [v1]drawtext=text='$left_label_escaped':fontsize=24${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=((${CELL_W}-text_w)/2):y=${LABEL_ROW_Y}[v2];
-      [3:v]scale=-1:${TAG_LOGO_PX},format=yuv420p[lg];
-      [v2][lg]overlay=x=${TAG_LOGO_X}:y=${TAG_LOGO_Y}[v3];
-      [v3]drawtext=text='AudioMeta':fontsize=24${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=${TAG_TEXT_X}:y=${LABEL_ROW_Y}[v]
+      [withrow]drawtext=text='$title_line_1_escaped':fontsize=35${FONT_OPT}:fontcolor=${TEXT_COLOR}:borderw=1:bordercolor=white:x=(w-text_w)/2:y=${TITLE_TOP}[v1];
+      [v1]drawtext=text='$left_label_escaped':fontsize=24${FONT_OPT}:fontcolor=${TEXT_COLOR}:borderw=1:bordercolor=white:x=((${CELL_W}-text_w)/2):y=${LABEL_ROW_Y}[v2];
+      [3:v]format=rgba,scale=-1:${TAG_LOGO_PX}[lg];
+      [v2][lg]overlay=x=${TAG_LOGO_X}:y=${TAG_LOGO_Y}:format=auto[v]
     " -map "[v]" -r 25 -c:v libx264 -pix_fmt yuv420p -t "$PAGE_DURATION" "$out" -loglevel warning
 }
 
