@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 # Generate before_only.gif and after_only.gif with VHS, then combine them
-# side-by-side into before_after_side_by_side.gif. Writes to article output/.
+# side-by-side into before_after_side_by_side.gif. Writes final GIF to output/final/.
 # Run from repo root or this dir with venv activated. Requires: vhs, ffmpeg.
 
 set -e
 cd "$(dirname "$0")/../../../.."
 OUT_DIR="content/articles/one_to_rule/output"
+FINAL_DIR="$OUT_DIR/final"
 LEFT="$OUT_DIR/before_only.gif"
 RIGHT="$OUT_DIR/after_only.gif"
-OUT="$OUT_DIR/before_after_side_by_side.gif"
+OUT="$FINAL_DIR/before_after_side_by_side.gif"
 
-mkdir -p "$OUT_DIR"
+mkdir -p "$OUT_DIR" "$FINAL_DIR"
 echo "Building left (before_only)..."
 bash content/articles/one_to_rule/scripts/run_vhs_tape.sh before_only.tape
 echo "Building right (after_only)..."
