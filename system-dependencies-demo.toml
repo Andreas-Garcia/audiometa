@@ -12,7 +12,7 @@
 # - These tools are OPTIONAL and not required for normal development/testing
 #
 # Installation:
-#   macOS:  bash scripts/install-demo-dependencies-macos.sh
+#   macOS:  bash content/demo/scripts/install-demo-dependencies-macos.sh
 #   Ubuntu: bash scripts/install-demo-dependencies-ubuntu.sh
 
 [ubuntu]

@@ -1,6 +1,6 @@
 # AudioMeta VHS Demo
 
-Library demo tapes live under **`content/demos/tapes/`** and write GIF/MP4 to **`content/demos/output/`** (gitignored). Run VHS with cwd `content/demos` so outputs and paths resolve correctly (see `content/demos/README.md`).
+Library demo tapes live under **`content/demo/demos/tapes/`** and write GIF/MP4 to **`content/demo/demos/output/`** (gitignored). Run VHS with cwd `content/demo/demos` so outputs and paths resolve correctly (see `content/demo/demos/README.md`).
 
 ## What is VHS?
 
@@ -14,7 +14,7 @@ Use our installation script which handles all dependencies:
 
 ```bash
 # macOS
-bash scripts/install-demo-dependencies-macos.sh
+bash content/demo/scripts/install-demo-dependencies-macos.sh
 
 # The script will install:
 #   - VHS (terminal recorder)
@@ -53,26 +53,26 @@ sudo apt-get install ttyd ffmpeg
 ```bash
 # Project root, venv activated
 source .venv/bin/activate
-mkdir -p content/demos/output
+mkdir -p content/demo/demos/output
 
-# Run VHS with cwd = content/demos (required for Output paths)
-(cd content/demos && vhs tapes/audiometa_demo.tape)
+# Run VHS with cwd = content/demo/demos (required for Output paths)
+(cd content/demo/demos && vhs tapes/audiometa_demo.tape)
 ```
 
 This will generate:
 
-- `content/demos/output/audiometa_demo.mp4` - Video file (for Twitter)
-- `content/demos/output/audiometa_demo.gif` - Animated GIF (for README/documentation)
+- `content/demo/demos/output/audiometa_demo.mp4` - Video file (for Twitter)
+- `content/demo/demos/output/audiometa_demo.gif` - Animated GIF (for README/documentation)
 
 ### Preview before recording
 
 ```bash
-(cd content/demos && vhs tapes/audiometa_demo.tape --preview)
+(cd content/demo/demos && vhs tapes/audiometa_demo.tape --preview)
 ```
 
 ## Customization
 
-Edit `content/demos/tapes/audiometa_demo.tape` to customize:
+Edit `content/demo/demos/tapes/audiometa_demo.tape` to customize:
 
 - **Output format**: Change `Output` lines
 - **Terminal size**: Adjust `Set Width` and `Set Height`
@@ -106,19 +106,19 @@ The VHS demo shows:
 ## Example VHS Commands
 
 ```bash
-# Generate video only (from repo root; cwd still content/demos for the recording shell)
-(cd content/demos && vhs tapes/audiometa_demo.tape --output output/audiometa_demo.mp4)
+# Generate video only (from repo root; cwd still content/demo/demos for the recording shell)
+(cd content/demo/demos && vhs tapes/audiometa_demo.tape --output output/audiometa_demo.mp4)
 
 # Generate GIF only
-(cd content/demos && vhs tapes/audiometa_demo.tape --output output/audiometa_demo.gif)
+(cd content/demo/demos && vhs tapes/audiometa_demo.tape --output output/audiometa_demo.gif)
 
 # Use different theme
 # Edit the tape file: Set Theme "Nord"
-(cd content/demos && vhs tapes/audiometa_demo.tape)
+(cd content/demo/demos && vhs tapes/audiometa_demo.tape)
 
 # Faster playback
 # Edit the tape file: Set PlaybackSpeed 1.5
-(cd content/demos && vhs tapes/audiometa_demo.tape)
+(cd content/demo/demos && vhs tapes/audiometa_demo.tape)
 ```
 
 ## Troubleshooting
@@ -150,7 +150,7 @@ sudo apt-get install ffmpeg
 source .venv/bin/activate
 
 # Then run VHS
-(cd content/demos && vhs tapes/audiometa_demo.tape)
+(cd content/demo/demos && vhs tapes/audiometa_demo.tape)
 ```
 
 ## Links

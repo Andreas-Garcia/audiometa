@@ -12,4 +12,4 @@ Suggested names (only add what this article actually uses):
 
 Generated demo copies used by tapes (e.g. `output/demo_read_id3v1.mp3`, `output/demo_read_vorbis.flac`) stay under **`output/`** with GIFs/MP4; those paths are gitignored.
 
-Other articles under `content/articles/` can use their own `samples/` the same way. Library REPL-style VHS demos live under `content/demos/tapes/` and use repo test assets / `scripts/demo_repl.py` (see `content/demos/README.md`).
+Other articles under `content/articles/` can use their own `samples/` the same way. Library REPL-style VHS demos live under `content/demo/demos/tapes/` and use repo test assets / `content/demo/scripts/demo_repl.py` (see `content/demo/demos/README.md`).

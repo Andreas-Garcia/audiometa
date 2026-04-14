@@ -10,7 +10,7 @@ Run the installation script to install VHS and its dependencies:
 
 ```bash
 # macOS
-bash scripts/install-demo-dependencies-macos.sh
+bash content/demo/scripts/install-demo-dependencies-macos.sh
 ```
 
 This script will:
@@ -37,7 +37,7 @@ This will generate:
 
 ### Generated files and Git
 
-- **`content/demos/output/`** — GIFs/MP4s from tapes under `content/demos/tapes/` are **not committed** (gitignored via `content/**/output/`). Tracked sources are `content/demos/tapes/` and `content/demos/README.md`. Library REPL demos use `audiometa/test/assets/sample.mp3` after a hidden `cd` to repo root (see tape comments).
+- **`content/demo/demos/output/`** — GIFs/MP4s from tapes under `content/demo/demos/tapes/` are **not committed** (gitignored via `content/**/output/`). Tracked sources are `content/demo/demos/tapes/` and `content/demo/demos/README.md`. Library REPL demos use `audiometa/test/assets/sample.mp3` after a hidden `cd` to repo root (see tape comments).
 - **`content/articles/<article>/output/`** — Outputs from article demo pipelines (VHS, ffmpeg, concat intermediates) are **not committed**. Regenerate locally after cloning; version control holds tapes, scripts, and READMEs for each article.
 - **Per-article demo audio** (whatever a given article’s tapes/scripts need) may live under **`content/articles/<article>/samples/`** — `.gitignore` whitelists only `sample.mp3`, `sample.flac`, and `sample.wav` there (add the files you use). That is **not** a global “official” sample set; each article owns its folder. Copied or generated files (e.g. `output/demo_read_id3v1.mp3`) stay **local-only** under each article’s `output/`.
 
@@ -59,7 +59,7 @@ brew reinstall libvpx
 brew reinstall ffmpeg
 
 # Or run the installation script which handles this automatically
-bash scripts/install-demo-dependencies-macos.sh
+bash content/demo/scripts/install-demo-dependencies-macos.sh
 ```
 
 ### ttyd Connection Refused
@@ -77,7 +77,7 @@ could not open ttyd: navigation failed: net::ERR_CONNECTION_REFUSED
 brew install ttyd
 
 # Or run the installation script
-bash scripts/install-demo-dependencies-macos.sh
+bash content/demo/scripts/install-demo-dependencies-macos.sh
 ```
 
 ### VHS Not Found
@@ -96,21 +96,21 @@ brew tap charmbracelet/tap
 brew install charmbracelet/tap/vhs
 
 # Or run the installation script
-bash scripts/install-demo-dependencies-macos.sh
+bash content/demo/scripts/install-demo-dependencies-macos.sh
 ```
 
 ## Available Tape Files
 
-Library demos under **`content/demos/tapes/`**:
+Library demos under **`content/demo/demos/tapes/`**:
 
 1. **`audiometa_demo.tape`** — Interactive Python REPL demo
 2. **`audiometa_demo_script.tape`** — Script execution demo
 
-Run with `(cd content/demos && vhs tapes/<name>.tape)` (see `content/demos/README.md`).
+Run with `(cd content/demo/demos && vhs tapes/<name>.tape)` (see `content/demo/demos/README.md`).
 
 ### Creating New Tape Files
 
-See `VHS_DEMO_README.md` for detailed instructions on creating custom tape files.
+See `content/demo/docs/VHS_DEMO_README.md` for detailed instructions on creating custom tape files.
 
 ## Verifying Installation
 

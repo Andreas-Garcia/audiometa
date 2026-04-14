@@ -2,7 +2,7 @@
 #
 # AudioMeta get_full_metadata() Demo for Twitter
 #
-# Run from content/demos: (cd content/demos && vhs tapes/audiometa_demo.tape)
+# Run from content/demo/demos: (cd content/demo/demos && vhs tapes/audiometa_demo.tape)
 
 # Output settings
 Output output/audiometa_demo.mp4
@@ -20,7 +20,7 @@ Set PlaybackSpeed 1.0
 # Hide initial shell prompt
 Hide
 
-# Repo root so paths match contributor docs (tape cwd is content/demos)
+# Repo root so paths match contributor docs (tape cwd is content/demo/demos)
 Type "cd ../.." Enter
 Sleep 300ms
 

@@ -52,13 +52,13 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### Changed
 
-- **Demo layout**: Library VHS tapes (`audiometa_demo.tape`, `audiometa_demo_script.tape`) moved from repo root to `content/demos/tapes/`; generated GIF/MP4 go to `content/demos/output/` (gitignored). Docs now describe `content/demos/` instead of `docs/demos/`.
+- **Demo layout**: Library VHS tapes (`audiometa_demo.tape`, `audiometa_demo_script.tape`) moved from repo root to `content/demo/demos/tapes/`; generated GIF/MP4 go to `content/demo/demos/output/` (gitignored). Docs now describe `content/demo/demos/` instead of `docs/demos/`.
 
 ### Documentation
 
 - **README**: Added ecosystem section with portfolio links (`themusictree.org`, AudioMeta Python project page, `the-music-tree-frontend`).
 - **PR descriptions (Cursor)**: `.cursor/rules/pr-descriptions.mdc` requires writing PR bodies to `.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md` when asked; `pr-naming.mdc`, `AGENTS.md`, and `CONTRIBUTING.md` point to that workflow and to `.github/pr_descriptions/pull_request_template.md`.
-- **Demo outputs**: `.gitignore` excludes article `output/` and loose/generated files under `content/articles/<article>/`, while allowing tapes, scripts, markdown, and **whitelisted demo audio** under `content/articles/<article>/samples/` (`sample.mp3`, `sample.flac`, `sample.wav` per article as needed). Library demos use `content/demos/tapes/` and `content/demos/output/`. `DEMO_INSTALLATION.md` and `.cursor/rules/demo-videos.mdc` document the layout.
+- **Demo outputs**: `.gitignore` excludes article `output/` and loose/generated files under `content/articles/<article>/`, while allowing tapes, scripts, markdown, and **whitelisted demo audio** under `content/articles/<article>/samples/` (`sample.mp3`, `sample.flac`, `sample.wav` per article as needed). Library demos use `content/demo/demos/tapes/` and `content/demo/demos/output/`. `content/demo/docs/DEMO_INSTALLATION.md` and `.cursor/rules/demo-videos.mdc` document the layout.
 
 ### CI
 
@@ -91,7 +91,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### Added
 
 - **CLI global help command**: `audiometa help` and `audiometa help <subcommand>` (read, unified, write, delete) show main or subcommand help. E2E tests cover help and subcommand help output.
-- **VHS demo videos and tooling**: Reproducible demo video generation with VHS tape files, demo scripts, and macOS install script for VHS, ttyd, and ffmpeg. Documentation added (VHS_DEMO_README.md, DEMO_INSTALLATION.md, DEMO_VIDEOS_README.md). AGENTS.md includes a demo videos section.
+- **VHS demo videos and tooling**: Reproducible demo video generation with VHS tape files, demo scripts, and macOS install script for VHS, ttyd, and ffmpeg. Documentation added (`content/demo/docs/VHS_DEMO_README.md`, `content/demo/docs/DEMO_INSTALLATION.md`, `content/demo/docs/DEMO_VIDEOS_README.md`). AGENTS.md includes a demo videos section.
 
 ### Fixed
 
