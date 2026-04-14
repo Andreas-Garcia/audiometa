@@ -1,6 +1,6 @@
 # Before only (RIFF): read WAV metadata with ffprobe; for video panel.
 # Half width (600). Run with cwd = article dir. Requires ffprobe on PATH. samples/sample.wav must exist (script creates it).
-Output output/before_only_riff.gif
+Output output/work/before_only_riff.gif
 
 
 Require audiometa

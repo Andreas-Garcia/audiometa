@@ -1,6 +1,6 @@
 # Before only – for side-by-side combo with after_only.tape (mid3v2 output)
 # Half width (600) so hstack gives 1200 total. Run with cwd = article dir (see article README).
-Output output/before_only.gif
+Output output/work/before_only.gif
 
 
 Require audiometa

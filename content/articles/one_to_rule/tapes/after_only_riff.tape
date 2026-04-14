@@ -1,6 +1,6 @@
 # After only (RIFF): read WAV metadata with audiometa; for video panel.
 # Half width (600). Run with cwd = article dir.
-Output output/after_only_riff.gif
+Output output/work/after_only_riff.gif
 
 
 Require audiometa

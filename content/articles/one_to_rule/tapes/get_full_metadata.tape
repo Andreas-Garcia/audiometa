@@ -1,8 +1,8 @@
 # Get full metadata demo – AudioMeta CLI (social / docs)
 # Run with repo runner: bash content/articles/one_to_rule/scripts/run_vhs_tape.sh get_full_metadata.tape
-# Audio: samples/sample.mp3 (tracked). Output: output/<name>.gif (no cd is typed in the tape).
+# Audio: samples/sample.mp3 (tracked). Output: output/work/<name>.gif (no cd is typed in the tape).
 # env -u NO_COLOR ensures color is shown when the environment has NO_COLOR set (CLI honors NO_COLOR over --color).
-Output output/get_full_metadata.gif
+Output output/work/get_full_metadata.gif
 
 
 Require audiometa

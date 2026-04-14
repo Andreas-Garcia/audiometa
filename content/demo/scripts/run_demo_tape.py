@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Run a VHS tape from content/articles/<article>/tapes/ and write the GIF to that article's output/.
-Lists the 5 most recently modified tape files; user selects one. Output is written to the same article's output dir.
+"""Run a VHS tape from content/articles/<article>/tapes/ and write the GIF to that article's output/work/.
+Lists the 5 most recently modified tape files; user selects one. Output is written under output/work/.
 Usage: run_demo_tape.py [ARTICLE/NAME]. Omit to select from the 5 most recent tapes interactively."""
 
 import argparse
@@ -63,7 +63,7 @@ def _choose_tape(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Run a VHS tape from content/articles/ and write the GIF to that article's output/."
+        description="Run a VHS tape from content/articles/ and write the GIF to that article's output/work/."
     )
     parser.add_argument(
         "tape",
@@ -109,7 +109,7 @@ def main() -> None:
             sys.exit(1)
         tape_path, article, name = found
 
-    output_dir = articles_dir / article / "output"
+    output_dir = articles_dir / article / "output" / "work"
     output_gif = output_dir / f"{name}.gif"
     output_dir.mkdir(parents=True, exist_ok=True)
     article_dir = tape_path.parent.parent
@@ -121,7 +121,7 @@ def main() -> None:
             article_abs_placeholder,
             str(article_dir.resolve()),
         )
-    output_path_str = f"output/{name}.gif"
+    output_path_str = f"output/work/{name}.gif"
     tape_content = re.sub(
         r"^Output\s+.*$",
         f"Output {output_path_str}",

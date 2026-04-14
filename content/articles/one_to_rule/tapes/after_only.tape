@@ -1,6 +1,6 @@
 # After only – for side-by-side combo with before_only.tape (audiometa unified)
 # Half width (600) so hstack gives 1200 total. Run with cwd = article dir.
-Output output/after_only.gif
+Output output/work/after_only.gif
 
 
 Require audiometa

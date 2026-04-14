@@ -18,25 +18,26 @@ Demo videos are produced with [VHS](https://github.com/charmbracelet/vhs) from d
 
 1. **Dependencies (macOS)**: `bash content/demo/scripts/install-demo-dependencies-macos.sh` (VHS, ttyd, ffmpeg; fixes libvpx issues).
 2. **Activate venv** before running VHS: `source .venv/bin/activate`.
-3. **Record from a tape**: `(cd content/articles/one_to_rule && vhs tapes/<name>.tape)` so cwd is the article dir (short paths, no `cd` in the GIF). Or `python content/demo/scripts/run_demo_tape.py`. Writes to that article’s `output/`. Library REPL demos: `(cd content/demo/demos && vhs tapes/audiometa_demo.tape)` → `content/demo/demos/output/`.
+3. **Record from a tape**: `(cd content/articles/one_to_rule && vhs tapes/<name>.tape)` so cwd is the article dir (short paths, no `cd` in the GIF). Or `python content/demo/scripts/run_demo_tape.py`. Writes cell GIFs to that article’s `output/work/`. Library REPL demos: `(cd content/demo/demos && vhs tapes/audiometa_demo.tape)` → `content/demo/demos/output/`.
 4. **Preview**: same cwd as above, e.g. `(cd content/articles/one_to_rule && vhs tapes/<file>.tape --preview)` or `(cd content/demo/demos && vhs tapes/<file>.tape --preview)`.
 
 ## Article layout (e.g. one_to_rule)
 
-- **`content/articles/one_to_rule/tapes/`** – Tape sources. **`output/`** – Tape GIFs, hero video, intermediates (gitignored).
-- **Hero video**: `scripts/generate_one_to_rule_video.sh` (run from repo root; VHS cwd stays the article dir) → `one_to_rule/output/`. Reading-only flow: four side-by-side comparisons (other tool left, audiometa right). All GIFs from VHS tapes; script fails early if logo or tape output is missing.
-- **Linked-post GIFs**: Side-by-side scripts (`scripts/run_demo_side_by_side.sh`, `scripts/run_demo_side_by_side_vorbis.sh`) write to article `output/`. Use assets from that single `output/` for mastodon/linkedin/twitter.
+- **`content/articles/one_to_rule/tapes/`** – Tape sources. **`output/work/`** – Cell GIFs and ffmpeg intermediates (gitignored). **`output/final/`** – Hero MP4 and combined side-by-side GIFs (gitignored).
+- **Hero video**: `scripts/generate_one_to_rule_video.sh` (run from repo root; VHS cwd stays the article dir) → `one_to_rule/output/final/`. Reading-only flow: four side-by-side comparisons (other tool left, audiometa right). All GIFs from VHS tapes; script fails early if logo or tape output is missing.
+- **Linked-post GIFs**: Side-by-side scripts (`scripts/run_demo_side_by_side.sh`, `scripts/run_demo_side_by_side_vorbis.sh`) write combined GIFs to article `output/final/`. Use `output/final/` (and regenerated cell assets under `output/work/`) for mastodon/linkedin/twitter.
 
 ## When editing
 
-- **Authoring .tape files**: See `.cursor/rules/demo-tape-authoring.mdc`. Tapes live in the article’s `tapes/` and set `Output` to that article’s `output/<name>.gif`. For read/unified demos, include `--color` in CLI commands. Every demo panel must have a tape; no placeholders.
-- **Scripts**: `content/demo/scripts/` has `run_demo_tape.py`. Per-article helpers (hero video, side-by-side) live in **`content/articles/<name>/scripts/`**. All write to article `output/`. **Do not use placeholder GIFs**; every panel must have a tape. Video script fails early if a required tape output is missing.
+- **Authoring .tape files**: See `.cursor/rules/demo-tape-authoring.mdc`. Tapes live in the article’s `tapes/` and set `Output` to that article’s `output/work/<name>.gif`. For read/unified demos, include `--color` in CLI commands. Every demo panel must have a tape; no placeholders.
+- **Scripts**: `content/demo/scripts/` has `run_demo_tape.py`. Per-article helpers (hero video, side-by-side) live in **`content/articles/<name>/scripts/`**. Helpers write under article `output/work/` and `output/final/` as appropriate. **Do not use placeholder GIFs**; every panel must have a tape. Video script fails early if a required tape output is missing.
 - **Docs**: Update the article’s README and `content/README.md` when changing paths.
-- **Tracked vs gitignored**: GIFs/MP4s for **content/demo/demos** go in `content/demo/demos/output/` (gitignored). Source tapes live in `content/demo/demos/tapes/`. Article demos under `content/articles/<name>/` use per-article `output/` (gitignored). **Tracked demo audio** for an article can live in **`content/articles/<article>/samples/`** (whitelisted: `sample.mp3`, `sample.flac`, `sample.wav`). Do not leave those loose at the article root. Track tapes, top-level `.md`, and **`scripts/*.sh` / `scripts/*.py`**; **do not commit** ad hoc `demo_*` copies or other loose binaries. See `.gitignore`.
+- **Tracked vs gitignored**: GIFs/MP4s for **content/demo/demos** go in `content/demo/demos/output/` (gitignored). Source tapes live in `content/demo/demos/tapes/`. Article demos under `content/articles/<name>/` use per-article `output/work/` and `output/final/` (both gitignored via `content/**/output/`). **Tracked demo audio** for an article can live in **`content/articles/<article>/samples/`** (whitelisted: `sample.mp3`, `sample.flac`, `sample.wav`). Do not leave those loose at the article root. Track tapes, top-level `.md`, and **`scripts/*.sh` / `scripts/*.py`**; **do not commit** ad hoc `demo_*` copies or other loose binaries. See `.gitignore`.
 
 ## Generated outputs (gitignored)
 
 - `content/demo/demos/output/` — library REPL/script demo GIFs/MP4
-- `content/articles/<article>/output/` — tape GIFs, hero video, side-by-side GIFs
+- `content/articles/<article>/output/work/` — cell GIFs, per-cell MP4, generated demo copies
+- `content/articles/<article>/output/final/` — hero video, combined side-by-side GIFs
 
 Tracked: `content/demo/demos/tapes/`, article `tapes/`, `samples/` (per article), READMEs, scenario. See `.gitignore`.

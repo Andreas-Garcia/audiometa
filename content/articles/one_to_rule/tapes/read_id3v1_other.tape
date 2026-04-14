@@ -1,5 +1,5 @@
 # Read ID3v1: print raw TAG fields (other tool). Requires demo from scripts/ensure_demo_read_id3v1.py (run by video script).
-Output output/read_id3v1_other.gif
+Output output/work/read_id3v1_other.gif
 
 
 Set Shell "bash"

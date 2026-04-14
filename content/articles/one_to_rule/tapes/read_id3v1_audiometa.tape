@@ -1,5 +1,5 @@
 # Read ID3v1: same file as read_id3v1_other; audiometa unified (table).
-Output output/read_id3v1_audiometa.gif
+Output output/work/read_id3v1_audiometa.gif
 
 
 Require audiometa
@@ -20,6 +20,6 @@ Type "echo '=== ID3v1: audiometa unified'"
 Enter
 Sleep 1s
 
-Type "(env -u NO_COLOR audiometa unified output/demo_read_id3v1.mp3 --format table --color | head -22; echo '...')"
+Type "(env -u NO_COLOR audiometa unified output/work/demo_read_id3v1.mp3 --format table --color | head -22; echo '...')"
 Enter
 Sleep 6s

@@ -4,21 +4,19 @@
 # Run from repo root or this dir with venv activated. Requires: vhs, ffmpeg.
 
 set -e
-cd "$(dirname "$0")/../../../.."
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ARTICLE_ABS="$(cd "$SCRIPT_DIR/.." && pwd)"
-ARTICLE_NAME="$(basename "$ARTICLE_ABS")"
-OUT_DIR="content/articles/$ARTICLE_NAME/output"
-FINAL_DIR="$OUT_DIR/final"
-LEFT="$OUT_DIR/before_only.gif"
-RIGHT="$OUT_DIR/after_only.gif"
-OUT="$FINAL_DIR/before_after_side_by_side.gif"
+source "$SCRIPT_DIR/../../../demo/scripts/article_output_paths.sh"
+resolve_article_context_from_script "$SCRIPT_DIR"
+ensure_article_output_dirs
+cd "$REPO_ROOT"
+LEFT="$REPO_ROOT/$WORK_DIR/before_only.gif"
+RIGHT="$REPO_ROOT/$WORK_DIR/after_only.gif"
+OUT="$REPO_ROOT/$FINAL_DIR/before_after_side_by_side.gif"
 
-mkdir -p "$OUT_DIR" "$FINAL_DIR"
 echo "Building left (before_only)..."
-bash "content/articles/$ARTICLE_NAME/scripts/run_vhs_tape.sh" before_only.tape
+bash "$ARTICLE_ABS/scripts/run_vhs_tape.sh" before_only.tape
 echo "Building right (after_only)..."
-bash "content/articles/$ARTICLE_NAME/scripts/run_vhs_tape.sh" after_only.tape
+bash "$ARTICLE_ABS/scripts/run_vhs_tape.sh" after_only.tape
 echo "Combining side-by-side (palette-encoded for normal size)..."
 ffmpeg -y -i "$LEFT" -i "$RIGHT" -filter_complex \
   "[0:v][1:v]hstack=inputs=2[stacked];[stacked]split[s0][s1];[s0]palettegen=max_colors=256[p];[s1][p]paletteuse[v]" \

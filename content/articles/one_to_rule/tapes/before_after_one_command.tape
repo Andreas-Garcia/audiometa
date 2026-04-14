@@ -1,8 +1,8 @@
 # Before/after demo – format-specific tool vs one AudioMeta command (social / docs)
 # Run with repo runner: bash content/articles/one_to_rule/scripts/run_vhs_tape.sh before_after_one_command.tape
 # Requires: audiometa (Require) and mid3v2 on PATH (for "before" step; from mutagen).
-# Audio: samples/sample.mp3 (tracked). Output: output/<name>.gif (no cd is typed in the tape).
-Output output/before_after_one_command.gif
+# Audio: samples/sample.mp3 (tracked). Output: output/work/<name>.gif (no cd is typed in the tape).
+Output output/work/before_after_one_command.gif
 
 
 Require audiometa

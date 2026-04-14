@@ -1,5 +1,5 @@
-# Read Vorbis comments (FLAC) with metaflac. Uses output/demo_read_vorbis.flac (copy of samples/sample.flac from video script).
-Output output/read_vorbis_metaflac.gif
+# Read Vorbis comments (FLAC) with metaflac. Uses output/work/demo_read_vorbis.flac (copy of samples/sample.flac from video script).
+Output output/work/read_vorbis_metaflac.gif
 
 
 Set Shell "bash"
@@ -18,6 +18,6 @@ Type "echo '=== Vorbis (FLAC): metaflac'"
 Enter
 Sleep 1s
 
-Type "(metaflac --list --block-type=VORBIS_COMMENT output/demo_read_vorbis.flac 2>/dev/null | head -14; echo '...')"
+Type "(metaflac --list --block-type=VORBIS_COMMENT output/work/demo_read_vorbis.flac 2>/dev/null | head -14; echo '...')"
 Enter
 Sleep 5s

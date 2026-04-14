@@ -5,22 +5,19 @@
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
+source "$SCRIPT_DIR/../../../demo/scripts/article_output_paths.sh"
+resolve_article_context_from_script "$SCRIPT_DIR"
+ensure_article_output_dirs
 cd "$REPO_ROOT"
-ARTICLE_NAME="$(basename "$(cd "$SCRIPT_DIR/.." && pwd)")"
-ARTICLE="content/articles/$ARTICLE_NAME"
-OUT_DIR="$ARTICLE/output"
-FINAL_DIR="$OUT_DIR/final"
-LEFT="$OUT_DIR/read_vorbis_metaflac.gif"
-RIGHT="$OUT_DIR/read_vorbis_audiometa.gif"
-OUT="$FINAL_DIR/before_after_side_by_side_vorbis.gif"
+LEFT="$REPO_ROOT/$WORK_DIR/read_vorbis_metaflac.gif"
+RIGHT="$REPO_ROOT/$WORK_DIR/read_vorbis_audiometa.gif"
+OUT="$REPO_ROOT/$FINAL_DIR/before_after_side_by_side_vorbis.gif"
 
-mkdir -p "$OUT_DIR" "$FINAL_DIR"
-cp "$ARTICLE/samples/sample.flac" "$OUT_DIR/demo_read_vorbis.flac"
+cp "$ARTICLE_ABS/samples/sample.flac" "$REPO_ROOT/$WORK_DIR/demo_read_vorbis.flac"
 echo "Building left (metaflac read)..."
-bash "$ARTICLE/scripts/run_vhs_tape.sh" read_vorbis_metaflac.tape
+bash "$ARTICLE_ABS/scripts/run_vhs_tape.sh" read_vorbis_metaflac.tape
 echo "Building right (audiometa read)..."
-bash "$ARTICLE/scripts/run_vhs_tape.sh" read_vorbis_audiometa.tape
+bash "$ARTICLE_ABS/scripts/run_vhs_tape.sh" read_vorbis_audiometa.tape
 echo "Combining side-by-side..."
 ffmpeg -y -i "$LEFT" -i "$RIGHT" -filter_complex \
   "[0:v][1:v]hstack=inputs=2[stacked];[stacked]split[s0][s1];[s0]palettegen=max_colors=256[p];[s1][p]paletteuse[v]" \

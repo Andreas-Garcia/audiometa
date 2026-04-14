@@ -20,7 +20,7 @@ When writing or editing `.tape` files to produce demo videos for social posts (M
 - **Run `vhs` from the article directory**: VHS only allows `Set Shell` values like `bash` (not a custom script path). To avoid typing `cd …` in the tape (which can leak into scrollback or early GIF frames), **start the recording with cwd = the article dir**—e.g. `(cd content/articles/<article> && vhs tapes/<name>.tape)` or use `scripts/generate_one_to_rule_video.sh` / `run_demo_tape.py`, which set cwd to the article dir. The shell then starts already next to `samples/sample.mp3` etc.
 - **No visible cleanup commands**: Do **not** type `clear` in social/hero tapes, because the command itself appears in the GIF and looks noisy. Start from a clean pane via tape setup and command ordering instead.
 - **Short paths on screen (social demos)**: Use only short paths (`samples/sample.mp3`, `samples/sample.wav`, `demo_*.flac`, etc.) after starting in the article dir as above—never rely on `Hide`+`cd` alone.
-- **Output location**: Tapes live in `content/articles/<article>/tapes/`. When cwd is the article dir, set `Output output/<name>.gif`. GIFs land in that article’s `output/` folder.
+- **Output location**: Tapes live in `content/articles/<article>/tapes/`. When cwd is the article dir, set `Output output/work/<name>.gif`. GIFs land in that article’s `output/work/` folder (intermediates); deliverable videos belong in `output/final/`.
 - **Audio files – social / marketing demos**: Use the article’s `samples/sample.mp3` / `samples/sample.flac` (tracked) via short paths with the shell already in the article dir (see “Run `vhs` from the article directory” above) so the GIF does not show a long path on every command.
 - **Audio files – dev-only demos**: Using `audiometa/test/assets/...` in the tape is fine when the audience is contributors; run from repo root so those paths resolve. Ensure test assets exist (e.g. `create_test_files.py`) before recording.
 
@@ -51,7 +51,7 @@ If a command’s output is taller than the terminal height, it will scroll off-s
 
 - [ ] Single, clear feature; duration ~15–45s
 - [ ] `Require` the needed CLI/binary
-- [ ] `Output` set to the article’s `output/<name>.gif`; tape file in the article’s `tapes/`. See `content/articles/README.md` and the article’s README.
+- [ ] `Output` set to the article’s `output/work/<name>.gif`; tape file in the article’s `tapes/`. See `content/articles/README.md` and the article’s README.
 - [ ] FontSize 14–18; Width/Height set
 - [ ] TypingSpeed and Sleep tuned so output is readable
 - [ ] Commands and paths valid with **cwd = article dir** (or adjust `Output` / paths accordingly)

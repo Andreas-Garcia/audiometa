@@ -1,5 +1,5 @@
 # Read same FLAC with audiometa (unified).
-Output output/read_vorbis_audiometa.gif
+Output output/work/read_vorbis_audiometa.gif
 
 
 Require audiometa
@@ -20,6 +20,6 @@ Type "echo '=== Vorbis (FLAC): audiometa unified'"
 Enter
 Sleep 1s
 
-Type "(env -u NO_COLOR audiometa unified output/demo_read_vorbis.flac --format table --color | head -22; echo '...')"
+Type "(env -u NO_COLOR audiometa unified output/work/demo_read_vorbis.flac --format table --color | head -22; echo '...')"
 Enter
 Sleep 6s

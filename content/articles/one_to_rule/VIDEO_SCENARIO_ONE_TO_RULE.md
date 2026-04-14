@@ -8,4 +8,4 @@
 
 Build: `bash content/articles/one_to_rule/scripts/generate_one_to_rule_video.sh` from repo root (venv on). Output: `content/articles/one_to_rule/output/final/one_to_rule_them_all.mp4`.
 
-To drop stale segments after layout changes, remove old GIFs/MP4s under `output/` and re-run.
+To drop stale segments after layout changes, remove old GIFs/MP4s under `output/work/` (and the hero file under `output/final/` if needed) and re-run.

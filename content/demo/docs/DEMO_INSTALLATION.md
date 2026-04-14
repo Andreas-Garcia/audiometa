@@ -38,8 +38,8 @@ This will generate:
 ### Generated files and Git
 
 - **`content/demo/demos/output/`** — GIFs/MP4s from tapes under `content/demo/demos/tapes/` are **not committed** (gitignored via `content/**/output/`). Tracked sources are `content/demo/demos/tapes/` and `content/demo/demos/README.md`. Library REPL demos use `audiometa/test/assets/sample.mp3` after a hidden `cd` to repo root (see tape comments).
-- **`content/articles/<article>/output/`** — Outputs from article demo pipelines (VHS, ffmpeg, concat intermediates) are **not committed**. Regenerate locally after cloning; version control holds tapes, scripts, and READMEs for each article.
-- **Per-article demo audio** (whatever a given article’s tapes/scripts need) may live under **`content/articles/<article>/samples/`** — `.gitignore` whitelists only `sample.mp3`, `sample.flac`, and `sample.wav` there (add the files you use). That is **not** a global “official” sample set; each article owns its folder. Copied or generated files (e.g. `output/demo_read_id3v1.mp3`) stay **local-only** under each article’s `output/`.
+- **`content/articles/<article>/output/`** — Generated media is **not committed** (gitignored). Typical layout: **`output/work/`** (VHS cell GIFs, ffmpeg intermediates, generated demo copies) and **`output/final/`** (hero MP4, combined side-by-side GIFs). Regenerate locally after cloning; version control holds tapes, scripts, and READMEs for each article.
+- **Per-article demo audio** (whatever a given article’s tapes/scripts need) may live under **`content/articles/<article>/samples/`** — `.gitignore` whitelists only `sample.mp3`, `sample.flac`, and `sample.wav` there (add the files you use). That is **not** a global “official” sample set; each article owns its folder. Copied or generated files (e.g. `output/work/demo_read_id3v1.mp3`) stay **local-only** under each article’s `output/work/`.
 
 ## Troubleshooting
 

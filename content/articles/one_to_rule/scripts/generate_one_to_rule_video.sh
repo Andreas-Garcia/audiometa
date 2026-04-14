@@ -4,16 +4,18 @@
 # Run from repo root; requires venv, ffmpeg, ffprobe, metaflac, mid3v2; vhs only if recording GIFs.
 # Intro requires assets/logo.mp4 (tracked) or <article>/logo.mp4.
 # Comparison pages use assets/logo-round.png (or assets/logo.png) + "AudioMeta" under the right GIF (replaces plain "unified" text).
-# VHS runs with cwd = the article dir (parent of this scripts/) so tapes need no in-GIF cd; Output is output/*.gif.
-# Final deliverable is written to output/final/; intermediate MP4 parts are written to output/work/.
+# VHS runs with cwd = the article dir (parent of this scripts/) so tapes need no in-GIF cd; Output is output/work/*.gif.
+# Final deliverable is written to output/final/; intermediates (GIFs, per-cell MP4, concat list) under output/work/.
 #
 # Options:
-#   --skip-gifs              Do not run VHS; reuse existing output/*.gif (fails if any required GIF is missing).
+#   --skip-gifs              Do not run VHS; reuse existing output/work/*.gif (fails if any required GIF is missing).
 #   --final-name <filename>  Final video filename under output/final/ (default: <article>_them_all.mp4).
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
+source "$SCRIPT_DIR/../../../demo/scripts/article_output_paths.sh"
+resolve_article_context_from_script "$SCRIPT_DIR"
+ensure_article_output_dirs
 cd "$REPO_ROOT"
 VENV_BIN="$REPO_ROOT/.venv/bin"
 if [[ ! -x "$VENV_BIN/audiometa" ]] || [[ ! -x "$VENV_BIN/python3" ]]; then
@@ -45,17 +47,10 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
-ARTICLE_DIR="$SCRIPT_DIR/.."
-ARTICLE_ABS="$(cd "$ARTICLE_DIR" && pwd)"
-ARTICLE_NAME="$(basename "$ARTICLE_ABS")"
-ARTICLE="content/articles/$ARTICLE_NAME"
-OUT_DIR="$ARTICLE/output"
-WORK_DIR="$OUT_DIR/work"
-FINAL_DIR="$OUT_DIR/final"
 if [[ -z "$FINAL_NAME" ]]; then
   FINAL_NAME="${ARTICLE_NAME}_them_all.mp4"
 fi
-VIDEO_OUT="$FINAL_DIR/$FINAL_NAME"
+VIDEO_OUT="$REPO_ROOT/$FINAL_DIR/$FINAL_NAME"
 TAPES_DIR="$ARTICLE_ABS/tapes"
 CELL_W=600
 # Baseline cell height was 420; overall video height is 15% lower (85% scale).
@@ -111,20 +106,18 @@ TAG_LOGO_X=$((RIGHT_COL_MID_X - TAG_BRAND_W / 2))
 TAG_TEXT_X=$((TAG_LOGO_X + TAG_LOGO_PX + TAG_GAP))
 TAG_LOGO_Y=$((LABEL_ROW_Y - TAG_LOGO_PX + 4))
 
-mkdir -p "$OUT_DIR" "$WORK_DIR" "$FINAL_DIR"
-
 if [[ ! -f "$ARTICLE_ABS/samples/sample.wav" ]]; then
-  echo "Creating $ARTICLE/samples/sample.wav from samples/sample.mp3..."
+  echo "Creating $ARTICLE_REL/samples/sample.wav from samples/sample.mp3..."
   ffmpeg -y -i "$ARTICLE_ABS/samples/sample.mp3" -map 0:a -c:a pcm_s16le "$ARTICLE_ABS/samples/sample.wav" -loglevel warning
 fi
 
 echo "Building intro..."
-INTRO_MP4="$WORK_DIR/intro_segment.mp4"
+INTRO_MP4="$REPO_ROOT/$WORK_DIR/intro_segment.mp4"
 LOGO_PATH=""
 for candidate in assets/logo.mp4 "$ARTICLE_ABS/logo.mp4"; do
   [[ -f "$candidate" ]] && LOGO_PATH="$candidate" && break
 done
-[[ -z "$LOGO_PATH" ]] && { echo "Error: logo not found (assets/logo.mp4 or $ARTICLE/logo.mp4)." >&2; exit 1; }
+[[ -z "$LOGO_PATH" ]] && { echo "Error: logo not found (assets/logo.mp4 or $ARTICLE_REL/logo.mp4)." >&2; exit 1; }
 ffmpeg -y -f lavfi -i "color=c=0xffffff:s=${INTRO_W}x${INTRO_H}:d=${INTRO_DURATION}:r=25" \
   -stream_loop -1 -i "$LOGO_PATH" \
   -filter_complex "
@@ -135,7 +128,7 @@ ffmpeg -y -f lavfi -i "color=c=0xffffff:s=${INTRO_W}x${INTRO_H}:d=${INTRO_DURATI
   " -map "[v]" -an -r 25 -c:v libx264 -pix_fmt yuv420p -t "$INTRO_DURATION" "$INTRO_MP4" -loglevel warning
 
 echo "Building section page..."
-SECTION_MP4="$WORK_DIR/section_unified_metadata_reading.mp4"
+SECTION_MP4="$REPO_ROOT/$WORK_DIR/section_unified_metadata_reading.mp4"
 ffmpeg -y -f lavfi -i "color=c=0xffffff:s=${PAGE_W}x${PAGE_H}:d=${SECTION_DURATION}:r=25" \
   -vf "drawtext=text='Unified Metadata Reading':fontsize=64${FONT_OPT}:fontcolor=black:borderw=1:bordercolor=white:x=(w-text_w)/2:y=(h-text_h)/2" \
   -r 25 -c:v libx264 -pix_fmt yuv420p -t "$SECTION_DURATION" "$SECTION_MP4" -loglevel warning
@@ -146,7 +139,7 @@ fi
 run_tape() {
   local name="$1"
   local tape_path="$TAPES_DIR/$2"
-  local out="$REPO_ROOT/$OUT_DIR/$3"
+  local out="$REPO_ROOT/$WORK_DIR/$3"
   [[ -f "$tape_path" ]] || { echo "Error: tape not found: $tape_path" >&2; exit 1; }
   if [[ "$SKIP_GIFS" -eq 1 ]]; then
     [[ -f "$out" ]] || {
@@ -164,7 +157,7 @@ run_tape() {
 
 echo "Preparing demo files for ID3v1 and Vorbis..."
 "$VENV_BIN/python3" "$ARTICLE_ABS/scripts/ensure_demo_read_id3v1.py"
-cp "$ARTICLE_ABS/samples/sample.flac" "$OUT_DIR/demo_read_vorbis.flac"
+cp "$ARTICLE_ABS/samples/sample.flac" "$REPO_ROOT/$WORK_DIR/demo_read_vorbis.flac"
 
 if [[ "$SKIP_GIFS" -eq 1 ]]; then
   echo "Skipping VHS (--skip-gifs); using existing cell GIFs..."
@@ -185,9 +178,9 @@ echo "Converting GIFs to MP4..."
 # x=0, y=0: after scale-to-cover, take the top-left CELL_W×GIF_CELL_H. VHS terminal frames are top-heavy (title + output);
 # the lower part is often empty padding—bottom- or center-crop can show mostly blank (black) or misaligned hstack pairs.
 for stem in before_only_riff after_only_riff before_only after_only read_id3v1_other read_id3v1_audiometa read_vorbis_metaflac read_vorbis_audiometa; do
-  ffmpeg -y -i "$OUT_DIR/${stem}.gif" -t "$PAGE_DURATION" \
+  ffmpeg -y -i "$REPO_ROOT/$WORK_DIR/${stem}.gif" -t "$PAGE_DURATION" \
     -vf "format=rgb24,scale=${CELL_W}:${GIF_CELL_H}:force_original_aspect_ratio=increase,crop=${CELL_W}:${GIF_CELL_H}:0:0,format=yuv420p" \
-    -r 25 -c:v libx264 -pix_fmt yuv420p "$WORK_DIR/${stem}.mp4" -loglevel warning
+    -r 25 -c:v libx264 -pix_fmt yuv420p "$REPO_ROOT/$WORK_DIR/${stem}.mp4" -loglevel warning
 done
 
 build_page_2() {
@@ -195,7 +188,7 @@ build_page_2() {
   local title_line_1="$2"
   local left_label="$3"
   local a="$4" b="$5"
-  local out="$WORK_DIR/page_${name}.mp4"
+  local out="$REPO_ROOT/$WORK_DIR/page_${name}.mp4"
   local title_line_1_escaped
   local left_label_escaped
   title_line_1_escaped=$(printf '%s' "$title_line_1" | sed 's/:/\\:/g; s/,/\\,/g')
@@ -215,24 +208,24 @@ build_page_2() {
 }
 
 build_page_2 "read_riff" "Reading RIFF (WAV)" "ffprobe" \
-  "$WORK_DIR/before_only_riff.mp4" "$WORK_DIR/after_only_riff.mp4"
+  "$REPO_ROOT/$WORK_DIR/before_only_riff.mp4" "$REPO_ROOT/$WORK_DIR/after_only_riff.mp4"
 build_page_2 "read_id3v2" "Reading ID3v2 (MP3)" "mid3v2" \
-  "$WORK_DIR/before_only.mp4" "$WORK_DIR/after_only.mp4"
+  "$REPO_ROOT/$WORK_DIR/before_only.mp4" "$REPO_ROOT/$WORK_DIR/after_only.mp4"
 build_page_2 "read_id3v1" "Reading ID3v1 (MP3)" "raw TAG" \
-  "$WORK_DIR/read_id3v1_other.mp4" "$WORK_DIR/read_id3v1_audiometa.mp4"
+  "$REPO_ROOT/$WORK_DIR/read_id3v1_other.mp4" "$REPO_ROOT/$WORK_DIR/read_id3v1_audiometa.mp4"
 build_page_2 "read_vorbis" "Reading Vorbis (FLAC)" "metaflac" \
-  "$WORK_DIR/read_vorbis_metaflac.mp4" "$WORK_DIR/read_vorbis_audiometa.mp4"
+  "$REPO_ROOT/$WORK_DIR/read_vorbis_metaflac.mp4" "$REPO_ROOT/$WORK_DIR/read_vorbis_audiometa.mp4"
 
 echo "Concatenating final video..."
-CONCAT_LIST="$WORK_DIR/concat_list.txt"
-ABS_WORK="$(cd "$WORK_DIR" && pwd)"
+CONCAT_LIST="$REPO_ROOT/$WORK_DIR/concat_list.txt"
+ABS_WORK="$(cd "$REPO_ROOT/$WORK_DIR" && pwd)"
 printf "file '%s/intro_segment.mp4'\nfile '%s/section_unified_metadata_reading.mp4'\nfile '%s/page_read_riff.mp4'\nfile '%s/page_read_id3v2.mp4'\nfile '%s/page_read_id3v1.mp4'\nfile '%s/page_read_vorbis.mp4'\n" \
   "$ABS_WORK" "$ABS_WORK" "$ABS_WORK" "$ABS_WORK" "$ABS_WORK" "$ABS_WORK" \
   > "$CONCAT_LIST"
 ffmpeg -y -f concat -safe 0 -i "$CONCAT_LIST" -c copy "$VIDEO_OUT" -loglevel warning
 
-if [[ -d $ARTICLE/linkedin/output ]]; then
-  cp "$VIDEO_OUT" "$ARTICLE/linkedin/output/" || true
+if [[ -d "$REPO_ROOT/$ARTICLE_REL/linkedin/output" ]]; then
+  cp "$VIDEO_OUT" "$REPO_ROOT/$ARTICLE_REL/linkedin/output/" || true
 fi
 
 echo "Done: $VIDEO_OUT"

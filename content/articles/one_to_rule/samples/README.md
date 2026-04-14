@@ -10,6 +10,6 @@ Suggested names (only add what this article actually uses):
 - `sample.flac` — FLAC / Vorbis demos
 - `sample.wav` — WAV / RIFF demos (e.g. `ffmpeg -y -i samples/sample.mp3 -map 0:a -c:a pcm_s16le samples/sample.wav`)
 
-Generated demo copies used by tapes (e.g. `output/demo_read_id3v1.mp3`, `output/demo_read_vorbis.flac`) stay under **`output/`** with GIFs/MP4; those paths are gitignored.
+Generated demo copies used by tapes (e.g. `output/work/demo_read_id3v1.mp3`, `output/work/demo_read_vorbis.flac`) stay under **`output/work/`** with cell GIFs and intermediate MP4; those paths are gitignored.
 
 Other articles under `content/articles/` can use their own `samples/` the same way. Library REPL-style VHS demos live under `content/demo/demos/tapes/` and use repo test assets / `content/demo/scripts/demo_repl.py` (see `content/demo/demos/README.md`).
