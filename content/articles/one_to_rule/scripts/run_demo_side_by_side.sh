@@ -5,7 +5,10 @@
 
 set -e
 cd "$(dirname "$0")/../../../.."
-OUT_DIR="content/articles/one_to_rule/output"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ARTICLE_ABS="$(cd "$SCRIPT_DIR/.." && pwd)"
+ARTICLE_NAME="$(basename "$ARTICLE_ABS")"
+OUT_DIR="content/articles/$ARTICLE_NAME/output"
 FINAL_DIR="$OUT_DIR/final"
 LEFT="$OUT_DIR/before_only.gif"
 RIGHT="$OUT_DIR/after_only.gif"
@@ -13,9 +16,9 @@ OUT="$FINAL_DIR/before_after_side_by_side.gif"
 
 mkdir -p "$OUT_DIR" "$FINAL_DIR"
 echo "Building left (before_only)..."
-bash content/articles/one_to_rule/scripts/run_vhs_tape.sh before_only.tape
+bash "content/articles/$ARTICLE_NAME/scripts/run_vhs_tape.sh" before_only.tape
 echo "Building right (after_only)..."
-bash content/articles/one_to_rule/scripts/run_vhs_tape.sh after_only.tape
+bash "content/articles/$ARTICLE_NAME/scripts/run_vhs_tape.sh" after_only.tape
 echo "Combining side-by-side (palette-encoded for normal size)..."
 ffmpeg -y -i "$LEFT" -i "$RIGHT" -filter_complex \
   "[0:v][1:v]hstack=inputs=2[stacked];[stacked]split[s0][s1];[s0]palettegen=max_colors=256[p];[s1][p]paletteuse[v]" \

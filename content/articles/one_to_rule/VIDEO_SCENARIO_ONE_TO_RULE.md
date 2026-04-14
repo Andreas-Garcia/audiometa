@@ -6,6 +6,6 @@
 4. **ID3v1 (MP3)** — left: raw 128-byte TAG fields; right: `audiometa unified` (table) on the same demo file.
 5. **Vorbis (FLAC)** — left: `metaflac --list`; right: `audiometa unified` (table).
 
-Build: `bash content/articles/one_to_rule/scripts/generate_one_to_rule_video.sh` from repo root (venv on). Output: `content/articles/one_to_rule/output/one_to_rule_them_all.mp4`.
+Build: `bash content/articles/one_to_rule/scripts/generate_one_to_rule_video.sh` from repo root (venv on). Output: `content/articles/one_to_rule/output/final/one_to_rule_them_all.mp4`.
 
 To drop stale segments after layout changes, remove old GIFs/MP4s under `output/` and re-run.

@@ -2,13 +2,14 @@
 # Hero video: intro + four reading comparisons (other tool left, audiometa right).
 # Order: RIFF (WAV), ID3v2 (MP3), ID3v1 (MP3), Vorbis (FLAC).
 # Run from repo root; requires venv, ffmpeg, ffprobe, metaflac, mid3v2; vhs only if recording GIFs.
-# Intro requires assets/logo.mp4 (tracked) or content/articles/one_to_rule/logo.mp4.
+# Intro requires assets/logo.mp4 (tracked) or <article>/logo.mp4.
 # Comparison pages use assets/logo-round.png (or assets/logo.png) + "AudioMeta" under the right GIF (replaces plain "unified" text).
 # VHS runs with cwd = the article dir (parent of this scripts/) so tapes need no in-GIF cd; Output is output/*.gif.
 # Final deliverable is written to output/final/; intermediate MP4 parts are written to output/work/.
 #
 # Options:
-#   --skip-gifs   Do not run VHS; reuse existing output/*.gif (fails if any required GIF is missing).
+#   --skip-gifs              Do not run VHS; reuse existing output/*.gif (fails if any required GIF is missing).
+#   --final-name <filename>  Final video filename under output/final/ (default: <article>_them_all.mp4).
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -22,11 +23,17 @@ fi
 export PATH="$VENV_BIN:$PATH"
 
 SKIP_GIFS=0
+FINAL_NAME=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --skip-gifs)
       SKIP_GIFS=1
       shift
+      ;;
+    --final-name)
+      [[ $# -lt 2 ]] && { echo "Error: --final-name requires a value" >&2; exit 1; }
+      FINAL_NAME="$2"
+      shift 2
       ;;
     -h | --help)
       sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'
@@ -38,12 +45,18 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
-OUT_DIR="content/articles/one_to_rule/output"
+ARTICLE_DIR="$SCRIPT_DIR/.."
+ARTICLE_ABS="$(cd "$ARTICLE_DIR" && pwd)"
+ARTICLE_NAME="$(basename "$ARTICLE_ABS")"
+ARTICLE="content/articles/$ARTICLE_NAME"
+OUT_DIR="$ARTICLE/output"
 WORK_DIR="$OUT_DIR/work"
 FINAL_DIR="$OUT_DIR/final"
-ARTICLE="content/articles/one_to_rule"
-VIDEO_OUT="$FINAL_DIR/one_to_rule_them_all.mp4"
-TAPES_DIR="$REPO_ROOT/$ARTICLE/tapes"
+if [[ -z "$FINAL_NAME" ]]; then
+  FINAL_NAME="${ARTICLE_NAME}_them_all.mp4"
+fi
+VIDEO_OUT="$FINAL_DIR/$FINAL_NAME"
+TAPES_DIR="$ARTICLE_ABS/tapes"
 CELL_W=600
 # Baseline cell height was 420; overall video height is 15% lower (85% scale).
 BASE_CELL_H=420
@@ -100,15 +113,15 @@ TAG_LOGO_Y=$((LABEL_ROW_Y - TAG_LOGO_PX + 4))
 
 mkdir -p "$OUT_DIR" "$WORK_DIR" "$FINAL_DIR"
 
-if [[ ! -f $ARTICLE/samples/sample.wav ]]; then
+if [[ ! -f "$ARTICLE_ABS/samples/sample.wav" ]]; then
   echo "Creating $ARTICLE/samples/sample.wav from samples/sample.mp3..."
-  ffmpeg -y -i "$ARTICLE/samples/sample.mp3" -map 0:a -c:a pcm_s16le "$ARTICLE/samples/sample.wav" -loglevel warning
+  ffmpeg -y -i "$ARTICLE_ABS/samples/sample.mp3" -map 0:a -c:a pcm_s16le "$ARTICLE_ABS/samples/sample.wav" -loglevel warning
 fi
 
 echo "Building intro..."
 INTRO_MP4="$WORK_DIR/intro_segment.mp4"
 LOGO_PATH=""
-for candidate in assets/logo.mp4 "$ARTICLE/logo.mp4"; do
+for candidate in assets/logo.mp4 "$ARTICLE_ABS/logo.mp4"; do
   [[ -f "$candidate" ]] && LOGO_PATH="$candidate" && break
 done
 [[ -z "$LOGO_PATH" ]] && { echo "Error: logo not found (assets/logo.mp4 or $ARTICLE/logo.mp4)." >&2; exit 1; }
@@ -144,14 +157,14 @@ run_tape() {
   fi
   if [[ ! -f "$out" ]]; then
     echo "Running $name..."
-    bash "$REPO_ROOT/$ARTICLE/scripts/run_vhs_tape.sh" "$2"
+    bash "$ARTICLE_ABS/scripts/run_vhs_tape.sh" "$2"
   fi
   [[ -f "$out" ]] || { echo "Error: tape did not produce: $out" >&2; exit 1; }
 }
 
 echo "Preparing demo files for ID3v1 and Vorbis..."
-"$VENV_BIN/python3" "$ARTICLE/scripts/ensure_demo_read_id3v1.py"
-cp "$ARTICLE/samples/sample.flac" "$OUT_DIR/demo_read_vorbis.flac"
+"$VENV_BIN/python3" "$ARTICLE_ABS/scripts/ensure_demo_read_id3v1.py"
+cp "$ARTICLE_ABS/samples/sample.flac" "$OUT_DIR/demo_read_vorbis.flac"
 
 if [[ "$SKIP_GIFS" -eq 1 ]]; then
   echo "Skipping VHS (--skip-gifs); using existing cell GIFs..."

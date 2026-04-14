@@ -15,7 +15,7 @@ Hero video + linked-post assets. Build output goes to `output/` (gitignored).
 
 From repo root with venv: **ffmpeg**, **ffprobe**, **metaflac**, **mid3v2**, **vhs**, intro logo video under `assets/logo.mp4` or `one_to_rule/logo.mp4`, plus **`assets/logo-round.png`** (or `assets/logo.png`) for the right-column **AudioMeta** mark in the hero layout.
 
-- **Hero video:** `bash content/articles/one_to_rule/scripts/generate_one_to_rule_video.sh` — add `--skip-gifs` to reuse existing `output/*.gif` and skip VHS (faster when only ffmpeg/layout changed).
+- **Hero video:** `bash content/articles/one_to_rule/scripts/generate_one_to_rule_video.sh` — add `--skip-gifs` to reuse existing `output/*.gif`, or `--final-name <file>.mp4` to control the final filename under `output/final/`.
 - **Single tape:** `python content/demo/scripts/run_demo_tape.py` or `(cd content/articles/one_to_rule && vhs tapes/<name>.tape)`
 
 Regenerate `samples/sample.flac` from MP3: `ffmpeg -y -i content/articles/one_to_rule/samples/sample.mp3 -map 0:a -c:a flac content/articles/one_to_rule/samples/sample.flac`, then run `python content/articles/one_to_rule/scripts/sync_article_sample_metadata.py` so Vorbis comments match the canonical track.

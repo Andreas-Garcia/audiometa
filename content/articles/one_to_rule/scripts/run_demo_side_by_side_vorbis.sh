@@ -4,8 +4,11 @@
 # Run from repo root or this dir with venv. Requires: vhs, ffmpeg, metaflac.
 
 set -e
-cd "$(dirname "$0")/../../../.."
-ARTICLE="content/articles/one_to_rule"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
+cd "$REPO_ROOT"
+ARTICLE_NAME="$(basename "$(cd "$SCRIPT_DIR/.." && pwd)")"
+ARTICLE="content/articles/$ARTICLE_NAME"
 OUT_DIR="$ARTICLE/output"
 FINAL_DIR="$OUT_DIR/final"
 LEFT="$OUT_DIR/read_vorbis_metaflac.gif"
