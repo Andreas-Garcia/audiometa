@@ -50,6 +50,10 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Fixed
+
+- **Metadata schema**: `DISC_NUMBER`'s optional type now allows `None` (was `int`), matching `DISC_TOTAL` and files without a disc number.
+
 ### Changed
 
 - **Demo layout**: Library VHS tapes (`audiometa_demo.tape`, `audiometa_demo_script.tape`) moved from repo root to `content/demo/demos/tapes/`; generated GIF/MP4 go to `content/demo/demos/output/` (gitignored). Docs now describe `content/demo/demos/` instead of `docs/demos/`.

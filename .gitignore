@@ -68,5 +68,8 @@ content/articles/*/samples/*
 node_modules/
 package-lock.json
 
+# Local scratch files (e.g. generated PR descriptions)
+.local/
+
 DESIGN_PATTERNS.md
 INTERVIEW_PATTERNS.md

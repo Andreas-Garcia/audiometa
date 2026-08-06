@@ -74,7 +74,7 @@ INTRO_TEXT_Y1=$((INTRO_H * 460 / (BASE_CELL_H * 2) + INTRO_TEXT_DESCEND_PX))
 INTRO_TEXT_Y2=$((INTRO_H * 540 / (BASE_CELL_H * 2) + INTRO_TEXT_DESCEND_PX))
 # Distance from bottom of GIF row to panel labels (larger = titles/logo lower under comparison GIFs)
 LABEL_BOTTOM_PAD=-20
-COMPARISON_FOOTER_DESCEND_PX=44
+COMPARISON_FOOTER_DESCEND_PX=12
 FONT_FILE=""
 for candidate in \
   "/System/Library/Fonts/Supplemental/Arial Bold.ttf" \
