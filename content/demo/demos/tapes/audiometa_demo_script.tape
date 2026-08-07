@@ -1,0 +1,35 @@
+# VHS documentation: https://github.com/charmbracelet/vhs
+#
+# AudioMeta get_full_metadata() Demo - Script Version
+#
+# Run from content/demo/demos: (cd content/demo/demos && vhs tapes/audiometa_demo_script.tape)
+
+# Output settings
+Output output/audiometa_demo.mp4
+Output output/audiometa_demo.gif
+
+# Set up the terminal
+Set FontSize 18
+Set Width 1200
+Set Height 700
+Set Padding 20
+Set Theme "Dracula"
+Set TypingSpeed 40ms
+Set PlaybackSpeed 1.0
+
+Hide
+Type "cd ../../.." Enter
+Sleep 300ms
+Show
+
+# Show demo script being run
+Type "cat content/demo/scripts/demo_repl.py" Enter
+Sleep 3s
+
+# Clear and run the demo
+Type "clear" Enter
+Sleep 500ms
+Type "python content/demo/scripts/demo_repl.py" Enter
+
+# Wait for demo to complete (script runs ~8 seconds + we want to show final output)
+Sleep 12s

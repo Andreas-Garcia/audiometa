@@ -49,8 +49,15 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ## [Unreleased]
 
+### Fixed
+
+- **Demo tooling**: [**`content/demo/scripts/run_demo_tape.py`**](content/demo/scripts/run_demo_tape.py) resolved `repo_root` one directory level too shallow, so `content/articles/` was never found; fixed the `.parent` chain and removed an unused `rel` variable. Both library demo tapes ([**`audiometa_demo.tape`**](content/demo/demos/tapes/audiometa_demo.tape), [**`audiometa_demo_script.tape`**](content/demo/demos/tapes/audiometa_demo_script.tape)) and their [**README**](content/demo/demos/README.md) `cd`'d only two levels up (`../..`) from `content/demo/demos` instead of three (`../../..`), breaking repo-root-relative paths used later in each tape.
+- **Demo tooling robustness**: [**`run_demo_tape.py`**](content/demo/scripts/run_demo_tape.py) rewrote a tape's `Output ...` directive with `re.sub()` without checking a replacement occurred; a tape missing that directive would silently run unmodified. Now uses `re.subn()` and exits with an error if no replacement happened.
+- **[`system-dependencies-demo.toml`](system-dependencies-demo.toml)**: Installation comment referenced `scripts/install-demo-dependencies-ubuntu.sh`, which does not exist; replaced with a note that Ubuntu has no install script yet and to install `vhs`/`ttyd` manually at the pinned versions.
+
 ### Changed
 
+- **Demo layout**: Library VHS tapes (`audiometa_demo.tape`, `audiometa_demo_script.tape`) moved from repo root to `content/demo/demos/tapes/`; generated GIF/MP4 go to `content/demo/demos/output/` (gitignored). Docs now describe `content/demo/demos/` instead of `docs/demos/`.
 - **Release tooling**: Replaced unmaintained **`bump2version`** with **`bump-my-version`**; configuration lives in **`pyproject.toml`** under **`[tool.bumpversion]`**. Removed **`.bumpversion.cfg`**. **`scripts/prepare_release.py`** invokes **`bump-my-version bump`** (no commit/tag; the script commits and tags separately).
 - **Release tooling safety**: `scripts/prepare_release.py` now validates `project.version` matches `tool.bumpversion.current_version` before bumping, and exits with a clear error if they drift.
 
@@ -134,7 +141,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - **Track and disc numbers**: Consolidated track and disc documentation into `docs/TRACK_AND_DISC_NUMBERS.md` (removed `docs/TRACK_NUMBER.md`; updated links throughout; `docs/DISC_NUMBER.md` was consolidated and removed).
 - **PR descriptions (Cursor)**: `.cursor/rules/pr-descriptions.mdc` requires writing PR bodies to `.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md` when asked; `pr-naming.mdc`, `AGENTS.md`, and `CONTRIBUTING.md` point to that workflow and to `.github/pr_descriptions/pull_request_template.md`.
-- **Demo outputs**: `.gitignore` excludes article `output/` and loose/generated files under `content/articles/<article>/`, while allowing tapes, scripts, markdown, and **whitelisted demo audio** under `content/articles/<article>/samples/` (`sample.mp3`, `sample.flac`, `sample.wav` per article as needed). `docs/demos/sample.mp3` stays the shared asset for `docs/demos/` tapes. `DEMO_INSTALLATION.md` and `.cursor/rules/demo-videos.mdc` document the layout.
+- **Demo outputs**: `.gitignore` excludes article `output/` and loose/generated files under `content/articles/<article>/`, while allowing tapes, scripts, markdown, and **whitelisted demo audio** under `content/articles/<article>/samples/` (`sample.mp3`, `sample.flac`, `sample.wav` per article as needed). Library demos use `content/demo/demos/tapes/` and `content/demo/demos/output/`. `content/demo/docs/DEMO_INSTALLATION.md` and `.cursor/rules/demo-videos.mdc` document the layout.
 
 ### CI
 
@@ -186,7 +193,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### Added
 
 - **CLI global help command**: `audiometa help` and `audiometa help <subcommand>` (read, unified, write, delete) show main or subcommand help. E2E tests cover help and subcommand help output.
-- **VHS demo videos and tooling**: Reproducible demo video generation with VHS tape files, demo scripts, and macOS install script for VHS, ttyd, and ffmpeg. Documentation added (VHS_DEMO_README.md, DEMO_INSTALLATION.md, DEMO_VIDEOS_README.md). AGENTS.md includes a demo videos section.
+- **VHS demo videos and tooling**: Reproducible demo video generation with VHS tape files, demo scripts, and macOS install script for VHS, ttyd, and ffmpeg. Documentation added (`content/demo/docs/VHS_DEMO_README.md`, `content/demo/docs/DEMO_INSTALLATION.md`, `content/demo/docs/DEMO_VIDEOS_README.md`). AGENTS.md includes a demo videos section.
 
 ### Fixed
 

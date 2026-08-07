@@ -64,7 +64,8 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
         args: ["--maxkb=10000"]
-        exclude: ^audiometa/test/assets/
+        # Test assets + whitelisted article demo audio can exceed 10MB (e.g. FLAC/WAV).
+        exclude: ^(audiometa/test/assets/|content/articles/[^/]+/samples/)
       - id: check-json
       - id: check-toml
       - id: check-merge-conflict

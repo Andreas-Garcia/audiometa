@@ -38,11 +38,13 @@ Thumbs.db
 .github/pr_descriptions/*
 !.github/pr_descriptions/pull_request_template.md
 
-# Demo tapes and generated outputs (VHS); README, tapes, demo asset tracked; output/ for GIFs/MP4s
-docs/demos/*
-!docs/demos/README.md
-!docs/demos/tapes/
-!docs/demos/sample.mp3
+# Content articles: build output and generated/temp files (tapes tracked; sample.mp3/flac stay tracked if already committed)
+content/**/output/
+content/articles/**/*.gif
+content/articles/**/*.mp4
+content/articles/**/*.wav
+content/articles/**/*.flac
+content/articles/**/*.mp3
 
 # Article demos (per folder under content/articles/<name>/): ignore loose/generated files;
 # track README/scenario .md, tapes/, shell/Python helpers; whitelisted demo audio only under samples/ (below).
@@ -57,11 +59,17 @@ content/articles/*/samples/*
 !content/articles/*/samples/sample.mp3
 !content/articles/*/samples/sample.flac
 !content/articles/*/samples/sample.wav
-content/articles/*/output/
+
+!content/articles/*/scripts/
+!content/articles/*/scripts/*.sh
+!content/articles/*/scripts/*.py
 
 # Node.js (for git-worktree-scripts dev dependency)
 node_modules/
 package-lock.json
+
+# Local scratch files (e.g. generated PR descriptions)
+.local/
 
 DESIGN_PATTERNS.md
 INTERVIEW_PATTERNS.md
