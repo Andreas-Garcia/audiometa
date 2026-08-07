@@ -62,6 +62,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - **python-project-standards v4.3.2** ([org **`v4.3.2`**](https://github.com/BehindTheMusicTree/python-project-standards/releases/tag/v4.3.2)): Lint delegates to **`reusable-pre-commit.yml@v4.3.2`**; root **`STANDARDS_VERSION`** **`4.3.2`**. [**`scripts/check_lint_baseline.py`**](scripts/check_lint_baseline.py) requires **`baselines/ruff.toml`** and **`baselines/expected-mypy.json`** in **`baselines/DIGESTS`**. [**`scripts/verify-standards.sh`**](scripts/verify-standards.sh) matches org on this bump.
 
+- **macOS `mediainfo` pin**: Bumped `mediainfo` from `26.01` to `26.05` in [**`system-dependencies-test-only.toml`**](system-dependencies-test-only.toml) to match the version Homebrew's `media-info` formula currently provides (Homebrew doesn't retain older bottles for this formula).
+
 ## [1.4.3] - 2026-04-11
 
 ### Fixed
