@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "audiometa-python"
-version = "1.3.2"
+version = "1.4.3"
 description = "A comprehensive Python library for reading and writing audio metadata across multiple formats"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -15,7 +15,7 @@ authors = [
 ]
 keywords = ["audio", "metadata", "mp3", "flac", "wav", "id3", "vorbis", "riff"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
@@ -38,15 +38,15 @@ dev = [
     "pytest==9.0.1",
     "pytest-cov==4.0.0",
     "pytest-mock==3.15.1",
-    "ruff==0.6.9",
+    "ruff==0.15.9",
     "isort==5.13.2",
     "mypy==1.18.2",
-    "pre-commit==3.0.0",
+    "pre-commit==4.5.1",
     "autoflake==2.0.0",
     "pydocstringformatter==0.7.5",
     "soundfile==0.10.1",
     "numpy==2.3.4",
-    "bump2version==1.0.1",
+    "bump-my-version==1.3.0",
 ]
 yaml = [
     "PyYAML==6.0",
@@ -56,6 +56,13 @@ yaml = [
 Homepage = "https://github.com/BehindTheMusicTree/audiometa"
 Repository = "https://github.com/BehindTheMusicTree/audiometa"
 Issues = "https://github.com/BehindTheMusicTree/audiometa/issues"
+
+[tool.bumpversion]
+current_version = "1.4.3"
+commit = true
+tag = true
+tag_name = "v{new_version}"
+message = "chore: prepare release {new_version}"
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -90,13 +97,8 @@ line_length = 120
 max-line-length = 120
 
 [tool.ruff]
-line-length = 120
-target-version = "py312"
-
-[tool.ruff.lint]
-select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "DTZ", "T10", "EM", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SIM", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "NPY", "RUF"]
-# ISC001 (implicitly concatenated strings) conflicts with ruff formatter
-ignore = ["N999", "PLR0911", "PLR0912", "PLR0913", "PLR0914", "PLR0915", "TRY301", "ISC001"]
+# Shared rule set in baselines/ruff.toml (digest-checked by verify-standards).
+extend = "baselines/ruff.toml"
 
 [tool.ruff.lint.per-file-ignores]
 # PLR2004 (magic numbers) is acceptable in test files - test assertions often use literal values
@@ -109,6 +111,7 @@ ignore = ["N999", "PLR0911", "PLR0912", "PLR0913", "PLR0914", "PLR0915", "TRY301
 "content/demo/scripts/demo_repl.py" = ["T201"]
 "content/articles/one_to_rule/scripts/ensure_demo_read_id3v1.py" = ["PLR2004", "TRY003", "EM102"]
 "content/articles/one_to_rule/scripts/print_id3v1_tags.py" = ["PLR2004", "TRY003", "EM101"]
+"scripts/check_lint_baseline.py" = ["T201"]
 # Release script: CLI tool; relax exception/literal and magic-number rules for clarity
 "scripts/prepare_release.py" = ["TRY003", "EM101", "EM102", "PLR2004", "DTZ011", "RUF005", "T201"]
 

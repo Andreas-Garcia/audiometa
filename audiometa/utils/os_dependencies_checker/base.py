@@ -44,7 +44,7 @@ class OsDependenciesChecker(ABC):
         Returns:
             Normalized version without revision suffix
         """
-        return version.split("_")[0]
+        return version.split("_", maxsplit=1)[0]
 
     @staticmethod
     def _versions_match(version1: str, version2: str) -> bool:

@@ -6,6 +6,11 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 if TYPE_CHECKING:
     from ...._audio_file import _AudioFile
 from ....exceptions import FileCorruptedError, InvalidRatingValueError, MetadataFieldNotSupportedByMetadataFormatError
+from ....utils.disc_number_read import (
+    parse_disc_number_from_combined_str,
+    parse_disc_total_from_combined_str,
+    parse_explicit_non_negative_disctotal,
+)
 from ....utils.rating_profiles import RatingWriteProfile
 from ....utils.raw_metadata_sanitizer import sanitize_vorbis_raw_info
 from ....utils.tool_path_resolver import get_tool_path
@@ -260,6 +265,49 @@ class _VorbisManager(_RatingSupportingMetadataManager):
         # Cast to RawMetadataDict since RawMetadataKey is str, Enum and string keys work
         self.raw_clean_metadata_uppercase_keys = cast(RawMetadataDict, result_dict)
 
+    def get_unified_metadata_field(self, unified_metadata_key: UnifiedMetadataKey) -> UnifiedMetadataValue:
+        if unified_metadata_key not in (
+            UnifiedMetadataKey.DISC_NUMBER,
+            UnifiedMetadataKey.DISC_TOTAL,
+        ):
+            return super().get_unified_metadata_field(unified_metadata_key)
+
+        if self.raw_clean_metadata_uppercase_keys is None:
+            self._extract_raw_clean_metadata_uppercase_keys_from_file()
+        keys = self.raw_clean_metadata_uppercase_keys
+        if keys is None:
+            return None
+
+        disc_number_key = self.VorbisKey.DISC_NUMBER
+        disc_total_key = self.VorbisKey.DISC_TOTAL
+
+        def _first_string(raw_key: RawMetadataKey) -> str | None:
+            if raw_key not in keys:
+                return None
+            vals = keys[raw_key]
+            if not vals or len(vals) == 0:
+                return None
+            v = vals[0]
+            if v is None or v == "":
+                return None
+            return str(v)
+
+        d = _first_string(disc_number_key)
+        t = _first_string(disc_total_key)
+
+        if unified_metadata_key == UnifiedMetadataKey.DISC_NUMBER:
+            if d is None:
+                return None
+            return parse_disc_number_from_combined_str(d)
+
+        if t is not None:
+            explicit = parse_explicit_non_negative_disctotal(t)
+            if explicit is not None:
+                return explicit
+        if d is None:
+            return None
+        return parse_disc_total_from_combined_str(d)
+
     def _get_raw_rating_by_traktor_or_not(self, raw_clean_metadata: RawMetadataDict) -> tuple[int | None, bool]:
         if self.VorbisKey.RATING in raw_clean_metadata:
             rating_list = raw_clean_metadata[self.VorbisKey.RATING]
@@ -340,6 +388,32 @@ class _VorbisManager(_RatingSupportingMetadataManager):
         # Get current metadata
         current_metadata = self._extract_mutagen_metadata()
 
+        # Preserve total when existing DISCNUMBER is stored as combined n/m or n-m and only DISC_NUMBER is updated.
+        if (
+            UnifiedMetadataKey.DISC_NUMBER in unified_metadata
+            and UnifiedMetadataKey.DISC_TOTAL not in unified_metadata
+            and unified_metadata[UnifiedMetadataKey.DISC_NUMBER] is not None
+        ):
+            explicit_total = None
+            combined_discnumber = None
+            for raw_key, raw_values in current_metadata.items():
+                key_name = str(raw_key).upper()
+                if raw_values is None or len(raw_values) == 0 or raw_values[0] in (None, ""):
+                    continue
+                if key_name == self.VorbisKey.DISC_TOTAL.value:
+                    explicit_total = str(raw_values[0])
+                elif key_name == self.VorbisKey.DISC_NUMBER.value:
+                    combined_discnumber = str(raw_values[0])
+
+            explicit_total_is_usable = (
+                explicit_total is not None and parse_explicit_non_negative_disctotal(explicit_total) is not None
+            )
+
+            if not explicit_total_is_usable and combined_discnumber is not None:
+                parsed_total = parse_disc_total_from_combined_str(combined_discnumber)
+                if parsed_total is not None:
+                    unified_metadata[UnifiedMetadataKey.DISC_TOTAL] = parsed_total
+
         # Update metadata dict
         for unified_metadata_key in list(unified_metadata.keys()):
             app_metadata_value = unified_metadata[unified_metadata_key]
@@ -353,7 +427,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
 
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
                 metadata_format_name = self._get_formatted_metadata_format_name()
-                msg = f"{unified_metadata_key} metadata not supported by {metadata_format_name} format"
+                msg = f"{unified_metadata_key.qualified_name()} metadata not supported by {metadata_format_name} format"
                 raise MetadataFieldNotSupportedByMetadataFormatError(msg)
             raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
             if raw_metadata_key:
@@ -515,7 +589,7 @@ class _VorbisManager(_RatingSupportingMetadataManager):
     def _get_undirectly_mapped_metadata_value_other_than_rating_from_raw_clean_metadata(
         self, _raw_clean_metadata: RawMetadataDict, unified_metadata_key: UnifiedMetadataKey
     ) -> UnifiedMetadataValue:
-        msg = f"Metadata key not handled: {unified_metadata_key}"
+        msg = f"Metadata key not handled: {unified_metadata_key.qualified_name()}"
         raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
     def _update_undirectly_mapped_metadata(
@@ -552,5 +626,5 @@ class _VorbisManager(_RatingSupportingMetadataManager):
                 if self.VorbisKey.RATING_TRAKTOR in raw_mutagen_metadata:
                     del raw_mutagen_metadata[self.VorbisKey.RATING_TRAKTOR]
         else:
-            msg = f"Metadata key not handled: {unified_metadata_key}"
+            msg = f"Metadata key not handled: {unified_metadata_key.qualified_name()}"
             raise MetadataFieldNotSupportedByMetadataFormatError(msg)

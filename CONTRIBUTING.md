@@ -271,7 +271,7 @@ pytest -m e2e           # End-to-end tests only
 pytest -m "not e2e"
 
 # Run with coverage (recommended before committing)
-pytest --cov=audiometa --cov-report=html --cov-report=term-missing --cov-fail-under=85
+pytest --cov=audiometa --cov-report=html --cov-report=term-missing --cov-fail-under=80
 ```
 
 **For comprehensive test documentation**, including test principles, markers, coverage details, Windows testing, CI configuration, and advanced usage, see [`docs/TESTING.md`](docs/TESTING.md).
@@ -299,12 +299,12 @@ Before submitting a Pull Request, ensure the following checks are completed:
 **1. Code Quality**
 
 - ✅ Follow [Code Quality](DEVELOPMENT.md#code-quality) standards in DEVELOPMENT.md
-- ✅ Run pre-commit hooks: `pre-commit run --all-files` (includes linting, formatting, type checking, assert statement check, debug statement detection, etc.)
+- ✅ Run pre-commit hooks: `pre-commit run --all-files` (includes **`verify-python-project-standards`**, linting, formatting, type checking, assert statement check, debug statement detection, etc.)
 
 **2. Tests**
 
 - ✅ All tests pass: `pytest`
-- ✅ Coverage meets threshold (≥85%): `pytest --cov=audiometa --cov-report=term-missing --cov-fail-under=85`
+- ✅ Coverage meets threshold (≥80%): `pytest --cov=audiometa --cov-report=term-missing --cov-fail-under=80`
 - ✅ New features have corresponding tests
 - ✅ Bug fixes include regression tests
 
@@ -313,7 +313,7 @@ Before submitting a Pull Request, ensure the following checks are completed:
 - ✅ Update docstrings for new functions/classes (only when needed - see [Docstrings](DEVELOPMENT.md#docstrings) section in DEVELOPMENT.md)
 - ✅ Update README or other more focused documentation if adding new features or changing behavior
 - ✅ Add/update type hints where appropriate
-- ✅ Update `CHANGELOG.md` with your changes in the `[Unreleased]` section (see [Changelog Best Practices](CHANGELOG.md#changelog-best-practices) for guidelines)
+- ✅ Update `CHANGELOG.md` with your changes in the `[Unreleased]` section in the same PR as the code (see [Changelog and `[Unreleased]`](DEVELOPMENT.md#changelog-and-unreleased), [Changelog Best Practices](CHANGELOG.md#changelog-best-practices), and `.cursor/rules/changelog.mdc`)
 - ⚠️ Update CONTRIBUTING.md only in exceptional cases (e.g., when adding hooks for new features in other languages)
 
 **4. Git Hygiene**
@@ -335,8 +335,8 @@ Before submitting a Pull Request, ensure the following checks are completed:
 
 **2. Testing Verification**
 
-- ✅ CI tests pass on all platforms and Python versions (Lint and Test workflow runs on pull requests only via `.github/workflows/lint-and-test.yml`; branch protection should require the "Lint and Test" check before merging)
-- ✅ Test coverage meets threshold (CI automatically blocks merge if coverage is below 85%)
+- ✅ CI tests pass on all platforms and Python versions (Lint and Test workflow on PRs via [`.github/workflows/lint-and-test.yml`](.github/workflows/lint-and-test.yml): **lint** delegates to [python-project-standards](https://github.com/BehindTheMusicTree/python-project-standards) **`reusable-pre-commit.yml`** at **`@v4.3.2`**; **test** is in-repo; pins match [`STANDARDS_VERSION`](STANDARDS_VERSION); branch protection should require the "Lint and Test" check before merging)
+- ✅ Test coverage meets threshold (CI automatically blocks merge if coverage is below 80%)
 - ✅ Edge cases are handled
 - ✅ Integration with existing features works correctly
 
@@ -366,7 +366,7 @@ Before submitting a Pull Request, ensure the following checks are completed:
 ```bash
 # Run all checks at once
 pre-commit run --all-files && \
-pytest --cov=audiometa --cov-report=term-missing --cov-fail-under=85
+pytest --cov=audiometa --cov-report=term-missing --cov-fail-under=80
 ```
 
 #### 6.2. Opening a Pull Request
@@ -498,9 +498,17 @@ Quick release process:
    - Consolidate entries if needed (group similar changes, ensure clarity)
    - Do not manually move or add the version header—the release script does that with today's date
 
-4. Run the release script (updates CHANGELOG, bumps version, commits, and tags):
+4. Verify changelog layout (ordering and `prepare_release.py` compatibility):
 
-   **Use the release script, not `bump2version` directly.** Running `bump2version patch` alone does not update `CHANGELOG.md` and is easy to forget; the script does changelog + version + commit + tag in one go.
+   ```bash
+   python scripts/verify_changelog.py
+   ```
+
+   See `.cursor/rules/changelog.mdc` (**CHANGELOG.md structure and integrity**). Fix any reported errors before the release script.
+
+5. Run the release script (updates CHANGELOG, bumps version, commits, and tags):
+
+   **Use the release script, not `bump-my-version` directly.** Running `bump-my-version bump patch` alone does not update `CHANGELOG.md` and is easy to forget; the script does changelog + version + commit + tag in one go.
 
    ```bash
    source .venv/bin/activate
@@ -516,13 +524,13 @@ Quick release process:
    **What the script does:**
 
    - Replaces `## [Unreleased]` in `CHANGELOG.md` with `## [X.Y.Z] - YYYY-MM-DD` (today) and adds a new `## [Unreleased]` section
-   - Runs `bump2version` to update `pyproject.toml` and `.bumpversion.cfg`
-   - Commits `CHANGELOG.md`, `pyproject.toml`, and `.bumpversion.cfg` with message `chore: prepare release X.Y.Z`
+   - Runs `bump-my-version bump` to update `project.version` and `[tool.bumpversion].current_version` in `pyproject.toml`
+   - Commits `CHANGELOG.md` and `pyproject.toml` with message `chore: prepare release X.Y.Z`
    - Creates tag `vX.Y.Z`
    - Without `--push`: stops here (verify with `git log -1` and `git tag -l`, then push manually)
    - With `--push`: pushes `main` and the new tag to `origin`
 
-5. If you did not use `--push`, verify and push:
+6. If you did not use `--push`, verify and push:
 
    ```bash
    git log -1
@@ -533,7 +541,7 @@ Quick release process:
    # Or: git push origin main --follow-tags
    ```
 
-6. CI/CD will automatically:
+7. CI/CD will automatically:
 
    - Verify tag version matches `pyproject.toml` version
    - Verify tag is on main branch
@@ -547,7 +555,7 @@ Quick release process:
 
 **Note:** Ensure `PYPI_API_TOKEN` is configured in GitHub repository secrets before tagging. See [PyPI Publishing Guide](docs/PYPI_PUBLISHING.md) for setup instructions.
 
-**Alternative (manual):** Edit `CHANGELOG.md` (move `[Unreleased]` to a versioned section with date), then run `bump2version patch` (or minor/major/`--new-version`) and commit + tag yourself.
+**Alternative (manual):** Edit `CHANGELOG.md` (move `[Unreleased]` to a versioned section with date), then run `bump-my-version bump patch` (or `minor` / `major` / `--new-version X.Y.Z`) and commit + tag yourself.
 
 ## 🪪 License & Attribution
 

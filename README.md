@@ -302,11 +302,13 @@ AudioMeta uses a combination of Python libraries and external command-line tools
 
 ### Reading Metadata
 
-When reading metadata, there are three functions to use: `get_unified_metadata` and `get_unified_metadata_field`, and `get_full_metadata`.
+When reading metadata, the main entry points are `get_unified_metadata`, `get_unified_metadata_field`, and `get_full_metadata`. For tooling and UIs, `get_unified_metadata_field_schema` and `get_supported_unified_metadata_field_ids` describe the full unified vocabulary and which fields are writable for a given file’s primary format.
 
 - `get_unified_metadata`: Reads all metadata from a file and returns a unified dictionary.
 - `get_unified_metadata_field`: Reads a specific metadata field from a file.
-- `get_full_metadata`: Reads all metadata from a file and returns a dictionary including headers and technical info.
+- `get_full_metadata`: Reads all metadata from a file and returns a dictionary including headers, technical info, raw tags, **unified field schema**, and **per-file supported unified field ids**.
+- `get_unified_metadata_field_schema`: Returns wire-oriented descriptors (`id`, `label`, `multiple`, `value_type`, `optional_value`) for every `UnifiedMetadataKey` (no file required).
+- `get_supported_unified_metadata_field_ids`: Returns sorted unified field ids that have a write mapping for the file’s primary metadata format.
 
 #### Reading from a specific metadata format
 
@@ -394,6 +396,21 @@ except MetadataFieldNotSupportedByMetadataFormatError as e:
     print(f"Error: {e}")
 ```
 
+#### Unified field schema and writable field ids
+
+**`get_unified_metadata_field_schema()`** returns one descriptor per `UnifiedMetadataKey`: stable string **`id`** (the enum value), English **`label`**, **`multiple`**, JSON-oriented **`value_type`**, and **`optional_value`**. Use it for forms, validation, or API docs without hard-coding the enum.
+
+**`get_supported_unified_metadata_field_ids(file)`** returns sorted **`UnifiedMetadataKey.value`** strings for fields that have a non-`None` write mapping in the file’s **primary** (native) metadata format.
+
+```python
+from audiometa import get_unified_metadata_field_schema, get_supported_unified_metadata_field_ids
+
+schema = get_unified_metadata_field_schema()
+writable_on_this_file = get_supported_unified_metadata_field_ids("song.mp3")
+```
+
+`get_full_metadata` always includes **`unified_metadata_field_schema`** (same list as above) and **`supported_unified_metadata_field_ids`** for that path. The **`audiometa read`** command surfaces these keys in **JSON** and **YAML** output; **table** output only prints unified, technical, and format metadata sections.
+
 #### Reading Full Metadata From All Formats Including Headers and Technical Info
 
 **`get_full_metadata(file_path, include_headers=True, include_technical=True, include_raw_binary_data=False)`**
@@ -406,6 +423,8 @@ Gets comprehensive metadata including all available information from a file, inc
 from audiometa import get_full_metadata
 
 full_metadata = get_full_metadata("song.mp3")
+# full_metadata["unified_metadata_field_schema"]  — all unified keys
+# full_metadata["supported_unified_metadata_field_ids"]  — writable via primary format
 ```
 
 ### Validate Metadata Before Update
@@ -683,6 +702,7 @@ This function provides the most complete view of an audio file by combining:
 - Technical information (duration, bitrate, sample rate, channels, file size)
 - Format-specific headers and structure information
 - Raw metadata details from each format (when include_raw_binary_data is False, binary/opaque content such as APIC, PRIV, TRAKTOR4 is summarized as size placeholders)
+- **Unified field schema** (`unified_metadata_field_schema`) and **per-file writable unified ids** (`supported_unified_metadata_field_ids`); see `get_unified_metadata_field_schema` and `get_supported_unified_metadata_field_ids`
 
 ```python
 from audiometa import get_full_metadata, UnifiedMetadataKey
@@ -693,6 +713,10 @@ full_metadata = get_full_metadata("song.mp3")
 # Access unified metadata (same as get_unified_metadata)
 print(f"Title: {full_metadata['unified_metadata'][UnifiedMetadataKey.TITLE]}")
 print(f"Artists: {full_metadata['unified_metadata'][UnifiedMetadataKey.ARTISTS]}")
+
+# Field vocabulary and ids writable for this file's primary format
+print(full_metadata["unified_metadata_field_schema"][0])
+print(full_metadata["supported_unified_metadata_field_ids"])
 
 # Access technical information
 print(f"Duration: {full_metadata['technical_info']['duration_seconds']} seconds")
@@ -820,6 +844,22 @@ A comprehensive dictionary containing:
             'chunk_structure': {...}
         }
     },
+    'unified_metadata_field_schema': [
+        {
+            'id': 'title',
+            'label': 'Title',
+            'multiple': False,
+            'value_type': 'string',
+            'optional_value': False,
+        },
+        # ... one entry per UnifiedMetadataKey
+    ],
+    'supported_unified_metadata_field_ids': [
+        'album',
+        'artists',
+        'title',
+        # ... ids with a write mapping for this file's primary format
+    ],
     'format_priorities': {
         'file_extension': '.mp3',
         'reading_order': ['id3v2', 'id3v1'],

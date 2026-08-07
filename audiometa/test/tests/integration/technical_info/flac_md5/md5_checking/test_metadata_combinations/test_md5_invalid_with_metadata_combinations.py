@@ -48,9 +48,9 @@ class TestMd5InvalidWithMetadataCombinations:
             ID3v2MetadataSetter.set_metadata(test_file, {"title": "ID3v2 Title"})
             corrupt_md5(test_file, "random")
             state = is_flac_md5_valid(test_file)
-            assert (
-                state == FlacMd5State.INVALID
-            ), "FLAC with Vorbis and ID3v2 metadata and invalid MD5 should return INVALID"
+            assert state == FlacMd5State.INVALID, (
+                "FLAC with Vorbis and ID3v2 metadata and invalid MD5 should return INVALID"
+            )
 
     def test_invalid_md5_with_id3v1_returns_uncheckable(self):
         """Test that invalid MD5 with ID3v1 returns UNCHECKABLE_DUE_TO_ID3, not INVALID."""
@@ -59,9 +59,9 @@ class TestMd5InvalidWithMetadataCombinations:
             ID3v1MetadataSetter.set_title(test_file, "ID3v1 Title")
             corrupt_md5(test_file, "random")
             state = is_flac_md5_valid(test_file)
-            assert (
-                state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1
-            ), "FLAC with ID3v1 should return UNCHECKABLE_DUE_TO_ID3 even if MD5 corrupted (ID3v1 takes precedence)"
+            assert state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1, (
+                "FLAC with ID3v1 should return UNCHECKABLE_DUE_TO_ID3 even if MD5 corrupted (ID3v1 takes precedence)"
+            )
 
     def test_invalid_md5_vorbis_and_id3v1_returns_uncheckable(self):
         """Test that invalid MD5 with Vorbis and ID3v1 returns UNCHECKABLE_DUE_TO_ID3."""
@@ -71,9 +71,9 @@ class TestMd5InvalidWithMetadataCombinations:
             ID3v1MetadataSetter.set_title(test_file, "ID3v1 Title")
             corrupt_md5(test_file, "random")
             state = is_flac_md5_valid(test_file)
-            assert (
-                state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1
-            ), "FLAC with Vorbis and ID3v1 metadata should return UNCHECKABLE_DUE_TO_ID3 (ID3v1 takes precedence)"
+            assert state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1, (
+                "FLAC with Vorbis and ID3v1 metadata should return UNCHECKABLE_DUE_TO_ID3 (ID3v1 takes precedence)"
+            )
 
     def test_invalid_md5_id3v1_and_id3v2_returns_uncheckable(self):
         """Test that invalid MD5 with ID3v1 and ID3v2 returns UNCHECKABLE_DUE_TO_ID3."""
@@ -83,9 +83,9 @@ class TestMd5InvalidWithMetadataCombinations:
             ID3v2MetadataSetter.set_metadata(test_file, {"title": "ID3v2 Title"})
             corrupt_md5(test_file, "random")
             state = is_flac_md5_valid(test_file)
-            assert (
-                state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1
-            ), "FLAC with ID3v1 and ID3v2 metadata should return UNCHECKABLE_DUE_TO_ID3 (ID3v1 takes precedence)"
+            assert state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1, (
+                "FLAC with ID3v1 and ID3v2 metadata should return UNCHECKABLE_DUE_TO_ID3 (ID3v1 takes precedence)"
+            )
 
     def test_invalid_md5_all_formats_returns_uncheckable(self):
         """Test that invalid MD5 with all metadata formats returns UNCHECKABLE_DUE_TO_ID3."""
@@ -96,6 +96,6 @@ class TestMd5InvalidWithMetadataCombinations:
             ID3v2MetadataSetter.set_metadata(test_file, {"title": "ID3v2 Title"})
             corrupt_md5(test_file, "random")
             state = is_flac_md5_valid(test_file)
-            assert (
-                state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1
-            ), "FLAC with all metadata formats should return UNCHECKABLE_DUE_TO_ID3 (ID3v1 takes precedence)"
+            assert state == FlacMd5State.UNCHECKABLE_DUE_TO_ID3V1, (
+                "FLAC with all metadata formats should return UNCHECKABLE_DUE_TO_ID3 (ID3v1 takes precedence)"
+            )

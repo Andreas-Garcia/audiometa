@@ -15,6 +15,41 @@ alwaysApply: true
 - Use ISO 8601 date format: YYYY-MM-DD.
 - Avoid dumping raw git logs; summarize notable changes clearly.
 
+## `CHANGELOG.md` structure and integrity
+
+**Required layout** (outside fenced code blocks; markdown examples inside ` ``` ` fences in `CHANGELOG.md` must not use real `## [version]` headers that duplicate the live sections):
+
+1. Exactly **one** `## [Unreleased]` heading.
+2. **Immediately after** the `[Unreleased]` notes, the next section must be the newest release: `## [X.Y.Z] - YYYY-MM-DD`.
+3. **Older releases** follow in **strictly decreasing** semantic order (e.g. `1.4.1`, then `1.4.0`, then `1.3.3`).
+
+This matches `scripts/prepare_release.py`, which replaces the `[Unreleased]` block and inserts the new version **between** `[Unreleased]` and the first `## [X.Y.Z] - date` below it. If older versions sit above `[Unreleased]` or order is wrong, the file reads incorrectly and releases can produce the wrong section order.
+
+**Whenever you edit `CHANGELOG.md`** (including moving release notes or cutting a release by hand), verify before committing or running `prepare_release.py`:
+
+```bash
+python scripts/verify_changelog.py
+```
+
+Fix reported issues until the script prints `CHANGELOG.md OK`. Agents should run this after substantive changelog edits, not only rely on visual skim.
+
+## Keeping `[Unreleased]` aligned with code changes
+
+**Whenever you modify the codebase in ways that matter to users or integrators**, update `CHANGELOG.md` under `## [Unreleased]` in the **same** PR or change series as the code. Do not ship behavioral, API, or CLI changes with an empty or outdated `[Unreleased]` section.
+
+**Add or adjust `[Unreleased]` entries when you:**
+
+- Add, change, or remove **public API** (symbols exported from `audiometa`, CLI commands, flags, or documented behavior)
+- Fix a **user-visible** bug in the library or CLI
+- Change **defaults** or **response shapes** (e.g. new top-level keys from `get_full_metadata`, new required fields)
+- Introduce **breaking changes** (document clearly; follow repo conventions for severity)
+
+**Usually skip a new changelog bullet** when the change is strictly internal (refactor with identical external behavior, private helpers only). **Test-only** changes that do not fix a user-visible bug typically do not need their own entry; mention tests under the related feature or fix if applicable.
+
+**Before you treat a coding task as complete:** Open `CHANGELOG.md`, read `## [Unreleased]`, and confirm it still describes the current diff. If the code moved on (new API, behavior change, fix), **edit `[Unreleased]`** so it stays accurate. If you changed `CHANGELOG.md`, run `python scripts/verify_changelog.py` and fix failures before finishing.
+
+**Human-readable summary:** [DEVELOPMENT.md — Changelog and `[Unreleased]`](DEVELOPMENT.md#changelog-and-unreleased).
+
 ## Release Process
 
 **IMPORTANT: All releases must follow the steps documented in `CONTRIBUTING.md`.**
@@ -31,9 +66,10 @@ Before preparing a release, refer to the "Releasing _(For Maintainers)_" section
 1. **Ensuring you're on the `main` branch** - Releases must be prepared from `main`, not from feature branches
 2. Checking `TODO.md` for critical items
 3. Reviewing the `[Unreleased]` section in `CHANGELOG.md`
-4. Running `scripts/prepare_release.py` (updates CHANGELOG with version and date, bumps version, commits, and tags)
-5. Pushing main and the new tag
-6. CI/CD will automatically handle PyPI publishing
+4. Running `python scripts/verify_changelog.py` (layout must match `prepare_release.py`; see **CHANGELOG.md structure and integrity** above)
+5. Running `scripts/prepare_release.py` (updates CHANGELOG with version and date, bumps version, commits, and tags)
+6. Pushing main and the new tag
+7. CI/CD will automatically handle PyPI publishing
 
 **Do not skip any steps in the release process.** See `CONTRIBUTING.md` for detailed instructions.
 

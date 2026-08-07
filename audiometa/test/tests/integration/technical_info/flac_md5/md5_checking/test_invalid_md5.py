@@ -14,18 +14,18 @@ class TestInvalidMd5:
             ensure_flac_has_md5(test_file)
             corrupt_md5(test_file, "random")
 
-            assert (
-                is_flac_md5_valid(test_file) == FlacMd5State.INVALID
-            ), "Random MD5 corruption should be detected as INVALID"
+            assert is_flac_md5_valid(test_file) == FlacMd5State.INVALID, (
+                "Random MD5 corruption should be detected as INVALID"
+            )
 
     def test_is_flac_md5_valid_detects_partial_md5_corruption(self):
         with temp_file_with_metadata({}, "flac") as test_file:
             ensure_flac_has_md5(test_file)
             corrupt_md5(test_file, "partial")
 
-            assert (
-                is_flac_md5_valid(test_file) == FlacMd5State.INVALID
-            ), "Partially corrupted MD5 should be detected as INVALID"
+            assert is_flac_md5_valid(test_file) == FlacMd5State.INVALID, (
+                "Partially corrupted MD5 should be detected as INVALID"
+            )
 
     def test_is_flac_md5_valid_detects_flipped_md5(self):
         with temp_file_with_metadata({}, "flac") as test_file:

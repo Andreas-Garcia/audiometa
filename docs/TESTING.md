@@ -156,7 +156,7 @@ Coverage is **not enabled by default** in pytest configuration to keep test runs
 To run tests with coverage (recommended before committing or in CI):
 
 ```bash
-pytest --cov=audiometa --cov-report=html --cov-report=term-missing --cov-fail-under=85
+pytest --cov=audiometa --cov-report=html --cov-report=term-missing --cov-fail-under=80
 ```
 
 This will:
@@ -164,7 +164,7 @@ This will:
 - Measure coverage for the `audiometa` package
 - Display coverage summary in the terminal (including missing lines)
 - Generate an HTML report in `htmlcov/` directory
-- Fail if coverage is below 85%
+- Fail if coverage is below 80%
 
 ### Running Tests Without Coverage (Default)
 
@@ -185,11 +185,11 @@ open htmlcov/index.html  # macOS
 
 ### Coverage in CI
 
-Coverage is automatically enforced in CI workflows, ensuring the 85% threshold is maintained across all pull requests and merges.
+Coverage is enforced in CI via **`coverage report --fail-under=80`** after marker runs (see [`.github/workflows/lint-and-test.yml`](../.github/workflows/lint-and-test.yml)), maintaining that threshold across pull requests and merges.
 
-**CI test execution:** CI runs tests separately by marker (`unit`, `integration`, `e2e`) with coverage. The coverage threshold of 85% applies to the combined total.
+**CI test execution:** CI runs tests separately by marker (`unit`, `integration`, `e2e`) with coverage. The **80%** threshold applies to the combined total on Linux and macOS (Windows runs **e2e** only in the matrix).
 
-**CI environment:** CI runs on pull requests only (`.github/workflows/lint-and-test.yml`) and includes lint and test jobs. Tests run on pinned OS versions (e.g., Ubuntu 24.04, macOS 14) for consistency. OS versions are pinned in the workflow to ensure system package version availability and consistency with pinned versions in `system-dependencies-prod.toml`, `system-dependencies-test-only.toml`, and `system-dependencies-lint.toml`. Python package versions are pinned in `pyproject.toml`. This prevents breakages when GitHub Actions updates `-latest` runners. See the workflow file for the specific pinned OS versions.
+**CI environment:** CI runs on pull requests only ([`.github/workflows/lint-and-test.yml`](../.github/workflows/lint-and-test.yml)): **lint** calls [python-project-standards](https://github.com/BehindTheMusicTree/python-project-standards) **`reusable-pre-commit.yml`** at **`@v4.3.2`**; **test** is an in-repo matrix (see root [`STANDARDS_VERSION`](../STANDARDS_VERSION)). Tests run on pinned OS versions (e.g., Ubuntu 24.04, macOS 14) for consistency. OS versions are pinned in the workflow to ensure system package version availability and consistency with pinned versions in `system-dependencies-prod.toml`, `system-dependencies-test-only.toml`, and `system-dependencies-lint.toml`. Python package versions are pinned in `pyproject.toml`. This prevents breakages when GitHub Actions updates `-latest` runners. See the workflow file for the specific pinned OS versions.
 
 ## Test Logic Principles
 

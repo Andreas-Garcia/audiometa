@@ -8,6 +8,7 @@ This document consolidates comprehensive metadata field handling across all supp
 
 ## Table of Contents
 
+- [Unified field schema and full-metadata API](#unified-field-schema-and-full-metadata-api)
 - [Metadata Support by Format](#metadata-support-by-format)
 - [Multiple Values Handling](#multiple-values-handling)
 - [Genre Handling](#genre-handling)
@@ -20,6 +21,29 @@ This document consolidates comprehensive metadata field handling across all supp
 - [Disc Number Handling](#disc-number-handling)
 - [Lyrics Support](#lyrics-support)
 - [None vs Empty String Handling](#none-vs-empty-string-handling)
+
+## Unified field schema and full-metadata API
+
+The library exposes a **stable, JSON-friendly description** of every unified field for apps, CLIs, and documentation generators:
+
+- **`get_unified_metadata_field_schema()`** (exported from `audiometa`) returns a `list` of dicts, one per `UnifiedMetadataKey`, with:
+
+  - **`id`**: `UnifiedMetadataKey.value` (e.g. `"title"`, `"album_artists"`)
+  - **`label`**: Short English label (not localized)
+  - **`multiple`**: Whether the field can hold multiple values
+  - **`value_type`**: Coarse hint (`"string"`, `"strings"`, `"integer"`, `"number"`, `"string_or_integer"`, etc.)
+  - **`optional_value`**: Whether a scalar may be omitted (e.g. disc total)
+
+  Implementation: `audiometa.utils.unified_metadata_field_schema`. Per-field detail: `describe_unified_metadata_field(key)`.
+
+- **`get_supported_unified_metadata_field_ids(file)`** returns sorted **`id`** strings for unified fields that have a **non-`None` write mapping** in the file’s **primary** metadata format (the first format in the extension’s priority list). Fields with no writer for that format are omitted.
+
+- **`get_full_metadata(file)`** always includes:
+
+  - **`unified_metadata_field_schema`**: Same list as `get_unified_metadata_field_schema()`
+  - **`supported_unified_metadata_field_ids`**: Same list as `get_supported_unified_metadata_field_ids(file)`
+
+The **`audiometa read`** command includes these keys in **JSON** and **YAML** output; **table** output does not print them (it only shows unified, technical, and format sections).
 
 ## Metadata Support by Format
 
@@ -303,9 +327,9 @@ The library returns track numbers as strings. Edge cases:
 - **ID3v1**: Only supports track numbers (1-255), extracts the track number from formats like "5/12" and ignores the total
 - **ID3v2**: Supports full track/total format (e.g., "5/12") as per ID3v2 specification
 - **Vorbis**: Supports full track/total format through TRACKNUMBER field
-- **RIFF**: Track number written to INFO `IPRT` (see `TRACK_NUMBER.md`)
+- **RIFF**: Track number written to INFO `IPRT` (see [Track and disc numbers](TRACK_AND_DISC_NUMBERS.md#track-number))
 
-For detailed information, see the **[Track Number Handling Guide](TRACK_NUMBER.md)**.
+For detailed information, see **[Track and disc numbers](TRACK_AND_DISC_NUMBERS.md#track-number)**.
 
 ## Disc Number Handling
 
@@ -317,11 +341,11 @@ The library provides two separate unified metadata fields for disc number:
 **Format Support:**
 
 - **ID3v1**: ✗ Not supported (format limitation)
-- **ID3v2**: TPOS frame - maps `"disc/total"` format to/from `DISC_NUMBER` and `DISC_TOTAL`; writer enforces **0–255**; reader accepts digit groups as stored (see `DISC_NUMBER.md`)
-- **Vorbis**: `DISCNUMBER` / `DISCTOTAL` as separate integer strings; **`DISCNUMBER=1/2`** (disc/total in one comment) is **not** split on read yet—see `DISC_NUMBER.md`
+- **ID3v2**: TPOS frame - maps `"disc/total"` format to/from `DISC_NUMBER` and `DISC_TOTAL`; writer enforces **0–255**; reader uses the same `n` / `n/m` / `n-m` rules as documented (see [Track and disc numbers](TRACK_AND_DISC_NUMBERS.md#disc-number))
+- **Vorbis**: Separate `DISCNUMBER` and `DISCTOTAL` on write (unlimited range); **read** parses combined `DISCNUMBER` like ID3v2 `TPOS`, with explicit `DISCTOTAL` overriding the embedded total when valid (see [Track and disc numbers](TRACK_AND_DISC_NUMBERS.md#disc-number))
 - **RIFF**: ✗ Not supported (format limitation)
 
-For detailed information on disc number formats, limitations, reading/writing behavior, and examples, see the **[Disc Number Handling Guide](DISC_NUMBER.md)**.
+For detailed information on disc number formats, limitations, reading/writing behavior, and examples, see **[Track and disc numbers](TRACK_AND_DISC_NUMBERS.md#disc-number)**.
 
 ## Lyrics Support
 

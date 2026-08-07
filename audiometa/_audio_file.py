@@ -7,7 +7,7 @@ import tempfile
 import types
 import warnings
 from pathlib import Path
-from typing import cast
+from typing import Self, cast
 
 from mutagen.flac import FLAC, StreamInfo
 from mutagen.mp3 import MP3
@@ -251,7 +251,7 @@ class _AudioFile:
         if hasattr(self.file, "close"):
             self.file.close()
 
-    def __enter__(self) -> "_AudioFile":
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(
@@ -368,7 +368,7 @@ class _AudioFile:
             )
 
         # Create a temporary file to store the corrected FLAC content
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".flac")
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".flac")  # noqa: SIM115
         temp_path = temp_file.name
         temp_file.close()  # Close but don't delete yet
 

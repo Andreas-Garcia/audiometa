@@ -19,19 +19,20 @@
 # 1. check-tool-versions: Verify installed tool versions match pyproject.toml (fails fast if versions mismatch)
 # 2. verify-system-dependency-versions: Verify installed system dependency versions match pinned versions
 #    (also validates system-dependencies.toml can be parsed - replaces validate-system-dependencies)
-# 3. pre-commit-hooks: Basic checks (yaml, json, toml, large files, merge conflicts, debug statements, trailing whitespace)
-# 4. shellcheck: Check shell script syntax and common errors
-# 5. fix-shell-trailing-blank-lines: Fix trailing blank lines in shell scripts (auto-fixes)
-# 6. no-assert: Check for assert statements in production code
-# 7. ruff-format: Format code (replaces black, handles EOF newlines automatically)
-# 8. ruff: Auto-fix linting issues (including unused imports/variables, code style, line length)
-# 9. isort: Sort imports (configured to work with ruff-format/black)
+# 3. verify-python-project-standards: scripts/verify-standards.sh (layout, STANDARDS_VERSION vs @v… pins; org template)
+# 4. pre-commit-hooks: Basic checks (yaml, json, toml, large files, merge conflicts, debug statements, trailing whitespace)
+# 5. shellcheck: Check shell script syntax and common errors
+# 6. fix-shell-trailing-blank-lines: Fix trailing blank lines in shell scripts (auto-fixes)
+# 7. no-assert: Check for assert statements in production code
+# 8. ruff-format: Format code (replaces black, handles EOF newlines automatically)
+# 9. ruff: Auto-fix linting issues (including unused imports/variables, import order via I rules, line length)
 # 10. mypy: Type checking on formatted code
 # 11. pydocstringformatter: Format docstrings (after code formatting)
 #     NOTE: File pattern must be ^audiometa/.*\.py$ (not ^audiometa/) to avoid processing binary files
 # 12. fix-long-comments: Fix long comment lines (custom hook)
 # 13. prettier: Format markdown files (preserves list numbering without zero-padding)
 # 14. psscriptanalyzer: Lint PowerShell scripts (.ps1 files)
+# Note: isort is not a pre-commit hook (org verify-python-project-standards forbids it vs ruff format); isort stays in pyproject dev extras for optional IDE/local use.
 
 fail_fast: true
 
@@ -50,9 +51,15 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: verify-python-project-standards
+        name: Verify python-project-standards baseline
+        entry: bash scripts/verify-standards.sh
+        language: system
+        pass_filenames: false
+        always_run: true
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v6.0.0
     hooks:
       - id: check-yaml
       - id: check-added-large-files
@@ -100,12 +107,6 @@ repos:
         name: ruff
         # Use venv ruff explicitly for consistency (ruff is a binary, but still prefer venv version)
         entry: bash -c '.pre-commit-hooks/tool-wrapper.sh ruff check --fix --line-length=120 "$@"' --
-        language: system
-        files: ^(audiometa/|\.pre-commit-hooks/|scripts/).*\.py$
-      - id: isort
-        name: isort
-        # Use venv isort explicitly to avoid system isort with potentially broken shebang
-        entry: bash -c '.pre-commit-hooks/tool-wrapper.sh isort --profile black --line-length=120 "$@"' --
         language: system
         files: ^(audiometa/|\.pre-commit-hooks/|scripts/).*\.py$
       - id: mypy

@@ -22,16 +22,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 All contributors (including maintainers) should update `CHANGELOG.md` when creating PRs:
 
-1. **Add entries to the `[Unreleased]` section** - Add your changes under the appropriate category (Added, Changed, Improved, Deprecated, Removed, Fixed, Documentation, Performance, CI)
-2. **Follow the changelog format** - See examples below and `.cursor/rules/changelog.mdc` for detailed guidelines
-3. **Group related changes** - Similar changes should be grouped together
-4. **Be descriptive** - Write clear, user-focused descriptions of what changed
-5. **Mention tests when relevant** - Tests should be mentioned within the related feature or fix entry, not as standalone entries
+1. **Add entries to the `[Unreleased]` section** - Add your changes under the appropriate category (Added, Changed, Improved, Deprecated, Removed, Fixed, Documentation, Performance, CI) in the **same PR** as the code so `[Unreleased]` never lags the codebase
+2. **Keep section order** - `## [Unreleased]` comes first, then released versions newest-first (`## [X.Y.Z] - YYYY-MM-DD`); run `python scripts/verify_changelog.py` after edits (see `.cursor/rules/changelog.mdc`)
+3. **Follow the changelog format** - See examples below and `.cursor/rules/changelog.mdc` for detailed guidelines
+4. **Group related changes** - Similar changes should be grouped together
+5. **Be descriptive** - Write clear, user-focused descriptions of what changed
+6. **Mention tests when relevant** - Tests should be mentioned within the related feature or fix entry, not as standalone entries
 
 **Example:**
 
 ```markdown
-## [1.3.2] - 2026-03-18
+## [1.4.0] - 2026-06-01
 
 ### Added
 
@@ -44,9 +45,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Includes regression tests to prevent future occurrences
 ```
 
-**Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-XX`).
-
-## [1.3.2] - 2026-03-18
+**Note:** During releases, maintainers will move entries from `[Unreleased]` to a versioned section (e.g., `## [0.2.8] - 2025-01-29`).
 
 ## [Unreleased]
 
@@ -57,16 +56,117 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### Changed
 
 - **Demo layout**: Library VHS tapes (`audiometa_demo.tape`, `audiometa_demo_script.tape`) moved from repo root to `content/demo/demos/tapes/`; generated GIF/MP4 go to `content/demo/demos/output/` (gitignored). Docs now describe `content/demo/demos/` instead of `docs/demos/`.
+- **Release tooling**: Replaced unmaintained **`bump2version`** with **`bump-my-version`**; configuration lives in **`pyproject.toml`** under **`[tool.bumpversion]`**. Removed **`.bumpversion.cfg`**. **`scripts/prepare_release.py`** invokes **`bump-my-version bump`** (no commit/tag; the script commits and tags separately).
+- **Release tooling safety**: `scripts/prepare_release.py` now validates `project.version` matches `tool.bumpversion.current_version` before bumping, and exits with a clear error if they drift.
+
+### CI
+
+- **python-project-standards v4.2.0**: Lint delegates to **`reusable-pre-commit.yml@v4.2.0`**; root **`STANDARDS_VERSION`** **`4.2.0`**. **`scripts/verify-standards.sh`** matches org template skip logic for the standards meta-repo ( **`templates/pyproject/pyproject.toml`** without consumer **`baselines/ruff.toml`**). Added **`.cursor/rules/changelog-alignment.mdc`** ( **`alwaysApply`** ) so substantive edits stay paired with **`CHANGELOG.md`** updates. Previous **`v4.1.1`** baseline work ( **`baselines/`**, **`check_lint_baseline.py`**, digest for **`expected-mypy.json`**, thin Ruff/Mypy overlay) is unchanged.
+
+- **python-project-standards v4.3.1** ([org **`v4.3.1`**](https://github.com/BehindTheMusicTree/python-project-standards/releases/tag/v4.3.1)): Lint delegates to **`reusable-pre-commit.yml@v4.3.1`**; root **`STANDARDS_VERSION`** **`4.3.1`**. [**`scripts/verify-standards.sh`**](scripts/verify-standards.sh) and [**`scripts/check_lint_baseline.py`**](scripts/check_lint_baseline.py) match org **`templates/scripts/`** on that tag (verification rejects an **isort** pre-commit hook). Removed the **isort** hook from [**.pre-commit-config.yaml**](.pre-commit-config.yaml); **isort** remains in **[`pyproject.toml`](pyproject.toml)** dev extras for optional local or IDE use. Org **[`docs/versioning.md`](https://github.com/BehindTheMusicTree/python-project-standards/blob/main/docs/versioning.md)** documents **`BUMP_MY_VERSION_PYTHON`** for macOS **`bump-my-version`** crashes.
+
+- **python-project-standards v4.3.2** ([org **`v4.3.2`**](https://github.com/BehindTheMusicTree/python-project-standards/releases/tag/v4.3.2)): Lint delegates to **`reusable-pre-commit.yml@v4.3.2`**; root **`STANDARDS_VERSION`** **`4.3.2`**. [**`scripts/check_lint_baseline.py`**](scripts/check_lint_baseline.py) requires **`baselines/ruff.toml`** and **`baselines/expected-mypy.json`** in **`baselines/DIGESTS`**. [**`scripts/verify-standards.sh`**](scripts/verify-standards.sh) matches org on this bump.
 
 ### Documentation
 
 - **README**: Added ecosystem section with portfolio links (`themusictree.org`, AudioMeta Python project page, `the-music-tree-frontend`).
+
+## [1.4.3] - 2026-04-11
+
+### Fixed
+
+- **Disc number partial updates (`ID3v2` + `Vorbis`)**: Updating only one disc component now preserves the other component when older combined values are present.
+
+  - **ID3v2 `TPOS`**: Existing hyphen (`n-m`) and slash (`n/m`) forms are both parsed for preservation and rewritten in canonical slash form.
+  - **Vorbis `DISCNUMBER`**: When `DISCNUMBER` stores combined `n/m` or `n-m`, updating only `DISC_NUMBER` preserves the embedded total by materializing `DISCTOTAL` when explicit `DISCTOTAL` is absent or invalid; valid explicit `DISCTOTAL` remains authoritative.
+  - Includes regression integration tests for both formats.
+
+- **Error messages**: `UnifiedMetadataKey` and `MetadataFormat` are `StrEnum`s, so embedding them in exception text with `f"{value}..."` used wire strings (e.g. `album_artists`, `vorbis`) instead of stable labels like `UnifiedMetadataKey.ALBUM_ARTISTS` / `MetadataFormat.VORBIS`. Managers and `_get_metadata_manager` now use `qualified_name()` where those identifiers appear in user-facing errors and warnings.
+
+- **CHANGELOG.md**: Placed `## [Unreleased]` before `## [1.4.2]` (released content had been above `[Unreleased]`). `python scripts/verify_changelog.py` passes again.
+
+### Changed
+
+- **Dev tooling**: Bumped **Ruff** from `0.6.9` to `0.15.9` in `[project.optional-dependencies] dev` (py3.14-compatible parser and current rule set). Added `PLC0415` / `RUF043` to `ignore` for existing lazy-import and test patterns. Migrated string enums in `audiometa.utils` (and related usage) to **`StrEnum`**, `Self` return on `_AudioFile.__enter__`, and **ruff format** on files touched by the new formatter.
+
+### CI
+
+- **Cursor Cloud Ubuntu 24.04 bootstrap**: Added `.cursor/environment.json` and `scripts/install-cursor-cloud-dependencies.sh` so cloud agents preinstall `shellcheck` and `pwsh` via the existing lint dependency installer, allowing `pre-commit run --all-files` to run without manual system-tool setup.
+
+- **python-project-standards**: Pin [`reusable-pre-commit.yml`](https://github.com/BehindTheMusicTree/python-project-standards/blob/v3.0.0/.github/workflows/reusable-pre-commit.yml) to **`@v3.0.0`**; [`STANDARDS_VERSION`](STANDARDS_VERSION) **`3.0.0`**. **Test** job is **in-repo** (OS × Python matrix, unit/integration/e2e with **`pytest-cov`**, **`coverage report --fail-under=80`** on Linux/macOS only—same shape as former org **`reusable-test-matrix`**). Pre-commit **`verify-python-project-standards`** unchanged. **`cache-pytest: true`** unchanged.
+
+- **exiftool pin**: Bumped pinned exiftool version from `13.50` → `13.55` for macOS and Windows in `system-dependencies-test-only.toml` to match the currently installed version.
+
+### Documentation
+
+- **python-project-standards adoption**: [DEVELOPMENT.md](DEVELOPMENT.md), [CONTRIBUTING.md](CONTRIBUTING.md), [docs/TESTING.md](docs/TESTING.md), [docs/COMMITTING.md](docs/COMMITTING.md), and [AGENTS.md](AGENTS.md) describe **`reusable-pre-commit`** (**`@v3.0.0`**), local test workflow, [`STANDARDS_VERSION`](STANDARDS_VERSION), and **`verify-python-project-standards`** / [`scripts/verify-standards.sh`](scripts/verify-standards.sh).
+
+## [1.4.2] - 2026-04-06
+
+### Improved
+
+- **Changelog layout**: `CHANGELOG.md` keeps `## [Unreleased]` before released versions in descending semver order. `scripts/verify_changelog.py` checks structure and `prepare_release.py` compatibility; `prepare_release.py` runs it before updating the changelog. CONTRIBUTING, DEVELOPMENT, AGENTS, and `.cursor/rules/changelog.mdc` document the workflow.
+
+### CI
+
+- **Publish docs bundle**: When rulesets block `GITHUB_TOKEN` from pushing to `main`, the workflow either uses optional repository secret `DOCS_BUNDLE_PUSH_PAT` (fine-grained PAT with **Contents** read/write for this repo) to `git push origin HEAD:main`, or—if unset—force-pushes to `chore/update-docs-bundle` and opens a PR to `main`. See `publish/README.md`.
+
+## [1.4.1] - 2026-04-06
+
+### CI
+
+- **Publish docs bundle**: Workflow runs on version tags with a detached `HEAD`; the bundle commit is pushed with `git push origin HEAD:main` so updates to `publish/docs-bundle.json` apply to `main` instead of failing with `git push` without a branch.
+
+## [1.4.0] - 2026-04-06
+
+### Added
+
+- **Unified metadata field schema**: `get_unified_metadata_field_schema()` returns wire-oriented descriptors for every `UnifiedMetadataKey` (stable string `id`, English `label`, `multiple`, JSON-oriented `value_type`, and `optional_value`). Implemented in `audiometa.utils.unified_metadata_field_schema` and exported from the package root.
+- **Per-file supported unified field ids**: `get_supported_unified_metadata_field_ids(file)` returns sorted `UnifiedMetadataKey.value` strings for fields that have a non-`None` write mapping in the file’s primary (native) metadata format.
+- **`get_full_metadata` payload**: Responses now include `unified_metadata_field_schema` and `supported_unified_metadata_field_ids` alongside existing top-level keys. Integration tests assert structure, sorted supported ids, and consistency with `get_unified_metadata_field_schema()`; unit tests cover every `UnifiedMetadataKey` descriptor shape, `get_supported_unified_metadata_field_ids` (MP3/FLAC/WAV, sort order, parity with `get_full_metadata`, str path, unsupported extension error).
+
+### Performance
+
+- **`get_full_metadata`**: Builds `supported_unified_metadata_field_ids` from the already-constructed primary-format metadata manager instead of opening and parsing the file again via `get_supported_unified_metadata_field_ids`.
+
+### Documentation
+
+- **Unified field schema**: README, `get_full_metadata` docstring, `FullMetadata` / `UnifiedMetadataFieldDescriptor` in `audiometa.utils.types`, `docs/METADATA_FIELD_GUIDE.md`, and `docs/METADATA_FORMATS.md` document `get_unified_metadata_field_schema`, `get_supported_unified_metadata_field_ids`, CLI JSON/YAML behavior, and the new `get_full_metadata` keys.
+
+## [1.3.3] - 2026-04-02
+
+### Fixed
+
+- **Vorbis / ID3v2 disc read alignment**: Vorbis `DISCNUMBER` is read with the same `n` / `n/m` / `n-m` rules as ID3v2 `TPOS`. Explicit `DISCTOTAL` overrides the total embedded in `DISCNUMBER=n/m` when it is a valid non-negative integer; invalid or negative `DISCTOTAL` falls back to the combined string. Shared parsing lives in `audiometa.utils.disc_number_read`; integration and unit tests cover the documented cases.
+
+### Documentation
+
+- **Track and disc numbers**: Consolidated track and disc documentation into `docs/TRACK_AND_DISC_NUMBERS.md` (removed `docs/TRACK_NUMBER.md`; updated links throughout; `docs/DISC_NUMBER.md` was consolidated and removed).
 - **PR descriptions (Cursor)**: `.cursor/rules/pr-descriptions.mdc` requires writing PR bodies to `.github/pr_descriptions/PR_DESCRIPTION_<TOPIC>.md` when asked; `pr-naming.mdc`, `AGENTS.md`, and `CONTRIBUTING.md` point to that workflow and to `.github/pr_descriptions/pull_request_template.md`.
 - **Demo outputs**: `.gitignore` excludes article `output/` and loose/generated files under `content/articles/<article>/`, while allowing tapes, scripts, markdown, and **whitelisted demo audio** under `content/articles/<article>/samples/` (`sample.mp3`, `sample.flac`, `sample.wav` per article as needed). Library demos use `content/demo/demos/tapes/` and `content/demo/demos/output/`. `content/demo/docs/DEMO_INSTALLATION.md` and `.cursor/rules/demo-videos.mdc` document the layout.
 
 ### CI
 
 - **Checkout and setup-python**: Updated to Node.js 24 compatible versions.
+
+## [1.3.2] - 2026-03-18
+
+### Added
+
+- **Release script**: `scripts/prepare_release.py` supports `--push` to push `main` and the release tag after prepare; documented in `CONTRIBUTING.md`.
+
+### Documentation
+
+- **Bump2version**: `.bumpversion.cfg` comment clarifies how bump2version relates to the release script.
+- **Docs site publish**: GitHub Actions workflow publishes the documentation bundle for the frontend; publishing documentation describes the canonical bundle URL and `publish/` vs `dist/`.
+
+### Improved
+
+- **Pre-commit verify hook**: Local `verify` hook uses the project venv Python when available (consistent with other hooks).
+
+### Changed
+
+- **PyPI metadata**: `Development Status` Trove classifier updated from Alpha to Beta to better reflect current release maturity (no API or runtime change).
 
 ## [1.3.1] - 2025-03-17
 
@@ -165,7 +265,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - **System dependency pins**: mediainfo 25.10 → 26.01; bwfmetaedit macOS 26.01; exiftool 13.50 (macOS/Windows). macOS exiftool installed via Homebrew (13.50)
 
-## [0.11.1] - 2025-12-11
+## [0.11.1] - 2025-02-13
 
 ### Improved
 
@@ -183,7 +283,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Updated version verification to include shellcheck (PowerShell remains "latest" due to complex version management)
   - Ensures shellcheck version consistency across environments and aligns with dependency pinning best practices
 
-## [0.11.0] - 2025-12-11
+## [0.11.0] - 2025-02-12
 
 ### Added
 
@@ -218,7 +318,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Improved error messages with tool location diagnostics when tools are not found
   - Prevents false negatives where tools are installed but not found in PATH during verification
 
-## [0.10.0] - 2025-12-09
+## [0.10.0] - 2025-02-11
 
 ### Added
 
@@ -230,7 +330,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - **Documentation**: Updated metadata field guide to reflect Originator support matrix
   - **Error Handling**: Proper error handling for unsupported formats (Vorbis/FLAC, ID3v1/ID3v2) with appropriate exceptions
 
-## [0.9.0] - 2025-12-08
+## [0.9.0] - 2025-02-10
 
 ### Added
 
@@ -260,7 +360,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Updated macOS and Windows pinned versions to 13.43 (latest available from https://exiftool.org/ver.txt)
   - Fixes download failures when installing exiftool from exiftool.org in macOS CI
 
-## [0.8.1] - 2025-12-04
+## [0.8.1] - 2025-02-09
 
 ### Fixed
 
@@ -281,7 +381,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Updated remote URL to point to new organization location
   - Maintains all existing functionality and contribution workflows
 
-## [0.8.0] - 2025-12-03
+## [0.8.0] - 2025-02-08
 
 ### Added
 
@@ -305,7 +405,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 - **Genre and Rating Handling Guides**: Added Table of Contents to improve navigation and added cross-references between metadata field guides
 
-## [0.7.1] - 2025-12-02
+## [0.7.1] - 2025-02-07
 
 ### Fixed
 
@@ -314,7 +414,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Fixes issue where `get_full_metadata()` would return enum values instead of boolean in technical_info dictionary
   - Ensures consistent boolean return type for `is_flac_md5_valid` field in technical_info
 
-## [0.7.0] - 2025-12-02
+## [0.7.0] - 2025-02-06
 
 ### Changed
 
@@ -355,7 +455,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Cross-referenced from README.md for better documentation organization
 - **README Updates**: Updated README.md to reflect per-field warning behavior in SYNC strategy and reference new writing metadata guide
 
-## [0.6.0] - 2025-12-01
+## [0.6.0] - 2025-02-05
 
 ### Changed
 
@@ -392,7 +492,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Adds missing disc_number, disc_total, and rating validation to `update_metadata()`
   - Reduces code duplication between `validate_metadata_for_update()` and `update_metadata()`
 
-## [0.5.0] - 2025-12-01
+## [0.5.0] - 2025-02-04
 
 ### Added
 
@@ -409,7 +509,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 - **Metadata Formats Guide**: Added `METADATA_FORMATS.md` guide documenting all supported metadata formats with BWF versions and structure details
 - **Metadata Field Guide**: Enhanced `METADATA_FIELD_GUIDE.md` with BWF field support and improved table presentation
 
-## [0.4.1] - 2025-11-29
+## [0.4.1] - 2025-02-03
 
 ### Fixed
 
@@ -419,7 +519,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Version verification still ensures pinned versions are available, maintaining CI reliability
   - Prevents CI failures from transient Homebrew API network issues
 
-## [0.4.0] - 2025-11-29
+## [0.4.0] - 2025-02-02
 
 ### Added
 
@@ -431,7 +531,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Includes integration tests verifying compatibility with other library functions
   - Documentation added to README.md and Audio Technical Info Guide
 
-## [0.3.1] - 2025-11-28
+## [0.3.1] - 2025-02-01
 
 ### Added
 
@@ -459,7 +559,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Shows which metadata fields can be written via CLI command-line arguments
   - Indicates CLI argument names (e.g., `--title`, `--artist`, `--album`) for supported fields
 
-## [0.3.0] - 2025-11-27
+## [0.3.0] - 2025-01-31
 
 ### Added
 
@@ -469,13 +569,13 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Vorbis support: Reads/writes separate `DISCNUMBER` and `DISCTOTAL` fields with unlimited range
   - ID3v1 and RIFF formats properly raise exceptions when attempting to read/write disc numbers (not supported)
   - Includes comprehensive unit tests (23 test cases) and integration tests (27 test cases) covering validation, reading, writing, and deletion across all supported formats
-  - See `docs/DISC_NUMBER.md` for detailed documentation on format support, limitations, and usage examples
+  - See `docs/TRACK_AND_DISC_NUMBERS.md` (Disc number section) for detailed documentation on format support, limitations, and usage examples
 
 ### Changed
 
 - **Git Worktree Scripts**: Migrated from local scripts to npm package `git-worktree-scripts`. System dependency installation scripts now automatically install Node.js/npm. Added repository-specific `scripts/setup-worktree.sh` for Python virtual environment setup.
 
-## [0.2.9] - 2025-11-25
+## [0.2.9] - 2025-01-30
 
 ### Added
 
@@ -499,7 +599,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Added `--linewrap-full-docstring` to wrap long docstring lines to max-line-length without breaking sentences
 - **Pytest Warning Filtering**: Replaced `--disable-warnings` with `filterwarnings` configuration in `pyproject.toml` to selectively suppress only expected UserWarnings about unsupported metadata fields. This provides more precise control and ensures unexpected warnings are still visible, improving test output quality while maintaining clean CI logs
 
-## [0.2.8] - 2025-11-24
+## [0.2.8] - 2025-01-29
 
 ### Added
 
@@ -527,7 +627,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 - **GitHub Issue and PR Templates**: Added Cursor rules for generating GitHub issues and PR descriptions
 - **README**: Removed broken download badges and updated remaining badges to use PePy for more accurate statistics
 
-## [0.2.7] - 2025-11-20
+## [0.2.7] - 2025-01-28
 
 ### Added
 
@@ -572,7 +672,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Updated README with concise exception summary and link to detailed guide
   - Improves readability and maintains consistency with other detailed guides (Metadata Field Guide, Audio Technical Info Guide)
 
-## [0.2.5] - 2025-11-18
+## [0.2.5] - 2025-01-26
 
 ### Fixed
 
@@ -598,7 +698,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Added cacheSeconds parameter to shields.io badges to reduce API calls and rate limiting
   - Maintains download statistics visibility with improved reliability
 
-## [0.2.4] - 2025-11-17
+## [0.2.4] - 2025-01-25
 
 ### Fixed
 
@@ -608,7 +708,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Automatically proceeds with publishing once CI passes
   - Improves release process reliability and eliminates need for manual re-runs
 
-## [0.2.3] - 2025-11-17
+## [0.2.3] - 2025-01-24
 
 ### Improved
 
@@ -666,7 +766,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Checks if PowerShell is already installed before attempting installation
   - Provides helpful warnings if PowerShell is installed but not in PATH
 
-## [0.2.2] - 2025-11-17
+## [0.2.2] - 2025-01-23
 
 ### CI
 
@@ -708,7 +808,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
   - Added PyPI downloads badges (monthly and weekly) showing download statistics
   - Updated version badge to reflect current release version
 
-## [0.2.1] - 2025-11-16
+## [0.2.1] - 2025-01-22
 
 ### Fixed
 
@@ -754,7 +854,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 - **Technical Information Guide**: Created separate AUDIO_TECHNICAL_INFO_GUIDE.md to document technical information functions (duration, bitrate, MD5 validation) separately from metadata field handling
 - **FLAC MD5 Validation**: Updated AUDIO_TECHNICAL_INFO_GUIDE.md to reflect consistent behavior for unset MD5 checksums
 
-## [0.2.0] - 2025-11-15
+## [0.2.0] - 2025-01-21
 
 ### Added
 

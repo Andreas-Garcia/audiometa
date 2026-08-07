@@ -1,19 +1,27 @@
 #!/usr/bin/env python3
-"""Update CHANGELOG and run bump2version for a release. Run from repo root with venv active."""
+"""Update CHANGELOG and run bump-my-version for a release. Run from repo root with venv active."""
 
 import argparse
 import re
 import subprocess
+import sys
+import tomllib
 from datetime import date
 from pathlib import Path
 
 
-def get_current_version(repo_root: Path) -> str:
-    cfg = (repo_root / ".bumpversion.cfg").read_text()
-    match = re.search(r"current_version\s*=\s*(\d+\.\d+\.\d+)", cfg)
-    if not match:
-        raise SystemExit("Could not find current_version in .bumpversion.cfg")
-    return match.group(1)
+def get_release_versions(pyproject: Path) -> tuple[str, str]:
+    data = tomllib.loads(pyproject.read_text(encoding="utf-8"))
+    project_version = data.get("project", {}).get("version")
+    if not isinstance(project_version, str):
+        raise SystemExit("Could not find project.version string in pyproject.toml")
+    tool_bump = data.get("tool", {}).get("bumpversion")
+    if not isinstance(tool_bump, dict):
+        raise SystemExit("Missing [tool.bumpversion] in pyproject.toml (bump-my-version config).")
+    bump_current_version = tool_bump.get("current_version")
+    if not isinstance(bump_current_version, str):
+        raise SystemExit("Could not find tool.bumpversion.current_version string in pyproject.toml")
+    return project_version, bump_current_version
 
 
 def parse_version(v: str) -> tuple[int, int, int]:
@@ -42,15 +50,14 @@ def update_changelog(repo_root: Path, new_version: str, release_date: str) -> No
     new_content, n = re.subn(pattern, replacement, content, count=1, flags=re.DOTALL)
     if n != 1:
         raise SystemExit(
-            "CHANGELOG.md: expected exactly one '## [Unreleased]' block followed by a version header. "
-            "Check the format."
+            "CHANGELOG.md: expected exactly one '## [Unreleased]' block followed by a version header. Check the format."
         )
     path.write_text(new_content)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Update CHANGELOG with release version and date, then run bump2version."
+        description="Update CHANGELOG with release version and date, then run bump-my-version."
     )
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
@@ -68,29 +75,49 @@ def main() -> None:
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parent.parent
-    if not (repo_root / ".bumpversion.cfg").exists():
-        raise SystemExit("Run from repository root (where .bumpversion.cfg lives).")
+    pyproject_path = repo_root / "pyproject.toml"
+    if not pyproject_path.is_file():
+        raise SystemExit("Run from repository root (missing pyproject.toml).")
 
-    current = get_current_version(repo_root)
+    verify_script = repo_root / "scripts" / "verify_changelog.py"
+    subprocess.run([sys.executable, str(verify_script)], cwd=repo_root, check=True)
+
+    project_version, bump_current_version = get_release_versions(pyproject_path)
+    if project_version != bump_current_version:
+        raise SystemExit(
+            "Version mismatch in pyproject.toml: project.version "
+            f"({project_version}) != tool.bumpversion.current_version ({bump_current_version})"
+        )
+    current = project_version
     if args.new_version:
         new_version = args.new_version
-        bump_arg = ["--new-version", new_version]
     elif args.part:
         new_version = next_version(current, args.part)
-        bump_arg = [args.part]
     else:
         raise SystemExit("Provide part (patch|minor|major) or --new-version X.Y.Z")
 
     release_date = date.today().isoformat()
     update_changelog(repo_root, new_version, release_date)
 
+    cmd = [
+        "bump-my-version",
+        "bump",
+        "--no-commit",
+        "--no-tag",
+        "--allow-dirty",
+    ]
+    if args.new_version:
+        cmd += ["--new-version", new_version]
+    else:
+        cmd.append(args.part)
+
     subprocess.run(
-        ["bump2version", "--no-commit", "--no-tag", "--allow-dirty"] + bump_arg,
+        cmd,
         cwd=repo_root,
         check=True,
     )
 
-    release_files = ["CHANGELOG.md", "pyproject.toml", ".bumpversion.cfg"]
+    release_files = ["CHANGELOG.md", "pyproject.toml"]
     subprocess.run(
         ["pre-commit", "run", "--files"] + release_files,
         cwd=repo_root,

@@ -30,6 +30,7 @@ from mutagen.id3._frames import (
 )
 from mutagen.id3._util import ID3NoHeaderError
 
+from audiometa.utils.disc_number_read import parse_disc_number_from_combined_str, parse_disc_total_from_combined_str
 from audiometa.utils.raw_metadata_sanitizer import sanitize_id3v2_raw_info
 from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
@@ -415,12 +416,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             if tpos_value is None or len(tpos_value) == 0:
                 return None
             tpos_str = str(tpos_value[0])
-            import re
-
-            match = re.match(r"^(\d+)(?:[-/](\d+))?$", tpos_str)
-            if match:
-                return int(match.group(1))
-            return None
+            return parse_disc_number_from_combined_str(tpos_str)
         if unified_metadata_key == UnifiedMetadataKey.DISC_TOTAL:
             tpos_key = self.Id3TextFrame.DISC_NUMBER
             if tpos_key not in raw_clean_metadata:
@@ -429,13 +425,8 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             if tpos_value is None or len(tpos_value) == 0:
                 return None
             tpos_str = str(tpos_value[0])
-            import re
-
-            match = re.match(r"^(\d+)[-/](\d+)$", tpos_str)
-            if match:
-                return int(match.group(2))
-            return None
-        msg = f"Metadata key not handled: {unified_metadata_key}"
+            return parse_disc_total_from_combined_str(tpos_str)
+        msg = f"Metadata key not handled: {unified_metadata_key.qualified_name()}"
         raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
     def _update_formatted_value_in_raw_mutagen_metadata(
@@ -519,7 +510,7 @@ class _Id3v2Manager(_RatingSupportingMetadataManager):
             app_metadata_value = unified_metadata[unified_metadata_key]
             if unified_metadata_key not in self.metadata_keys_direct_map_write:
                 metadata_format_name = self._get_formatted_metadata_format_name()
-                msg = f"{unified_metadata_key} metadata not supported by {metadata_format_name} format"
+                msg = f"{unified_metadata_key.qualified_name()} metadata not supported by {metadata_format_name} format"
                 raise MetadataFieldNotSupportedByMetadataFormatError(msg)
             raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
             if raw_metadata_key:

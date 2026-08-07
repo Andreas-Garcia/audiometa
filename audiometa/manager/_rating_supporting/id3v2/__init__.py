@@ -13,7 +13,6 @@ from ._id3v2_constants import (
 from ._Id3v2Manager import _Id3v2Manager
 
 __all__ = [
-    "_Id3v2Manager",
     "ID3V2_DATE_FORMAT_LENGTH",
     "ID3V2_HEADER_SIZE",
     "ID3V2_SIZE_BYTE_1_POSITION",
@@ -22,4 +21,5 @@ __all__ = [
     "ID3V2_SIZE_BYTE_4_POSITION",
     "ID3V2_VERSION_3",
     "ID3V2_VERSION_4",
+    "_Id3v2Manager",
 ]

@@ -22,9 +22,9 @@ class TestMd5ValidationWithId3v2Only:
             ensure_flac_has_md5(test_file)
             ID3v2MetadataSetter.set_metadata(test_file, {"title": "ID3v2 Title"})
             state = is_flac_md5_valid(test_file)
-            assert (
-                state == FlacMd5State.VALID
-            ), "ID3v2 tags alone with valid MD5 should return VALID, not UNCHECKABLE_DUE_TO_ID3"
+            assert state == FlacMd5State.VALID, (
+                "ID3v2 tags alone with valid MD5 should return VALID, not UNCHECKABLE_DUE_TO_ID3"
+            )
 
     def test_id3v2_alone_with_invalid_md5_returns_invalid(self):
         """Test that ID3v2 tags alone with invalid MD5 return INVALID (not UNCHECKABLE).
@@ -37,6 +37,6 @@ class TestMd5ValidationWithId3v2Only:
             ID3v2MetadataSetter.set_metadata(test_file, {"title": "ID3v2 Title"})
             corrupt_md5(test_file, "random")
             state = is_flac_md5_valid(test_file)
-            assert (
-                state == FlacMd5State.INVALID
-            ), "ID3v2 alone with invalid MD5 returns INVALID, not UNCHECKABLE. Proves ID3v2 doesn't cause failures."
+            assert state == FlacMd5State.INVALID, (
+                "ID3v2 alone with invalid MD5 returns INVALID, not UNCHECKABLE. Proves ID3v2 doesn't cause failures."
+            )

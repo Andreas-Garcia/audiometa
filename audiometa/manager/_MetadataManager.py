@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, TypeVar, Union, cast
 from mutagen._file import FileType as MutagenMetadata
 
 from audiometa.exceptions import InvalidMetadataFieldFormatError, InvalidMetadataFieldTypeError
+from audiometa.utils.disc_number_read import parse_disc_number_from_combined_str
 from audiometa.utils.unified_metadata_key import UnifiedMetadataKey
 
 if TYPE_CHECKING:
@@ -250,8 +251,7 @@ class _MetadataManager:
 
         raise InvalidMetadataFieldFormatError(
             UnifiedMetadataKey.ISRC.value,
-            "12 alphanumeric characters (e.g., 'USRC17607839') or 15 characters with hyphens "
-            "(e.g., 'US-RC1-76-07839')",
+            "12 alphanumeric characters (e.g., 'USRC17607839') or 15 characters with hyphens (e.g., 'US-RC1-76-07839')",
             isrc,
         )
 
@@ -659,7 +659,7 @@ class _MetadataManager:
     def get_unified_metadata_field(self, unified_metadata_key: UnifiedMetadataKey) -> UnifiedMetadataValue:
         if unified_metadata_key not in self.metadata_keys_direct_map_read:
             metadata_format_name = self._get_formatted_metadata_format_name()
-            msg = f"{unified_metadata_key} metadata not supported by {metadata_format_name} format"
+            msg = f"{unified_metadata_key.qualified_name()} metadata not supported by {metadata_format_name} format"
             raise MetadataFieldNotSupportedByMetadataFormatError(msg)
 
         if self.raw_clean_metadata_uppercase_keys is None:
@@ -697,6 +697,10 @@ class _MetadataManager:
             if re.match(r"^\d+([-/]\d*)?$", track_str):
                 return track_str
             return None
+
+        # DISCNUMBER / TPOS-style "n", "n/m", "n-m" (formats using the base read path)
+        if unified_metadata_key == UnifiedMetadataKey.DISC_NUMBER:
+            return parse_disc_number_from_combined_str(str(value[0]))
 
         from typing import get_args, get_origin
 
@@ -847,7 +851,10 @@ class _MetadataManager:
 
                 if unified_metadata_key not in self.metadata_keys_direct_map_write:
                     metadata_format_name = self._get_formatted_metadata_format_name()
-                    msg = f"{unified_metadata_key} metadata not supported by {metadata_format_name} format"
+                    msg = (
+                        f"{unified_metadata_key.qualified_name()} metadata not supported by "
+                        f"{metadata_format_name} format"
+                    )
                     raise MetadataFieldNotSupportedByMetadataFormatError(msg)
                 raw_metadata_key = self.metadata_keys_direct_map_write[unified_metadata_key]
                 if raw_metadata_key:
