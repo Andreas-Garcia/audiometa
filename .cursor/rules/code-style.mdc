@@ -29,7 +29,7 @@ alwaysApply: true
 ## No Print Statements in Production Code
 
 - **Never use `print` statements in production code** (test code is allowed to use print)
-- **Demo scripts** (`scripts/run_demo_tape.py`, `scripts/demo_repl.py`) are excluded from this rule—they are CLI/demo tools where print is appropriate.
+- **Demo scripts** (`content/demo/scripts/run_demo_tape.py`, `content/demo/scripts/demo_repl.py`) are excluded from this rule—they are CLI/demo tools where print is appropriate.
 - Use proper output mechanisms instead:
   - For CLI output: Use `sys.stdout.write()` or `sys.stderr.write()` for error messages
   - For logging: Use the `logging` module with appropriate log levels

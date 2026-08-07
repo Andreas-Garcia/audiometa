@@ -4,7 +4,7 @@
 # Required for: Creating terminal demo videos with VHS
 #
 # Usage:
-#   bash scripts/install-demo-dependencies-macos.sh
+#   bash content/demo/scripts/install-demo-dependencies-macos.sh
 
 set -e
 
@@ -107,7 +107,8 @@ echo ""
 echo "✓ Demo dependencies installed successfully!"
 echo ""
 echo "You can now create demo videos using:"
-echo "  vhs docs/demos/tapes/get_full_metadata.tape"
+echo "  (cd content/articles/one_to_rule && vhs tapes/get_full_metadata.tape)"
+echo "  (cd content/demo/demos && vhs tapes/audiometa_demo.tape)"
 echo ""
-echo "Or run any .tape file:"
-echo "  vhs your-demo.tape"
+echo "Or run any .tape file (set cwd so Output paths in the tape resolve):"
+echo "  (cd content/demo/demos && vhs tapes/your-demo.tape)"
