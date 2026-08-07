@@ -52,6 +52,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 ### Fixed
 
 - **Metadata schema**: `DISC_NUMBER`'s optional type now allows `None` (was `int`), matching `DISC_TOTAL` and files without a disc number.
+- **Field schema regression**: [**`unified_metadata_field_schema.py`**](audiometa/utils/unified_metadata_field_schema.py) special-cased `DISC_TOTAL` to report `value_type: "integer"` / `optional_value: True`, but relied on `get_optional_type() is int` for `DISC_NUMBER`; since `DISC_NUMBER`'s optional type is now `int | None`, that check silently fell through to `"string"` / `optional_value: False`. `DISC_NUMBER` now shares `DISC_TOTAL`'s explicit branch.
+- **Demo tooling**: [**`content/demo/scripts/run_demo_tape.py`**](content/demo/scripts/run_demo_tape.py) resolved `repo_root` one directory level too shallow, so `content/articles/` was never found; fixed the `.parent` chain and removed an unused `rel` variable. Both library demo tapes ([**`audiometa_demo.tape`**](content/demo/demos/tapes/audiometa_demo.tape), [**`audiometa_demo_script.tape`**](content/demo/demos/tapes/audiometa_demo_script.tape)) and their [**README**](content/demo/demos/README.md) `cd`'d only two levels up (`../..`) from `content/demo/demos` instead of three (`../../..`), breaking repo-root-relative paths used later in each tape.
 
 ### Changed
 

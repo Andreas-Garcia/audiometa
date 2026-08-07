@@ -7,7 +7,7 @@ REPL- and script-style terminal demos for the project (not tied to a single arti
 - **`tapes/`** — `audiometa_demo.tape`, `audiometa_demo_script.tape` (tracked).
 - **`output/`** — Generated GIF/MP4 (gitignored via `content/**/output/`).
 
-Tapes assume the shell starts in **`content/demo/demos`** and run a hidden `cd ../..` so commands in the recording use short repo-root paths (`audiometa/test/assets/...`, `content/demo/scripts/demo_repl.py`).
+Tapes assume the shell starts in **`content/demo/demos`** and run a hidden `cd ../../..` so commands in the recording use short repo-root paths (`audiometa/test/assets/...`, `content/demo/scripts/demo_repl.py`).
 
 ## Run
 

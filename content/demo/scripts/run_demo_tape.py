@@ -32,7 +32,6 @@ def _choose_tape(
         return None
     print("Recent tapes (select by number or article/name):")
     for i, (tape_path, article, name) in enumerate(recent, 1):
-        rel = tape_path.relative_to(articles_dir.parent)
         print(f"  {i}. {article}/{name}")
     while True:
         try:
@@ -73,7 +72,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    repo_root = Path(__file__).resolve().parent.parent.parent
+    repo_root = Path(__file__).resolve().parent.parent.parent.parent
     articles_dir = repo_root / "content" / "articles"
     if not articles_dir.is_dir():
         print("Error: content/articles/ not found.", file=sys.stderr)

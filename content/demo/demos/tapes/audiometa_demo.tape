@@ -21,7 +21,7 @@ Set PlaybackSpeed 1.0
 Hide
 
 # Repo root so paths match contributor docs (tape cwd is content/demo/demos)
-Type "cd ../.." Enter
+Type "cd ../../.." Enter
 Sleep 300ms
 
 # Type the Python command

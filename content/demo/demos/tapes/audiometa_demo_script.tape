@@ -18,7 +18,7 @@ Set TypingSpeed 40ms
 Set PlaybackSpeed 1.0
 
 Hide
-Type "cd ../.." Enter
+Type "cd ../../.." Enter
 Sleep 300ms
 Show
 
