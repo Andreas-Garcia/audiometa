@@ -59,6 +59,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 - **Type annotation**: [**`UnifiedMetadataKey.get_optional_type()`**](audiometa/utils/unified_metadata_key.py) was annotated as returning `type[int | float | str | list[str]]`, but its map already returned non-`type` runtime objects (e.g. `int | float`, and now `int | None`). Corrected the return annotation to `object` and narrowed with `cast()` at the one call site that requires a plain `type` for `isinstance()`.
 - **Demo tooling robustness**: [**`run_demo_tape.py`**](content/demo/scripts/run_demo_tape.py) rewrote a tape's `Output ...` directive with `re.sub()` without checking a replacement occurred; a tape missing that directive would silently run unmodified. Now uses `re.subn()` and exits with an error if no replacement happened.
 - **[`print_id3v1_tags.py`](content/articles/one_to_rule/scripts/print_id3v1_tags.py)**: `Comment:` label was missing the space after the colon that the other fields have.
+- **[`ensure_demo_read_id3v1.py`](content/articles/one_to_rule/scripts/ensure_demo_read_id3v1.py)**: `_strip_id3v2()` read the synchsafe tag size without masking each byte's reserved high bit, and didn't account for the optional v2.4 footer, which could miscompute the strip offset for some tags.
 
 ### Changed
 

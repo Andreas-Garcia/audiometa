@@ -5,8 +5,9 @@ from pathlib import Path
 
 def _strip_id3v2(data: bytes) -> bytes:
     while len(data) >= 10 and data[:3] == b"ID3":
-        size = (data[6] << 21) | (data[7] << 14) | (data[8] << 7) | data[9]
-        data = data[10 + size :]
+        size = (data[6] & 0x7F) << 21 | (data[7] & 0x7F) << 14 | (data[8] & 0x7F) << 7 | (data[9] & 0x7F)
+        footer_size = 10 if data[5] & 0x10 else 0
+        data = data[10 + size + footer_size :]
     return data
 
 
