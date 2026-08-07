@@ -121,13 +121,16 @@ def main() -> None:
             str(article_dir.resolve()),
         )
     output_path_str = f"output/work/{name}.gif"
-    tape_content = re.sub(
+    tape_content, replacements = re.subn(
         r"^Output\s+.*$",
         f"Output {output_path_str}",
         tape_content,
         count=1,
         flags=re.MULTILINE,
     )
+    if replacements == 0:
+        print(f"Error: no 'Output ...' directive found in {tape_path}", file=sys.stderr)
+        sys.exit(1)
 
     with tempfile.NamedTemporaryFile(mode="w", suffix=".tape", delete=False) as f:
         f.write(tape_content)

@@ -57,6 +57,8 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 - **Hero video script**: [**`generate_one_to_rule_video.sh`**](content/articles/one_to_rule/scripts/generate_one_to_rule_video.sh) hard-required `assets/logo-round.png` even though the article README documents `assets/logo.png` as an accepted fallback; the script now falls back to `assets/logo.png` when `logo-round.png` is absent. Also corrected a stale comment claiming a "15% lower (85% scale)" cell height when the code actually scales to 70%.
 - **[`system-dependencies-demo.toml`](system-dependencies-demo.toml)**: Installation comment referenced `scripts/install-demo-dependencies-ubuntu.sh`, which does not exist; replaced with a note that Ubuntu has no install script yet and to install `vhs`/`ttyd` manually at the pinned versions.
 - **Type annotation**: [**`UnifiedMetadataKey.get_optional_type()`**](audiometa/utils/unified_metadata_key.py) was annotated as returning `type[int | float | str | list[str]]`, but its map already returned non-`type` runtime objects (e.g. `int | float`, and now `int | None`). Corrected the return annotation to `object` and narrowed with `cast()` at the one call site that requires a plain `type` for `isinstance()`.
+- **Demo tooling robustness**: [**`run_demo_tape.py`**](content/demo/scripts/run_demo_tape.py) rewrote a tape's `Output ...` directive with `re.sub()` without checking a replacement occurred; a tape missing that directive would silently run unmodified. Now uses `re.subn()` and exits with an error if no replacement happened.
+- **[`print_id3v1_tags.py`](content/articles/one_to_rule/scripts/print_id3v1_tags.py)**: `Comment:` label was missing the space after the colon that the other fields have.
 
 ### Changed
 

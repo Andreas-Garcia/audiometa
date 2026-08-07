@@ -24,7 +24,7 @@ def main() -> None:
     sys.stdout.write(f"Artist: {artist}\n")
     sys.stdout.write(f"Album:  {album}\n")
     sys.stdout.write(f"Year:   {year}\n")
-    sys.stdout.write(f"Comment:{comment}\n")
+    sys.stdout.write(f"Comment: {comment}\n")
 
 
 if __name__ == "__main__":
