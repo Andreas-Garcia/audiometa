@@ -54,6 +54,9 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 - **Demo tooling**: [**`content/demo/scripts/run_demo_tape.py`**](content/demo/scripts/run_demo_tape.py) resolved `repo_root` one directory level too shallow, so `content/articles/` was never found; fixed the `.parent` chain and removed an unused `rel` variable. Both library demo tapes ([**`audiometa_demo.tape`**](content/demo/demos/tapes/audiometa_demo.tape), [**`audiometa_demo_script.tape`**](content/demo/demos/tapes/audiometa_demo_script.tape)) and their [**README**](content/demo/demos/README.md) `cd`'d only two levels up (`../..`) from `content/demo/demos` instead of three (`../../..`), breaking repo-root-relative paths used later in each tape.
 - **Demo tooling robustness**: [**`run_demo_tape.py`**](content/demo/scripts/run_demo_tape.py) rewrote a tape's `Output ...` directive with `re.sub()` without checking a replacement occurred; a tape missing that directive would silently run unmodified. Now uses `re.subn()` and exits with an error if no replacement happened.
 - **[`system-dependencies-demo.toml`](system-dependencies-demo.toml)**: Installation comment referenced `scripts/install-demo-dependencies-ubuntu.sh`, which does not exist; replaced with a note that Ubuntu has no install script yet and to install `vhs`/`ttyd` manually at the pinned versions.
+- **Hero video script**: [**`generate_one_to_rule_video.sh`**](content/articles/one_to_rule/scripts/generate_one_to_rule_video.sh) hard-required `assets/logo-round.png` even though the article README documents `assets/logo.png` as an accepted fallback; the script now falls back to `assets/logo.png` when `logo-round.png` is absent. Also corrected a stale comment claiming a "15% lower (85% scale)" cell height when the code actually scales to 70%.
+- **[`print_id3v1_tags.py`](content/articles/one_to_rule/scripts/print_id3v1_tags.py)**: `Comment:` label was missing the space after the colon that the other fields have.
+- **[`ensure_demo_read_id3v1.py`](content/articles/one_to_rule/scripts/ensure_demo_read_id3v1.py)**: `_strip_id3v2()` read the synchsafe tag size without masking each byte's reserved high bit, and didn't account for the optional v2.4 footer, which could miscompute the strip offset for some tags.
 
 ### Changed
 
@@ -201,7 +204,7 @@ All contributors (including maintainers) should update `CHANGELOG.md` when creat
 
 ### Documentation
 
-- **Demo outputs in .gitignore**: Generated demo outputs (GIFs, MP4s, tape sources under docs/demos) excluded from version control; source tapes and final demo asset remain tracked.
+- **Demo outputs in .gitignore**: Generated demo outputs (GIFs, MP4s, tape sources under content/articles/one_to_rule) excluded from version control; source tapes and final demo asset remain tracked.
 
 ## [1.1.2] - 2025-03-04
 
