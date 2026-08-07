@@ -13,7 +13,7 @@
 #
 # Installation:
 #   macOS:  bash content/demo/scripts/install-demo-dependencies-macos.sh
-#   Ubuntu: bash scripts/install-demo-dependencies-ubuntu.sh
+#   Ubuntu: No install script yet - install vhs/ttyd manually at the pinned versions below
 
 [ubuntu]
 vhs = "0.9.0"        # VHS - Terminal recording tool

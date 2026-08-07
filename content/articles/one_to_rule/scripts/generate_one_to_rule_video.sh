@@ -53,7 +53,7 @@ fi
 VIDEO_OUT="$REPO_ROOT/$FINAL_DIR/$FINAL_NAME"
 TAPES_DIR="$ARTICLE_ABS/tapes"
 CELL_W=600
-# Baseline cell height was 420; overall video height is 15% lower (85% scale).
+# Baseline cell height was 420; overall video height is 30% lower (70% scale).
 BASE_CELL_H=420
 CELL_H=$((BASE_CELL_H * 70 / 100))
 # Terminal strips: layout cell + 15%, then +15% again (tall panels); keep within PAGE_H (~714).
@@ -96,8 +96,9 @@ FONT_OPT=""
 TEXT_COLOR="0x2b3a51"
 
 AUDIO_META_LOGO_STILL="$REPO_ROOT/assets/logo-round.png"
+[[ -f "$AUDIO_META_LOGO_STILL" ]] || AUDIO_META_LOGO_STILL="$REPO_ROOT/assets/logo.png"
 [[ -f "$AUDIO_META_LOGO_STILL" ]] || {
-  echo "Error: static logo not found: assets/logo-round.png" >&2
+  echo "Error: static logo not found: assets/logo-round.png (or assets/logo.png)" >&2
   exit 1
 }
 
